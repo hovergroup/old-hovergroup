@@ -22,6 +22,7 @@ private:
 	boost::asio::serial_port port;
 	
 	boost::thread serial_thread;
+	volatile bool stop_requested;
 	
 	// for asyncronous serial port operations
 	boost::asio::deadline_timer timeout;
