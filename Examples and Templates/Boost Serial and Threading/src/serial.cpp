@@ -110,6 +110,7 @@ void SERIAL_EXAMPLE::serialLoop() {
 			for (int i=0; i<asyncBytesRead; i++) {
 				cout << hex << (int) readBuffer[i] << " ";
 			}
+			cout << dec << endl;
 		}
 	}
 }
