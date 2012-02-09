@@ -11,6 +11,7 @@ SERIAL_EXAMPLE::SERIAL_EXAMPLE() : port(io), timeout(io) {
 	bytesToWrite = 0;
 	asyncBytesRead = 0;
 	data_available = false;
+	stop_requested = false;
 }
 
 void SERIAL_EXAMPLE::open_port( string port_name, int baudRate ) {
@@ -29,6 +30,7 @@ void SERIAL_EXAMPLE::open_port( string port_name, int baudRate ) {
 }
 
 void SERIAL_EXAMPLE::close_port() {
+	stop_requested = true;
 	serial_thread.join();
 	port.close();
 }
@@ -84,9 +86,7 @@ void SERIAL_EXAMPLE::processWriteBuffer() {
 }
 
 void SERIAL_EXAMPLE::serialLoop() {
-	while (1) {
-		// interruption point so we can stop the thread
-		boost::this_thread::interruption_point();
+	while (!stop_requested) {
 		
 		processWriteBuffer();
 		
@@ -110,7 +110,7 @@ void SERIAL_EXAMPLE::serialLoop() {
 			for (int i=0; i<asyncBytesRead; i++) {
 				cout << hex << (int) readBuffer[i] << " ";
 			}
-			cout << dec << endl;
+			cout.flush();
 		}
 	}
 }
