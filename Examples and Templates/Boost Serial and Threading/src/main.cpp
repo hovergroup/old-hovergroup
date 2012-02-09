@@ -5,7 +5,7 @@ using namespace std;
 int main()
 {
 	SERIAL_EXAMPLE serial;
-	serial.open_port("/dev/ttyUSB0", 9600);
+	serial.open_port("/dev/ttyUSB0", 230400);
 	sleep(5);
 	
 	string s = "Hello world.";
