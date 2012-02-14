@@ -79,6 +79,9 @@ bool myapp::OnConnectToServer()
 	}
 	
 	RegisterVariables();
+	
+	mythread = boost::thread(boost::bind(&myapp::thread_loop, this));
+	
 	return(true);
 }
 
@@ -113,4 +116,6 @@ bool myapp::OnStartUp()
 	return(true);
 }
 
-
+void myapp::thread_loop() {
+	// do stuff
+}
