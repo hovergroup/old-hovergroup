@@ -25,6 +25,7 @@
 
 #include <MOOSLIB/MOOSLib.h>
 #include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
 
 class myapp : public CMOOSApp
 {

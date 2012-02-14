@@ -74,7 +74,7 @@ bool myapp::OnConnectToServer()
 		// match names to what you expect, and parse the values
 		if (MOOSStrCmp(sVarName, "BAUD_RATE")) {
 			if(!strContains(sLine, " "))
-				int baudRate = atoi(stripBlankEnds(sLine).c_str());
+				int baudRate = boost::lexical_cast<int>(stripBlankEnds(sLine));
 		}
 	}
 	
