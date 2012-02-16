@@ -7,9 +7,8 @@ THREAD_CLASS::THREAD_CLASS() {
 }
 
 void THREAD_CLASS::spawnWorker( string msg ) {
-	boost::bind(&msg, this);
-	// worker_thread = boost::thread(boost::bind(&THREAD_CLASS::workerFunction, this), 
-		// boost::bind(msg, this) );
+	//boost::bind(&msg, this);
+	worker_thread = boost::thread(boost::bind(&THREAD_CLASS::workerFunction, this, msg) );
 }
 
 void THREAD_CLASS::workerFunction( string msg ) {
