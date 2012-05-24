@@ -44,3 +44,34 @@ string SIMPLIFIED_RECEIVE_INFO::serializeToString() {
 
 	return ss.str();
 }
+
+SIMPLIFIED_TRANSMIT_INFO::SIMPLIFIED_TRANSMIT_INFO( string msg ) {
+	vector<string> substrings;
+	int pos = 0;
+	while ( msg.find(":", pos) != string::npos ) {
+		int newpos = msg.find(":", pos);
+		string temp_sub = msg.substr(pos, newpos-pos);
+		int another_pos = temp_sub.find(",");
+		substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
+		pos = newpos+1;
+	}
+	string temp_sub = msg.substr(pos, msg.size()-pos);
+	int another_pos = temp_sub.find(",");
+	substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
+
+	if ( substrings.size() >=3 ) {
+		vehicle_name = substrings[0];
+		rate = atoi(substrings[1].c_str());
+		num_frames = atoi(substrings[2].c_str());
+	}
+}
+
+string SIMPLIFIED_TRANSMIT_INFO::SIMPLIFIED_TRANSMIT_INFO() {
+	stringstream ss;
+
+	ss << "vehicle_name," << vehicle_name;
+	ss << ":rate," << rate;
+	ss << ":num_frames," << num_frames;
+
+	return ss.str();
+}
