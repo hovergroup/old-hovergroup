@@ -135,6 +135,8 @@ void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTran
 	}
 
 	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
+
+	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", "stuff");
 }
 
 void acomms_driver::publishWarning( std::string message ) {

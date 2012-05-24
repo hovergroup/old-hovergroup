@@ -10,10 +10,9 @@
 
 #include <sstream>
 #include <vector>
-#include <stdio.h>
 #include <stdlib.h>
 
-namespace lib_receive_info {
+namespace lib_acomms_messages {
 
 class SIMPLIFIED_RECEIVE_INFO {
 public:
@@ -26,6 +25,11 @@ public:
 
 	std::string serializeToString();
 
+};
+
+class SIMPLIFIED_TRANSMIT_INFO {
+public:
+	SIMPLIFIED_TRANSMIT_INFO() {};
 };
 
 }

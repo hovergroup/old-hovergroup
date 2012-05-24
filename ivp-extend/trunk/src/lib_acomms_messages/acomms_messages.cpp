@@ -5,9 +5,9 @@
  *      Author: josh
  */
 
-#include "lib_receive_info.h"
+#include "acomms_messages.h"
 
-using namespace lib_receive_info;
+using namespace lib_acomms_messages;
 using namespace std;
 
 SIMPLIFIED_RECEIVE_INFO::SIMPLIFIED_RECEIVE_INFO( string msg ) {

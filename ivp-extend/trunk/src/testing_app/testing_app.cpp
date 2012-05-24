@@ -6,10 +6,10 @@
  */
 
 #include <iostream>
-#include <lib_receive_info.h>
+#include <acomms_messages.h>
 
 using namespace std;
-using namespace lib_receive_info;
+using namespace lib_acomms_messages;
 
 int main() {
 	SIMPLIFIED_RECEIVE_INFO info;

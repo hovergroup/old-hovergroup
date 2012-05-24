@@ -6,7 +6,7 @@
 #--------------------------------------------------------
 #                                      BHV_SimpleWaypoint
 #--------------------------------------------------------
-ADD_LIBRARY(receive_info SHARED
-   lib_receive_info.cpp)
-TARGET_LINK_LIBRARIES(receive_info
+ADD_LIBRARY(acomms_messages SHARED
+   acomms_messages.cpp)
+TARGET_LINK_LIBRARIES(acomms_messages
    )
