@@ -13,6 +13,9 @@
 
 lossRate::lossRate()
 {
+	timeout = 600;
+	listening = false;
+	clear_old = false;
 }
 
 //---------------------------------------------------------
@@ -35,12 +38,26 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
 
       if(key=="ACOMMS_RECEIVED_SIMPLE"){
     	  lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
+
+		  all_frames[receive_info.vehicle_name] = receive_info.num_frames;
+		  good_frames[receive_info.vehicle_name] = receive_info.num_good_frames;
+		  bad_frames[receive_info.vehicle_name] = receive_info.num_bad_frames;
       }
+
       else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
     	  lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info(msg.GetString());
     	  last_time = MOOSTime();
-      }
 
+    	  if(listening){
+    		  frames_sent = transmit_frames_current;
+    		  transmit_frames_current = transmit_info.num_frames;
+    		  clear_old = true;
+    	  }
+    	  else{
+    		  transmit_frames_current = transmit_info.num_frames;
+    		  listening = true;
+    		  clear_old = false;}
+      }
    }
 	
    return(true);
@@ -68,9 +85,10 @@ bool lossRate::OnConnectToServer()
 bool lossRate::Iterate()
 {
    // happens AppTick times per second
-	if(MOOSTime()-last_time>timeout)
+	if(MOOSTime()-last_time>timeout||clear_old)
 	{
 
+		clear_old = false;
 	}
 
    return(true);

@@ -28,9 +28,16 @@ protected:
 
 	double timeout;
 	double last_time;
-	int transmit_frames;
-	std::vector recieved;
-
+	int transmit_frames_current;
+	int frames_sent;
+	bool listening;
+	bool clear_old;
+	std::map bad_frames;
+	std::map good_frames;
+	std::map all_frames;
+	std::map sync;
+	std::map loss;
+	std::map success;
 };
 
 #endif 
