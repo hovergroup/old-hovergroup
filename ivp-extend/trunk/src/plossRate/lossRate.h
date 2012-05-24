@@ -28,8 +28,8 @@ protected:
 
 	double timeout;
 	double last_time;
-
 	int transmit_frames;
+	std::vector recieved;
 
 };
 
