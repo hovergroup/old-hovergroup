@@ -8,8 +8,12 @@ FILE(GLOB SRC *.cpp)
 ADD_EXECUTABLE(iacomms_driver ${SRC})
 
 TARGET_LINK_LIBRARIES(iacomms_driver
-   MOOS
-   MOOSGen
-   m
-   pthread)
+	goby_common
+	goby_acomms
+	boost_system
+	boost_signals
+	protobuf
+	MOOS
+	MOOSGen
+	mbutil)
 
