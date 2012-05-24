@@ -9,6 +9,7 @@
 #define acomms_driver_HEADER
 
 #include "MOOSLib.h"
+#include <sstream>
 #include "goby/acomms/modem_driver.h"
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
