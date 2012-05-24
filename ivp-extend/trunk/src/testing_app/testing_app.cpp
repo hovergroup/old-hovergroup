@@ -21,7 +21,9 @@ int main() {
 
 	cout << info.serializeToString() << endl;
 
+	SIMPLIFIED_RECEIVE_INFO info2( info.serializeToString() );
 
+	cout << info2.serializeToString() << endl;
 
 	return 0;
 }
