@@ -20,7 +20,7 @@ ADD_SUBDIRECTORY(simple_gps)
 ADD_SUBDIRECTORY(kayak_interface)
 ADD_SUBDIRECTORY(iOS5000_filtered)
 ADD_SUBDIRECTORY(iacomms_driver)
-#ADD_SUBDIRECTORY(plossRate)
+ADD_SUBDIRECTORY(plossRate)
 ADD_SUBDIRECTORY(lib_receive_info)
 
 ##############################################################################

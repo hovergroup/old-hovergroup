@@ -9,6 +9,8 @@
 #define lossRate_HEADER
 
 #include "MOOSLib.h"
+#include <lib_receive_info.h>
+#include <iostream>
 
 class lossRate : public CMOOSApp
 {
@@ -23,6 +25,8 @@ public:
 
 protected:
 	// insert local vars here
+
+	int transmit_frames;
 };
 
 #endif 
