@@ -13,7 +13,6 @@
 
 lossRate::lossRate()
 {
-	sent_something = false;
 }
 
 //---------------------------------------------------------
@@ -35,11 +34,10 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
       std::string key = msg.GetKey();
 
       if(key=="ACOMMS_RECEIVED_SIMPLE"){
-    	 receive_info(msg.GetString());
+    	  lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
       }
-      else if(key=="ACOMMS_TRANSMIT"){
-    	  transmit_info(msg.GetString());
-    	  sent_something = true;
+      else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
+    	  	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info(msg.GetString());
     	  last_time = MOOSTime();
       }
 
@@ -59,6 +57,7 @@ bool lossRate::OnConnectToServer()
    // m_Comms.Register("VARNAME", is_float(int));
 	
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
+	m_Comms.Register("ACOMMS_TRANSMIT_SIMPLE",0);
 
    return(true);
 }
@@ -69,8 +68,10 @@ bool lossRate::OnConnectToServer()
 bool lossRate::Iterate()
 {
    // happens AppTick times per second
-	
+	if(MOOSTime()-last_time>timeout)
+	{
 
+	}
 
    return(true);
 }
