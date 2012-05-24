@@ -11,6 +11,7 @@
 #include "MOOSLib.h"
 #include <acomms_messages.h>
 #include <iostream>
+#include <map>
 
 class lossRate : public CMOOSApp
 {
@@ -28,7 +29,7 @@ protected:
 
 	double timeout;
 	double last_time;
-	int transmit_frames_current;
+	int transmit_frames;
 	int frames_sent;
 	bool listening;
 	bool clear_old;
@@ -38,6 +39,10 @@ protected:
 	std::map sync;
 	std::map loss;
 	std::map success;
+	std::map expected;
+	std::map total_expected;
+	std::string transmitter;
+	std::set vehicles;
 };
 
 #endif 
