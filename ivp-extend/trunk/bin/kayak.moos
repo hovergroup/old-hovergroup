@@ -1,0 +1,44 @@
+ServerHost = localhost
+ServerPort = 9000
+Simulator = false
+Community = vehiclepA
+
+LatOrigin  = 42.3584
+LonOrigin = -71.08745
+
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB @ NewConsole = false
+  Run = kayak_interface @ NewConsole = false
+  //Run = uXMS @ NewConsole = false
+  //Run = driver_switch_moos @ NewConsole = false
+  //Run = uXMS @ NewConsole = true
+  //Run = pLogger @ NewConsole = false
+  //Run = simple_gps @ NewConsole = false
+}
+
+ProcessConfig = kayak_interface
+{
+	AppTick = 10
+	CommsTick = 10
+	
+	STARTUP_THRUST = 40
+	THRUST_CUTOFF = 0
+	MIN_UPDATE_PERIOD = .25
+	INVERT_RUDDER = 0
+	RUDDER_OFFSET = 0
+}
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	
+	VAR = NAV_X
+	VAR = NAV_Y
+	VAR = NAV_HEADING
+	VAR = NAV_SPEED
+	VAR = NAV_COURSE
+	VAR = VOLTAGE
+}

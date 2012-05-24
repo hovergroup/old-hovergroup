@@ -1,0 +1,101 @@
+ServerHost = localhost
+ServerPort = 9000
+Simulator = false
+Community = vehiclepA
+
+LatOrigin  = 42.3584
+LongOrigin = -71.08745
+
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB @ NewConsole = false
+  Run = driver_switch_moos @ NewConsole = false
+  Run = uXMS @ NewConsole = true
+  Run = pLogger @ NewConsole = false
+  Run = simple_gps @ NewConsole = false
+}
+
+ProcessConfig = driver_switch_moos
+{
+  AppTick = 10
+  CommsTick = 10
+  
+  PORT_NAME = /dev/ttyUSB0
+  ID = 2
+  
+  PONG_DELAY = 1
+  TRANSMIT_DUTY_CYCLE = 15
+  PONG_TIMEOUT = 100
+  MESSAGE_FORMAT = [count4]---[random25]
+}
+
+ProcessConfig = driver_enhanced_moos
+{
+  AppTick = 10
+  CommsTick = 10
+  
+  PORT_NAME = /dev/ttyUSB0
+  ID = 2
+  
+  PONG_DELAY = 1
+  TRANSMIT_DUTY_CYCLE = 20
+  PONG_TIMEOUT = 30
+}
+
+ProcessConfig = simple_gps
+{
+	AppTick = 2
+	CommsTick = 2
+	
+	PORT_NAME = /dev/ttyUSB1
+	BAUD_RATE = 38400
+}
+
+ProcessConfig = pLogger
+{
+  AppTick       = 10
+  CommsTick     = 10
+  
+  File          = LOG_SHORESIDE
+  PATH          = ./
+  AsyncLog      = true
+  FileTimeStamp = true
+
+  // Log it all!!!!!
+  WildCardLogging = true 
+}
+
+ProcessConfig = uTimerScript
+{
+  AppTick = 4
+  CommsTick = 4
+
+  reset_max = nolimit
+  reset_time = all-posted
+
+  event = var=TRANSMIT_MESSAGE,val="Hello world. - $[TCOUNT]",time=10
+}
+
+ProcessConfig = driver_simple_moos
+{
+  AppTick = 10
+  CommsTick = 10
+  
+  PORT_NAME = /dev/ttyUSB0
+  ID = 0
+}
+
+ProcessConfig = uXMS
+{
+//  DISPLAY_ALL    = true
+  DISPLAY_SOURCE = true
+  DISPLAY_TIME   = true
+
+  VAR = GPS_SENTENCE
+VAR = ACOMMS_RATE
+VAR = ACOMMS_MODE
+VAR = ACOMMS_PAUSED
+VAR = MESSAGE_FORMAT
+}
