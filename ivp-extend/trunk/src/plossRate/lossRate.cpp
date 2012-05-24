@@ -7,11 +7,16 @@
 
 #include <iterator>
 #include "lossRate.h"
+
 //---------------------------------------------------------
 // Constructor
 
 lossRate::lossRate()
 {
+	lib_receive_info::SIMPLIFIED_RECEIVE_INFO info;
+	info.vehicle_name = "hello";
+	info.num_frames = 1;
+    std::cout << info.serializeToString();
 }
 
 //---------------------------------------------------------
