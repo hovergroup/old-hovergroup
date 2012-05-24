@@ -116,7 +116,7 @@ void acomms_driver::transmit_data( bool isBinary ) {
 			transmit_message.add_frame( transmission_data.data(), 32 );
 			transmission_data = transmission_data.substr( 32, data_size-32 );
 		} else {
-			transmit_message.add_frame( transmission_data.date(), data_size );
+			transmit_message.add_frame( transmission_data.data(), data_size );
 			transmission_data = "";
 		}
 	}
@@ -129,7 +129,12 @@ void acomms_driver::transmit_data( bool isBinary ) {
 }
 
 void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
+	string publish_me = data_msg.DebugString();
+	while ( publish_me.find("\n") != string::npos ) {
+		publish_me.replace( publish_me.find("\n"), 1, "<|>" );
+	}
 
+	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 }
 
 void acomms_driver::publishWarning( std::string message ) {
