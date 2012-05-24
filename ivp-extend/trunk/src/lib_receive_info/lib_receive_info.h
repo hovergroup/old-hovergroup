@@ -9,11 +9,15 @@
 #define LIB_RECEIVE_INFO_H_
 
 #include <sstream>
+#include <vector>
 
 namespace lib_receive_info {
 
 class SIMPLIFIED_RECEIVE_INFO {
 public:
+	SIMPLIFIED_RECEIVE_INFO() {};
+	SIMPLIFIED_RECEIVE_INFO( std::string msg );
+
 	std::string vehicle_name;
 	int num_frames, num_good_frames, num_bad_frames;
 	int rate;
