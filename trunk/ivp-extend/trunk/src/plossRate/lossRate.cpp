@@ -37,7 +37,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
     	  lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
       }
       else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
-    	  	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info(msg.GetString());
+    	  lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info(msg.GetString());
     	  last_time = MOOSTime();
       }
 
