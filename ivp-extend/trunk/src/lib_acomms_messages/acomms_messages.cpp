@@ -66,7 +66,7 @@ SIMPLIFIED_TRANSMIT_INFO::SIMPLIFIED_TRANSMIT_INFO( string msg ) {
 	}
 }
 
-string SIMPLIFIED_TRANSMIT_INFO::SIMPLIFIED_TRANSMIT_INFO() {
+string SIMPLIFIED_TRANSMIT_INFO::serializeToString() {
 	stringstream ss;
 
 	ss << "vehicle_name," << vehicle_name;

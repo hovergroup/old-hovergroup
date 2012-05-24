@@ -6,5 +6,5 @@
 ADD_EXECUTABLE(testing_app testing_app.cpp)
    
 TARGET_LINK_LIBRARIES(testing_app
-	receive_info
+	acomms_messages
 	)
