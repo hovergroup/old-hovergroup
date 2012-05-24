@@ -5,7 +5,7 @@
  *      Author: josh
  */
 
-#include "lib_receive_info.h";
+#include "lib_receive_info.h"
 
 using namespace lib_receive_info;
 using namespace std;
@@ -14,13 +14,23 @@ SIMPLIFIED_RECEIVE_INFO::SIMPLIFIED_RECEIVE_INFO( string msg ) {
 	vector<string> substrings;
 	int pos = 0;
 	while ( msg.find(":", pos) != string::npos ) {
-		int newpos = msg.find(":");
-		substrings.push_back( msg.substr(pos, newpos-1) );
+		int newpos = msg.find(":", pos);
+		string temp_sub = msg.substr(pos, newpos-pos);
+		int another_pos = temp_sub.find(",");
+		substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
 		pos = newpos+1;
 	}
-	substrings.push_back( msg.substr(pos, msg.size()-pos) );
+	string temp_sub = msg.substr(pos, msg.size()-pos);
+	int another_pos = temp_sub.find(",");
+	substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
 
-
+	if ( substrings.size() >=5 ) {
+		vehicle_name = substrings[0];
+		rate = atoi(substrings[1].c_str());
+		num_frames = atoi(substrings[2].c_str());
+		num_good_frames = atoi(substrings[3].c_str());
+		num_bad_frames = atoi(substrings[4].c_str());
+	}
 }
 
 string SIMPLIFIED_RECEIVE_INFO::serializeToString() {

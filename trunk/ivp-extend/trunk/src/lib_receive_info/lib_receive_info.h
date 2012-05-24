@@ -10,6 +10,8 @@
 
 #include <sstream>
 #include <vector>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace lib_receive_info {
 
