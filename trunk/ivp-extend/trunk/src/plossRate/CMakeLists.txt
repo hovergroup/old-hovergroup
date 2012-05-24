@@ -12,5 +12,5 @@ TARGET_LINK_LIBRARIES(plossRate
    MOOSGen
    m
    pthread
-   receive_info)
+   acomms_messages)
 
