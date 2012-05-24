@@ -35,10 +35,29 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
    
    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
       CMOOSMsg &msg = *p;
+      string key = msg.GetKey();
 
+      if ( key == "ACOMMS_TRANSMIT_RATE" ) {
+    	  transmission_rate = (int) msg.GetDouble();
+      } else if ( key == "ACOMMS_TRANSMIT_DESTINATION" ) {
+    	  transmission_dest = (int) msg.GetDouble();
+      } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
+    	  transmission_data = msg.GetString();
+    	  transmit_data( false );
+      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
+    	  transmission_data = msg.GetString();
+    	  transmit_data( true );
+      }
    }
 	
    return(true);
+}
+
+void acomms_driver::RegisterVariables() {
+	m_Comms.Register( "ACOMMS_TRANSMIT_RATE", 0 );
+	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
+	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
+	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
 }
 
 //---------------------------------------------------------
@@ -52,8 +71,8 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetConfigurationParam("ID", my_id);
    // m_Comms.Register("VARNAME", is_float(int));
 
-   m_Comms.Notify()
-	
+   RegisterVariables();
+
    return(true);
 }
 
@@ -77,9 +96,44 @@ bool acomms_driver::OnStartUp()
    return(true);
 }
 
+void acomms_driver::transmit_data( bool isBinary ) {
+	if ( !driver_ready ) {
+		publishWarning("Driver not ready");
+		return;
+	}
+	goby::acomms::protobuf::ModemTransmission transmit_message;
+	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
+	transmit_message.set_src(goby::util::as<unsigned>(my_id));
+	if ( transmission_dest == -1 )
+		transmit_message.set_dest(goby::acomms::BROADCAST_ID);
+	else
+		transmit_message.set_dest( transmission_dest );
+	transmit_message.set_rate( transmission_rate );
+
+	if ( transmission_rate == 0 ) {
+		int data_size = transmission_data.size();
+		if ( data_size > 32 ) {
+			transmit_message.add_frame( transmission_data.data(), 32 );
+			transmission_data = transmission_data.substr( 32, data_size-32 );
+		} else {
+			transmit_message.add_frame( transmission_data.date(), data_size );
+			transmission_data = "";
+		}
+	}
+
+	transmit_message.set_ack_requested(false);
+
+	driver->handle_initiate_transmission( transmit_message );
+
+
+}
 
 void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
 
+}
+
+void acomms_driver::publishWarning( std::string message ) {
+	m_Comms.Notify("ACOMMS_WARNING", message );
 }
 
 void acomms_driver::startDriver( std::string logDirectory ) {
