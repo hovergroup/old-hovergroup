@@ -29,13 +29,21 @@ protected:
 	google::protobuf::uint32 my_id;
 	std::string port_name;
 
+	int transmission_rate, transmission_dest;
+	std::string transmission_data;
+
 	goby::acomms::ModemDriverBase* driver;
 	goby::acomms::protobuf::DriverConfig cfg;
 
+	void transmit_data( bool isBinary );
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
 
 	void startDriver( std::string logDirectory );
 	bool driver_ready;
+
+	void publishWarning( std::string message );
+
+	void RegisterVariables();
 
 	std::ofstream verbose_log;
 };
