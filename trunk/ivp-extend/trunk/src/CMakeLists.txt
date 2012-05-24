@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 ADD_SUBDIRECTORY(simple_gps)
 ADD_SUBDIRECTORY(kayak_interface)
 ADD_SUBDIRECTORY(iOS5000_filtered)
+ADD_SUBDIRECTORY(iacomms_driver)
 
 ##############################################################################
 #                           END of CMakeLists.txt
