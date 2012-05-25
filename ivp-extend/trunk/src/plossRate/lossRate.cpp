@@ -110,16 +110,16 @@ bool lossRate::Iterate()
 
 			  if(all_frames.count(*it)==0){
 				sync[my_key] += expected[my_key];
-				std::cout<< my_key << ": Sync Loss Rate: " << sync[my_key]/total_expected[my_key]<<std::endl;
 			  }
 
 			  else{
 				  	loss[my_key] += bad_frames[*it];
 				  	success[my_key] += good_frames[*it];
-					std::cout<< "Loss Rate: " << loss[my_key]/total_expected[my_key]<<std::endl;
-					std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl;
 			  }
 
+			  std::cout<< my_key << ": Sync Loss Rate: " << sync[my_key]/total_expected[my_key]<<std::endl;
+			  std::cout<< "Loss Rate: " << loss[my_key]/total_expected[my_key]<<std::endl;
+			  std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl;
 		  }
 
 		all_frames.clear();
