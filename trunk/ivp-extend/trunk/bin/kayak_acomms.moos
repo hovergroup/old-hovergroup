@@ -32,7 +32,7 @@ ProcessConfig = uXMS
 	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
 }
 
-PrcoessConfig = iacomms_driver
+ProcessConfig = iacomms_driver
 {
 	AppTick = 5
 	CommsTick = 5
@@ -209,6 +209,7 @@ ProcessConfig = pLogger
 	Log				= COMPASS_MAG_Y        @ 0
 	Log				= COMPASS_MAG_Z        @ 0
 
+	// acomms
 	Log				= ACOMMS_TRANSMIT_RATE @ 0
 	Log = ACOMMS_TRANSMIT_DEST @ 0
 	Log = ACOMMS_TRANSMIT_DATA @ 0
