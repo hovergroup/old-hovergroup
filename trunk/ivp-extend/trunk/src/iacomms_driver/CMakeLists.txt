@@ -15,5 +15,6 @@ TARGET_LINK_LIBRARIES(iacomms_driver
 	protobuf
 	MOOS
 	MOOSGen
-	mbutil)
+	mbutil
+	acomms_messages)
 
