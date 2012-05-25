@@ -126,11 +126,22 @@ void acomms_driver::transmit_data( bool isBinary ) {
 		int data_size = transmission_data.size();
 		if ( data_size > 32 ) {
 			transmit_message.add_frame( transmission_data.data(), 32 );
-			transmission_data = transmission_data.substr( 32, data_size-32 );
 		} else {
 			transmit_message.add_frame( transmission_data.data(), data_size );
-			transmission_data = "";
 		}
+		transmission_data = "";
+	} else if ( transmission_rate == 2 ) {
+		for ( int i=0; i<3; i++ ) {
+			int data_size = transmission_data.size();
+			if ( data_size > 32 ) {
+				transmit_message.add_frame( transmission_data.data(), 32 );
+				transmission_data = transmission_data.substr( 32, data_size-32 );
+			} else if ( data_size > 0 ) {
+				transmit_message.add_frame( transmission_data.data(), data_size);
+				break;
+			}
+		}
+		transmission_data = "";
 	}
 
 	transmit_message.set_ack_requested(false);
