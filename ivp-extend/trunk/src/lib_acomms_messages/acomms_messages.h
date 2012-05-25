@@ -34,6 +34,7 @@ public:
 
 	std::string vehicle_name;
 	int rate;
+	int dest;
 	int num_frames;
 
 	std::string serializeToString();

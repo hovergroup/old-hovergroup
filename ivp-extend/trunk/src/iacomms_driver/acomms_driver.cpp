@@ -18,9 +18,10 @@ using namespace std;
 acomms_driver::acomms_driver()
 {
 	driver_ready = false;
-	driver_initialized = false;
 	port_name = "/dev/ttyUSB0";
-	my_name = "default_name";
+
+	transmission_rate = 0;
+	transmission_dest = 0;
 }
 
 //---------------------------------------------------------
@@ -51,9 +52,6 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
     	  transmission_data = msg.GetString();
     	  transmit_data( true );
-      } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
-    	  my_name = msg.GetCommunity();
-    	  startDriver( msg.GetString() );
       }
    }
 	
@@ -65,7 +63,6 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
-	m_Comms.Register( "LOGGER_DIRECTORY", 0 );
 }
 
 //---------------------------------------------------------
@@ -112,7 +109,7 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 	transmit_message.set_src(goby::util::as<unsigned>(my_id));
-	if ( transmission_dest == -1 )
+	if ( transmission_dest == 0 )
 		transmit_message.set_dest(goby::acomms::BROADCAST_ID);
 	else
 		transmit_message.set_dest( transmission_dest );
@@ -133,47 +130,47 @@ void acomms_driver::transmit_data( bool isBinary ) {
 
 	driver->handle_initiate_transmission( transmit_message );
 
-	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
-	transmit_info.vehicle_name = my_name;
-	transmit_info.rate = transmit_message.rate();
-	transmit_info.num_frames = transmit_message.frame_size();
+    lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
+    transmit_info.vehicle_name = my_name;
+    transmit_info.rate = transmit_message.rate();
+    transmit_info.num_frames = transmit_message.frame_size();
 
-	m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
+    m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
 }
 
 void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
 	string publish_me = data_msg.DebugString();
-	while ( publish_me.find("\n") != string::npos ) {
-		publish_me.replace( publish_me.find("\n"), 1, "<|>" );
-	}
-	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
+    while ( publish_me.find("\n") != string::npos ) {
+            publish_me.replace( publish_me.find("\n"), 1, "<|>" );
+    }
+    m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 
-	int num_stats = data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
-	if ( num_stats == 1 ) {
-		publishReceivedInfo( data_msg, 0 );
-	} else if ( num_stats == 2 ) {
-		publishReceivedInfo( data_msg, 1 );
-	} else {
-		stringstream ss;
-		ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
-		publishWarning( ss.str() );
-	}
+    int num_stats = data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
+    if ( num_stats == 1 ) {
+            publishReceivedInfo( data_msg, 0 );
+    } else if ( num_stats == 2 ) {
+            publishReceivedInfo( data_msg, 1 );
+    } else {
+            stringstream ss;
+            ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
+            publishWarning( ss.str() );
+    }
 
-	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", "stuff");
+    m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", "stuff");
 }
 
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
-	micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
+        micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
 
-	lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-	receive_info.vehicle_name = my_name;
-	receive_info.rate = stat.rate();
-	receive_info.num_frames = stat.number_frames();
-	receive_info.num_bad_frames = stat.number_bad_frames();
-	receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
+        lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
+        receive_info.vehicle_name = my_name;
+        receive_info.rate = stat.rate();
+        receive_info.num_frames = stat.number_frames();
+        receive_info.num_bad_frames = stat.number_bad_frames();
+        receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
+        m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
-	m_Comms.Notify("ACOMMS_RECEIVED_SNR_IN", stat.snr_in());
+        m_Comms.Notify("ACOMMS_RECEIVED_SNR_IN", stat.snr_in());
 }
 
 void acomms_driver::publishWarning( std::string message ) {
@@ -187,7 +184,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.set_serial_port( port_name );
 	cfg.set_modem_id( my_id );
 
-	goby::glog.set_name( "driver_switch_r1" );
+	goby::glog.set_name( "iacomms_driver" );
 	goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
 	goby::glog.add_stream( goby::common::logger::DEBUG3, &verbose_log );
 
@@ -204,5 +201,4 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	driver->startup(cfg);
 	driver_ready = true;
-	driver_initialized = true;
 }

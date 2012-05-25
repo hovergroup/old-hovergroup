@@ -59,10 +59,11 @@ SIMPLIFIED_TRANSMIT_INFO::SIMPLIFIED_TRANSMIT_INFO( string msg ) {
 	int another_pos = temp_sub.find(",");
 	substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
 
-	if ( substrings.size() >=3 ) {
+	if ( substrings.size() >=4 ) {
 		vehicle_name = substrings[0];
 		rate = atoi(substrings[1].c_str());
-		num_frames = atoi(substrings[2].c_str());
+		dest = atoi(substrings[2].c_str());
+		num_frames = atoi(substrings[3].c_str());
 	}
 }
 
@@ -71,6 +72,7 @@ string SIMPLIFIED_TRANSMIT_INFO::serializeToString() {
 
 	ss << "vehicle_name," << vehicle_name;
 	ss << ":rate," << rate;
+	ss << ":dest," << dest;
 	ss << ":num_frames," << num_frames;
 
 	return ss.str();
