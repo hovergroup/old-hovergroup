@@ -6,7 +6,9 @@
 /************************************************************/
 
 #include <iterator>
+#include <sstream>
 #include "acomms_driver.h"
+#include <acomms_messages.h>
 
 using namespace std;
 
@@ -16,7 +18,9 @@ using namespace std;
 acomms_driver::acomms_driver()
 {
 	driver_ready = false;
+	driver_initialized = false;
 	port_name = "/dev/ttyUSB0";
+	my_name = "default_name";
 }
 
 //---------------------------------------------------------
@@ -47,6 +51,9 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
     	  transmission_data = msg.GetString();
     	  transmit_data( true );
+      } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
+    	  my_name = msg.GetCommunity();
+    	  startDriver( msg.GetString() );
       }
    }
 	
@@ -58,6 +65,7 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
+	m_Comms.Register( "LOGGER_DIRECTORY", 0 );
 }
 
 //---------------------------------------------------------
@@ -125,7 +133,12 @@ void acomms_driver::transmit_data( bool isBinary ) {
 
 	driver->handle_initiate_transmission( transmit_message );
 
+	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
+	transmit_info.vehicle_name = my_name;
+	transmit_info.rate = transmit_message.rate();
+	transmit_info.num_frames = transmit_message.frame_size();
 
+	m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
 }
 
 void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
@@ -133,10 +146,34 @@ void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTran
 	while ( publish_me.find("\n") != string::npos ) {
 		publish_me.replace( publish_me.find("\n"), 1, "<|>" );
 	}
-
 	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 
+	int num_stats = data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
+	if ( num_stats == 1 ) {
+		publishReceivedInfo( data_msg, 0 );
+	} else if ( num_stats == 2 ) {
+		publishReceivedInfo( data_msg, 1 );
+	} else {
+		stringstream ss;
+		ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
+		publishWarning( ss.str() );
+	}
+
 	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", "stuff");
+}
+
+void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
+	micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
+
+	lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
+	receive_info.vehicle_name = my_name;
+	receive_info.rate = stat.rate();
+	receive_info.num_frames = stat.number_frames();
+	receive_info.num_bad_frames = stat.number_bad_frames();
+	receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
+	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
+
+	m_Comms.Notify("ACOMMS_RECEIVED_SNR_IN", stat.snr_in());
 }
 
 void acomms_driver::publishWarning( std::string message ) {
@@ -167,4 +204,5 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	driver->startup(cfg);
 	driver_ready = true;
+	driver_initialized = true;
 }

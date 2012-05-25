@@ -5,7 +5,6 @@
 	<projects>
 		<project>goby</project>
 		<project>MOOS</project>
-		<project>moos-ivp</project>
 		<project>moos-ivp-anrp</project>
 	</projects>
 	<buildSpec>

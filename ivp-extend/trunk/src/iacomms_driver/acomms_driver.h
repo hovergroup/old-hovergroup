@@ -9,7 +9,6 @@
 #define acomms_driver_HEADER
 
 #include "MOOSLib.h"
-#include <sstream>
 #include "goby/acomms/modem_driver.h"
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
@@ -28,7 +27,7 @@ public:
 
 protected:
 	google::protobuf::uint32 my_id;
-	std::string port_name;
+	std::string port_name, my_name;
 
 	int transmission_rate, transmission_dest;
 	std::string transmission_data;
@@ -38,9 +37,10 @@ protected:
 
 	void transmit_data( bool isBinary );
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
+	void publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index );
 
 	void startDriver( std::string logDirectory );
-	bool driver_ready;
+	bool driver_ready, driver_initialized;
 
 	void publishWarning( std::string message );
 
