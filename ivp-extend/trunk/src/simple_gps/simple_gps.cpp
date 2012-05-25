@@ -93,7 +93,6 @@ bool SIMPLE_GPS::OnConnectToServer()
 
 void SIMPLE_GPS::RegisterVariables()
 {
-	m_Comms.Register("LISTEN_VARAIBLE", 0);
 }
 
 
@@ -102,7 +101,6 @@ void SIMPLE_GPS::RegisterVariables()
 
 bool SIMPLE_GPS::Iterate()
 {
-	m_Comms.Notify("VARIABLE_NAME", "I did something.");
 	return(true);
 }
 
@@ -296,8 +294,8 @@ void SIMPLE_GPS::serialLoop() {
 			if ( string_buffer.find("\n",1)!=string::npos ) {
 				int index = string_buffer.find("\n",1);
 				parseLine( string_buffer.substr(0, index) );
-				//cout << "index: " << index << endl;
-				//cout << string_buffer.substr(0, index) << endl;
+				cout << "index: " << index << endl;
+				cout << string_buffer.substr(0, index) << endl;
 //				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
 				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
 			}
