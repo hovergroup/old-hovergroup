@@ -1,63 +1,63 @@
-ServerHost = localhost
+ServerHost = 192.168.1.102
 ServerPort = 9001
 Simulator = false
-Community = test
+
+Community = shore_node
 
 ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 200
 
   Run = MOOSDB @ NewConsole = false
-  Run = driver_switch_r1 @ NewConsole = false
-//  Run = uXMS @ NewConsole = true
+  Run = pMOOSBridge @ NewConsole = false
   Run = pLogger @ NewConsole = false
-//  Run = simple_gps @ NewConsole = false
-}
-
-
-ProcessConfig = driver_switch_r1
-{
-  AppTick = 10
-  CommsTick = 10
-  
-  PORT_NAME = /dev/ttyUSB0
-  ID = 1
-  
-  PONG_DELAY = 1
-  TRANSMIT_DUTY_CYCLE = 15
-  PONG_TIMEOUT = 100
-  MESSAGE_FORMAT = [count4]---[random25]
+  Run = iacomms_driver @ NewConsole = false
 
 }
 
-ProcessConfig = driver_enhanced_moos
+ProcessConfig = uXMS
 {
-  AppTick = 10
-  CommsTick = 10
-  
-  PORT_NAME = /dev/ttyUSB0
-  ID = 1
-  
-  PONG_DELAY = 1
-  TRANSMIT_DUTY_CYCLE = 12
-  PONG_TIMEOUT = 100
+	VAR = ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
+	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
 }
 
-ProcessConfig = simple_gps
+ProcessConfig = iacomms_driver
 {
-	AppTick = 2
-	CommsTick = 2
+	AppTick = 5
+	CommsTick = 5
+
+	PortName = /dev/ttyUSB1
+	ID = 2
+}
+
+ProcessConfig = plossRate
+{
 	
-	PORT_NAME = /dev/ttyUSB0
-	BAUD_RATE = 38400
 }
+
+rocessConfig = pMOOSBridge
+	{
+	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
+	AppTick		= 5
+	CommsTick	= 5
+	
+	UDPListen = 9100
+
+	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
+
+	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
+	// Destination is shore station	shoreside@YOURIP:9000
+	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@192.168.1.100:9200 [NODE_REPORT]
+//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@192.168.1.100:9000 [NODE_REPORT]
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVE_SIMPLE] -> shoreside@192.168.1.100:9000
+	}
 
 ProcessConfig = pLogger
 {
   AppTick       = 10
   CommsTick     = 10
   
-  File          = LOG_SHORESIDE
+  File          = LOG_SHORE_NODE
   PATH          = ./
   AsyncLog      = true
   FileTimeStamp = true
@@ -75,15 +75,6 @@ ProcessConfig = uTimerScript
   reset_time = all-posted
 
   event = var=TRANSMIT_MESSAGE,val="Hello world. - $[TCOUNT]",time=10
-}
-
-ProcessConfig = driver_simple_moos
-{
-  AppTick = 10
-  CommsTick = 10
-  
-  PORT_NAME = /dev/ttyUSB0
-  ID = 0
 }
 
 ProcessConfig = uXMS
