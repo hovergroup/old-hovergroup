@@ -36,7 +36,19 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
       CMOOSMsg &msg = *p;
       std::string key = msg.GetKey();
 
-      if(key=="NODE_REPORT"){
+      if(key=="LOSS_RATE_RESET"){
+    	  all_frames.clear();
+    	  bad_frames.clear();
+    	  good_frames.clear();
+
+    	  sync.clear();
+    	  loss.clear();
+    	  success.clear();
+    	  expected.clear();
+    	  total_expected.clear();
+      }
+
+      else if(key=="NODE_REPORT"){
     	  std::string name = msg.GetCommunity();
     	  if(vehicles.count(name)==0){
     		  vehicles.insert(name);
@@ -44,12 +56,12 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
     	  }
       }
 
-      if(key=="ACOMMS_RECEIVED_SIMPLE"){
+      else if(key=="ACOMMS_RECEIVED_SIMPLE"){
     	  lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
 
     	  std::cout<<receive_info.vehicle_name<<" got "<<receive_info.num_frames<<" frames"<<std::endl;
     	  std::cout<<receive_info.num_good_frames<<" good frames"<<std::endl;
-    	  std::cout<<receive_info.num_bad_frames<<" bad frames"<<std::endl;
+    	  std::cout<<receive_info.num_bad_frames<<" bad frames"<<std::endl<<std::endl;
 
 		  all_frames[receive_info.vehicle_name] = receive_info.num_frames;
 		  good_frames[receive_info.vehicle_name] = receive_info.num_good_frames;
@@ -68,7 +80,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
 				std::string my_key = transmitter+*it;
 				expected[my_key] = transmit_frames;
 				total_expected[my_key] += transmit_frames;
-				std::cout<<transmitter<<" to "<<*it<<" sent "<<transmit_frames<< " frames"<<std::endl;
+				std::cout<<transmitter<<" to "<<*it<<" sent "<<transmit_frames<< " frames"<<std::endl<<std::endl;
 			  }
 
     		  transmit_frames = transmit_info.num_frames;
@@ -97,6 +109,7 @@ bool lossRate::OnConnectToServer()
 	m_Comms.Register("NODE_REPORT",0);
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 	m_Comms.Register("ACOMMS_TRANSMIT_SIMPLE",0);
+	m_Comms.Register("LOSS_RATE_RESET",0);
 
    return(true);
 }
