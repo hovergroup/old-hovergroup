@@ -11,7 +11,7 @@
 #include "MOOSLib.h"
 #include <acomms_messages.h>
 #include <iostream>
-#include <map>
+#include <set>
 
 class lossRate : public CMOOSApp
 {
@@ -33,16 +33,16 @@ protected:
 	int frames_sent;
 	bool listening;
 	bool clear_old;
-	std::map bad_frames;
-	std::map good_frames;
-	std::map all_frames;
-	std::map sync;
-	std::map loss;
-	std::map success;
-	std::map expected;
-	std::map total_expected;
+	std::map<std::string,int> bad_frames;
+	std::map<std::string,int> good_frames;
+	std::map<std::string,int> all_frames;
+	std::map<std::string,int> sync;
+	std::map<std::string,int> loss;
+	std::map<std::string,int> success;
+	std::map<std::string,int> expected;
+	std::map<std::string,int> total_expected;
 	std::string transmitter;
-	std::set vehicles;
+	std::set<std::string> vehicles;
 };
 
 #endif 

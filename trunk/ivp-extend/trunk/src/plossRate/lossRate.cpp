@@ -38,7 +38,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
 
       if(key=="NODE_REPORT"){
     	  std::string name = msg.GetCommunity();
-    	  if(vehicles.find(name)==std::set::end){
+    	  if(vehicles.count(name)==0){
     		  vehicles.insert(name);
     	  }
       }
@@ -58,7 +58,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
 
     	  if(listening){
 
-    		  std::set::iterator it;
+    		  std::set<std::string>::iterator it;
 			  for( it = vehicles.begin(); it != vehicles.end(); it++ ) {
 				std::string my_key = transmitter+*it;
 				expected[my_key] = transmit_frames;
@@ -103,7 +103,7 @@ bool lossRate::Iterate()
    // happens AppTick times per second
 	if(MOOSTime()-last_time>timeout||clear_old)
 	{
-		  std::set::iterator it;
+		  std::set<std::string>::iterator it;
 		  for( it = vehicles.begin(); it != vehicles.end(); it++ ) {
 
 			  std::string my_key = transmitter+*it;
