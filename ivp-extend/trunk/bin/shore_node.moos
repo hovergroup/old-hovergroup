@@ -35,7 +35,7 @@ ProcessConfig = plossRate
 	
 }
 
-rocessConfig = pMOOSBridge
+ProcessConfig = pMOOSBridge
 	{
 	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
 	AppTick		= 5
