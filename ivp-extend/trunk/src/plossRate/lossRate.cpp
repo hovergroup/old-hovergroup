@@ -46,6 +46,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
     	  success.clear();
     	  expected.clear();
     	  total_expected.clear();
+    	  std::cout<<"Resetting: "<<sync.size()<<std::endl;
       }
 
       else if(key=="NODE_REPORT"){
