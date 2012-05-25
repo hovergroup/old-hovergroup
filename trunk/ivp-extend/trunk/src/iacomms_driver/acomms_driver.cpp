@@ -133,9 +133,9 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	} else if ( transmission_rate == 2 ) {
 		for ( int i=0; i<3; i++ ) {
 			int data_size = transmission_data.size();
-			if ( data_size > 32 ) {
-				transmit_message.add_frame( transmission_data.data(), 32 );
-				transmission_data = transmission_data.substr( 32, data_size-32 );
+			if ( data_size > 64 ) {
+				transmit_message.add_frame( transmission_data.data(), 64 );
+				transmission_data = transmission_data.substr( 64, data_size-64 );
 			} else if ( data_size > 0 ) {
 				transmit_message.add_frame( transmission_data.data(), data_size);
 				break;
