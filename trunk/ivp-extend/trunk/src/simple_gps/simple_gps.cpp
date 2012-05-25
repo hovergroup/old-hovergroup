@@ -271,7 +271,6 @@ void SIMPLE_GPS::parseLine( string msg ) {
 
 void SIMPLE_GPS::serialLoop() {
 	while (!stop_requested) {
-		cout << "iterating" << endl;
 
 		processWriteBuffer();
 
@@ -292,12 +291,12 @@ void SIMPLE_GPS::serialLoop() {
 
 		if (data_available) {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
-			cout << string_buffer << endl;
+//			cout << string_buffer << endl;
 			if ( string_buffer.find("\n",1)!=string::npos ) {
 				int index = string_buffer.find("\n",1);
 				parseLine( string_buffer.substr(0, index) );
-				cout << "index: " << index << endl;
-				cout << string_buffer.substr(0, index) << endl;
+//				cout << "index: " << index << endl;
+//				cout << string_buffer.substr(0, index) << endl;
 //				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
 				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
 			}
