@@ -4,6 +4,9 @@ Simulator = false
 
 Community = shore_node
 
+LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+
 ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 200
