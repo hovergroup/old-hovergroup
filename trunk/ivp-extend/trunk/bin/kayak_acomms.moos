@@ -166,58 +166,58 @@ ProcessConfig = pLogger
 	WildCardLogging		= false
 
 	// PID Output
-	Log				= DESIRED_THRUST       @ 0
-	Log				= DESIRED_RUDDER       @ 0
+	Log	= DESIRED_THRUST       @ 0
+	Log	= DESIRED_RUDDER       @ 0
 
 	// Helm Output
-	Log				= DEPLOY               @ 0
-	Log				= RETURN               @ 0
-	Log				= MOOS_MANUAL_OVERIDE  @ 0
-	Log				= MOOS_MANUAL_OVERRIDE @ 0
-	Log				= DESIRED_SPEED        @ 0
-	Log				= DESIRED_HEADING      @ 0
-	Log				= HELM_IPF_COUNT       @ 0 
-	log				= LOOP_CPU             @ 0
-	log				= LOOP_WALL            @ 0
-	Log				= VEHICLE_WPT_INDEX    @ 0
-	Log				= DIST_TO_STATION      @ 0
-	Log				= DIST_TO_REGION       @ 0
-	Log				= LOITER_AQUIRE        @ 0
-	Log				= LOITER_INDEX         @ 0
-	Log				= LOITER_CONTROL_TAG   @ 0
+	Log	= DEPLOY               @ 0
+	Log	= RETURN               @ 0
+	Log	= MOOS_MANUAL_OVERIDE  @ 0
+	Log	= MOOS_MANUAL_OVERRIDE @ 0
+	Log	= DESIRED_SPEED        @ 0
+	Log	= DESIRED_HEADING      @ 0
+	Log	= HELM_IPF_COUNT       @ 0 
+	log	= LOOP_CPU             @ 0
+	log	= LOOP_WALL            @ 0
+	Log	= VEHICLE_WPT_INDEX    @ 0
+	Log	= DIST_TO_STATION      @ 0
+	Log	= DIST_TO_REGION       @ 0
+	Log	= LOITER_AQUIRE        @ 0
+	Log	= LOITER_INDEX         @ 0
+	Log	= LOITER_CONTROL_TAG   @ 0
 
 	// Vehicle Position
-	Log				= NAV_X                @ 0
-	Log				= NAV_Y                @ 0
-	Log				= NAV_YAW              @ 0
-	Log				= NAV_HEADING          @ 0
-	Log				= NAV_SPEED            @ 0
+	Log	= NAV_X                @ 0
+	Log	= NAV_Y                @ 0
+	Log	= NAV_YAW              @ 0
+	Log	= NAV_HEADING          @ 0
+	Log	= NAV_SPEED            @ 0
 
 	// GPS and Compass
-	Log				= GPS_X                @ 0
-	Log				= GPS_Y                @ 0
-	Log				= GPS_SPEED            @ 0
-	Log				= GPS_HEADING          @ 0
-	Log				= GPS_TIME             @ 0
+	Log	= GPS_X                @ 0
+	Log	= GPS_Y                @ 0
+	Log	= GPS_SPEED            @ 0
+	Log	= GPS_HEADING          @ 0
+	Log	= GPS_TIME             @ 0
 
-	Log				= COMPASS_HEADING      @ 0
-	Log				= COMPASS_YAW          @ 0
-	Log				= COMPASS_PITCH        @ 0
-	Log				= COMPASS_HEADING_COMPUTED @ 0
-	Log				= COMPASS_YAW_COMPUTED @ 0
-	Log				= COMPASS_ROLL         @ 0
-	Log				= COMPASS_MAG_X        @ 0
-	Log				= COMPASS_MAG_Y        @ 0
-	Log				= COMPASS_MAG_Z        @ 0
+	Log	= COMPASS_HEADING      @ 0
+	Log	= COMPASS_YAW          @ 0
+	Log	= COMPASS_PITCH        @ 0
+	Log	= COMPASS_HEADING_COMPUTED @ 0
+	Log	= COMPASS_YAW_COMPUTED @ 0
+	Log	= COMPASS_ROLL         @ 0
+	Log	= COMPASS_MAG_X        @ 0
+	Log	= COMPASS_MAG_Y        @ 0
+	Log	= COMPASS_MAG_Z        @ 0
 
 	// acomms
-	Log				= ACOMMS_TRANSMIT_RATE @ 0
-	Log = ACOMMS_TRANSMIT_DEST @ 0
-	Log = ACOMMS_TRANSMIT_DATA @ 0
-	Log = ACOMMS_TRANSMIT_DATA_BINARY @ 0
-	Log = ACOMMS_RECEIVED_ALL @ 0
-	Log = ACOMMS_RECEIVED_SIMPLE @ 0
-	Log = ACOMMS_WARNING @ 0
+	Log	= ACOMMS_TRANSMIT_RATE @ 0
+	Log 	= ACOMMS_TRANSMIT_DEST @ 0
+	Log	= ACOMMS_TRANSMIT_DATA @ 0
+	Log	= ACOMMS_TRANSMIT_DATA_BINARY @ 0
+	Log	= ACOMMS_RECEIVED_ALL @ 0
+	Log	= ACOMMS_RECEIVED_SIMPLE @ 0
+	Log	= ACOMMS_WARNING @ 0
 }
 
 
