@@ -40,6 +40,7 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
     	  std::string name = msg.GetCommunity();
     	  if(vehicles.count(name)==0){
     		  vehicles.insert(name);
+    		  std::cout<<"New Vehicle Found: "<<name<<std::endl;
     	  }
       }
 
