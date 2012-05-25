@@ -74,7 +74,7 @@ ProcessConfig = uTimerScript
   reset_max = nolimit
   reset_time = all-posted
 
-  event = var=ACOMMS_TRANSMIT_DATA,val="Hello world. - $[TCOUNT]",time=10
+  event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]-asdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfgk",time=10
 }
 
 ProcessConfig = uXMS
