@@ -23,13 +23,19 @@ ProcessConfig = ANTLER
 	Run = pEchoVar		@ NewConsole = false
 	Run = iOS5000_filtered		@ NewConsole = false
 
-	// Run = pLogger		@ NewConsole = false	// Logs messages to disk
+	Run = pLogger		@ NewConsole = false	// Logs messages to disk
+}
+
+ProcessConfig = uXMS
+{
+	VAR = ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
+	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
 }
 
 PrcoessConfig = iacomms_driver
 {
-	AppTick = 10
-	CommsTick = 10
+	AppTick = 5
+	CommsTick = 5
 
 	PortName = /dev/ttyUSB0
 	ID = 1
@@ -37,8 +43,8 @@ PrcoessConfig = iacomms_driver
 
 ProcessConfig = kayak_interface
 {
-	AppTick = 10
-	CommsTick = 10
+	AppTick = 20
+	CommsTick = 20
 	
 	STARTUP_THRUST = 40
 	THRUST_CUTOFF = 0
@@ -63,8 +69,8 @@ ProcessConfig = iOS5000_filtered
 ProcessConfig = pNodeReporter
 	{
 	// xxxTick	= 5 when using 5hz GPS, 2 when using 1hz GPS 
-	AppTick		= 5
-	CommsTick	= 5
+	AppTick		= 2
+	CommsTick	= 2
 
 	VESSEL_TYPE	= KAYAK		// Sets the icon in pMarineViewer
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
@@ -124,8 +130,8 @@ ProcessConfig = pMarinePID
 
 ProcessConfig = pHelmIvP
 {
-	AppTick		= 5
-	CommsTick		= 5
+	AppTick		= 2
+	CommsTick		= 2
 	VERBOSE		= false
 	Behaviors	= kayak_simple.bhv
 	OK_SKEW		= ANY
@@ -202,6 +208,14 @@ ProcessConfig = pLogger
 	Log				= COMPASS_MAG_X        @ 0
 	Log				= COMPASS_MAG_Y        @ 0
 	Log				= COMPASS_MAG_Z        @ 0
+
+	Log				= ACOMMS_TRANSMIT_RATE @ 0
+	Log = ACOMMS_TRANSMIT_DEST @ 0
+	Log = ACOMMS_TRANSMIT_DATA @ 0
+	Log = ACOMMS_TRANSMIT_DATA_BINARY @ 0
+	Log = ACOMMS_RECEIVED_ALL @ 0
+	Log = ACOMMS_RECEIVED_SIMPLE @ 0
+	Log = ACOMMS_WARNING @ 0
 }
 
 
