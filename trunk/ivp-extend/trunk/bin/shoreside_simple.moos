@@ -28,6 +28,12 @@ ProcessConfig = ANTLER
  //Run = uXMS            	@ NewConsole = true
 }
 
+ProcessConfig = plossRate
+{
+	AppTick = 5
+	CommsTick = 5
+}
+
 //------------------------------------------------------------------
 // pMOOSBridge config block
 
