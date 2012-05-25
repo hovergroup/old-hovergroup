@@ -30,6 +30,8 @@ private:
 	boost::asio::io_service io;
 	boost::asio::serial_port port;
 
+	double m_lat, m_lon, m_speed, m_course, m_lat_origin, m_lon_origin;
+
 	boost::thread serial_thread;
 	bool stop_requested;
 
@@ -51,6 +53,10 @@ private:
 	std::vector<unsigned char> readBuffer, writeBuffer;
 	boost::mutex writeBufferMutex;
 	int bytesToWrite;
+
+	void parseGPRMC( std::string msg );
+	std::vector<std::string> tokenizeString( std::string message, std::string tokens );
+	void parseLine( std::string msg );
 
 	// the background loop responsible for interacting with the serial port
 	void serialLoop();
