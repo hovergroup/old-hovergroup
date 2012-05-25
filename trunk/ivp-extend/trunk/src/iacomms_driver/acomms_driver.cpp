@@ -75,7 +75,7 @@ bool acomms_driver::OnConnectToServer()
 {
    // register for variables here
    // possibly look at the mission file?
-   m_MissionReader.GetConfigurationParam("PORT_NAME", port_name);
+   m_MissionReader.GetConfigurationParam("PortName", port_name);
    m_MissionReader.GetConfigurationParam("ID", my_id);
    // m_Comms.Register("VARNAME", is_float(int));
 
