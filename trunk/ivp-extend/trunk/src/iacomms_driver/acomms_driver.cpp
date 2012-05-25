@@ -18,7 +18,9 @@ using namespace std;
 acomms_driver::acomms_driver()
 {
 	driver_ready = false;
-	port_name = "/dev/ttyUSB0";
+    driver_initialized = false;
+    port_name = "/dev/ttyUSB0";
+    my_name = "default_name";
 
 	transmission_rate = 0;
 	transmission_dest = 0;
@@ -52,6 +54,9 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
     	  transmission_data = msg.GetString();
     	  transmit_data( true );
+      } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
+          my_name = msg.GetCommunity();
+          startDriver( msg.GetString() );
       }
    }
 	
@@ -63,6 +68,7 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
+    m_Comms.Register( "LOGGER_DIRECTORY", 0 );
 }
 
 //---------------------------------------------------------
@@ -201,4 +207,5 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	driver->startup(cfg);
 	driver_ready = true;
+	driver_initialized = true;
 }
