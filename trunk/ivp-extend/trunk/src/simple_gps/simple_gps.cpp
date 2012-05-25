@@ -271,6 +271,7 @@ void SIMPLE_GPS::parseLine( string msg ) {
 
 void SIMPLE_GPS::serialLoop() {
 	while (!stop_requested) {
+		cout << "iterating" << endl;
 
 		processWriteBuffer();
 
