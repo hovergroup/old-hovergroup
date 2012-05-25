@@ -118,6 +118,7 @@ bool SIMPLE_GPS::OnStartUp()
 
 void SIMPLE_GPS::open_port( string port_name, int baudRate ) {
 	// open the serial port
+	cout << "Opening " << port_name << endl;
 	port.open(port_name);
 
 	// serial port must be configured after being opened
@@ -290,7 +291,7 @@ void SIMPLE_GPS::serialLoop() {
 
 		if (data_available) {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
-//			cout << string_buffer << endl;
+			cout << string_buffer << endl;
 			if ( string_buffer.find("\n",1)!=string::npos ) {
 				int index = string_buffer.find("\n",1);
 				parseLine( string_buffer.substr(0, index) );
