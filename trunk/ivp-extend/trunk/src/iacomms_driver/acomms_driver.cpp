@@ -163,8 +163,6 @@ void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTran
             ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
             publishWarning( ss.str() );
     }
-
-    m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", "stuff");
 }
 
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
