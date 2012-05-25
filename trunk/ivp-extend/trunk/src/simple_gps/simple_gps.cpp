@@ -50,6 +50,16 @@ bool SIMPLE_GPS::OnConnectToServer()
 	m_MissionReader.EnableVerbatimQuoting(false);
 	m_MissionReader.GetConfiguration(GetAppName(), sParams);
 
+	bool ok1, ok2;
+	double * ptr = &m_lat_origin;
+	ok1 = m_MissionReader.GetValue("LatOrigin", *ptr);
+	ptr = &m_lon_origin;
+	ok2 = m_MissionReader.GetValue("LongOrigin", *ptr);
+	if ( !ok1 || !ok2 ) {
+		cout << "Error reading Lat/Lon origin from MOOS file." << endl;
+		return false;
+	}
+
 	STRING_LIST::iterator p;
 	for (p=sParams.begin(); p!=sParams.end(); p++) {
 		string sLine = *p;
@@ -179,6 +189,87 @@ void SIMPLE_GPS::processWriteBuffer() {
 	}
 }
 
+void SIMPLE_GPS::parseGPRMC( string msg ) {
+	// for example:
+	//	$GPRMC,174929,A,4221.5066,N,07105.2446,W,000.1,000.0,050412,015.6,W*70
+	// lat and lon are in degrees and minutes
+	// 4221.5066 = 42 degrees, 21.5066 minutes
+	vector<string> subs = tokenizeString( msg, ",");
+
+	// only proceed if we have lock
+	if ( subs[2] != "A" )
+		return;
+
+	string lat_string = subs[3];
+	string lon_string = subs[5];
+	m_lat = 0;
+	m_lon = 0;
+	m_lat += atof(lat_string.substr(0,2).c_str());
+	m_lat += atof(lat_string.substr(2,lat_string.size()-2).c_str())/60;
+	m_lon += atof(lon_string.substr(0,3).c_str());
+	m_lon += atof(lon_string.substr(3,lon_string.size()-3).c_str())/60;
+	if ( subs[4] == "S" )
+		m_lat*=-1;
+	if ( subs[6] == "W" )
+		m_lon*=-1;
+
+	m_speed =  atof(subs[7].c_str());
+	m_course = atof(subs[8].c_str());
+
+	m_Comms.Notify("NAV_SPEED", m_speed);
+	m_Comms.Notify("NAV_COURSE", m_course);
+
+	double latError = m_lat - m_lat_origin;
+	double lonError = m_lon - m_lon_origin;
+	double rlat = m_lat * M_PI/180;
+	double latErrorRad = latError * M_PI/180;
+	double lonErrorRad = lonError * M_PI/180;
+
+	double a = 6378137; //equatorial radius in m
+	double b = 6356752.3; //polar radius in m
+	double localEarthRadius = sqrt( ( pow(a,4) * pow( cos( rlat ), 2 ) +
+		pow( b, 4 ) * pow( sin( rlat ), 2 ) ) / ( pow( a * cos( rlat ), 2 ) +
+		pow( b * sin( rlat ), 2 ) ) );
+
+	double latErrorMeters = latErrorRad * localEarthRadius;
+	double lonErrorMeters = lonErrorRad * localEarthRadius;
+
+	m_Comms.Notify("NAV_X", lonErrorMeters);
+	m_Comms.Notify("NAV_Y", latErrorMeters);
+
+//	cout << lonErrorMeters << " " << latErrorMeters << " " << m_speed << endl;
+}
+
+// split string into substrings using provided tokens
+vector<string> SIMPLE_GPS::tokenizeString( string message, string tokens ) {
+	char * cstr = new char [message.size() + 1];
+	strcpy(cstr, message.c_str());
+	char * ctokens = new char [tokens.size()+1];
+	strcpy(ctokens, tokens.c_str());
+
+	char * pch;
+	vector<string> subs;
+
+	pch = strtok(cstr,ctokens);
+	while (pch != NULL) {
+		subs.push_back(string(pch));
+		pch  = strtok(NULL,ctokens);
+	}
+
+	delete cstr;
+	delete ctokens;
+
+	return subs;
+}
+
+void SIMPLE_GPS::parseLine( string msg ) {
+	if ( msg.find("$GPRMC") != -1 ) {
+		int index = msg.find("$GPRMC");
+		parseGPRMC( msg.substr(index, msg.length()-index) );
+//		cout << "found gps: " << index << endl;
+	}
+}
+
 void SIMPLE_GPS::serialLoop() {
 	while (!stop_requested) {
 
@@ -202,11 +293,12 @@ void SIMPLE_GPS::serialLoop() {
 		if (data_available) {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
 //			cout << string_buffer << endl;
-			if ( string_buffer.find("$",1)!=string::npos ) {
-				int index = string_buffer.find("$",1);
+			if ( string_buffer.find("\n",1)!=string::npos ) {
+				int index = string_buffer.find("\n",1);
+				parseLine( string_buffer.substr(0, index) );
 				//cout << "index: " << index << endl;
 				//cout << string_buffer.substr(0, index) << endl;
-				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
+//				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
 				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
 			}
 			// print out read data in hexidecimal format
