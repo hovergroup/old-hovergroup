@@ -20,7 +20,7 @@ ProcessConfig = simple_gps
 	AppTick = 2
 	CommsTick = 2
 	
-	PORT_NAME = /dev/ttyUSB0	
+	PORT_NAME = /dev/ttyUSB1	
 	BAUD_RATE = 38400
 }
 
@@ -35,7 +35,7 @@ ProcessConfig = iacomms_driver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB1
+	PortName = /dev/ttyUSB0
 	ID = 2
 }
 
