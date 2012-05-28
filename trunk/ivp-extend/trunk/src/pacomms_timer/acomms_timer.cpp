@@ -99,7 +99,7 @@ bool acomms_timer::Iterate()
 			if(rate!=2){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);}
 
 			data_out = counter+"---"+getRandomString(192);
-
+			std::cout<<"Transmitting: :"<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
@@ -108,6 +108,7 @@ bool acomms_timer::Iterate()
 			if(rate!=0){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);}
 
 			data_out = counter+"---"+getRandomString(32);
+			std::cout<<"Transmitting: :"<<data_out;
 			last_time = MOOSTime();
 			counter++;
 		}
@@ -115,15 +116,21 @@ bool acomms_timer::Iterate()
 			if(rate==2){
 				m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);
 				data_out = counter+"---"+getRandomString(32);
+				std::cout<<"Transmitting: :"<<data_out;
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
 			else if(rate==0){
 				m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);
 				data_out = counter+"---"+getRandomString(192);
+				std::cout<<"Transmitting: :"<<data_out;
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
 			counter++;
 			last_time = MOOSTime();
 		}
+		else if(mode=="pong"){
 
+		}
 		else{
 			paused = true;
 		}
