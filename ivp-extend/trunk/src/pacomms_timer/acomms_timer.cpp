@@ -44,22 +44,26 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key == "ACOMMS_DRIVER_STATUS"){
     	  if(msg.GetString()=="ready"){
     		 paused = false;
+    		 m_Comms.Notify("ACOMMS_TIMER_PAUSED","false");
     	  }
     	  else{
     		  paused = true;
+     		 m_Comms.Notify("ACOMMS_TIMER_PAUSED","true");
     	  }
       }
       else if(key == "ACOMMS_TIMER_MISSION"){
     	  mode = msg.GetString();
       }
-      else if(key == "ACOMMS_TIMER_PAUSED"){
-    	  if(msg.GetString()=="true"){
-    		  paused = true;
-    	  }
-    	  else if(msg.GetString()=="false"){
-    		  paused = false;
-    	  }
-      }
+
+//      else if(key == "ACOMMS_TIMER_PAUSED"){
+//    	  if(msg.GetString()=="true"){
+//    		  paused = true;
+//    	  }
+//    	  else if(msg.GetString()=="false"){
+//    		  paused = false;
+//    	  }
+//      }
+
       else if(key=="ACOMMS_TRANSMIT_RATE"){
     	  rate = msg.GetDouble();
       }
@@ -100,7 +104,7 @@ bool acomms_timer::Iterate()
 	double time_passed = MOOSTime()-last_time;
 	std::cout << "Time since last: " << time_passed << std::endl;
 //
-	if(paused&& (time_passed>=duty_cycle)){
+	if( !paused && (time_passed>=duty_cycle)){
 		if(mode=="psktransmit"){
 
 			if(rate!=2){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);}
