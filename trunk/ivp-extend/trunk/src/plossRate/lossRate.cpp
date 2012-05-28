@@ -137,11 +137,18 @@ bool lossRate::Iterate()
 			  std::cout<<" Got: "<<all_frames[*it]<< " frames"<<std::endl;
 			  std::cout<<" Good: "<<good_frames[*it]<< " frames"<<std::endl;
 			  std::cout<<" Bad: "<<bad_frames[*it]<< " frames"<<std::endl<<std::endl;
-			  std::cout<< "Sync Loss Rate: "<<sync[my_key]/total_expected[my_key]<<std::endl;
-			  std::cout<< "Bad CRC Loss Rate: " << loss[my_key]/total_expected[my_key]<<std::endl;
-			  std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl;
+
+			  double sync_loss = sync[my_key]/total_expected[my_key];
+			  double crc_loss = loss[my_key]/total_expected[my_key];
+			  double success_rate = success[my_key]/total_expected[my_key];
+
+			  std::cout<< "Sync Loss Rate: "<<sync_loss<<std::endl;
+			  std::cout<< "Bad CRC Loss Rate: " << crc_loss <<std::endl;
+			  std::cout<< "Success Rate: " << success <<std::endl;
 			  std::cout<< "Total Sent: "<<total_expected[my_key]<<std::endl<<std::endl;
 
+			  lib_acomms_messages::LOSS_RATE_INFO all_losses(transmitter,*it,sync_loss, crc_loss, success_rate, total_expected[my_key]);
+			  m_Comms.Notify("ACOMMS_LOSS_RATE_INFO",all_losses.serializeToString());
 		  }
 
 		all_frames.clear();
