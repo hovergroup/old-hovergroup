@@ -51,7 +51,6 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
       }
       else if(key == "ACOMMS_MISSION",0){
     	  mode = msg.GetString();
-    	  std::cout << "Mission: " << mode;
       }
       else if(key=="ACOMMS_PAUSED",0){
     	  paused = true;
@@ -94,7 +93,9 @@ bool acomms_timer::Iterate()
 {
    // happens AppTick times per second
 	double time_passed = MOOSTime()-last_time;
-	std::cout << "Time since last: " << time_passed;
+	std::cout << "Time since last: " << time_passed<<std::endl;
+
+	  std::cout << "Mission: " << mode << std::endl;
 	if(!paused && (time_passed>=duty_cycle)){
 		if(mode=="psktransmit"){
 
