@@ -60,10 +60,6 @@ bool lossRate::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key=="ACOMMS_RECEIVED_SIMPLE"){
     	  lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
 
-    	  std::cout<<receive_info.vehicle_name<<" got "<<receive_info.num_frames<<" frames"<<std::endl;
-    	  std::cout<<receive_info.num_good_frames<<" good frames"<<std::endl;
-    	  std::cout<<receive_info.num_bad_frames<<" bad frames"<<std::endl<<std::endl;
-
 		  all_frames[receive_info.vehicle_name] = receive_info.num_frames;
 		  good_frames[receive_info.vehicle_name] = receive_info.num_good_frames;
 		  bad_frames[receive_info.vehicle_name] = receive_info.num_bad_frames;
@@ -138,9 +134,17 @@ bool lossRate::Iterate()
 
 			  std::cout<< my_key<<std::endl;
 			  std::cout<<" Expected: "<<expected[my_key]<< " frames"<<std::endl;
+			  std::cout<<" Got: "<<all_frames[*it]<< " frames"<<std::endl;
+			  std::cout<<" Good: "<<good_frames[*it]<< " frames"<<std::endl;
+			  std::cout<<" Bad: "<<bad_frames[*it]<< " frames"<<std::endl<<std::endl;
 			  std::cout<< "Sync Loss Rate: "<<sync[my_key]/total_expected[my_key]<<std::endl;
-			  std::cout<< "Loss Rate: " << loss[my_key]/total_expected[my_key]<<std::endl;
-			  std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl<<std::endl;
+			  std::cout<< "Bad CRC Loss Rate: " << loss[my_key]/total_expected[my_key]<<std::endl;
+			  std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl;
+			  std::cout<< "Total Sent: "<<total_expected[my_key]<<std::endl<<std::endl;
+
+			  m_Comms.Notify("SYNC_LOSS_RATE",sync[my_key]/total_expected[my_key]);
+			  m_Comms.Notify("BAD_CRC_LOSS_RATE",loss[my_key]/total_expected[my_key]);
+			  m_Comms.Notify("SUCCESS_RATE",success[my_key]/total_expected[my_key]);
 		  }
 
 		all_frames.clear();
