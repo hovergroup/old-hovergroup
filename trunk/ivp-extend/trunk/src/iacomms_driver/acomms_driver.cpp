@@ -188,10 +188,10 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 //		cout << "transmission finished" << endl;
 		driver_ready = true;
 		publishStatus("ready");
-	} else if ( descriptor == "RXP" ) {
-		driver_ready = false;
-		publishStatus("receiving");
-	} else if ( descriptor == "else {
+//	} else if ( descriptor == "RXP" ) {
+//		driver_ready = false;
+//		publishStatus("receiving");
+	} else {
 		cout << "unhandled raw msg with descriptor " << descriptor << endl;
 	}
 }
