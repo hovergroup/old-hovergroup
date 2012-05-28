@@ -99,8 +99,8 @@ bool acomms_timer::Iterate()
    // happens AppTick times per second
 	double time_passed = MOOSTime()-last_time;
 	std::cout << "Time since last: " << time_passed << std::endl;
-
-	if(!paused && (time_passed>=duty_cycle)){
+//&& (time_passed>=duty_cycle)
+	if(!paused ){
 		if(mode=="psktransmit"){
 
 			if(rate!=2){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);}
