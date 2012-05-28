@@ -84,6 +84,8 @@ bool acomms_driver::OnConnectToServer()
 
    RegisterVariables();
 
+   publishStatus("not running");
+
    return(true);
 }
 
@@ -113,6 +115,10 @@ void acomms_driver::transmit_data( bool isBinary ) {
 		publishWarning("Driver not ready");
 		return;
 	}
+
+	publishStatus("transmitting");
+	driver_ready = false;
+
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 	transmit_message.set_src(goby::util::as<unsigned>(my_id));
@@ -176,6 +182,15 @@ void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTran
     }
 }
 
+void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
+	string descriptor = msg.raw().substr(3,3);
+	if ( descriptor == "TXF") {
+		cout << "transmission finished" << endl;
+	} else {
+		cout << "unhandled raw msg with descriptor " << descriptor << endl;
+	}
+}
+
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
         micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
 
@@ -191,7 +206,11 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 }
 
 void acomms_driver::publishWarning( std::string message ) {
-	m_Comms.Notify("ACOMMS_WARNING", message );
+	m_Comms.Notify("ACOMMS_DRIVER_WARNING", message );
+}
+
+void acomms_driver::publishStatus( std::string status ) {
+	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status );
 }
 
 void acomms_driver::startDriver( std::string logDirectory ) {
@@ -215,8 +234,11 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DOP,1");
 
 	goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );
+	goby::acomms::connect( &driver->signal_raw_incoming, boost::bind(&acomms_driver::handle_raw_incoming, this, _1) );
 
 	driver->startup(cfg);
 	driver_ready = true;
 	driver_initialized = true;
+
+	publishStatus("ready");
 }
