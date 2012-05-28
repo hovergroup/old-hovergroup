@@ -39,6 +39,7 @@ protected:
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
 	void publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index );
 	void handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg );
+	bool RXD_received, CST_received;
 
 	void startDriver( std::string logDirectory );
 	bool driver_ready, driver_initialized;
