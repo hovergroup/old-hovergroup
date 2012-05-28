@@ -43,7 +43,7 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
       }
       else if(key == "ACOMMS_DRIVER_STATUS"){
     	  if(msg.GetString()=="ready"){
-    		  paused = false;
+    		 paused = false;
     	  }
     	  else{
     		  paused = true;
