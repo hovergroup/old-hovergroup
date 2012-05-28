@@ -53,7 +53,12 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
     	  mode = msg.GetString();
       }
       else if(key == "ACOMMS_TIMER_PAUSED"){
-    	  paused = true;
+    	  if(msg.GetString()=="true"){
+    		  paused = true;
+    	  }
+    	  else if(msg.GetString()=="false"){
+    		  paused = false;
+    	  }
       }
       else if(key=="ACOMMS_TRANSMIT_RATE"){
     	  rate = msg.GetDouble();
