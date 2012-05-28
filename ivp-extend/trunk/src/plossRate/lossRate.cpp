@@ -142,9 +142,6 @@ bool lossRate::Iterate()
 			  std::cout<< "Success Rate: " << success[my_key]/total_expected[my_key]<<std::endl;
 			  std::cout<< "Total Sent: "<<total_expected[my_key]<<std::endl<<std::endl;
 
-			  m_Comms.Notify("SYNC_LOSS_RATE",sync[my_key]/total_expected[my_key]);
-			  m_Comms.Notify("BAD_CRC_LOSS_RATE",loss[my_key]/total_expected[my_key]);
-			  m_Comms.Notify("SUCCESS_RATE",success[my_key]/total_expected[my_key]);
 		  }
 
 		all_frames.clear();

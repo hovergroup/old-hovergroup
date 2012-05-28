@@ -40,6 +40,22 @@ public:
 	std::string serializeToString();
 };
 
+class LOSS_RATE_INFO{
+public:
+	LOSS_RATE_INFO(){};
+	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success);
+	LOSS_RATE_INFO(std::string msg);
+
+	std::string receiver_name;
+	std::string transmitter_name;
+	double sync_loss_rate;
+	double bad_crc_loss_rate;
+	double success_rate;
+
+	std::string serializeToString();
+};
+};
+
 }
 
 #endif /* LIB_RECEIVE_INFO_H_ */
