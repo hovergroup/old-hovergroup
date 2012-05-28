@@ -77,3 +77,46 @@ string SIMPLIFIED_TRANSMIT_INFO::serializeToString() {
 
 	return ss.str();
 }
+
+LOSS_RATE_INFO::LOSS_RATE_INFO(string msg){
+	vector<string> substrings;
+		int pos = 0;
+		while ( msg.find(":", pos) != string::npos ) {
+			int newpos = msg.find(":", pos);
+			string temp_sub = msg.substr(pos, newpos-pos);
+			int another_pos = temp_sub.find(",");
+			substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
+			pos = newpos+1;
+		}
+		string temp_sub = msg.substr(pos, msg.size()-pos);
+		int another_pos = temp_sub.find(",");
+		substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
+
+		if ( substrings.size() >=5 ) {
+			transmitter_name = substrings[0];
+			receiver_name = substrings[1];
+			sync_loss_rate = atoi(substrings[2].c_str());
+			bad_crc_loss_rate = atoi(substrings[3].c_str());
+			success_rate = atoi(substrings[4].c_str());
+		}
+}
+
+LOSS_RATE_INFO::LOSS_RATE_INFO(string transmitter, string receiver, double sync, double crc, double success){
+	transmitter_name = transmitter;
+	receiver_name = receiver;
+	sync_loss_rate = sync;
+	bad_crc_loss_rate = crc;
+	success_rate = success;
+}
+
+string LOSS_RATE_INFO::serializeToString(){
+
+	stringstream ss;
+	ss << "transmitter," << transmitter_name;
+	ss << ":receiver," << receiver_name;
+	ss << ":syncloss," << sync_loss_rate;
+	ss << ":crcloss," << bad_crc_loss_rate;
+	ss << ":success," << success_rate;
+
+	return ss.str();
+}
