@@ -93,9 +93,8 @@ bool acomms_timer::Iterate()
 {
    // happens AppTick times per second
 	double time_passed = MOOSTime()-last_time;
-	std::cout << "Time since last: " << time_passed<<std::endl;
+	std::cout << "Time since last: " << time_passed;
 
-	  std::cout << "Mission: " << mode << std::endl;
 	if(!paused && (time_passed>=duty_cycle)){
 		if(mode=="psktransmit"){
 
@@ -103,7 +102,7 @@ bool acomms_timer::Iterate()
 
 			data_out = counter+"---"+getRandomString(192);
 			std::cout<<"Transmitting: :"<<data_out;
-			m_Comms.Notify("ACOMMS_TRANSMT_DATA",data_out);
+			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
 		}
@@ -112,6 +111,7 @@ bool acomms_timer::Iterate()
 
 			data_out = counter+"---"+getRandomString(32);
 			std::cout<<"Transmitting: :"<<data_out;
+			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
 		}
