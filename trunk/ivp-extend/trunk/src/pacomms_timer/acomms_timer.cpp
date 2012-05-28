@@ -94,7 +94,7 @@ bool acomms_timer::Iterate()
 {
    // happens AppTick times per second
 	double time_passed = MOOSTime()-last_time;
-
+	std::cout << "Time since last: " << time_passed;
 	if(!paused && (time_passed>=duty_cycle)){
 		if(mode=="psktransmit"){
 
