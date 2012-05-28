@@ -95,6 +95,12 @@ bool acomms_driver::OnConnectToServer()
 bool acomms_driver::Iterate()
 {
 	driver->do_work();
+	if ( status=="receiving" && MOOSTime()-status_set_time > 10 ) {
+		publishWarning("Timed out in receiving state.");
+		driver_ready = true;
+		publishStatus("ready");
+	}
+
    // happens AppTick times per second
 	
    return(true);
@@ -227,8 +233,10 @@ void acomms_driver::publishWarning( std::string message ) {
 	m_Comms.Notify("ACOMMS_DRIVER_WARNING", message );
 }
 
-void acomms_driver::publishStatus( std::string status ) {
-	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status );
+void acomms_driver::publishStatus( std::string status_update ) {
+	status = status_update;
+	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update );
+	status_set_time = MOOSTime();
 }
 
 void acomms_driver::startDriver( std::string logDirectory ) {
