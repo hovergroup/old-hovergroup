@@ -42,6 +42,14 @@ ProcessConfig = iacomms_driver
 	ID = 2
 }
 
+
+ProcessConfig = pacomms_timer
+{
+	AppTick = 5
+	CommsTick = 5
+
+}
+
 ProcessConfig = pMOOSBridge
 	{
 	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
