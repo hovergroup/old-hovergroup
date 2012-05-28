@@ -42,11 +42,6 @@ ProcessConfig = iacomms_driver
 	ID = 2
 }
 
-ProcessConfig = plossRate
-{
-	
-}
-
 ProcessConfig = pMOOSBridge
 	{
 	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
@@ -61,7 +56,7 @@ ProcessConfig = pMOOSBridge
 	// Destination is shore station	shoreside@YOURIP:9000
 	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@192.168.1.100:9200 [NODE_REPORT]
 //	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@192.168.1.100:9000 [NODE_REPORT]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVE_SIMPLE] -> shoreside@192.168.1.100:9000
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
 	}
 
 ProcessConfig = pLogger
@@ -86,7 +81,7 @@ ProcessConfig = uTimerScript
   reset_max = nolimit
   reset_time = all-posted
 
-  event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]-asdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfgk",time=10
+  event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]-asdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfgk",time=7
 }
 
 ProcessConfig = uXMS
