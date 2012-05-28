@@ -49,10 +49,10 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
     		  paused = true;
     	  }
       }
-      else if(key == "ACOMMS_MISSION"){
+      else if(key == "ACOMMS_TIMER_MISSION"){
     	  mode = msg.GetString();
       }
-      else if(key == "ACOMMS_PAUSED"){
+      else if(key == "ACOMMS_TIMER_PAUSED"){
     	  paused = true;
       }
       else if(key=="ACOMMS_TRANSMIT_RATE"){
@@ -77,8 +77,8 @@ bool acomms_timer::OnConnectToServer()
    // m_Comms.Register("VARNAME", is_float(int));
 	
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
-	m_Comms.Register("ACOMMS_PAUSED",0);
-	m_Comms.Register("ACOMMS_MISSION",0);
+	m_Comms.Register("ACOMMS_TIMER_PAUSED",0);
+	m_Comms.Register("ACOMMS_TIMER_MISSION",0);
 	m_Comms.Register("ACOMMS_DUTY_CYCLE",0);
 	m_Comms.Register("ACOMMS_TRANSMIT_RATE",0);
 	m_Comms.Register("ACOMMS_COUNTER_RESET",0);
@@ -93,14 +93,15 @@ bool acomms_timer::Iterate()
 {
    // happens AppTick times per second
 	double time_passed = MOOSTime()-last_time;
-	std::cout << "Time since last: " << time_passed;
+	std::cout << "Time since last: " << time_passed << std::endl;
 
 	if(!paused && (time_passed>=duty_cycle)){
 		if(mode=="psktransmit"){
 
 			if(rate!=2){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);}
-
-			data_out = counter+"---"+getRandomString(192);
+			std::stringstream ss;
+			ss << counter;
+			data_out = ss.str()+"---"+getRandomString(192);
 			std::cout<<"Transmitting: :"<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
@@ -109,7 +110,9 @@ bool acomms_timer::Iterate()
 		else if(mode=="fsktransmit"){
 			if(rate!=0){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);}
 
-			data_out = counter+"---"+getRandomString(32);
+			std::stringstream ss;
+						ss << counter;
+			data_out = ss.str()+"---"+getRandomString(32);
 			std::cout<<"Transmitting: :"<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
@@ -118,13 +121,17 @@ bool acomms_timer::Iterate()
 		else if(mode=="switchtransmit"){
 			if(rate==2){
 				m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);
-				data_out = counter+"---"+getRandomString(32);
+				std::stringstream ss;
+							ss << counter;
+				data_out = ss.str()+"---"+getRandomString(32);
 				std::cout<<"Transmitting: :"<<data_out;
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
 			else if(rate==0){
 				m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);
-				data_out = counter+"---"+getRandomString(192);
+				std::stringstream ss;
+							ss << counter;
+				data_out = ss.str()+"---"+getRandomString(192);
 				std::cout<<"Transmitting: :"<<data_out;
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
