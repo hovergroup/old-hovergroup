@@ -38,11 +38,13 @@ protected:
 	void transmit_data( bool isBinary );
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
 	void publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index );
+	void handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg );
 
 	void startDriver( std::string logDirectory );
 	bool driver_ready, driver_initialized;
 
 	void publishWarning( std::string message );
+	void publishStatus( std::string status );
 
 	void RegisterVariables();
 
