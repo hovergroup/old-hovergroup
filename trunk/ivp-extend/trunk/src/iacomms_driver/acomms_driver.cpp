@@ -46,7 +46,7 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 
       if ( key == "ACOMMS_TRANSMIT_RATE" ) {
     	  transmission_rate = (int) msg.GetDouble();
-      } else if ( key == "ACOMMS_TRANSMIT_DESTINATION" ) {
+      } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
     	  transmission_data = msg.GetString();
@@ -117,7 +117,7 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	}
 
 	publishStatus("transmitting");
-//	driver_ready = false;
+	driver_ready = false;
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
@@ -185,8 +185,13 @@ void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTran
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
 	string descriptor = msg.raw().substr(3,3);
 	if ( descriptor == "TXF") {
-		cout << "transmission finished" << endl;
-	} else {
+//		cout << "transmission finished" << endl;
+		driver_ready = true;
+		publishStatus("ready");
+	} else if ( descriptor == "RXP" ) {
+		driver_ready = false;
+		publishStatus("receiving");
+	} else if ( descriptor == "else {
 		cout << "unhandled raw msg with descriptor " << descriptor << endl;
 	}
 }
