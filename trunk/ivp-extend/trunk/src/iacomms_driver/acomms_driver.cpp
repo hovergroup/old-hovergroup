@@ -117,7 +117,7 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	}
 
 	publishStatus("transmitting");
-	driver_ready = false;
+//	driver_ready = false;
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
