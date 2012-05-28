@@ -100,7 +100,7 @@ bool acomms_timer::Iterate()
 	double time_passed = MOOSTime()-last_time;
 	std::cout << "Time since last: " << time_passed << std::endl;
 //&& (time_passed>=duty_cycle)
-	if(pause=="false"){
+	if(paused=="false"){
 		if(mode=="psktransmit"){
 
 			if(rate!=2){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);}
