@@ -23,6 +23,7 @@ ADD_SUBDIRECTORY(iOS5000_filtered)
 ADD_SUBDIRECTORY(iacomms_driver)
 ADD_SUBDIRECTORY(testing_app)
 ADD_SUBDIRECTORY(plossRate)
+ADD_SUBDIRECTORY(pacomms_timer)
 
 ##############################################################################
 #                           END of CMakeLists.txt
