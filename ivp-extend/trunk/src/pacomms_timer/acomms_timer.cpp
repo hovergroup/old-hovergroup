@@ -49,16 +49,16 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
     		  paused = true;
     	  }
       }
-      else if(key == "ACOMMS_MISSION",0){
+      else if(key == "ACOMMS_MISSION"){
     	  mode = msg.GetString();
       }
-      else if(key=="ACOMMS_PAUSED",0){
+      else if(key == "ACOMMS_PAUSED"){
     	  paused = true;
       }
-      else if(key=="ACOMMS_TRANSMIT_RATE",0){
+      else if(key=="ACOMMS_TRANSMIT_RATE"){
     	  rate = msg.GetDouble();
       }
-      else if(key=="ACOMMS_COUNTER_RESET",0){
+      else if(key=="ACOMMS_COUNTER_RESET"){
     	  counter = 0;
       }
    }
