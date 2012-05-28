@@ -43,7 +43,7 @@ public:
 class LOSS_RATE_INFO{
 public:
 	LOSS_RATE_INFO(){};
-	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success);
+	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success, double total_messages);
 	LOSS_RATE_INFO(std::string msg);
 
 	std::string receiver_name;
@@ -51,6 +51,7 @@ public:
 	double sync_loss_rate;
 	double bad_crc_loss_rate;
 	double success_rate;
+	double total_messages;
 
 	std::string serializeToString();
 };
