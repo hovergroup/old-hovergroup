@@ -144,7 +144,7 @@ bool lossRate::Iterate()
 
 			  std::cout<< "Sync Loss Rate: "<<sync_loss<<std::endl;
 			  std::cout<< "Bad CRC Loss Rate: " << crc_loss <<std::endl;
-			  std::cout<< "Success Rate: " << success <<std::endl;
+			  std::cout<< "Success Rate: " << success_rate <<std::endl;
 			  std::cout<< "Total Sent: "<<total_expected[my_key]<<std::endl<<std::endl;
 
 			  lib_acomms_messages::LOSS_RATE_INFO all_losses(transmitter,*it,sync_loss, crc_loss, success_rate, total_expected[my_key]);
