@@ -40,10 +40,10 @@ public:
 	std::string serializeToString();
 };
 
-class LOSS_RATE_INFO{
+class LOSS_RATE_INFO {
 public:
 	LOSS_RATE_INFO(){};
-	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success, double total_messages);
+	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success);
 	LOSS_RATE_INFO(std::string msg);
 
 	std::string receiver_name;
@@ -54,7 +54,6 @@ public:
 	double total_messages;
 
 	std::string serializeToString();
-};
 };
 
 }
