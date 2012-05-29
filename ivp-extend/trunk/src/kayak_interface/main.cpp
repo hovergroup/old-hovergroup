@@ -29,29 +29,29 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-  // Look for a request for version information
-  if(scanArgs(argc, argv, "-v", "--version", "-version")) {
-    //showReleaseInfo("pXRelay", "gpl");
-    return(0);
-  }
+	// Look for a request for version information
+	if (scanArgs(argc, argv, "-v", "--version", "-version")) {
+		//showReleaseInfo("pXRelay", "gpl");
+		return (0);
+	}
 
-  string sMissionFile = "Mission.moos";
-  string sMOOSName    = "kayak_interface";
+	string sMissionFile = "Mission.moos";
+	string sMOOSName = "kayak_interface";
 
-  switch(argc) {
-  case 3:
-    sMOOSName = argv[2];
-  case 2:
-    sMissionFile = argv[1];
-  }
+	switch (argc) {
+	case 3:
+		sMOOSName = argv[2];
+	case 2:
+		sMissionFile = argv[1];
+	}
 
-  cout << sMOOSName << "  " << sMissionFile << endl;
+	cout << sMOOSName << "  " << sMissionFile << endl;
 
-  KAYAK_INTERFACE mine;
+	KAYAK_INTERFACE mine;
 
-  mine.Run(sMOOSName.c_str(), sMissionFile.c_str());
+	mine.Run(sMOOSName.c_str(), sMissionFile.c_str());
 
-  return(0);
+	return (0);
 }
 
 

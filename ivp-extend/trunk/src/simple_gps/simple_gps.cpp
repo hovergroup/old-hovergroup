@@ -196,47 +196,71 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 	vector<string> subs = tokenizeString( msg, ",");
 
 	// only proceed if we have lock
-	if ( subs[2] != "A" )
-		return;
+	if ( subs[2] != "A" ) {
+		m_Comms.Notify("GPS_LOCK", "false");
+	} else {
+		m_Comms.Notify("GPS_LOCK", "true");
 
-	string lat_string = subs[3];
-	string lon_string = subs[5];
-	m_lat = 0;
-	m_lon = 0;
-	m_lat += atof(lat_string.substr(0,2).c_str());
-	m_lat += atof(lat_string.substr(2,lat_string.size()-2).c_str())/60;
-	m_lon += atof(lon_string.substr(0,3).c_str());
-	m_lon += atof(lon_string.substr(3,lon_string.size()-3).c_str())/60;
-	if ( subs[4] == "S" )
-		m_lat*=-1;
-	if ( subs[6] == "W" )
-		m_lon*=-1;
+		m_Comms.Notify("GPS_DATE", subs[9]);
+		m_Comms.Notify("GPS_TIME", subs[1]);
+		double msg_time = atof(subs[1].c_str());
+		double hours = floor(msg_time/10000.0);
+		double minutes = floor(msg_time/100.0) - 100.0*hours;
+		double seconds = msg_time - hours*10000.0 - minutes*100.0;
+		double seconds_time = 3600*hours + 60*minutes + seconds;
+		m_Comms.Notify("GPS_TIME_SECONDS", seconds_time);
 
-	m_speed =  atof(subs[7].c_str());
-	m_course = atof(subs[8].c_str());
+		string lat_string = subs[3];
+		string lon_string = subs[5];
+		double temp_lat = atof(subs[3].c_str());
+		double temp_lon = atof(subs[5].c_str());
+		double lat_degrees = floor(temp_lat/100.0);
+		double lon_degrees = floor(temp_lon/100.0);
+		double lat_minutes = temp_lat - lat_degrees*100.0;
+		double lon_minutes = temp_lon - lon_degrees*100.0;
+		m_lat = lat_degrees + 60*lat_minutes;
+		m_lon = lon_degrees + 60*lon_minutes;
 
-	m_Comms.Notify("NAV_SPEED", m_speed);
-	m_Comms.Notify("NAV_COURSE", m_course);
+//		m_lat = 0;
+//		m_lon = 0;
+//		m_lat += atof(lat_string.substr(0,2).c_str());
+//		m_lat += atof(lat_string.substr(2,lat_string.size()-2).c_str())/60;
+//		m_lon += atof(lon_string.substr(0,3).c_str());
+//		m_lon += atof(lon_string.substr(3,lon_string.size()-3).c_str())/60;
+		if ( subs[4] == "S" )
+			m_lat*=-1;
+		if ( subs[6] == "W" )
+			m_lon*=-1;
 
-	double latError = m_lat - m_lat_origin;
-	double lonError = m_lon - m_lon_origin;
-	double rlat = m_lat * M_PI/180;
-	double latErrorRad = latError * M_PI/180;
-	double lonErrorRad = lonError * M_PI/180;
+		m_Comms.Notify("GPS_LATITUDE", m_lat);
+		m_Comms.Notify("GPS_LONGITUDE", m_lon);
 
-	double a = 6378137; //equatorial radius in m
-	double b = 6356752.3; //polar radius in m
-	double localEarthRadius = sqrt( ( pow(a,4) * pow( cos( rlat ), 2 ) +
-		pow( b, 4 ) * pow( sin( rlat ), 2 ) ) / ( pow( a * cos( rlat ), 2 ) +
-		pow( b * sin( rlat ), 2 ) ) );
+		m_speed =  atof(subs[7].c_str());
+		m_course = atof(subs[8].c_str());
 
-	double latErrorMeters = latErrorRad * localEarthRadius;
-	double lonErrorMeters = lonErrorRad * localEarthRadius;
+		m_Comms.Notify("GPS_SPEED", m_speed);
+		m_Comms.Notify("GPS_COURSE", m_course);
 
-	m_Comms.Notify("NAV_X", lonErrorMeters);
-	m_Comms.Notify("NAV_Y", latErrorMeters);
+		double latError = m_lat - m_lat_origin;
+		double lonError = m_lon - m_lon_origin;
+		double rlat = m_lat * M_PI/180;
+		double latErrorRad = latError * M_PI/180;
+		double lonErrorRad = lonError * M_PI/180;
 
-//	cout << lonErrorMeters << " " << latErrorMeters << " " << m_speed << endl;
+		double a = 6378137; //equatorial radius in m
+		double b = 6356752.3; //polar radius in m
+		double localEarthRadius = sqrt( ( pow(a,4) * pow( cos( rlat ), 2 ) +
+			pow( b, 4 ) * pow( sin( rlat ), 2 ) ) / ( pow( a * cos( rlat ), 2 ) +
+			pow( b * sin( rlat ), 2 ) ) );
+
+		double latErrorMeters = latErrorRad * localEarthRadius;
+		double lonErrorMeters = lonErrorRad * localEarthRadius;
+
+		m_Comms.Notify("GPS_X", lonErrorMeters);
+		m_Comms.Notify("GPS_Y", latErrorMeters);
+
+		m_Comms.Notify("GPS_MAGNETIC_VARIATION", atof(subs[10].c_str()));
+	}
 }
 
 // split string into substrings using provided tokens
