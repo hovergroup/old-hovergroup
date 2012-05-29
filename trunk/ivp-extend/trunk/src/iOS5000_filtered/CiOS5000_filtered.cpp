@@ -107,6 +107,12 @@ void CiOS5000_filtered::thread(void)
 			double h = atof(++head);
 			h+=prerotation;
 
+			while(h > 360) h -= 360.0;
+			while(h < 0) h += 360.0;
+			double y = -h * M_PI/180.0;
+			m_Comms.Notify("COMPASS_HEADING_UNFILTERED", h);
+			m_Comms.Notify("COMPASS_YAW_UNFILTERED", y);
+
 			double new_x = sin( h * M_PI/180.0 );
 			double new_y = cos( h * M_PI/180.0 );
 			current_x_estimate = update_fraction*new_x + (1-update_fraction)*current_x_estimate;
@@ -115,10 +121,10 @@ void CiOS5000_filtered::thread(void)
 
 			while(h > 360) h -= 360.0;
 			while(h < 0) h += 360.0;
-			double y = -h * M_PI/180.0;
+			y = -h * M_PI/180.0;
 
-			m_Comms.Notify("COMPASS_HEADING", h);
-			m_Comms.Notify("COMPASS_YAW", y);
+			m_Comms.Notify("COMPASS_HEADING_FILTERED", h);
+			m_Comms.Notify("COMPASS_YAW_FILTERED", y);
 
 			printf("Heading: %lf\n", h);
 		}

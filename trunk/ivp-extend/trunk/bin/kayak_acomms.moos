@@ -172,6 +172,9 @@ ProcessConfig = pLogger
 	// Helm Output
 	Log	= DEPLOY               @ 0
 	Log	= RETURN               @ 0
+	Log = KEEP				   @ 0
+	Log = GOCOME			   @ 0
+	
 	Log	= MOOS_MANUAL_OVERIDE  @ 0
 	Log	= MOOS_MANUAL_OVERRIDE @ 0
 	Log	= DESIRED_SPEED        @ 0
@@ -182,42 +185,39 @@ ProcessConfig = pLogger
 	Log	= VEHICLE_WPT_INDEX    @ 0
 	Log	= DIST_TO_STATION      @ 0
 	Log	= DIST_TO_REGION       @ 0
-	Log	= LOITER_AQUIRE        @ 0
-	Log	= LOITER_INDEX         @ 0
-	Log	= LOITER_CONTROL_TAG   @ 0
 
 	// Vehicle Position
-	Log	= NAV_X                @ 0
-	Log	= NAV_Y                @ 0
-	Log	= NAV_YAW              @ 0
-	Log	= NAV_HEADING          @ 0
-	Log	= NAV_SPEED            @ 0
+	Log	= NAV_X         @ 0
+	Log	= NAV_Y         @ 0
+	Log	= NAV_HEADING   @ 0
+	Log	= NAV_SPEED		@ 0
 
-	// GPS and Compass
-	Log	= GPS_X                @ 0
-	Log	= GPS_Y                @ 0
-	Log	= GPS_SPEED            @ 0
-	Log	= GPS_HEADING          @ 0
-	Log	= GPS_TIME             @ 0
+	// GPS
+	Log = GPS_LOCK		@ 0
+	Log	= GPS_X         @ 0
+	Log	= GPS_Y         @ 0
+	Log	= GPS_SPEED     @ 0
+	Log	= GPS_COURSE	@ 0
+	Log	= GPS_TIME      @ 0
 
-	Log	= COMPASS_HEADING      @ 0
-	Log	= COMPASS_YAW          @ 0
-	Log	= COMPASS_PITCH        @ 0
-	Log	= COMPASS_HEADING_COMPUTED @ 0
-	Log	= COMPASS_YAW_COMPUTED @ 0
-	Log	= COMPASS_ROLL         @ 0
-	Log	= COMPASS_MAG_X        @ 0
-	Log	= COMPASS_MAG_Y        @ 0
-	Log	= COMPASS_MAG_Z        @ 0
+	// Compass
+	Log	= COMPASS_HEADING_FILTERED 		@ 0
+	Log = COMPASS_HEADING_UNFILTERED 	@ 0
+	Log = COMPASS_YAW_FILTERED 			@ 0
+	Log = COMPASS_YAW_UNFILTERED 		@ 0
+	Log	= COMPASS_PITCH 				@ 0
+	Log	= COMPASS_ROLL 					@ 0
+	Log = COMPASS_TEMPERATURE 			@ 0
 
 	// acomms
-	Log	= ACOMMS_TRANSMIT_RATE @ 0
-	Log 	= ACOMMS_TRANSMIT_DEST @ 0
-	Log	= ACOMMS_TRANSMIT_DATA @ 0
-	Log	= ACOMMS_TRANSMIT_DATA_BINARY @ 0
-	Log	= ACOMMS_RECEIVED_ALL @ 0
-	Log	= ACOMMS_RECEIVED_SIMPLE @ 0
-	Log	= ACOMMS_WARNING @ 0
+	Log	= ACOMMS_TRANSMIT_RATE 			@ 0
+	Log = ACOMMS_TRANSMIT_DEST 			@ 0
+	Log	= ACOMMS_TRANSMIT_DATA 			@ 0
+	Log	= ACOMMS_TRANSMIT_DATA_BINARY 	@ 0
+	Log	= ACOMMS_RECEIVED_ALL 			@ 0
+	Log	= ACOMMS_RECEIVED_SIMPLE 		@ 0
+	Log	= ACOMMS_DRIVER_WARNING			@ 0
+	Log = ACOMMS_DRIVER_STATUS			@ 0
 }
 
 
@@ -229,6 +229,10 @@ ProcessConfig = pEchoVar
   AppTick   = 20
   CommsTick = 20
 
-  Echo  = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+  Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   Echo = COMPASS_HEADING -> NAV_HEADING
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
+  Echo = GPS_SPEED -> NAV_SPEED
+  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
