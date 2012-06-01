@@ -126,13 +126,17 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	driver_ready = false;
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
-	transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
+	if ( transmission_rate == -1 ) {
+		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::MICROMODEM_MINI_DATA);
+	} else {
+		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
+		transmit_message.set_rate( transmission_rate );
+	}
 	transmit_message.set_src(goby::util::as<unsigned>(my_id));
 	if ( transmission_dest == 0 )
 		transmit_message.set_dest(goby::acomms::BROADCAST_ID);
 	else
 		transmit_message.set_dest( transmission_dest );
-	transmit_message.set_rate( transmission_rate );
 
 	if ( transmission_rate == 0 ) {
 		int data_size = transmission_data.size();
@@ -154,6 +158,12 @@ void acomms_driver::transmit_data( bool isBinary ) {
 			}
 		}
 		transmission_data = "";
+	} else if ( transmission_rate == -1 ) {
+		if ( transmission_data.size() ==1 )
+			transmit_message.add_frame( transmission_data.data(), 1 );
+		else if ( transmission_data.size() >= 2 ) {
+			transmit_message.add_frame( transmission_data.data(), 2 );
+		}
 	}
 
 	transmit_message.set_ack_requested(false);
