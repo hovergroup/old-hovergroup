@@ -126,7 +126,7 @@ void CiOS5000_filtered::thread(void)
 			m_Comms.Notify("COMPASS_HEADING_FILTERED", h);
 			m_Comms.Notify("COMPASS_YAW_FILTERED", y);
 
-			printf("Heading: %lf\n", h);
+//			printf("Heading: %lf\n", h);
 		}
 
 		if(roll) {
