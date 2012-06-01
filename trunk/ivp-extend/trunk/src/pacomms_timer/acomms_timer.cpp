@@ -59,6 +59,7 @@ bool acomms_timer::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key == "ACOMMS_TIMER_PAUSED"){
     	  if(msg.GetString()=="true"){
     		  paused = true;
+    		  std::cout<<"Mission paused."<<std::endl;
     	  }
     	  else if(msg.GetString()=="false"){
     		  paused = false;
@@ -112,7 +113,7 @@ bool acomms_timer::Iterate()
 			std::stringstream ss;
 			ss << counter;
 			data_out = ss.str()+"---"+getRandomString(192);
-			std::cout<<"Transmitting: :"<<data_out;
+			std::cout<<"Transmitting: "<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
@@ -123,7 +124,7 @@ bool acomms_timer::Iterate()
 			std::stringstream ss;
 						ss << counter;
 			data_out = ss.str()+"---"+getRandomString(32);
-			std::cout<<"Transmitting: :"<<data_out;
+			std::cout<<"Transmitting: "<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
@@ -134,7 +135,7 @@ bool acomms_timer::Iterate()
 				std::stringstream ss;
 							ss << counter;
 				data_out = ss.str()+"---"+getRandomString(32);
-				std::cout<<"Transmitting: :"<<data_out;
+				std::cout<<"Transmitting: "<<data_out;
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
 			else if(rate==0){
@@ -142,7 +143,7 @@ bool acomms_timer::Iterate()
 				std::stringstream ss;
 							ss << counter;
 				data_out = ss.str()+"---"+getRandomString(192);
-				std::cout<<"Transmitting: :"<<data_out;
+				std::cout<<"Transmitting: "<<data_out;
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			}
 			counter++;
@@ -150,10 +151,8 @@ bool acomms_timer::Iterate()
 		}
 		else if(mode=="minitransmit"){
 			if(rate!=-1){m_Comms.Notify("ACOMMS_TRANSMIT_RATE",-1);}
-			std::stringstream ss;
-			ss << counter;
 			data_out = getRandomString(2);
-			std::cout<<"Transmitting: :"<<data_out;
+			std::cout<<"Transmitting: "<<data_out;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",data_out);
 			last_time = MOOSTime();
 			counter++;
