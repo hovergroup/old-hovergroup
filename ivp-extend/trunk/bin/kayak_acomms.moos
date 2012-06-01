@@ -203,6 +203,7 @@ ProcessConfig = pLogger
 	Log = GPS_LATITUDE  @ 0
 	Log = GPS_LONGITUDE	@ 0
 	Log = GPS_MAGNETIC_VARIATION @ 0
+	Log = GPS_TIME_SECONDS @ 0
 
 	// Compass
 	Log	= COMPASS_HEADING_FILTERED 		@ 0
