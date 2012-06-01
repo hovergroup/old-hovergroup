@@ -24,6 +24,7 @@ ADD_SUBDIRECTORY(iacomms_driver)
 ADD_SUBDIRECTORY(testing_app)
 ADD_SUBDIRECTORY(plossRate)
 ADD_SUBDIRECTORY(pacomms_timer)
+ADD_SUBDIRECTORY(acomms_alog_parser)
 
 ##############################################################################
 #                           END of CMakeLists.txt

@@ -4,7 +4,8 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
-		<project>MOOS</project>
+		<project>moos</project>
+		<project>moos-ivp</project>
 		<project>moos-ivp-anrp</project>
 	</projects>
 	<buildSpec>
@@ -26,7 +27,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildArguments</key>
-					<value></value>
+					<value>-j8</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
@@ -62,7 +63,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.useDefaultBuildCmd</key>
-					<value>true</value>
+					<value>false</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

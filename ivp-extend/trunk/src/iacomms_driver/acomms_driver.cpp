@@ -172,7 +172,8 @@ void acomms_driver::transmit_data( bool isBinary ) {
 
     lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
     transmit_info.vehicle_name = my_name;
-    transmit_info.rate = transmit_message.rate();
+//    transmit_info.rate = transmit_message.rate();
+    transmit_info.rate = transmission_rate;
     transmit_info.dest = transmit_message.dest();
     transmit_info.num_frames = transmit_message.frame_size();
 
