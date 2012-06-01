@@ -28,6 +28,7 @@ protected:
 	double duty_cycle;
 	double last_time;
 	bool paused;
+	bool driver_ready;
 	std::string mode;
 	std::string data_out;
 	int rate;

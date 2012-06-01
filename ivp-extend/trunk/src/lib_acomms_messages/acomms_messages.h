@@ -43,8 +43,8 @@ public:
 class LOSS_RATE_INFO {
 public:
 	LOSS_RATE_INFO(){};
-	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success);
 	LOSS_RATE_INFO(std::string msg);
+	LOSS_RATE_INFO(std::string transmitter, std::string receiver, double sync, double crc, double success);
 
 	std::string receiver_name;
 	std::string transmitter_name;
