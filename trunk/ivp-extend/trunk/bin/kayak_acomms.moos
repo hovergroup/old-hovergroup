@@ -199,6 +199,10 @@ ProcessConfig = pLogger
 	Log	= GPS_SPEED     @ 0
 	Log	= GPS_COURSE	@ 0
 	Log	= GPS_TIME      @ 0
+	Log = GPS_DATE		@ 0
+	Log = GPS_LATITUDE  @ 0
+	Log = GPS_LONGITUDE	@ 0
+	Log = GPS_MAGNETIC_VARIATION @ 0
 
 	// Compass
 	Log	= COMPASS_HEADING_FILTERED 		@ 0
