@@ -329,8 +329,8 @@ void KAYAK_INTERFACE::parseGPRMC( string msg ) {
 		double lon_degrees = floor(temp_lon/100.0);
 		double lat_minutes = temp_lat - lat_degrees*100.0;
 		double lon_minutes = temp_lon - lon_degrees*100.0;
-		m_lat = lat_degrees + 60*lat_minutes;
-		m_lon = lon_degrees + 60*lon_minutes;
+		m_lat = lat_degrees + lat_minutes/60.0;
+		m_lon = lon_degrees + lon_minutes/60.0;
 
 //		m_lat = 0;
 //		m_lon = 0;
