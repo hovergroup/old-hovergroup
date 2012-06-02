@@ -19,4 +19,6 @@ ADD_EXECUTABLE(acomms_alog_parser ${SRC})
 TARGET_LINK_LIBRARIES(acomms_alog_parser
   mbutil
   logutils
+  boost_system
+  boost_filesystem
   ${SYSTEM_LIBS})
