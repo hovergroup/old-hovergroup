@@ -13,6 +13,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT( IVP_EXTEND )
 
+#=============================================================================
+# Find the "moos-ivp-anrp" base directory
+#=============================================================================
+
 find_path( IVP_ANRP_BASE
 			NAMES src/lib_anrp_util
 			PATHS "~/moos-ivp-anrp/trunk"
@@ -25,9 +29,11 @@ set ( IVP_ANRP_INCLUDE_DIRS
 set ( IVP_ANRP_LIBRARY_PATH
 		${IVP_ANRP_BASE}/lib )
 
-# set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
-# set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../..;${CMAKE_PREFIX_PATH}")
-# find_package(Goby REQUIRED)
+
+#=============================================================================
+# Find the "goby" base directory
+#=============================================================================
+
 find_path( 	GOBY_BASE
 			NAMES DEPENDENCIES build.sh AUTHORS
 			PATHS "~/goby"
@@ -48,26 +54,6 @@ endif()
 
 find_package(Boost 1.36.0 COMPONENTS system date_time thread program_options filesystem signals)
 
-# link_directories(${GOBY_LIBRARY_PATH})
-# include_directories(${GOBY_INCLUDE_DIRS})
-
-# find_package(ProtobufGobyExamples REQUIRED)
-# protobuf_include_dirs(${GOBY_INCLUDE_DIRS})
-
-#=============================================================================
-# Set the output directories for the binary and library files
-#=============================================================================
-
-GET_FILENAME_COMPONENT(IVP_EXTEND_BIN_DIR "${CMAKE_SOURCE_DIR}/bin"  ABSOLUTE )
-GET_FILENAME_COMPONENT(IVP_EXTEND_LIB_DIR "${CMAKE_SOURCE_DIR}/lib"  ABSOLUTE )
-
-SET( LIBRARY_OUTPUT_PATH      "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
-SET( ARCHIVE_OUTPUT_DIRECTORY "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
-SET( LIBRARY_OUTPUT_DIRECTORY "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
-
-SET( EXECUTABLE_OUTPUT_PATH    "${IVP_EXTEND_BIN_DIR}" CACHE PATH "" )
-SET( RUNTIME_OUTPUT_DIRECTORY "${IVP_EXTEND_BIN_DIR}"  CACHE PATH "" )
-
 #=============================================================================
 # Find the "moos-ivp" base directory
 #=============================================================================
@@ -86,39 +72,28 @@ if (NOT MOOSIVP_SOURCE_TREE_BASE)
     return()
 endif()
 
+GET_FILENAME_COMPONENT(MOOS_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}/MOOS" ABSOLUTE)
+
+
 #=============================================================================
-# Find the "MOOS" base directory handling the symlink issue. The moos-ivp
-# tree includes MOOS as a subdir but typically MOOS is a sybolic link.
+# Specify where to find IvP's headers and libraries...
 #=============================================================================
 
-IF( ${WIN32} )
-  # Windows does not have symbolic links. To handle this, subversion creates 
-  # a text file that represents the symbolic link with the destination of the 
-  # link inside the file. Here we extract the destination of the MOOS directory 
-  # link and use it set a variable.
-  FIND_FILE(MOOS_LINK MOOS ${MOOSIVP_SOURCE_TREE_BASE}/trunk ${MOOSIVP_SOURCE_TREE_BASE}/)
-  FILE(READ ${MOOS_LINK} MOOS_LINK_DIR OFFSET 5)
+FILE(GLOB IVP_INCLUDE_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/ivp/src/lib_* )
 
-  # For Windows, use the following paths
-   GET_FILENAME_COMPONENT(MOOS_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}/${MOOS_LINK_DIR}" ABSOLUTE)
-
-ELSE( ${WIN32} )
-   # For Linux and Apple, use the following paths
-   GET_FILENAME_COMPONENT(MOOS_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}/MOOS" ABSOLUTE)
-
-ENDIF( ${WIN32} )
-
+FILE(GLOB IVP_LIBRARY_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/lib )
 
 #=============================================================================
 # Specify where to find MOOS's headers and libraries...
 #=============================================================================
 
 SET(MOOS_LIB_DIR
-	${MOOS_BASE_DIR}/MOOSBin
-	${GOBY_LIBRARY_PATH}
-	${IVP_ANRP_LIBRARY_PATH})
+	${MOOS_BASE_DIR}/MOOSBin)
 
-LINK_DIRECTORIES(${MOOS_LIB_DIR})
+LINK_DIRECTORIES(	${MOOS_LIB_DIR}
+					${IVP_LIBRARY_DIRS}
+					${GOBY_LIBRARY_PATH}
+					${IVP_ANRP_LIBRARY_PATH}	)
 
 # No harm in giving all IvP software access to MOOS's include libraries.
 SET(MOOS_INCLUDE_DIRS
@@ -127,22 +102,27 @@ SET(MOOS_INCLUDE_DIRS
    ${MOOS_BASE_DIR}/Essentials/MOOSUtilityLib
    ${MOOS_BASE_DIR}/Core/MOOSLIB
    ${MOOS_BASE_DIR}/Core/MOOSGenLib
-   ${GOBY_INCLUDE_DIRS}
-   ${IVP_ANRP_INCLUDE_DIRS}
 )
 
-INCLUDE_DIRECTORIES(${MOOS_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
+   						${GOBY_INCLUDE_DIRS}
+   						${IVP_ANRP_INCLUDE_DIRS}
+   						${IVP_INCLUDE_DIRS}			)
 
 
 #=============================================================================
-# Specify where to find IvP's headers and libraries...
+# Set the output directories for the binary and library files
 #=============================================================================
 
-FILE(GLOB IVP_INCLUDE_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/ivp/src/lib_* )
-INCLUDE_DIRECTORIES(${IVP_INCLUDE_DIRS})
+GET_FILENAME_COMPONENT(IVP_EXTEND_BIN_DIR "${CMAKE_SOURCE_DIR}/bin"  ABSOLUTE )
+GET_FILENAME_COMPONENT(IVP_EXTEND_LIB_DIR "${CMAKE_SOURCE_DIR}/lib"  ABSOLUTE )
 
-FILE(GLOB IVP_LIBRARY_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/lib )
-LINK_DIRECTORIES(${IVP_LIBRARY_DIRS})
+SET( LIBRARY_OUTPUT_PATH      "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
+SET( ARCHIVE_OUTPUT_DIRECTORY "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
+SET( LIBRARY_OUTPUT_DIRECTORY "${IVP_EXTEND_LIB_DIR}" CACHE PATH "" )
+
+SET( EXECUTABLE_OUTPUT_PATH    "${IVP_EXTEND_BIN_DIR}" CACHE PATH "" )
+SET( RUNTIME_OUTPUT_DIRECTORY "${IVP_EXTEND_BIN_DIR}"  CACHE PATH "" )
 
 
 #=============================================================================
