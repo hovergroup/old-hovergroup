@@ -17,8 +17,8 @@ SET(SRC acomms_alog_parser_main.cpp acomms_alog_parser.cpp)
 ADD_EXECUTABLE(acomms_alog_parser ${SRC})
    
 TARGET_LINK_LIBRARIES(acomms_alog_parser
-  mbutil
   logutils
+  mbutil
   boost_system
   boost_filesystem
   ${SYSTEM_LIBS})
