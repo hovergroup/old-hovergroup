@@ -12,6 +12,10 @@ using namespace std;
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 }
 
+void ACOMMS_ALOG_PARSER::runParser() {
+	parseAllHeaders();
+}
+
 void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
 	FILE_INFO new_info;
 	new_info.filename = filename;
@@ -40,6 +44,6 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
 		alog_files[i].parseHeaderLines();
-		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
+//		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
 	}
 }

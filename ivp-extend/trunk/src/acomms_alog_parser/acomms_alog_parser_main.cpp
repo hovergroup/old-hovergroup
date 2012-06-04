@@ -49,6 +49,8 @@ int main(int argc, char *argv[]) {
 		parser.addAlogFile( alog_files[i] );
 	}
 
+	parser.runParser();
+
 	return 0;
 }
 
@@ -62,7 +64,7 @@ void searchDirectory ( fs::path directory_path, int depth ) {
 		try {
 			if ( fs::is_regular_file( dir_itr->status() ) ) {
 				if ( fs::extension( dir_itr->path().filename() ) == ".alog" ) {
-					alog_files.push_back( fs::system_complete( dir_itr->path().filename() ) );
+					alog_files.push_back( fs::system_complete( dir_itr->path() ) );
 				}
 			} else if ( fs::is_directory( dir_itr->status() ) )
 				searchDirectory( fs::system_complete( dir_itr->path() ), depth+1 );
