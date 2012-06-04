@@ -127,7 +127,8 @@ void acomms_driver::transmit_data( bool isBinary ) {
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	if ( transmission_rate == -1 ) {
-		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::MICROMODEM_MINI_DATA);
+		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
+		transmit_message.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
 	} else {
 		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 		transmit_message.set_rate( transmission_rate );
