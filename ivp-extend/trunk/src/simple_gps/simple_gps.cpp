@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace boost::asio;
+using namespace boost::posix_time;
 
 SIMPLE_GPS::SIMPLE_GPS() : port(io), timeout(io) {
 	// initialize buffers with some size larger than should ever be needed
@@ -201,14 +202,18 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 	} else {
 		m_Comms.Notify("GPS_LOCK", "true");
 
-		m_Comms.Notify("GPS_DATE", subs[9]);
-		m_Comms.Notify("GPS_TIME", subs[1]);
-		double msg_time = atof(subs[1].c_str());
-		double hours = floor(msg_time/10000.0);
-		double minutes = floor(msg_time/100.0) - 100.0*hours;
-		double seconds = msg_time - hours*10000.0 - minutes*100.0;
-		double seconds_time = 3600*hours + 60*minutes + seconds;
-		m_Comms.Notify("GPS_TIME_SECONDS", seconds_time);
+		string date_string = subs[9];
+		string time_string = subs[1];
+		string modified_date = "20" + date_string.substr(4,2) +
+				date_string.substr(2,2) +
+				date_string.substr(0,2);
+		string composite = modified_date+"T"+time_string;
+		ptime t(from_iso_string(composite));
+
+		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
+
+		double seconds = t.time_of_day().total_microseconds()/1000.0;
+		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
 
 		string lat_string = subs[3];
 		string lon_string = subs[5];
