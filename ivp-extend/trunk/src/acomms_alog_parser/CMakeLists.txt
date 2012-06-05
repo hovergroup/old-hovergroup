@@ -21,4 +21,5 @@ TARGET_LINK_LIBRARIES(acomms_alog_parser
   mbutil
   boost_system
   boost_filesystem
+  boost_date_time
   ${SYSTEM_LIBS})
