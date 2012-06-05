@@ -36,10 +36,20 @@ public:
 		std::string filename;
 		FILE * logfile;
 		std::vector<std::string> header_lines;
+
 		boost::posix_time::ptime creation_time;
+		std::string vehicle_name;
+		int vehicle_id;
 
 		std::string getNextLine();
 		void parseHeaderLines();
+	};
+
+	class TRANSMISSION_EVENT {
+	public:
+		TRANSMISSION_EVENT() {}
+
+
 	};
 
 private:
