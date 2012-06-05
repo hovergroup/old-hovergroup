@@ -39,6 +39,17 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
 	for ( int i=0; i<3; i++ )
 		header_lines.push_back( getNextLine() );
 	getNextLine();
+
+	int date_start = header_lines[1].find("ON ") + 3;
+	string date_string = header_lines[1].substr(date_start, header_lines[1].size()-date_start);
+	if ( date_string[0] == ' ' )
+		date_string.erase(date_string.begin());
+//	cout << date_string << endl;
+	tm header_time;
+	strptime( date_string.c_str(), "%a %b %d %H:%M:%S %Y", &header_time);
+//	cout << asctime( &header_time ) << endl;
+	creation_time = boost::posix_time::ptime_from_tm( header_time );
+//	cout << boost::posix_time::to_simple_string( creation_time ) << endl;
 }
 
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {

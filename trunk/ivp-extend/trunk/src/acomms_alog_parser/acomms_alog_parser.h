@@ -7,11 +7,13 @@
 
 
 #include "goby/acomms/protobuf/mm_driver.pb.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <google/protobuf/text_format.h>
 #include <boost/filesystem.hpp>
 #include "LogUtils.h"
 #include <stdio.h>
 #include <vector>
+#include <time.h>
 
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
@@ -34,6 +36,7 @@ public:
 		std::string filename;
 		FILE * logfile;
 		std::vector<std::string> header_lines;
+		boost::posix_time::ptime creation_time;
 
 		std::string getNextLine();
 		void parseHeaderLines();
