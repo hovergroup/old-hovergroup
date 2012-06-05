@@ -238,7 +238,9 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
         receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
         m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
-        m_Comms.Notify("ACOMMS_RECEIVED_SNR_IN", stat.snr_in());
+        m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
+        m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
+        m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
 }
 
 void acomms_driver::publishWarning( std::string message ) {
