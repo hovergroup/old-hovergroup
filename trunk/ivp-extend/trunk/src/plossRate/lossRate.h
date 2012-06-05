@@ -10,8 +10,7 @@
 
 #include "MOOSLib.h"
 #include <acomms_messages.h>
-#include <iostream>
-#include <set>
+#include <map>
 
 class lossRate : public CMOOSApp
 {
