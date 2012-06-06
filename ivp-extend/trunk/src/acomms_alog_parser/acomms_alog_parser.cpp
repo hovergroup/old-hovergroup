@@ -25,8 +25,8 @@ void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
 
 void ACOMMS_ALOG_PARSER::addAlogFile( boost::filesystem::path filepath ) {
 	FILE_INFO new_info;
-	new_info.filename = string(filepath.c_str());
-	new_info.logfile = fopen( filepath.c_str(), "r" );
+	new_info.filename = string(filepath.string().c_str());
+	new_info.logfile = fopen( filepath.string().c_str(), "r" );
 	alog_files.push_back( new_info );
 }
 
