@@ -46,14 +46,6 @@ set( GOBY_INCLUDE_DIRS
 set( GOBY_LIBRARY_PATH
 	${GOBY_BASE}/lib )
 
-#set(CURSES_NEED_NCURSES TRUE)
-#find_package(Curses)
-#if(CURSES_FOUND)
-#  add_definitions(-DHAS_NCURSES)
-#endif()
-
-#find_package(Boost 1.36.0 COMPONENTS system date_time thread program_options filesystem signals)
-
 #=============================================================================
 # Find the "moos-ivp" base directory
 #=============================================================================
