@@ -96,7 +96,7 @@ Behavior=BHV_StationKeep
 
 Behavior = BHV_Waypoint
 { 
-  name      = simple_goto_relay
+  name      = simple_relay
   pwt       = 100
   condition = GOCOME = false
   condition = RETURN = false
