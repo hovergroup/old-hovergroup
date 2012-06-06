@@ -202,18 +202,18 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 	} else {
 		m_Comms.Notify("GPS_LOCK", "true");
 
-		string date_string = subs[9];
-		string time_string = subs[1];
-		string modified_date = "20" + date_string.substr(4,2) +
-				date_string.substr(2,2) +
-				date_string.substr(0,2);
-		string composite = modified_date+"T"+time_string;
-		ptime t(from_iso_string(composite));
-
-		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
-
-		double seconds = t.time_of_day().total_microseconds()/1000.0;
-		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
+//		string date_string = subs[9];
+//		string time_string = subs[1];
+//		string modified_date = "20" + date_string.substr(4,2) +
+//				date_string.substr(2,2) +
+//				date_string.substr(0,2);
+//		string composite = modified_date+"T"+time_string;
+//		ptime t(from_iso_string(composite));
+//
+//		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
+//
+//		double seconds = t.time_of_day().total_microseconds()/1000.0;
+//		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
 
 		string lat_string = subs[3];
 		string lon_string = subs[5];
