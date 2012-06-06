@@ -215,8 +215,8 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 		double seconds = t.time_of_day().total_microseconds()/1000.0;
 		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
 
-//		string lat_string = subs[3];
-//		string lon_string = subs[5];
+		string lat_string = subs[3];
+		string lon_string = subs[5];
 //		double temp_lat = atof(subs[3].c_str());
 //		double temp_lon = atof(subs[5].c_str());
 //		double lat_degrees = floor(temp_lat/100.0);
