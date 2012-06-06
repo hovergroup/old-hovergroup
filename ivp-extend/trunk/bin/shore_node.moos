@@ -14,8 +14,10 @@ ProcessConfig = ANTLER
   Run = MOOSDB @ NewConsole = false
   Run = pMOOSBridge @ NewConsole = false
   Run = pLogger @ NewConsole = false
+	Run = pNodeReporter	@ NewConsole = false
   Run = iacomms_driver @ NewConsole = false
   Run = simple_gps @ NewConsole = false
+	Run = pEchoVar		@ NewConsole = false
 }
 
 ProcessConfig = simple_gps
@@ -109,4 +111,25 @@ VAR = ACOMMS_TIMER_MISSION
 VAR = ACOMMS_DUTY_CYCLE
 VAR = ACOMMS_TRANSMIT_RATE
 VAR = ACOMMS_COUNTER_RESET
+}
+
+
+ProcessConfig = pNodeReporter
+	{
+	// xxxTick	= 5 when using 5hz GPS, 2 when using 1hz GPS 
+	AppTick		= 2
+	CommsTick	= 2
+
+	VESSEL_TYPE	= AUV		// Sets the icon in pMarineViewer
+	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
+	}
+
+
+ProcessConfig = pEchoVar
+{
+  AppTick   = 20
+  CommsTick = 20
+
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
 }

@@ -163,7 +163,7 @@ ProcessConfig = pLogger
 	PATH			= ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
-	WildCardLogging		= false
+	WildCardLogging		= true
 
 	// PID Output
 	Log	= DESIRED_THRUST       @ 0
