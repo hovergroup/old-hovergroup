@@ -202,36 +202,36 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 	} else {
 		m_Comms.Notify("GPS_LOCK", "true");
 
-//		string date_string = subs[9];
-//		string time_string = subs[1];
-//		string modified_date = "20" + date_string.substr(4,2) +
-//				date_string.substr(2,2) +
-//				date_string.substr(0,2);
-//		string composite = modified_date+"T"+time_string;
-//		ptime t(from_iso_string(composite));
-//
-//		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
-//
-//		double seconds = t.time_of_day().total_microseconds()/1000.0;
-//		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
+		string date_string = subs[9];
+		string time_string = subs[1];
+		string modified_date = "20" + date_string.substr(4,2) +
+				date_string.substr(2,2) +
+				date_string.substr(0,2);
+		string composite = modified_date+"T"+time_string;
+		ptime t(from_iso_string(composite));
 
-		string lat_string = subs[3];
-		string lon_string = subs[5];
-		double temp_lat = atof(subs[3].c_str());
-		double temp_lon = atof(subs[5].c_str());
-		double lat_degrees = floor(temp_lat/100.0);
-		double lon_degrees = floor(temp_lon/100.0);
-		double lat_minutes = temp_lat - lat_degrees*100.0;
-		double lon_minutes = temp_lon - lon_degrees*100.0;
-		m_lat = lat_degrees + 60*lat_minutes;
-		m_lon = lon_degrees + 60*lon_minutes;
+		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
 
-//		m_lat = 0;
-//		m_lon = 0;
-//		m_lat += atof(lat_string.substr(0,2).c_str());
-//		m_lat += atof(lat_string.substr(2,lat_string.size()-2).c_str())/60;
-//		m_lon += atof(lon_string.substr(0,3).c_str());
-//		m_lon += atof(lon_string.substr(3,lon_string.size()-3).c_str())/60;
+		double seconds = t.time_of_day().total_microseconds()/1000.0;
+		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
+
+//		string lat_string = subs[3];
+//		string lon_string = subs[5];
+//		double temp_lat = atof(subs[3].c_str());
+//		double temp_lon = atof(subs[5].c_str());
+//		double lat_degrees = floor(temp_lat/100.0);
+//		double lon_degrees = floor(temp_lon/100.0);
+//		double lat_minutes = temp_lat - lat_degrees*100.0;
+//		double lon_minutes = temp_lon - lon_degrees*100.0;
+//		m_lat = lat_degrees + 60*lat_minutes;
+//		m_lon = lon_degrees + 60*lon_minutes;
+
+		m_lat = 0;
+		m_lon = 0;
+		m_lat += atof(lat_string.substr(0,2).c_str());
+		m_lat += atof(lat_string.substr(2,lat_string.size()-2).c_str())/60;
+		m_lon += atof(lon_string.substr(0,3).c_str());
+		m_lon += atof(lon_string.substr(3,lon_string.size()-3).c_str())/60;
 		if ( subs[4] == "S" )
 			m_lat*=-1;
 		if ( subs[6] == "W" )
