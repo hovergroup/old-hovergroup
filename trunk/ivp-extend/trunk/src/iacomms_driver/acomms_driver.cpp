@@ -272,6 +272,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MFD,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SHF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DOP,1");
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
 
 	goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );
 	goby::acomms::connect( &driver->signal_raw_incoming, boost::bind(&acomms_driver::handle_raw_incoming, this, _1) );
