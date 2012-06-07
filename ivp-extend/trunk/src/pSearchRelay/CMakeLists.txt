@@ -13,5 +13,6 @@ TARGET_LINK_LIBRARIES(pSearchRelay
    m
    pthread
    gsl
-   gslcblas)
+   gslcblas
+   boost_date_time)
 
