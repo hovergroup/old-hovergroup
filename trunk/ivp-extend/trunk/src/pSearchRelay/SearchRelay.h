@@ -12,6 +12,10 @@
 #include <map>
 #include <gsl/gsl_statistics_double.h>
 #include <acomms_messages.h>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+
+namespace pt = boost::posix_time;
 
 class SearchRelay : public CMOOSApp
 {
@@ -25,15 +29,20 @@ public:
 	bool OnStartUp();
 	void UpdateStats(std::vector<double>);
 
+
 protected:
 	// insert local vars here
-	lib_acomms_messages::LOSS_RATE_INFO loss_rates;
-	int min_packets;
-	double mean, var;
-
-	bool decision;
+	//all
 	std::string my_role;
+	pt::ptime last,now;
+	//relay
+	double mean, var;
+	bool travelling;
 	std::vector<double> data;
+	//shore
+	std::string mail;
+	pt::time_duration wait_time;
+	//end
 };
 
-#endif 
+#endif

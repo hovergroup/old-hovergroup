@@ -15,7 +15,7 @@ ProcessConfig = ANTLER
   Run = pMOOSBridge @ NewConsole = false
   Run = pLogger @ NewConsole = false
 	Run = pNodeReporter	@ NewConsole = false
-  Run = iacomms_driver @ NewConsole = false
+ // Run = iacomms_driver @ NewConsole = false
   Run = simple_gps @ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false
 }
