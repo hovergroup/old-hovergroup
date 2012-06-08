@@ -27,8 +27,7 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
-	void UpdateStats(std::vector<double>);
-
+	std::vector<double> ComputeIndices(std::vector<double>);
 
 protected:
 	// insert local vars here
@@ -36,12 +35,15 @@ protected:
 	std::string my_role;
 	pt::ptime last,now;
 	//relay
+	std::string mode;
 	double mean, var;
-	bool travelling;
 	std::vector<double> data;
+	double normal_indices_five[];
+	double normal_indices_one[];
 	//shore
-	std::string mail;
 	pt::time_duration wait_time;
+	int rate,counter;
+	bool relay_status,end_status;
 	//end
 };
 

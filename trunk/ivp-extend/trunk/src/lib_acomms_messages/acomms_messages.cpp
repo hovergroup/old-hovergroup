@@ -121,7 +121,7 @@ string LOSS_RATE_INFO::serializeToString(){
 	return ss.str();
 }
 
-string DATA_GEN::getRandomString( int length ) {
+string getRandomString( int length ) {
     srand((unsigned) time(NULL));
 
     stringstream ss;
