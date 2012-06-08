@@ -14,10 +14,7 @@
 
 namespace lib_acomms_messages {
 
-class DATA_GEN{
-public:
-	std::string getRandomString(int);
-};
+std::string getRandomString(int);
 
 class SIMPLIFIED_RECEIVE_INFO {
 public:
