@@ -13,6 +13,8 @@
 
 SearchRelay::SearchRelay()
 {
+	normal_indices_five = std::vector<double> (19, 0);
+	normal_indices_one = std::vector<double> (19, 0);
 }
 
 //---------------------------------------------------------
@@ -82,10 +84,12 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("SEARCH_RELAY_RESET",0);
 
 		if(mode=="normal"){
-			normal_indices_five = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,
-								   0.2645,0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-			normal_indices_one = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
+			double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
+					0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
+			memcpy( &temp_normal_indices_five[0], &normal_indices_five[0], sizeof(temp_normal_indices_five[0])*19 );
+			double temp_normal_indices_one[19] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
 									0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
+			memcpy( &temp_normal_indices_one[0], &normal_indices_one[0], sizeof(temp_normal_indices_one[0])*19 );
 			}
 		}
 
@@ -102,7 +106,7 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("END_STATUS",0);
 		wait_time = pt::seconds(20);
 		rate = 2;
-		last(pt::pos_infin);
+		last = pt::ptime(pt::pos_infin);
 	}
 
    return(true);
@@ -123,7 +127,7 @@ bool SearchRelay::Iterate()
 
 	}
 
-	else if(my_role=="shore_node"&&relay_status=="ready"&&end_status=="ready"){ //transmitting every wait_time seconds
+	else if(my_role=="shore_node" && relay_status=="ready" && end_status=="ready"){ //transmitting every wait_time seconds
 
 		if(now-last>=wait_time){
 			int length;
@@ -131,7 +135,7 @@ bool SearchRelay::Iterate()
 			ss << counter;
 			if(rate==0){length = 32;}
 			else if(rate==2){length = 192;}
-			std::string mail = ss.str()+"---"+lib_acomms_messages::getRandomString(length);
+			std::string mail = ss.str()+"---"+getRandomString(length);
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 		}
 	}
@@ -149,11 +153,30 @@ bool SearchRelay::OnStartUp()
    return(true);
 }
 
-std::vector<double> ComputeIndices(std::vector<double> data){
+std::vector<double> SearchRelay::ComputeIndices(std::vector<double> data){
 return data;
 }
 
-std::vector<double> GetWaypoints(){
-	std::string filename = "relay_waypoints.txt";
+//std::vector<double> SearchRelay::GetWaypoints(){
+//	std::string filename = "relay_waypoints.txt";
+//
+//}
 
+std::string SearchRelay::getRandomString( int length ) {
+    srand((unsigned) time(NULL));
+
+    std::stringstream ss;
+    const int passLen = length;
+    for (int i = 0; i < passLen; i++) {
+    	char num = (char) ( rand() % 62 );
+    	if ( num < 10 )
+    		num += '0';
+    	else if ( num < 36 )
+    		num += 'A'-10;
+    	else
+    		num += 'a'-36;
+    	ss << num;
+    }
+
+    return ss.str();
 }
