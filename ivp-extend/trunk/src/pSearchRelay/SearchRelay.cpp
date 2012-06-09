@@ -77,7 +77,14 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key=="NAV_Y"){
     	  myy = msg.GetDouble();
       }
-
+      else if(key=="RELAY_STATUS"){
+    	  relay_status = msg.GetString();
+    	  std::cout<<"Heard relay status: "<<relay_status<<std::endl;
+      }
+      else if(key=="END_STATUS"){
+    	  end_status = msg.GetString();
+    	  std::cout<<"Heard end status: "<<end_status<<std::endl;
+      }
    }
 	
    return(true);

@@ -20,6 +20,14 @@ ProcessConfig = ANTLER
 	Run = pEchoVar		@ NewConsole = false
 }
 
+ProcessConfig = pSearchRelay
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	Role = shore
+}
+
 ProcessConfig = simple_gps
 {
 	AppTick = 2
@@ -33,6 +41,7 @@ ProcessConfig = uXMS
 {
 	VAR = ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
 	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
+	VAR = SEARCH_RELAY_WAIT_TIME, SEARCH_RELAY_RATE, RELAY_STATUS, END_STATUS
 }
 
 ProcessConfig = iacomms_driver
