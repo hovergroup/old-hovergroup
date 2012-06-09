@@ -55,7 +55,8 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
     	  int closest_ind = closest_vertex(myx,myy);
     	  double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
-    	  std::cout<<closest_dist<<std::endl;
+    	  std::cout<<"Closest distance was: "<<closest_dist<<std::endl;
+    	  std::cout<<"Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
     	  if(closest_dist<fudge_factor){
     		data[closest_ind].push_back(msg.GetDouble());
     		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
