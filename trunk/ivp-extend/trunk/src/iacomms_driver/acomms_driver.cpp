@@ -95,7 +95,7 @@ bool acomms_driver::OnConnectToServer()
 bool acomms_driver::Iterate()
 {
 	driver->do_work();
-	if ( status=="receiving" && MOOSTime()-status_set_time > 10 ) {
+	if ( status=="receiving" && MOOSTime()-receive_set_time > 8 ) {
 		publishWarning("Timed out in receiving state.");
 		driver_ready = true;
 		publishStatus("ready");
@@ -215,6 +215,7 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		CST_received = false;
 		RXD_received = false;
 		publishStatus("receiving");
+		receive_set_time = MOOSTime();
 	} else if ( descriptor == "CST" ) {
 		CST_received = true;
 	} else if ( descriptor == "RXD" ) {

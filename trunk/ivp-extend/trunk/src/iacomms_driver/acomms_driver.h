@@ -44,7 +44,7 @@ protected:
 	void startDriver( std::string logDirectory );
 	bool driver_ready, driver_initialized;
 	std::string status;
-	double status_set_time;
+	double status_set_time, receive_set_time;
 
 	void publishWarning( std::string message );
 	void publishStatus( std::string status_update );
