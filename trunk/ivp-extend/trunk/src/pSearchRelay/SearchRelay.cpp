@@ -16,6 +16,7 @@ SearchRelay::SearchRelay()
 	normal_indices_five = std::vector<double> (19, 0);
 	normal_indices_one = std::vector<double> (19, 0);
 	fudge_factor = 5; //m
+	start = false;
 }
 
 //---------------------------------------------------------
@@ -85,6 +86,12 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
     	  end_status = msg.GetString();
     	  std::cout<<"Heard end status: "<<end_status<<std::endl;
       }
+      else if(key=="ACOMMS_DRIVER_STATUS"){
+    	  acomms_driver_status = msg.GetString();
+      }
+      else if(key=="SEARCH_RELAY_START"){
+    	  start= true;
+      }
    }
 	
    return(true);
@@ -125,17 +132,18 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Notify("RELAY_STATUS","ready");
 		}
 
-	else if(my_role=="end_node"){
+	else if(my_role=="end"){
 		m_Comms.Notify("END_STATUS","ready");
 	}
 
-	else if(my_role=="shore_node"){
-		m_Comms.Register("ACOMMS_TRANSMIT_SIMPLE",0);
+	else if(my_role=="shore"){
 		m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
+		m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
 		m_Comms.Register("SEARCH_RELAY_RATE",0);
 		m_Comms.Register("RELAY_STATUS",0);
 		m_Comms.Register("END_STATUS",0);
+		m_Comms.Register("SEARCH_RELAY_START",0);
 		wait_time = pt::seconds(20);
 		rate = 2;
 		last = pt::ptime(pt::pos_infin);
@@ -155,13 +163,13 @@ bool SearchRelay::Iterate()
 
 	}
 
-	else if(my_role=="end_node"){ //do nothing
+	else if(my_role=="end"){ //do nothing
 
 	}
 
-	else if(my_role=="shore_node" && relay_status=="ready" && end_status=="ready"){ //transmitting every wait_time seconds
+	else if(my_role=="shore" && relay_status=="ready" && end_status=="ready" && start){ //transmitting every wait_time seconds
 
-		if(now-last>=wait_time){
+		if(now-last>=wait_time && acomms_driver_status=="ready"){
 			int length;
 			std::stringstream ss;
 			ss << counter;

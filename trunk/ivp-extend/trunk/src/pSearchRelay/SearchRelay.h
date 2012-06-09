@@ -52,6 +52,7 @@ protected:
 	pt::time_duration wait_time;
 	int rate,counter;
 	std::string relay_status,end_status;
+	std::string acomms_driver_status, start;
 	//end
 };
 
