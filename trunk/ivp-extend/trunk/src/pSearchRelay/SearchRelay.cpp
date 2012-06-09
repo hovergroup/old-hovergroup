@@ -179,6 +179,7 @@ bool SearchRelay::Iterate()
 			else if(rate==2){length = 192;}
 			std::string mail = ss.str()+"---"+getRandomString(length);
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+			last = pt::ptime(now);
 		}
 	}
 
