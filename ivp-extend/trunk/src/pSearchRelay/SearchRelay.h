@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iostream>
 #include "XYSegList.h"
+#include <math.h>
 
 namespace pt = boost::posix_time;
 
@@ -31,6 +32,7 @@ public:
 	void ComputeIndices();
 	void GetWaypoints();
 	std::string getRandomString(int);
+	unsigned int closest_vertex(double, double);
 
 protected:
 	// insert local vars here
@@ -39,7 +41,7 @@ protected:
 	pt::ptime last,now;
 	//relay
 	std::string mode;
-	std::map<double, std::vector<double>> data;
+	std::map<double, std::vector<double> > data;
 	std::map<double,double> mean, var;
 	std::vector<double> normal_indices_five, normal_indices_one;
 	std::vector<double> wpx, wpy;
