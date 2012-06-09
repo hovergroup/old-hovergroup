@@ -120,22 +120,3 @@ string LOSS_RATE_INFO::serializeToString(){
 
 	return ss.str();
 }
-
-string getRandomString( int length ) {
-    srand((unsigned) time(NULL));
-
-    stringstream ss;
-    const int passLen = length;
-    for (int i = 0; i < passLen; i++) {
-    	char num = (char) ( rand() % 62 );
-    	if ( num < 10 )
-    		num += '0';
-    	else if ( num < 36 )
-    		num += 'A'-10;
-    	else
-    		num += 'a'-36;
-    	ss << num;
-    }
-
-    return ss.str();
-}

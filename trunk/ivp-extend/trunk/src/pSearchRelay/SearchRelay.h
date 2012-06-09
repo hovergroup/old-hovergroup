@@ -13,7 +13,7 @@
 #include <gsl/gsl_statistics_double.h>
 #include <acomms_messages.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
-
+#include <sstream>
 
 namespace pt = boost::posix_time;
 
@@ -28,6 +28,7 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 	std::vector<double> ComputeIndices(std::vector<double>);
+	std::string getRandomString(int);
 
 protected:
 	// insert local vars here
@@ -37,13 +38,11 @@ protected:
 	//relay
 	std::string mode;
 	double mean, var;
-	std::vector<double> data;
-	double normal_indices_five[];
-	double normal_indices_one[];
+	std::vector<double> data, normal_indices_five, normal_indices_one;
 	//shore
 	pt::time_duration wait_time;
 	int rate,counter;
-	bool relay_status,end_status;
+	std::string relay_status,end_status;
 	//end
 };
 
