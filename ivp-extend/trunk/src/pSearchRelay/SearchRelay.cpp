@@ -81,10 +81,12 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key=="RELAY_STATUS"){
     	  relay_status = msg.GetString();
     	  std::cout<<"Heard relay status: "<<relay_status<<std::endl;
+    	  m_Comms.Notify("RELAY_STATUS",relay_status);
       }
       else if(key=="END_STATUS"){
     	  end_status = msg.GetString();
     	  std::cout<<"Heard end status: "<<end_status<<std::endl;
+    	  m_Comms.Notify("END_STATUS",end_status);
       }
       else if(key=="ACOMMS_DRIVER_STATUS"){
     	  acomms_driver_status = msg.GetString();
@@ -170,6 +172,8 @@ bool SearchRelay::Iterate()
 	else if(my_role=="shore" && relay_status=="ready" && end_status=="ready" && start=="ready"){ //transmitting every wait_time seconds
 
 		if(now-last>=wait_time && acomms_driver_status=="ready"){
+			std::cout<<now<<std::endl;
+			std::cout<<last<<std::endl;
 			int length;
 			std::stringstream ss;
 			ss << counter;
