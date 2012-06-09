@@ -36,12 +36,13 @@ string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
-	std::vector<std::string> header_lines;
 	getNextLine();
 	for ( int i=0; i<3; i++ )
 		header_lines.push_back( getNextLine() );
 	getNextLine();
+}
 
+void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 	int date_start = header_lines[1].find("ON ") + 3;
 	string date_string = header_lines[1].substr(date_start, header_lines[1].size()-date_start);
 	if ( date_string[0] == ' ' )
@@ -52,11 +53,20 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
 //	cout << asctime( &header_time ) << endl;
 	creation_time = boost::posix_time::ptime_from_tm( header_time );
 //	cout << boost::posix_time::to_simple_string( creation_time ) << endl;
+
+	ALogEntry entry = getNextRawALogEntry( logfile );
+	moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 - entry.time();
+	cout << filename << "  header offset: " << moos_time_offset << endl;
+}
+
+bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 }
 
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
 		alog_files[i].parseHeaderLines();
+		if ( !alog_files[i].offsetViaGPS() )
+			alog_files[i].offsetViaHeader();
 //		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
 	}
 }
@@ -95,5 +105,10 @@ void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
 }
 
 void ACOMMS_ALOG_PARSER::generateHistories() {
-//	for ( int i=0; i<)
+	for ( int i=0; i<alog_files.size(); i++ ) {
+		vehicle_histories[alog_files[i].vehicle_name].vehicle_logs.push_back(alog_files[i]);
+	}
+	for ( int i=0; i<vehicle_histories.size(); i++ ) {
+
+	}
 }

@@ -212,7 +212,7 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 
 		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
 
-		double seconds = t.time_of_day().total_microseconds()/1000.0;
+		double seconds = t.time_of_day().total_milliseconds()/1000.0;
 		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
 
 		string lat_string = subs[3];
