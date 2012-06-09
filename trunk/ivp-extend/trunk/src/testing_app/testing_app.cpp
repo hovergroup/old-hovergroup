@@ -36,11 +36,11 @@ int main() {
 		gsl_permutation * p = gsl_permutation_alloc(num_states);
 		int s;
 		gsl_linalg_LU_decomp(Am,p,&s);
-		gsl_linalg_LU_svx(Am,p,)
+//		gsl_linalg_LU_svx(Am,p,)
 
 		gsl_matrix_free(Am);
 		gsl_matrix_free(tempB);
-		gsl_permutation_free(num_states);
+//		gsl_permutation_free(num_states);
 	}
 
 	gsl_matrix_free(transitions);
