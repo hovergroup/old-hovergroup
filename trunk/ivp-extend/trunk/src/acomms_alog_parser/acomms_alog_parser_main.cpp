@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 	ACOMMS_ALOG_PARSER parser;
 	cout << "Found " << alog_files.size() << " alog files." << endl;
 	for ( int i=0; i<alog_files.size(); i++ ) {
-		cout << alog_files[i] << endl;
+//		cout << alog_files[i] << endl;
 		parser.addAlogFile( alog_files[i] );
 	}
 

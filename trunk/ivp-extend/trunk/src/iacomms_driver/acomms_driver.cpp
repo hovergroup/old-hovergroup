@@ -101,6 +101,10 @@ bool acomms_driver::Iterate()
 		publishStatus("ready");
 	}
 
+	if ( MOOSTime()-status_set_time > 5 ) {
+		publishStatus( status );
+	}
+
    // happens AppTick times per second
 	
    return(true);
