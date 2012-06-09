@@ -16,7 +16,7 @@ SearchRelay::SearchRelay()
 	normal_indices_five = std::vector<double> (19, 0);
 	normal_indices_one = std::vector<double> (19, 0);
 	fudge_factor = 5; //m
-	start = false;
+	start = "default";
 }
 
 //---------------------------------------------------------
@@ -90,7 +90,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
     	  acomms_driver_status = msg.GetString();
       }
       else if(key=="SEARCH_RELAY_START"){
-    	  start= true;
+    	  start = msg.GetString();
       }
    }
 	
@@ -167,7 +167,7 @@ bool SearchRelay::Iterate()
 
 	}
 
-	else if(my_role=="shore" && relay_status=="ready" && end_status=="ready" && start){ //transmitting every wait_time seconds
+	else if(my_role=="shore" && relay_status=="ready" && end_status=="ready" && start=="ready"){ //transmitting every wait_time seconds
 
 		if(now-last>=wait_time && acomms_driver_status=="ready"){
 			int length;
