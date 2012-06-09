@@ -60,6 +60,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 }
 
 bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
+
 }
 
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {

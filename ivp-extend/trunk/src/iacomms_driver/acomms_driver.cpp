@@ -238,7 +238,8 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
         lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
         receive_info.vehicle_name = my_name;
         receive_info.rate = stat.rate();
-        receive_info.num_frames = stat.number_frames();
+//        receive_info.num_frames = stat.number_frames();
+        receive_info.num_frames = trans.frame_size();
         receive_info.num_bad_frames = stat.number_bad_frames();
         receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
         m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
