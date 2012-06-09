@@ -21,6 +21,7 @@
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
 
+#define UTC_TIME_OFFSET = -4;
 
 class ACOMMS_ALOG_PARSER {
 public:
@@ -38,14 +39,18 @@ public:
 
 		std::string filename;
 		FILE * logfile;
+		std::vector<std::string> header_lines;
 
 		boost::posix_time::ptime creation_time;
+		double moos_time_offset;
 		std::string vehicle_name;
 		int vehicle_id;
 
 		std::string getNextLine();
-		void parseHeaderLines();
 		void parseMOOSFile();
+		void parseHeaderLines();
+		bool offsetViaGPS();
+		void offsetViaHeader();
 	};
 
 	class VEHICLE_HISTORY {
