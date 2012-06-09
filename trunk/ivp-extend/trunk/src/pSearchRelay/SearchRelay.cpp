@@ -52,14 +52,15 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
     	  //Update the mean and var of one node if current position is within
     	  //a fudge factor of that node
 
-    	  int closest_ind = seglist.closest_vertex(myx,myy);
-    	  double closest_dist = ((seglist.get_vx(closest_ind)-myx)^2 + (seglist.get_vy(closest_ind)-myy)^2)^0.5;
+    	  int closest_ind = closest_vertex(myx,myy);
+    	  double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
     	  std::cout<<closest_dist<<std::endl;
     	  if(closest_dist<fudge_factor){
     		data[closest_ind].push_back(msg.GetDouble());
     		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
     	    var[closest_ind] = gsl_stats_variance(&(data[closest_ind][0]),1,data[closest_ind].size());
-    	    std::cout<<"Updating Mean and Var for: "<<closest_ind<<std::endl;
+    	    std::cout<<"Updating Mean and Var for Point "<<closest_ind<<std::endl;
+    	    std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
     	    std::cout<<mean[closest_ind]<<" , "<<var[closest_ind]<< std::endl;
     	  }
       }
@@ -214,4 +215,24 @@ std::string SearchRelay::getRandomString( int length ) {
     }
 
     return ss.str();
+}
+
+unsigned int SearchRelay::closest_vertex(double x, double y)
+{
+	unsigned int vsize = seglist.size();
+
+	if(vsize == 0)
+		return(0);
+
+	  double closest_dist = sqrt(pow((seglist.get_vx(0)-myx),2) + pow((seglist.get_vy(0)-myy),2));
+
+  unsigned int i, ix = 0;
+  for(i=1; i<vsize; i++) {
+	  double idist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
+    if(idist < closest_dist) {
+      closest_dist = idist;
+      ix = i;
+    }
+  }
+  return(ix);
 }
