@@ -11,9 +11,10 @@
 #include "MOOSLib.h"
 #include <map>
 #include <gsl/gsl_statistics_double.h>
-#include <acomms_messages.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <sstream>
+#include <iostream>
+#include "XYSegList.h"
 
 namespace pt = boost::posix_time;
 
@@ -27,7 +28,8 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
-	std::vector<double> ComputeIndices(std::vector<double>);
+	void ComputeIndices();
+	void GetWaypoints();
 	std::string getRandomString(int);
 
 protected:
@@ -37,8 +39,13 @@ protected:
 	pt::ptime last,now;
 	//relay
 	std::string mode;
-	double mean, var;
-	std::vector<double> data, normal_indices_five, normal_indices_one;
+	std::map<double, std::vector<double>> data;
+	std::map<double,double> mean, var;
+	std::vector<double> normal_indices_five, normal_indices_one;
+	std::vector<double> wpx, wpy;
+	double fudge_factor;
+	XYSegList seglist;
+	double myx,myy;
 	//shore
 	pt::time_duration wait_time;
 	int rate,counter;
