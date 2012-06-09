@@ -49,6 +49,7 @@ public:
 		std::string getNextLine();
 		void parseMOOSFile();
 		void parseHeaderLines();
+
 		bool offsetViaGPS();
 		void offsetViaHeader();
 	};
