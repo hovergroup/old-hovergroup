@@ -95,5 +95,5 @@ void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
 }
 
 void ACOMMS_ALOG_PARSER::generateHistories() {
-	for ( int i=0; i<)
+//	for ( int i=0; i<)
 }
