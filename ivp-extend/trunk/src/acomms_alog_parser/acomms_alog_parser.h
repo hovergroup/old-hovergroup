@@ -11,9 +11,12 @@
 #include <google/protobuf/text_format.h>
 #include <boost/filesystem.hpp>
 #include "LogUtils.h"
+#include "MBUtils.h"
+#include "ProcessConfigReader.h"
 #include <stdio.h>
 #include <vector>
 #include <time.h>
+#include <map>
 
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
@@ -35,7 +38,6 @@ public:
 
 		std::string filename;
 		FILE * logfile;
-		std::vector<std::string> header_lines;
 
 		boost::posix_time::ptime creation_time;
 		std::string vehicle_name;
@@ -43,6 +45,15 @@ public:
 
 		std::string getNextLine();
 		void parseHeaderLines();
+		void parseMOOSFile();
+	};
+
+	class VEHICLE_HISTORY {
+	public:
+		std::vector<FILE_INFO> vehicle_logs;
+
+		ALogEntry getNextEntry();
+
 	};
 
 	class TRANSMISSION_EVENT {
@@ -54,8 +65,11 @@ public:
 
 private:
 	void parseAllHeaders();
+	void parseMOOSFiles();
+	void generateHistories();
 
 	std::vector<FILE_INFO> alog_files;
+	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
 
 };
 

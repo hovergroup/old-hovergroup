@@ -14,6 +14,7 @@ ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 
 void ACOMMS_ALOG_PARSER::runParser() {
 	parseAllHeaders();
+	parseMOOSFiles();
 }
 
 void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
@@ -35,6 +36,7 @@ string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
+	std::vector<std::string> header_lines;
 	getNextLine();
 	for ( int i=0; i<3; i++ )
 		header_lines.push_back( getNextLine() );
@@ -57,4 +59,41 @@ void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 		alog_files[i].parseHeaderLines();
 //		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
 	}
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
+	string moosfilename = filename;
+	int extension_index = moosfilename.find(".alog");
+	moosfilename.replace(extension_index, 5, "._moos");
+
+	FILE * this_moos_file = fopen( moosfilename.c_str(), "r");
+	string line = getNextRawLine( this_moos_file );
+	while ( line != "eof" ) {
+		if ( line.find("community") != string::npos || line.find("Community") != string::npos ) {
+			int tmp_index = line.find("=")+1;
+			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
+			break;
+		}
+		line = getNextRawLine( this_moos_file );
+	}
+
+	fclose( this_moos_file );
+
+	CProcessConfigReader missionreader;
+	missionreader.SetFile( moosfilename );
+	missionreader.GetConfigurationParam("iacomms_driver", "ID", vehicle_id);
+
+//	cout << "filename: " << filename <<
+//			"  vehicle: " << vehicle_name <<
+//			"  id: " << vehicle_id << endl;
+}
+
+void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
+	for ( int i=0; i<alog_files.size(); i++ ) {
+		alog_files[i].parseMOOSFile();
+	}
+}
+
+void ACOMMS_ALOG_PARSER::generateHistories() {
+	for ( int i=0; i<)
 }
