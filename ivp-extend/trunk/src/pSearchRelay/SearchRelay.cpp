@@ -15,6 +15,7 @@ SearchRelay::SearchRelay()
 {
 	normal_indices_five = std::vector<double> (19, 0);
 	normal_indices_one = std::vector<double> (19, 0);
+	fudge_factor = 5; //m
 }
 
 //---------------------------------------------------------
@@ -47,9 +48,20 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
             }
 
       else if(key=="ACOMMS_SNR_OUT"){
-    	  data.push_back(msg.GetDouble());
-    	  mean = gsl_stats_mean(&data[0],1,data.size());
-    	  var = gsl_stats_variance(&data[0],1,data.size());
+    	  //Here assuming last nav variables is current position
+    	  //Update the mean and var of one node if current position is within
+    	  //a fudge factor of that node
+
+    	  int closest_ind = seglist.closest_vertex(myx,myy);
+    	  double closest_dist = ((seglist.get_vx(closest_ind)-myx)^2 + (seglist.get_vy(closest_ind)-myy)^2)^0.5;
+    	  std::cout<<closest_dist<<std::endl;
+    	  if(closest_dist<fudge_factor){
+    		data[closest_ind].push_back(msg.GetDouble());
+    		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
+    	    var[closest_ind] = gsl_stats_variance(&(data[closest_ind][0]),1,data[closest_ind].size());
+    	    std::cout<<"Updating Mean and Var for: "<<closest_ind<<std::endl;
+    	    std::cout<<mean[closest_ind]<<" , "<<var[closest_ind]<< std::endl;
+    	  }
       }
       //shore
       else if(key=="SEARCH_RELAY_WAIT_TIME"){
@@ -58,6 +70,13 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
       else if(key=="SEARCH_RELAY_RATE"){
     	  rate = (int) msg.GetDouble();
       }
+      else if(key=="NAV_X"){
+    	  myx = msg.GetDouble();
+      }
+      else if(key=="NAV_Y"){
+    	  myy = msg.GetDouble();
+      }
+
    }
 	
    return(true);
@@ -80,8 +99,9 @@ bool SearchRelay::OnConnectToServer()
 	if(my_role=="relay"){
 		m_MissionReader.GetConfigurationParam("Mode",mode);
 		m_Comms.Register("ACOMMS_SNR_OUT",0);
-		m_Comms.Notify("RELAY_STATUS","ready");
 		m_Comms.Register("SEARCH_RELAY_RESET",0);
+		m_Comms.Register("NAV_X",0);
+		m_Comms.Register("NAV_Y",0);
 
 		if(mode=="normal"){
 			double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
@@ -91,6 +111,10 @@ bool SearchRelay::OnConnectToServer()
 									0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
 			memcpy( &temp_normal_indices_one[0], &normal_indices_one[0], sizeof(temp_normal_indices_one[0])*19 );
 			}
+
+		GetWaypoints();
+
+		m_Comms.Notify("RELAY_STATUS","ready");
 		}
 
 	else if(my_role=="end_node"){
@@ -153,14 +177,25 @@ bool SearchRelay::OnStartUp()
    return(true);
 }
 
-std::vector<double> SearchRelay::ComputeIndices(std::vector<double> data){
-return data;
+void SearchRelay::ComputeIndices(){
+
 }
 
-//std::vector<double> SearchRelay::GetWaypoints(){
-//	std::string filename = "relay_waypoints.txt";
-//
-//}
+void SearchRelay::GetWaypoints(){
+	std::string filename = "relay_waypoints.txt";
+	std::string one_point;
+	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
+
+	while(waypointsfile.good()){
+				getline(waypointsfile,one_point);
+				int pos = one_point.find(',');
+	if(pos>=0){
+				std::string subx = one_point.substr(0,pos-1);
+				std::string suby = one_point.substr(pos+1);
+				seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
+			}
+	}
+}
 
 std::string SearchRelay::getRandomString( int length ) {
     srand((unsigned) time(NULL));

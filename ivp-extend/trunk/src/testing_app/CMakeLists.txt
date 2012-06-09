@@ -9,4 +9,6 @@ TARGET_LINK_LIBRARIES(testing_app
 	acomms_messages
 	boost_date_time
 	gsl
-	gslcblas)
+	gslcblas
+	geometry
+	mbutil)

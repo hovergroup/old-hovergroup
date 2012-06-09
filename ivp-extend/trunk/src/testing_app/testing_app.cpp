@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 //#include <acomms_messages.h>
 //#include <boost/date_time/posix_time/posix_time.hpp>
 #include <gsl/gsl_statistics_double.h>
@@ -13,6 +14,8 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_permutation.h>
 #include <gsl/gsl_linalg.h>
+#include <vector>
+#include "XYSegList.h"
 
 using namespace std;
 //using namespace boost::posix_time;
@@ -20,66 +23,53 @@ using namespace std;
 
 int main() {
 
-	int num_states = 10;
-	int discount_factor = 0.9;
-	gsl_matrix * transitions = gsl_matrix_calloc(num_states,num_states);
-	gsl_matrix * C = gsl_matrix_calloc(num_states,1);
-	gsl_matrix_add_constant(C,1);
+	XYSegList seglist;
 
-	for(int i=0;i<num_states;i++){
-		gsl_matrix * Am = gsl_matrix_calloc(num_states,num_states);
-		gsl_matrix_set_identity(Am);
-		gsl_matrix * tempB = gsl_matrix_alloc(num_states,num_states);
-		gsl_matrix_memcpy(tempB,transitions);
-		gsl_matrix_scale(tempB,discount_factor);
-		gsl_matrix_sub(Am,tempB);
-		gsl_permutation * p = gsl_permutation_alloc(num_states);
-		int s;
-		gsl_linalg_LU_decomp(Am,p,&s);
-//		gsl_linalg_LU_svx(Am,p,)
+	std::string filename = "relay_waypoints.txt";
+	std::string one_point;
+	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
 
-		gsl_matrix_free(Am);
-		gsl_matrix_free(tempB);
-//		gsl_permutation_free(num_states);
+	while(waypointsfile.good()){
+				getline(waypointsfile,one_point);
+				int pos = one_point.find(',');
+	if(pos>=0){
+				std::string subx = one_point.substr(0,pos-1);
+				std::string suby = one_point.substr(pos+1);
+				seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
+			}
 	}
 
-	gsl_matrix_free(transitions);
-	gsl_matrix_free(C);
+	for (unsigned i=0; i<seglist.size() ; i++){
+	    cout << seglist.get_vx(i)<<",";
+	    cout << seglist.get_vy(i)<<endl;
+	}
 
-	//	string date_string = "191112";
-//	string time_string = "225446.123";
-//	string modified_date = "20"+date_string.substr(4,2)+
-//			date_string.substr(2,2)+
-//			date_string.substr(0,2);
-//	string composite = modified_date+"T"+time_string;
+	//DO NOT DELETE
+//	int num_states = 10;
+//	int discount_factor = 0.9;
+//	gsl_matrix * transitions = gsl_matrix_calloc(num_states,num_states);
+//	gsl_matrix * C = gsl_matrix_calloc(num_states,1);
+//	gsl_matrix_add_constant(C,1);
 //
-//	cout << composite << endl;
+//	for(int i=0;i<num_states;i++){
+//		gsl_matrix * Am = gsl_matrix_calloc(num_states,num_states);
+//		gsl_matrix_set_identity(Am);
+//		gsl_matrix * tempB = gsl_matrix_alloc(num_states,num_states);
+//		gsl_matrix_memcpy(tempB,transitions);
+//		gsl_matrix_scale(tempB,discount_factor);
+//		gsl_matrix_sub(Am,tempB);
+//		gsl_permutation * p = gsl_permutation_alloc(num_states);
+//		int s;
+//		gsl_linalg_LU_decomp(Am,p,&s);
+////		gsl_linalg_LU_svx(Am,p,)
 //
-//	ptime t(from_iso_string(composite));
+//		gsl_matrix_free(Am);
+//		gsl_matrix_free(tempB);
+////		gsl_permutation_free(num_states);
+//	}
 //
-//	cout << to_simple_string(t) << endl;
-//
-//	time_duration td = t.time_of_day();
-//
-//	cout << to_simple_string( td ) << endl;
-//
-//	double seconds = td.total_milliseconds()/1000.0;
-//
-//	cout << seconds << endl;
-
-//	cout << to_simple_string(time_from_string(to_simple_string(t))) << endl;
-//	SIMPLIFIED_RECEIVE_INFO info;
-//	info.vehicle_name = "bob";
-//	info.num_frames = 3;
-//	info.num_good_frames = 2;
-//	info.num_bad_frames = 1;
-//	info.rate = 2;
-//
-//	cout << info.serializeToString() << endl;
-//
-//	SIMPLIFIED_RECEIVE_INFO info2( info.serializeToString() );
-//
-//	cout << info2.serializeToString() << endl;
+//	gsl_matrix_free(transitions);
+//	gsl_matrix_free(C);
 
 	return 0;
 }
