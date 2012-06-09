@@ -1,8 +1,8 @@
-ServerHost = 192.168.1.102
-ServerPort = 9002
+ServerHost = 192.168.1.103
+ServerPort = 9003
 Simulator = false
 
-Community = shore_node
+Community = kayak2
 
 LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
@@ -14,10 +14,10 @@ ProcessConfig = ANTLER
   Run = MOOSDB @ NewConsole = false
   Run = pMOOSBridge @ NewConsole = false
   Run = pLogger @ NewConsole = false
-	Run = pNodeReporter	@ NewConsole = false
- // Run = iacomms_driver @ NewConsole = false
+  Run = pNodeReporter	@ NewConsole = false
+  Run = iacomms_driver @ NewConsole = false
   Run = simple_gps @ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
+  Run = pEchoVar		@ NewConsole = false
 }
 
 ProcessConfig = simple_gps
@@ -25,7 +25,7 @@ ProcessConfig = simple_gps
 	AppTick = 2
 	CommsTick = 2
 	
-	PORT_NAME = /dev/ttyUSB1	
+	PORT_NAME = /dev/ttyUSB1
 	BAUD_RATE = 38400
 }
 
@@ -49,7 +49,6 @@ ProcessConfig = pacomms_timer
 {
 	AppTick = 5
 	CommsTick = 5
-
 }
 
 ProcessConfig = pMOOSBridge
@@ -120,7 +119,7 @@ ProcessConfig = pNodeReporter
 	AppTick		= 2
 	CommsTick	= 2
 
-	VESSEL_TYPE	= AUV		// Sets the icon in pMarineViewer
+	VESSEL_TYPE	= KAYAK		// Sets the icon in pMarineViewer
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
 	}
 
