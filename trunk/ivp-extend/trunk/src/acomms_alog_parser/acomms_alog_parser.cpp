@@ -16,6 +16,7 @@ ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 void ACOMMS_ALOG_PARSER::runParser() {
 	parseAllHeaders();
 	parseMOOSFiles();
+	generateHistories();
 }
 
 void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
@@ -55,19 +56,21 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 	creation_time = boost::posix_time::ptime_from_tm( header_time );
 //	cout << boost::posix_time::to_simple_string( creation_time ) << endl;
 
-	ALogEntry entry = getNextRawALogEntry( logfile );
-	moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 - entry.time();
+//	ALogEntry entry = getNextRawALogEntry( logfile );
+	moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// - entry.time();
 }
 
 bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 	ALogEntry entry = getNextRawALogEntry_josh( logfile );
 	if ( entry.getStatus() == "invalid" )
 		return false;
-	double first_moos_time = entry.getTimeStamp();
-	int first_moos_time_seconds = floor(entry.getTimeStamp());
-	int first_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_moos_time_seconds*1000;
-	time_duration first_moos_time_td = seconds( first_moos_time_seconds ) +
-			milliseconds( first_moos_time_milliseconds );
+//	double first_moos_time = entry.getTimeStamp();
+//	int first_moos_time_seconds = floor(entry.getTimeStamp());
+//	int first_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_moos_time_seconds*1000;
+//	time_duration first_moos_time_td = seconds( first_moos_time_seconds ) +
+//			milliseconds( first_moos_time_milliseconds );
+//
+//	cout << "first moos time " << first_moos_time_td << endl;
 	while ( entry.getStatus() != "eof" ) {
 		if ( entry.getVarName() == "GPS_PTIME" ) {
 //			cout << ">>" << entry.getStringVal()<< "<<" << endl;
@@ -84,8 +87,11 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
 					milliseconds( first_gps_moos_time_milliseconds );
 
-			creation_time = first_gps_ptime - first_gps_td - first_moos_time_td;
-			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 -first_moos_time;
+//			cout << "first gps time " << first_gps_td << endl;
+//			cout << "ptime " << first_gps_ptime << endl;
+
+			creation_time = first_gps_ptime - first_gps_td;// - first_moos_time_td;
+			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// -first_moos_time;
 			return true;
 		}
 		entry = getNextRawALogEntry_josh( logfile );
@@ -100,10 +106,15 @@ void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 			cout << "Failed to offset using gps time, using header." << endl;
 			alog_files[i].offsetViaHeader();
 		}
-		cout << alog_files[i].filename << "  header offset: " << alog_files[i].moos_time_offset <<
-				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
-//		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
+//		cout << alog_files[i].filename << "  moos time offset: " << alog_files[i].moos_time_offset <<
+//				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
 	}
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
+	fclose( logfile );
+	logfile = fopen( filename.c_str(), "r");
+	parseHeaderLines();
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
@@ -139,12 +150,28 @@ void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
 	}
 }
 
+bool history_sort ( ACOMMS_ALOG_PARSER::FILE_INFO f1, ACOMMS_ALOG_PARSER::FILE_INFO f2 ) {
+	return f1.moos_time_offset < f2.moos_time_offset;
+}
+
 void ACOMMS_ALOG_PARSER::generateHistories() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
+//		cout << alog_files[i].vehicle_name << endl;
 		vehicle_histories[alog_files[i].vehicle_name].vehicle_logs.push_back(alog_files[i]);
+		alog_files[i].resetFile();
+		if ( find( vehicle_names.begin(), vehicle_names.end(), alog_files[i].vehicle_name ) == vehicle_names.end() ) {
+			vehicle_names.push_back( alog_files[i].vehicle_name );
+		}
 	}
-	for ( int i=0; i<vehicle_histories.size(); i++ ) {
-
+	for ( int i=0; i<vehicle_names.size(); i++ ) {
+		string vehicle_name = vehicle_names[i];
+		cout << endl << vehicle_name << endl;
+		sort( 	vehicle_histories[vehicle_name].vehicle_logs.begin(),
+				vehicle_histories[vehicle_name].vehicle_logs.end(),
+				history_sort );
+		for ( int j=0; j<vehicle_histories[vehicle_name].vehicle_logs.size(); j++ ) {
+			cout << vehicle_histories[vehicle_name].vehicle_logs[j].filename << endl;
+		}
 	}
 }
 
