@@ -90,7 +90,7 @@ Behavior=BHV_Waypoint
 {
   name       = return
   pwt        = 100
-  condition  = MODE = RETURNING
+  condition  = MODE = ACTIVE:RETURNING
   endflag    = MODE = INACTIVE
   perpetual  = true
 
