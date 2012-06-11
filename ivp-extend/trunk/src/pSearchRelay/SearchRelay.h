@@ -31,7 +31,7 @@ public:
 	bool OnStartUp();
 	void ComputeIndex();
 	int Decision();
-	void UpdateStats(double);
+	bool UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
@@ -54,7 +54,7 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool waiting, relaying, transmit_success,stats_updated;
+	bool waiting, relaying, transmit_success;
 
 	//shore
 	pt::time_duration wait_time;

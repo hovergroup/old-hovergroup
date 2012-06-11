@@ -16,7 +16,6 @@ SearchRelay::SearchRelay()
 	normal_indices = std::vector<double> (18, 0);
 	fudge_factor = 5; //m
 	start = "default";
-	stats_updated = false;
 }
 
 //---------------------------------------------------------
@@ -62,7 +61,45 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			std::cout<<"Relay Success"<<std::endl;
 			transmit_success = true;
 			relaying = false;
-			UpdateStats(msg.GetDouble());
+			bool stats_updated = UpdateStats(msg.GetDouble());
+
+			if(stats_updated){
+					stats_updated = false;
+					int closest_ind = closest_vertex(myx,myy);
+					double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
+
+					if(closest_dist<fudge_factor){
+
+						if(data[closest_ind].size()<2){
+							//Not enough data, Stay in place
+							m_Comms.Notify("RELAY_MODE","KEEP");
+						}
+						else{
+							ComputeIndex();
+							if(closest_ind<wpx.size()-1 && data[closest_ind+1].size()<2){ //First pass
+								targetx = wpx[closest_ind+1];
+								targety = wpy[closest_ind+1];
+								std::stringstream ss;
+								ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+								std::cout<<"Updating: "<<ss.str()<<std::endl;
+								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+								m_Comms.Notify("RELAY_MODE","GOTO");
+							}
+							else{
+								int target = Decision();
+								targetx = wpx[target];
+								targety = wpy[target];
+								std::stringstream ss;
+								ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+								std::cout<<"Updating: "<<ss.str()<<std::endl;
+								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+								m_Comms.Notify("RELAY_MODE","GOTO");
+							}
+
+						}
+					}
+				}
+
 		}
 
 		else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
@@ -79,7 +116,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 					UpdateStats(0.0);
 				}
 
-				std::cout<<"Shore Transmitted Something"<<std::endl;
+				std::cout<<"Shore Transmitted Something... Waiting..."<<std::endl;
 
 				waiting = true;
 				relaying = false;
@@ -203,47 +240,6 @@ bool SearchRelay::Iterate()
 	// happens AppTick times per second
 
 	if(my_role=="relay"){
-
-		if(waiting){
-			std::cout<<"Waiting for shore transmission..."<<std::endl;
-		}
-
-		if(stats_updated){
-			int closest_ind = closest_vertex(myx,myy);
-			double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
-
-			if(closest_dist<fudge_factor){
-
-				if(data[closest_ind].size()<2){
-					//Not enough data, Stay in place
-					m_Comms.Notify("RELAY_MODE","KEEP");
-				}
-				else{
-					ComputeIndex();
-					if(closest_ind<wpx.size()-1 && data[closest_ind+1].size()<2){ //First pass
-						targetx = wpx[closest_ind+1];
-						targety = wpy[closest_ind+1];
-						std::stringstream ss;
-						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-						std::cout<<"Updating: "<<ss.str()<<std::endl;
-						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-						m_Comms.Notify("RELAY_MODE","GOTO");
-					}
-					else{
-						int target = Decision();
-						targetx = wpx[target];
-						targety = wpy[target];
-						std::stringstream ss;
-						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-						std::cout<<"Updating: "<<ss.str()<<std::endl;
-						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-						m_Comms.Notify("RELAY_MODE","GOTO");
-					}
-
-				}
-			}
-		}
-
 	}
 
 	else if(my_role=="end"){ //do nothing
@@ -280,7 +276,7 @@ bool SearchRelay::OnStartUp()
 	return(true);
 }
 
-void SearchRelay::UpdateStats(double snr_data){
+bool SearchRelay::UpdateStats(double snr_data){
 	//Here assuming last nav variables is current position
 	//Update the mean and var of one node if current position is within
 	//a fudge factor of that node
@@ -295,10 +291,10 @@ void SearchRelay::UpdateStats(double snr_data){
 		std::cout<<"Updating Mean and Var for Point #"<<closest_ind<<std::endl;
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
 		std::cout<<mean[closest_ind]<<" , "<<var[closest_ind]<< std::endl;
-		stats_updated = true;
+		return true;
 	}
 	else{
-		stats_updated = false;
+		return false;
 	}
 }
 
