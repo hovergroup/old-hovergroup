@@ -112,7 +112,7 @@ Behavior=BHV_StationKeep
   name		= Relay_Stationkeep
   priority		= 100
   condition     = MISSION_MODE = RELAY
-  condition     = RElAY_MODE = KEEP
+  condition     = RELAY_MODE = KEEP
   center_activate	= true
   station_pt            = 0,-10
   inner_radius	= 3
