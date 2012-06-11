@@ -54,7 +54,7 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool waiting, relaying, transmit_success;
+	bool waiting, relaying, transmit_success,stats_updated;
 
 	//shore
 	pt::time_duration wait_time;
