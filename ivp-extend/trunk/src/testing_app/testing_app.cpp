@@ -8,41 +8,45 @@
 #include <iostream>
 #include <fstream>
 //#include <acomms_messages.h>
-//#include <boost/date_time/posix_time/posix_time.hpp>
-#include <gsl/gsl_statistics_double.h>
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_permutation.h>
-#include <gsl/gsl_linalg.h>
-#include <vector>
-#include "XYSegList.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+//#include <gsl/gsl_statistics_double.h>
+//#include <gsl/gsl_matrix.h>
+//#include <gsl/gsl_blas.h>
+//#include <gsl/gsl_permutation.h>
+//#include <gsl/gsl_linalg.h>
+//#include <vector>
+//#include "XYSegList.h"
 
 using namespace std;
-//using namespace boost::posix_time;
+using namespace boost::posix_time;
 //using namespace lib_acomms_messages;
 
 int main() {
+//	string time_string = "2012-06-11T20:16:24.800000";
+	string time_string = "2002-Jan-01 10:00:01.123456789";
+	ptime p = time_from_string(time_string);
+	cout << to_simple_string(p) << endl;
 
-	XYSegList seglist;
-
-	std::string filename = "relay_waypoints.txt";
-	std::string one_point;
-	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
-
-	while(waypointsfile.good()){
-				getline(waypointsfile,one_point);
-				int pos = one_point.find(',');
-	if(pos>=0){
-				std::string subx = one_point.substr(0,pos-1);
-				std::string suby = one_point.substr(pos+1);
-				seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
-			}
-	}
-
-	for (unsigned i=0; i<seglist.size() ; i++){
-	    cout << seglist.get_vx(i)<<",";
-	    cout << seglist.get_vy(i)<<endl;
-	}
+//	XYSegList seglist;
+//
+//	std::string filename = "relay_waypoints.txt";
+//	std::string one_point;
+//	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
+//
+//	while(waypointsfile.good()){
+//				getline(waypointsfile,one_point);
+//				int pos = one_point.find(',');
+//	if(pos>=0){
+//				std::string subx = one_point.substr(0,pos-1);
+//				std::string suby = one_point.substr(pos+1);
+//				seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
+//			}
+//	}
+//
+//	for (unsigned i=0; i<seglist.size() ; i++){
+//	    cout << seglist.get_vx(i)<<",";
+//	    cout << seglist.get_vy(i)<<endl;
+//	}
 
 	//DO NOT DELETE
 //	int num_states = 10;
