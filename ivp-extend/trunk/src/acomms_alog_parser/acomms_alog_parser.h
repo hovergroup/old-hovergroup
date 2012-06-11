@@ -18,6 +18,7 @@
 #include <time.h>
 #include <map>
 #include <math.h>
+#include <algorithm>
 
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
@@ -54,6 +55,8 @@ public:
 
 		bool offsetViaGPS();
 		void offsetViaHeader();
+
+		void resetFile();
 	};
 
 	class VEHICLE_HISTORY {
@@ -79,6 +82,7 @@ private:
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
 
 	std::vector<FILE_INFO> alog_files;
+	std::vector<std::string> vehicle_names;
 	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
 
 };
