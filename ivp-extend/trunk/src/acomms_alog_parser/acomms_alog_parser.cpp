@@ -60,7 +60,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 }
 
 bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
-	ALogEntry entry = getNextRawALogEntry( logfile );
+	ALogEntry entry = getNextRawALogEntry_josh( logfile );
 	if ( entry.getStatus() == "invalid" )
 		return false;
 	double first_moos_time = entry.getTimeStamp();
@@ -71,7 +71,12 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 	while ( entry.getStatus() != "eof" ) {
 		if ( entry.getVarName() == "GPS_PTIME" ) {
 			cout << entry.getStringVal() << endl;
-			ptime first_gps_ptime( time_from_string( entry.getStringVal() ) );
+			ptime first_gps_ptime;
+			try {
+				first_gps_ptime = time_from_string( entry.getStringVal() );
+			} catch ( exception &e ) {
+				return false;
+			}
 			int first_gps_moos_time_seconds = floor(entry.getTimeStamp() );
 			int first_gps_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_gps_moos_time_seconds*1000;
 			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
@@ -81,7 +86,7 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 -first_moos_time;
 			return true;
 		}
-		entry = getNextRawALogEntry( logfile );
+		entry = getNextRawALogEntry_josh( logfile );
 	}
 	return false;
 }
@@ -139,4 +144,102 @@ void ACOMMS_ALOG_PARSER::generateHistories() {
 	for ( int i=0; i<vehicle_histories.size(); i++ ) {
 
 	}
+}
+
+ALogEntry ACOMMS_ALOG_PARSER::getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
+{
+	ALogEntry entry;
+	if (!fileptr) {
+		cout << "failed getNextRawALogEntry() - null file pointer" << endl;
+		entry.setStatus("invalid");
+		return (entry);
+	}
+
+	bool EOLine = false;
+	bool EOFile = false;
+	int buffix = 0;
+	int lineix = 0;
+	int myint = '\0';
+	char buff[MAX_LINE_LENGTH];
+
+	string time, var, rawsrc, val;
+
+	// Simple state machine:
+	//   0: time
+	//   1: between time and variable
+	//   2: variable
+	//   3: between variable and source
+	//   4: source
+	//   5: between source and value
+	//   6: value
+	int state = 0;
+
+	while ((!EOLine) && (!EOFile) && (lineix < MAX_LINE_LENGTH)) {
+		myint = fgetc(fileptr);
+		unsigned char mychar = myint;
+		switch (myint) {
+		case EOF:
+			EOFile = true;
+			break;
+		case ' ':
+			if (state == 6) {
+				buff[buffix] = mychar;
+				buffix++;
+			}
+//			break;
+		case '\t':
+			if (state == 0) {
+				buff[buffix] = '\0';
+				time = buff;
+				buffix = 0;
+				state = 1;
+			} else if (state == 2) {
+				buff[buffix] = '\0';
+				var = buff;
+				buffix = 0;
+				state = 3;
+			} else if (state == 4) {
+				buff[buffix] = '\0';
+				rawsrc = buff;
+				buffix = 0;
+				state = 5;
+			}
+			break;
+		case '\n':
+			buff[buffix] = '\0'; // attach terminating NULL
+			val = buff;
+			EOLine = true;
+			break;
+		default:
+			if (state == 1)
+				state = 2;
+			else if (state == 3)
+				state = 4;
+			else if (state == 5)
+				state = 6;
+			buff[buffix] = mychar;
+			buffix++;
+		}
+		lineix++;
+	}
+
+	string src = biteString(rawsrc, ':');
+	string srcaux = rawsrc;
+
+//	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
+
+	if ((time != "") && (var != "") && (src != "") && (val != "")
+			&& isNumber(time)) {
+		if (allstrings || !isNumber(val))
+			entry.set(atof(time.c_str()), var, src, srcaux, val);
+		else
+			entry.set(atof(time.c_str()), var, src, srcaux, atof(val.c_str()));
+	} else {
+		if (EOFile)
+			entry.setStatus("eof");
+		else
+			entry.setStatus("invalid");
+	}
+
+	return (entry);
 }
