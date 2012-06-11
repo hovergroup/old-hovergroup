@@ -125,6 +125,9 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("GPS_PTIME",0);
 
 	if(my_role=="relay"){
+
+		discount = 5;
+
 		m_MissionReader.GetConfigurationParam("Mode",mode);
 		m_MissionReader.GetConfigurationParam("Discount",discount);
 		m_Comms.Register("ACOMMS_SNR_OUT",0);
@@ -135,14 +138,15 @@ bool SearchRelay::OnConnectToServer()
 
 		if(mode=="normal"){
 			if(discount==5){
+//				std::cout << "memcpy " << sizeof(temp_normal_indices_five[0]) << endl;
 				double temp_normal_indices_five[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
 						0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-				memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*18 );
+				memcpy( &normal_indices[0], &temp_normal_indices_five[0], sizeof(temp_normal_indices_five[0])*18 );
 			}
 			else if(discount==1){
 				double temp_normal_indices_one[18] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
 						0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
-				memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*18 );
+				memcpy( &normal_indices[0], &temp_normal_indices_one[0], sizeof(temp_normal_indices_one[0])*18 );
 			}
 		}
 
