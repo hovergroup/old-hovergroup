@@ -69,7 +69,7 @@ Behavior = BHV_Waypoint
 { 
   name      = goto_and_return
   pwt       = 100
-  condition = MODE = GOKEEP
+  condition = MODE = ACTIVE:GOTO:GOCOME
   endflag   = MODE = ACTIVE:RETURNING
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
