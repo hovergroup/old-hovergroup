@@ -210,7 +210,7 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 		string composite = modified_date+"T"+time_string;
 		ptime t(from_iso_string(composite));
 
-		m_Comms.Notify("GPS_PTIME", to_simple_string(t));
+		m_Comms.Notify("GPS_PTIME", to_iso_extended_string(t));
 
 		double seconds = t.time_of_day().total_milliseconds()/1000.0;
 		m_Comms.Notify("GPS_TIME_SECONDS", seconds);

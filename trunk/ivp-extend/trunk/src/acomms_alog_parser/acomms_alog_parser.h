@@ -22,7 +22,8 @@
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
 
-#define UTC_TIME_OFFSET = -4;
+#define UTC_TIME_OFFSET -4
+#define MAX_LINE_LENGTH 10000
 
 class ACOMMS_ALOG_PARSER {
 public:
@@ -74,6 +75,8 @@ private:
 	void parseAllHeaders();
 	void parseMOOSFiles();
 	void generateHistories();
+
+	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
 
 	std::vector<FILE_INFO> alog_files;
 	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
