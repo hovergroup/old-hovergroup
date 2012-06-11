@@ -61,7 +61,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
     		data[closest_ind].push_back(msg.GetDouble());
     		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
     	    var[closest_ind] = gsl_stats_variance(&(data[closest_ind][0]),1,data[closest_ind].size());
-    	    std::cout<<"Updating Mean and Var for Point "<<closest_ind<<std::endl;
+    	    std::cout<<"Updating Mean and Var for Point #"<<closest_ind<<std::endl;
     	    std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
     	    std::cout<<mean[closest_ind]<<" , "<<var[closest_ind]<< std::endl;
     	  }
@@ -69,9 +69,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
       //shore
       else if(key=="SEARCH_RELAY_WAIT_TIME"){
     	  wait_time = pt::seconds((long) msg.GetDouble());
-      }
-      else if(key=="SEARCH_RELAY_RATE"){
-    	  rate = (int) msg.GetDouble();
       }
       else if(key=="NAV_X"){
     	  myx = msg.GetDouble();
@@ -138,15 +135,14 @@ bool SearchRelay::OnConnectToServer()
 	}
 
 	else if(my_role=="shore"){
-		m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 		m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
-		m_Comms.Register("SEARCH_RELAY_RATE",0);
 		m_Comms.Register("RELAY_STATUS",0);
 		m_Comms.Register("END_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_START",0);
 		wait_time = pt::seconds(20);
 		rate = 2;
+		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 		last = pt::ptime(pt::pos_infin);
 	}
 
@@ -180,6 +176,7 @@ bool SearchRelay::Iterate()
 			else if(rate==2){length = 192;}
 			std::string mail = ss.str()+"---"+getRandomString(length);
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+			counter++;
 			last = pt::ptime(now);
 		}
 	}
