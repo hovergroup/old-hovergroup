@@ -180,6 +180,13 @@ bool SearchRelay::Iterate()
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",relay_message);
 			relaying = false;
 		}
+
+		int closest_ind = closest_vertex(myx,myy);
+		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
+		if(closest_dist<fudge_factor){
+			if()
+		}
+
 	}
 
 	else if(my_role=="end"){ //do nothing

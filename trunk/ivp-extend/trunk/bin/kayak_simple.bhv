@@ -6,6 +6,36 @@ initialize   KEEP=false
 initialize   HSLINE=on
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOCOME=false
+initialize 	 MISSION=Normal
+
+//-----------Mode Declaration
+Set MODE=SearchRelay{
+	MISSION=SearchRelay
+} Normal
+//------------Normal Modes
+Set MODE=Active{
+	MODE=Normal
+	DEPLOY = true
+	RETURN = false
+}
+Set MODE=Station{
+	MODE=Normal
+	DEPLOY = false
+	RETURN = false
+	KEEP = true
+} Return
+
+Set MODE=GoTo{
+	MODE=Normal:Active
+	GOCOME = false
+} GoCome
+//-------------Relay Modes
+Set MODE = GoTo{
+
+}
+Set MODE = Station{
+} Return
+//---------------------------
 
 Behavior = BHV_HSLine
 {
@@ -19,9 +49,7 @@ Behavior = BHV_Waypoint
 { 
   name      = simple_goto
   pwt       = 100
-  condition = GOCOME = false
-  condition = RETURN = false
-  condition = DEPLOY = true
+  condition = MODE = Normal:Active:GoTo
   endflag   = KEEP = true
   endflag   = DEPLOY = false
   perpetual = true
@@ -43,9 +71,7 @@ Behavior = BHV_Waypoint
 { 
   name      = goto_and_return
   pwt       = 100
-  condition = GOCOME = true
-  condition = RETURN = false
-  condition = DEPLOY = true
+  condition = MODE = Normal:Active:GoCome
   endflag   = RETURN = true
   endflag   = DEPLOY = false
   perpetual = true
@@ -67,8 +93,7 @@ Behavior=BHV_Waypoint
 {
   name       = return
   pwt        = 100
-  condition  = RETURN = true
-  condition  = DEPLOY = false
+  condition  = MODE = Normal:Return
   perpetual  = true
   endflag    = RETURN = false
   endflag    = DEPLOY = false
@@ -83,9 +108,7 @@ Behavior=BHV_StationKeep
 {
   name		= Archie_Stationkeep
   priority		= 100
-  condition		= KEEP=true
-  condition		= DEPLOY=false
-  condition		= RETURN=false
+  condition		= MODE = Normal:Station
   center_activate	= true
   station_pt            = 0,-10
   inner_radius	= 5
@@ -94,14 +117,27 @@ Behavior=BHV_StationKeep
   swing_time	= 0
 }
 
+//-------------Relay Behaviors
+Behavior=BHV_Waypoint
+{
+  name       = relay_return
+  pwt        = 100
+  condition  = MODE = SearchRelay:Return
+  perpetual  = true
+  endflag    = RETURN = false
+  endflag    = DEPLOY = false
+
+         speed = 2.0
+        radius = 2.0
+     nm_radius = 8.0
+        points = -1,-9
+}
+
 Behavior = BHV_Waypoint
 { 
-  name      = simple_relay
+  name      = relay_goto
   pwt       = 100
-  condition = GOCOME = false
-  condition = RETURN = false
-  condition = DEPLOY = true
-  condition = RELAY_DEPLOY = true
+  condition = MODE = SearchRelay:GoTo
   endflag   = KEEP = true
   endflag   = DEPLOY = false
   perpetual = true
