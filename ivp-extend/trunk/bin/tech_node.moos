@@ -82,7 +82,6 @@ ProcessConfig = pMOOSBridge
 	//Search Relay Shares
 	SHARE = [END_STATUS] -> shore_node@192.168.1.102:9002
 	SHARE = [ACOMMS_SNR_OUT] -> kayak@192.168.1.101:9001
-	
 	}
 
 ProcessConfig = pLogger

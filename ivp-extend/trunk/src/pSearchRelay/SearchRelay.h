@@ -30,6 +30,7 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 	void ComputeIndices();
+	void UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
@@ -39,15 +40,20 @@ protected:
 	//all
 	std::string my_role;
 	pt::ptime last,now;
+
 	//relay
 	std::string mode;
 	std::map<double, std::vector<double> > data;
 	std::map<double,double> mean, var;
 	std::vector<double> normal_indices_five, normal_indices_one;
 	std::vector<double> wpx, wpy;
+	std::string relay_message;
 	double fudge_factor;
 	XYSegList seglist;
 	double myx,myy;
+	double targetx,targety;
+	bool waiting, relaying, transmit_success;
+
 	//shore
 	pt::time_duration wait_time;
 	int rate,counter;
