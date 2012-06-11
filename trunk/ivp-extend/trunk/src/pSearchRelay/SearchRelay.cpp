@@ -13,7 +13,7 @@
 
 SearchRelay::SearchRelay()
 {
-	normal_indices = std::vector<double> (19, 0);
+	normal_indices = std::vector<double> (18, 0);
 	fudge_factor = 5; //m
 	start = "default";
 	stats_updated = false;
@@ -135,14 +135,14 @@ bool SearchRelay::OnConnectToServer()
 
 		if(mode=="normal"){
 			if(discount==5){
-				double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
+				double temp_normal_indices_five[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
 						0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-				memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*19 );
+				memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*18 );
 			}
 			else if(discount==1){
-				double temp_normal_indices_one[19] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
+				double temp_normal_indices_one[18] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
 						0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
-				memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*19 );
+				memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*18 );
 			}
 		}
 
@@ -311,7 +311,7 @@ void SearchRelay::ComputeIndex(){
 				gindex = normal_indices[num_obs];
 			}
 			else{	//interpolate
-				int base = 9+(num_obs/10);
+				int base = 8+(num_obs/10);
 				int offset = num_obs%10;
 				double difference = (normal_indices[base]-normal_indices[base+1])/10;
 				gindex = normal_indices[base] + offset*difference;
