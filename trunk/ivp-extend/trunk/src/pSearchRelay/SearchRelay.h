@@ -54,6 +54,7 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
+	double link1_stat;
 	bool waiting, relaying, transmit_success;
 
 	//shore
