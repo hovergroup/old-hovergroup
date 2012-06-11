@@ -48,8 +48,8 @@ Behavior = BHV_Waypoint
 { 
   name      = simple_goto
   pwt       = 100
-  condition = MODE = GOSTAY
-  endflag   = MODE = STATION-KEEPING
+  condition = MODE = ACTIVE:GOTO:GOSTAY
+  endflag   = MODE = ACTIVE:STATION-KEEPING
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
 
@@ -70,7 +70,7 @@ Behavior = BHV_Waypoint
   name      = goto_and_return
   pwt       = 100
   condition = MODE = GOKEEP
-  endflag   = MODE = RETURNING
+  endflag   = MODE = ACTIVE:RETURNING
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
 
@@ -104,7 +104,7 @@ Behavior=BHV_StationKeep
 {
   name		= Archie_Stationkeep
   priority		= 100
-  condition		= MODE = STATION-KEEPING
+  condition		= MODE = ACTIVE:STATION-KEEPING
   center_activate	= true
   station_pt            = 0,-10
   inner_radius	= 5
