@@ -98,8 +98,8 @@ Behavior = BHV_Waypoint
           lead = 8
    lead_damper = 1
          speed = 2.0   // meters per second
-        radius = 2
-   slip_radius = 3
+        radius = 3
+   slip_radius = 5
         points = 40,-20 : 40,-60 : 80,-60 : 80,-20 : 40,-20
         repeat = 0
   visual_hints = nextpt_color=red, nextpt_lcolor=green
@@ -113,8 +113,9 @@ Behavior=BHV_StationKeep
   priority		= 100
   condition     = MISSION_MODE = RELAY
   condition     = RELAY_MODE = KEEP
-  center_activate	= true
-  station_pt            = 0,-10
+  updates = STATION_RELAY_UPDATES
+  
+  station_pt    = 0,-10
   inner_radius	= 3
   outer_radius	= 5
   outer_speed	= 2.0
