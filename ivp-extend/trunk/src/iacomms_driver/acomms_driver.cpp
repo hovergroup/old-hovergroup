@@ -251,11 +251,13 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
         m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
         m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
 
-        string frame_string = trans.frame(0);
-        for ( int i=1; i<trans.frame_size(); i++ ) {
-        	frame_string += trans.frame(i);
+        if ( trans.frame_size() > 0 ) {
+			string frame_string = trans.frame(0);
+			for ( int i=1; i<trans.frame_size(); i++ ) {
+				frame_string += trans.frame(i);
+			}
+			m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
         }
-        m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
 }
 
 void acomms_driver::publishWarning( std::string message ) {
