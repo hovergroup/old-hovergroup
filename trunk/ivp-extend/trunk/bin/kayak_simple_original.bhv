@@ -49,7 +49,8 @@ Behavior = BHV_Waypoint
   name      = simple_goto
   pwt       = 100
   condition = MODE = ACTIVE:GOTO:GOSTAY
-  endflag   = MODE = ACTIVE:STATION-KEEPING
+  endflag   = GOTO=false
+  endflag   = KEEP=true
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
 
