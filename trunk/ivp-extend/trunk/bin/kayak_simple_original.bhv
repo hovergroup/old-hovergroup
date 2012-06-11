@@ -32,7 +32,7 @@ set MODE = GOTO {
 }
 
 set MODE = GOSTAY {
-  MODE = GOTO
+  MODE = ACTIVE:GOTO
   GOSTAY = true
 } GOCOME
 
