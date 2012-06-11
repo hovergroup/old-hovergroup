@@ -138,7 +138,7 @@ bool SearchRelay::OnConnectToServer()
 
 		if(mode=="normal"){
 			if(discount==5){
-				std::cout << "memcpy " << sizeof(temp_normal_indices_five[0]) << endl;
+				std::cout << "memcpy " << sizeof(temp_normal_indices_five[0]) << std::endl;
 				double temp_normal_indices_five[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
 						0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
 				memcpy( &normal_indices[0], &temp_normal_indices_five[0], sizeof(temp_normal_indices_five[0])*18 );
