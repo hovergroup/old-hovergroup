@@ -298,12 +298,21 @@ void SearchRelay::ComputeIndex(){
 				gindex = normal_indices[base] + offset*difference;
 			}
 			indices[closest_ind] = mean[closest_ind]+sqrt(var[closest_ind])*gindex;
+			std::cout<<"Point "<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
 		}
 	}
 }
 
 int SearchRelay::Decision(){
-	int target;
+	int target=0;
+	//Find largest index
+
+	for(int i=0;i<indices.size();i++){
+		if(indices[i]>indices[target]){
+			target = i;
+		}
+	}
+
 	return target;
 }
 
