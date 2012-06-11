@@ -16,6 +16,7 @@ SearchRelay::SearchRelay()
 	normal_indices = std::vector<double> (19, 0);
 	fudge_factor = 5; //m
 	start = "default";
+	stats_updated = false;
 }
 
 //---------------------------------------------------------
@@ -43,6 +44,14 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 		}
 		//relay
+		else if(key=="SEARCH_RELAY_RESET"){
+			data.clear();
+			mean.clear();
+			var.clear();
+			indices.clear();
+			targetx = wpx[0];
+			targety = wpy[0];
+		}
 		else if(key=="NAV_X"){
 			myx = msg.GetDouble();
 		}
@@ -122,17 +131,18 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("NAV_X",0);
 		m_Comms.Register("NAV_Y",0);
 		m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
+		m_Comms.Register("SEARCH_RELAY_RESET",0);
 
 		if(mode=="normal"){
 			if(discount==5){
-			double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
-					0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-			memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*19 );
+				double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
+						0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
+				memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*19 );
 			}
 			else if(discount==1){
-			double temp_normal_indices_one[19] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
-					0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
-			memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*19 );
+				double temp_normal_indices_one[19] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
+						0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
+				memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*19 );
 			}
 		}
 
@@ -187,34 +197,39 @@ bool SearchRelay::Iterate()
 			relaying = false;
 		}
 
-		int closest_ind = closest_vertex(myx,myy);
-		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
+		if(stats_updated){
+			int closest_ind = closest_vertex(myx,myy);
+			double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
 
-		if(closest_dist<fudge_factor){
+			if(closest_dist<fudge_factor){
 
-			if(data[closest_ind].size()<2){
-				//Not enough data, Stay in place
-			}
-			else{
-				ComputeIndex();
-				if(closest_ind==wpx.size() || data[closest_ind+1].size()<2){ //First pass
-					targetx = wpx[closest_ind+1];
-					targety = wpy[closest_ind+1];
-					std::stringstream ss;
-					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-					std::cout<<"Updating: "<<ss.str()<<std::endl;
-					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				if(data[closest_ind].size()<2){
+					//Not enough data, Stay in place
+					m_Comms.Notify("MISSION_MODE","STATION-KEEP");
 				}
 				else{
-					int target = Decision();
-					targetx = wpx[target];
-					targety = wpy[target];
-					std::stringstream ss;
-					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-					std::cout<<"Updating: "<<ss.str()<<std::endl;
-					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-				}
+					ComputeIndex();
+					if(closest_ind==wpx.size() || data[closest_ind+1].size()<2){ //First pass
+						targetx = wpx[closest_ind+1];
+						targety = wpy[closest_ind+1];
+						std::stringstream ss;
+						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+						std::cout<<"Updating: "<<ss.str()<<std::endl;
+						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+						m_Comms.Notify("MISSION_MODE","GOTO");
+					}
+					else{
+						int target = Decision();
+						targetx = wpx[target];
+						targety = wpy[target];
+						std::stringstream ss;
+						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+						std::cout<<"Updating: "<<ss.str()<<std::endl;
+						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+						m_Comms.Notify("MISSION_MODE","GOTO");
+					}
 
+				}
 			}
 		}
 
@@ -269,6 +284,10 @@ void SearchRelay::UpdateStats(double snr_data){
 		std::cout<<"Updating Mean and Var for Point #"<<closest_ind<<std::endl;
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
 		std::cout<<mean[closest_ind]<<" , "<<var[closest_ind]<< std::endl;
+		stats_updated = true;
+	}
+	else{
+		stats_updated = false;
 	}
 }
 
@@ -284,7 +303,7 @@ void SearchRelay::ComputeIndex(){
 
 			if(num_obs==100){
 				std::cout<<"Exceeded maximum observations. Switching Modes."<<std::endl;
-				m_Comms.Notify("MISSION","Normal");
+				m_Comms.Notify("MISSION_MODE","STATION-KEEP");
 			}
 
 			double gindex;
