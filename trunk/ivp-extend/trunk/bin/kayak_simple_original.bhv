@@ -5,7 +5,40 @@ initialize   RETURN=false
 initialize   KEEP=false
 initialize   HSLINE=on
 initialize   MOOS_MANUAL_OVERRIDE=true
-initialize   GOCOME=false
+initialize   GOTO=false
+initialize   GOSTAY = true
+
+set MODE = ACTIVE {
+  DEPLOY = true
+  RETURN = false
+} INACTIVE
+
+set MODE = RETURNING {
+  RETURN = true
+}
+
+set MODE = STATION-KEEPING  {
+  MODE = ACTIVE
+  KEEP = true
+  GOTO = false
+  RETURN = false
+}
+
+set MODE = GOSTAY {
+  MODE = ACTIVE
+  GOTO = true
+  GOSTAY = true
+  KEEP = false
+  RETURN = false
+}
+
+set MODE = GOCOME {
+  MODE = ACTIVE
+  GOTO = true
+  GOSTAY = false
+  KEEP = false
+  RETURN = false
+}
 
 Behavior = BHV_HSLine
 {
@@ -19,11 +52,8 @@ Behavior = BHV_Waypoint
 { 
   name      = simple_goto
   pwt       = 100
-  condition = GOCOME = false
-  condition = RETURN = false
-  condition = DEPLOY = true
-  endflag   = KEEP = true
-  endflag   = DEPLOY = false
+  condition = MODE = GOSTAY
+  endflag   = MODE = STATION-KEEPING
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
 
@@ -43,11 +73,8 @@ Behavior = BHV_Waypoint
 { 
   name      = goto_and_return
   pwt       = 100
-  condition = GOCOME = true
-  condition = RETURN = false
-  condition = DEPLOY = true
-  endflag   = RETURN = true
-  endflag   = DEPLOY = false
+  condition = MODE = GOKEEP
+  endflag   = MODE = RETURNING
   perpetual = true
   updates   = WPT_SURVEY_UPDATES
 
@@ -67,11 +94,9 @@ Behavior=BHV_Waypoint
 {
   name       = return
   pwt        = 100
-  condition  = RETURN = true
-  condition  = DEPLOY = false
+  condition  = MODE = RETURNING
+  endflag    = MODE = INACTIVE
   perpetual  = true
-  endflag    = RETURN = false
-  endflag    = DEPLOY = false
 
          speed = 2.0
         radius = 2.0
@@ -83,9 +108,7 @@ Behavior=BHV_StationKeep
 {
   name		= Archie_Stationkeep
   priority		= 100
-  condition		= KEEP=true
-  condition		= DEPLOY=false
-  condition		= RETURN=false
+  condition		= MODE = STATION-KEEPING
   center_activate	= true
   station_pt            = 0,-10
   inner_radius	= 5
