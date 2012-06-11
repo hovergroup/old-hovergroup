@@ -43,7 +43,7 @@ Behavior = BHV_Waypoint
   condition = GOSTAY = true
   endflag   = MISSION_MODE = STATION-KEEP
   perpetual = true
-  updates   = WPT_SURVEY_UPDATES
+  updates   = WPT_RELAY_UPDATES
 
           lead = 8
    lead_damper = 1
