@@ -205,7 +205,7 @@ bool SearchRelay::Iterate()
 
 				if(data[closest_ind].size()<2){
 					//Not enough data, Stay in place
-					m_Comms.Notify("MISSION_MODE","STATION-KEEP");
+					m_Comms.Notify("RELAY_MODE","KEEP");
 				}
 				else{
 					ComputeIndex();
@@ -216,7 +216,7 @@ bool SearchRelay::Iterate()
 						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
 						std::cout<<"Updating: "<<ss.str()<<std::endl;
 						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-						m_Comms.Notify("MISSION_MODE","GOTO");
+						m_Comms.Notify("RELAY_MODE","GOTO");
 					}
 					else{
 						int target = Decision();
@@ -226,7 +226,7 @@ bool SearchRelay::Iterate()
 						ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
 						std::cout<<"Updating: "<<ss.str()<<std::endl;
 						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-						m_Comms.Notify("MISSION_MODE","GOTO");
+						m_Comms.Notify("RELAY_MODE","GOTO");
 					}
 
 				}
@@ -303,7 +303,7 @@ void SearchRelay::ComputeIndex(){
 
 			if(num_obs==100){
 				std::cout<<"Exceeded maximum observations. Switching Modes."<<std::endl;
-				m_Comms.Notify("MISSION_MODE","STATION-KEEP");
+				m_Comms.Notify("RELAY_MODE","KEEP");
 			}
 
 			double gindex;
