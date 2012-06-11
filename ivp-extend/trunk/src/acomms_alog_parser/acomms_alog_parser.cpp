@@ -70,7 +70,7 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 			milliseconds( first_moos_time_milliseconds );
 	while ( entry.getStatus() != "eof" ) {
 		if ( entry.getVarName() == "GPS_PTIME" ) {
-			cout << entry.getStringVal() << endl;
+//			cout << ">>" << entry.getStringVal()<< "<<" << endl;
 			ptime first_gps_ptime;
 			try {
 				first_gps_ptime = time_from_string( entry.getStringVal() );
@@ -227,6 +227,8 @@ ALogEntry ACOMMS_ALOG_PARSER::getNextRawALogEntry_josh(FILE *fileptr, bool allst
 
 	string src = biteString(rawsrc, ':');
 	string srcaux = rawsrc;
+
+	val = stripBlankEnds(val);
 
 //	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
 
