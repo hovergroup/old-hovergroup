@@ -59,7 +59,9 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 		else if(key=="ACOMMS_SNR_OUT"){
+			std::cout<<"Relay Success"<<std::endl;
 			transmit_success = true;
+			relaying = false;
 			UpdateStats(msg.GetDouble());
 		}
 
@@ -67,12 +69,17 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			if(msg.GetCommunity()=="shore_node"){
 
 				if(waiting){	//Missed sync with shore node
+					std::cout<<"Missed Sync with Shore"<<std::endl;
 					UpdateStats(0.0);
 				}
 
-				else if(!transmit_success){	//Missed sync with end node
+				else if(relaying){	//Missed sync with end node
+					std::cout<<"Missed Sync with Tech"<<std::endl;
+					relaying = false;
 					UpdateStats(0.0);
 				}
+
+				std::cout<<"Shore Transmitted Something"<<std::endl;
 
 				waiting = true;
 				relaying = false;
@@ -81,7 +88,9 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(waiting){
+				std::cout<<"Relaying..."<<std::endl;
 				relay_message = msg.GetString();
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",relay_message);
 				relaying = true;
 				waiting = false;
 			}
@@ -141,7 +150,7 @@ bool SearchRelay::OnConnectToServer()
 
 				double temp_normal_indices_five[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
 						0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-				std::cout << "memcpy " << sizeof(temp_normal_indices_five[0]) << std::endl;
+				//std::cout << "memcpy " << sizeof(temp_normal_indices_five[0]) << std::endl;
 				memcpy( &normal_indices[0], &temp_normal_indices_five[0], sizeof(temp_normal_indices_five[0])*18 );
 			}
 			else if(discount==1){
@@ -152,14 +161,17 @@ bool SearchRelay::OnConnectToServer()
 		}
 
 		relaying = false;
+		//std::cout<<"wpts"<<std::endl;
 		GetWaypoints();
 		targetx = wpx[0];
 		targety = wpy[0];
 
 		std::stringstream ss;
-		ss<<targetx<<" , "<<targety;
-
-		m_Comms.Notify("SEARCH_RELAY_TARGET_WAYPOINT",ss.str());
+		ss<<"points="<<targetx<<","<<targety;
+		//std::cout<<"Updating: "<<ss.str()<<std::endl;
+		m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+		m_Comms.Notify("RELAY_MODE","GOTO");
+		m_Comms.Notify("MISSION_MODE","RELAY");
 		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);
 		m_Comms.Notify("RELAY_STATUS","ready");
 	}
@@ -196,12 +208,6 @@ bool SearchRelay::Iterate()
 			std::cout<<"Waiting for shore transmission..."<<std::endl;
 		}
 
-		if(relaying){
-			std::cout<<"Relaying Now..."<<std::endl;
-			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",relay_message);
-			relaying = false;
-		}
-
 		if(stats_updated){
 			int closest_ind = closest_vertex(myx,myy);
 			double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
@@ -214,7 +220,7 @@ bool SearchRelay::Iterate()
 				}
 				else{
 					ComputeIndex();
-					if(closest_ind==wpx.size() || data[closest_ind+1].size()<2){ //First pass
+					if(closest_ind<wpx.size()-1 && data[closest_ind+1].size()<2){ //First pass
 						targetx = wpx[closest_ind+1];
 						targety = wpy[closest_ind+1];
 						std::stringstream ss;
@@ -312,14 +318,16 @@ void SearchRelay::ComputeIndex(){
 			}
 
 			double gindex;
-			if(num_obs<=10){
+			if(num_obs<=9){
 				gindex = normal_indices[num_obs];
+				std::cout<<"1-10 gindex:"<<gindex<<std::endl;
 			}
 			else{	//interpolate
 				int base = 8+(num_obs/10);
 				int offset = num_obs%10;
 				double difference = (normal_indices[base]-normal_indices[base+1])/10;
 				gindex = normal_indices[base] + offset*difference;
+				std::cout<<"10-100 gindex:"<<gindex<<std::endl;
 			}
 			indices[closest_ind] = mean[closest_ind]+sqrt(var[closest_ind])*gindex;
 			std::cout<<"Point "<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
@@ -344,15 +352,28 @@ void SearchRelay::GetWaypoints(){
 	std::string filename = "relay_waypoints.txt";
 	std::string one_point;
 	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
+		int counter=0;
 
-	while(waypointsfile.good()){
+	while(waypointsfile.good()&&counter<99){
+		std::cout<<"ReadingPoints"<<std::endl;
 		getline(waypointsfile,one_point);
 		int pos = one_point.find(',');
-		if(pos>=0){
-			std::string subx = one_point.substr(0,pos-1);
-			std::string suby = one_point.substr(pos+1);
-			seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
-		}
+
+		std::cout<<one_point<<std::endl;
+		std::cout<<counter<<std::endl;
+		std::string subx = one_point.substr(0,pos-1);
+		wpx.push_back(atof(subx.c_str()));
+		std::cout<<subx<<std::endl;
+		std::string suby = one_point.substr(pos+1);
+		std::cout<<suby<<std::endl;
+		wpy.push_back(atof(suby.c_str()));
+		seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
+		mean.push_back(0.0);
+		var.push_back(0.0);
+		std::vector<double> temp_vec;
+		data[counter] = temp_vec;
+		indices.push_back(0.0);
+		counter++;
 	}
 }
 
