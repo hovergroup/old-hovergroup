@@ -110,8 +110,8 @@ ProcessConfig = pMarineViewer
   right_context = WPT_SURVEY_UPDATES= points=$(XPOS),$(YPOS)
 
   BUTTON_ONE   = DEPLOY  # DEPLOY=true # RETURN=false # KEEP=false # MOOS_MANUAL_OVERRIDE=false # GOTO = true
-  BUTTON_TWO   = RETURN  # DEPLOY=false # RETURN=true # KEEP=false # MOOS_MANUAL_OVERRIDE=false
-  BUTTON_THREE = STATION # DEPLOY=true # RETURN=false # KEEP=true # MOOS_MANUAL_OVERRIDE=false  
+  BUTTON_TWO   = RETURN  # DEPLOY=true # RETURN=true # KEEP=false # MOOS_MANUAL_OVERRIDE=false
+  BUTTON_THREE = STATION # DEPLOY=true # RETURN=false # KEEP=true # MOOS_MANUAL_OVERRIDE=false  # GOTO = false
   BUTTON_FOUR  = ALLSTOP # DEPLOY=false # RETURN=false # MOOS_MANUAL_OVERRIDE=true
 }
 

@@ -10,10 +10,10 @@ initialize   GOSTAY = true
 
 set MODE = ACTIVE {
   DEPLOY = true
-  RETURN = false
 } INACTIVE
 
 set MODE = RETURNING {
+  MODE = ACTIVE
   RETURN = true
 }
 
@@ -24,21 +24,17 @@ set MODE = STATION-KEEPING  {
   RETURN = false
 }
 
-set MODE = GOSTAY {
+set MODE = GOTO {
   MODE = ACTIVE
-  GOTO = true
-  GOSTAY = true
   KEEP = false
+  GOTO = true
   RETURN = false
 }
 
-set MODE = GOCOME {
-  MODE = ACTIVE
-  GOTO = true
-  GOSTAY = false
-  KEEP = false
-  RETURN = false
-}
+set MODE = GOSTAY {
+  MODE = GOTO
+  GOSTAY = true
+} GOCOME
 
 Behavior = BHV_HSLine
 {
