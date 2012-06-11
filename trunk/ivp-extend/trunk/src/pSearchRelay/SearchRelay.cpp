@@ -13,8 +13,7 @@
 
 SearchRelay::SearchRelay()
 {
-	normal_indices_five = std::vector<double> (19, 0);
-	normal_indices_one = std::vector<double> (19, 0);
+	normal_indices = std::vector<double> (19, 0);
 	fudge_factor = 5; //m
 	start = "default";
 }
@@ -118,18 +117,23 @@ bool SearchRelay::OnConnectToServer()
 
 	if(my_role=="relay"){
 		m_MissionReader.GetConfigurationParam("Mode",mode);
+		m_MissionReader.GetConfigurationParam("Discount",discount);
 		m_Comms.Register("ACOMMS_SNR_OUT",0);
 		m_Comms.Register("NAV_X",0);
 		m_Comms.Register("NAV_Y",0);
 		m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 
 		if(mode=="normal"){
+			if(discount==5){
 			double temp_normal_indices_five[19] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
 					0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-			memcpy( &temp_normal_indices_five[0], &normal_indices_five[0], sizeof(temp_normal_indices_five[0])*19 );
+			memcpy( &temp_normal_indices_five[0], &normal_indices[0], sizeof(temp_normal_indices_five[0])*19 );
+			}
+			else if(discount==1){
 			double temp_normal_indices_one[19] = {39.3343,3.102,1.3428,0.9052,0.7054,0.5901,0.5123,0.4556,0.4119,
 					0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
-			memcpy( &temp_normal_indices_one[0], &normal_indices_one[0], sizeof(temp_normal_indices_one[0])*19 );
+			memcpy( &temp_normal_indices_one[0], &normal_indices[0], sizeof(temp_normal_indices_one[0])*19 );
+			}
 		}
 
 		relaying = false;
@@ -172,9 +176,11 @@ bool SearchRelay::Iterate()
 	// happens AppTick times per second
 
 	if(my_role=="relay"){
+
 		if(waiting){
 			std::cout<<"Waiting for shore transmission..."<<std::endl;
 		}
+
 		if(relaying){
 			std::cout<<"Relaying Now..."<<std::endl;
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",relay_message);
@@ -183,8 +189,33 @@ bool SearchRelay::Iterate()
 
 		int closest_ind = closest_vertex(myx,myy);
 		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
+
 		if(closest_dist<fudge_factor){
-			if()
+
+			if(data[closest_ind].size()<2){
+				//Not enough data, Stay in place
+			}
+			else{
+				ComputeIndex();
+				if(closest_ind==wpx.size() || data[closest_ind+1].size()<2){ //First pass
+					targetx = wpx[closest_ind+1];
+					targety = wpy[closest_ind+1];
+					std::stringstream ss;
+					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+					std::cout<<"Updating: "<<ss.str()<<std::endl;
+					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				}
+				else{
+					int target = Decision();
+					targetx = wpx[target];
+					targety = wpy[target];
+					std::stringstream ss;
+					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+					std::cout<<"Updating: "<<ss.str()<<std::endl;
+					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				}
+
+			}
 		}
 
 	}
@@ -241,21 +272,39 @@ void SearchRelay::UpdateStats(double snr_data){
 	}
 }
 
-void SearchRelay::ComputeIndices(){
+void SearchRelay::ComputeIndex(){
 	if(mode=="normal"){
 		int closest_ind = closest_vertex(myx,myy);
 		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
 		std::cout<<"Closest distance was: "<<closest_dist<<std::endl;
 		std::cout<<"Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
 		if(closest_dist<fudge_factor){
-			std::cout<<"Computing Indices..."<<std::endl;
+			std::cout<<"Computing Index..."<<std::endl;
 			int num_obs = data[closest_ind].size();
-			data[closest_ind].push_back(snr_data);
-			mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
-			var[closest_ind] = gsl_stats_variance(&(data[closest_ind][0]),1,data[closest_ind].size());
-			std::cout<<"Updating Index for Point #"<<closest_ind<<std::endl;
+
+			if(num_obs==100){
+				std::cout<<"Exceeded maximum observations. Switching Modes."<<std::endl;
+				m_Comms.Notify("MISSION","Normal");
+			}
+
+			double gindex;
+			if(num_obs<=10){
+				gindex = normal_indices[num_obs];
+			}
+			else{	//interpolate
+				int base = 9+(num_obs/10);
+				int offset = num_obs%10;
+				double difference = (normal_indices[base]-normal_indices[base+1])/10;
+				gindex = normal_indices[base] + offset*difference;
+			}
+			indices[closest_ind] = mean[closest_ind]+sqrt(var[closest_ind])*gindex;
 		}
 	}
+}
+
+int SearchRelay::Decision(){
+	int target;
+	return target;
 }
 
 void SearchRelay::GetWaypoints(){

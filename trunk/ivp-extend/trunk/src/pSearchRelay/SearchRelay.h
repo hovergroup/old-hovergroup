@@ -29,7 +29,8 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
-	void ComputeIndices();
+	void ComputeIndex();
+	int Decision();
 	void UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
@@ -43,9 +44,10 @@ protected:
 
 	//relay
 	std::string mode;
+	int discount;
 	std::map<double, std::vector<double> > data;
-	std::map<double,double> mean, var;
-	std::vector<double> normal_indices_five, normal_indices_one;
+	std::vector<double> mean, var,indices;
+	std::vector<double> normal_indices;
 	std::vector<double> wpx, wpy;
 	std::string relay_message;
 	double fudge_factor;
