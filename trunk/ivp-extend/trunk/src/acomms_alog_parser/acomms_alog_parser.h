@@ -17,6 +17,7 @@
 #include <vector>
 #include <time.h>
 #include <map>
+#include <math.h>
 
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_

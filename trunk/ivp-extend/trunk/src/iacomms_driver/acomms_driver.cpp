@@ -24,6 +24,9 @@ acomms_driver::acomms_driver()
 
 	transmission_rate = 0;
 	transmission_dest = 0;
+
+	receive_set_time = 0;
+	status_set_time = 0;
 }
 
 //---------------------------------------------------------
