@@ -58,6 +58,22 @@ Behavior = BHV_Waypoint
   visual_hints = vertex_size=2, edge_size=1
 }
 
+
+Behavior=BHV_StationKeep
+{
+  name		= Relay_Stationkeep
+  priority		= 100
+  condition     = MISSION_MODE = RELAY
+  condition     = RElAY_MODE = KEEP
+  center_activate	= true
+  station_pt            = 0,-10
+  inner_radius	= 3
+  outer_radius	= 6
+  outer_speed	= 1.0
+  swing_time	= 0
+}
+
+
 Behavior = BHV_Waypoint
 { 
   name      = goto_and_return

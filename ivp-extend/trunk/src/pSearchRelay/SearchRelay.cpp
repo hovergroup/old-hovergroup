@@ -58,12 +58,16 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 		else if(key=="ACOMMS_SNR_OUT"){
-			std::cout<<"Relay Success"<<std::endl;
-			transmit_success = true;
-			relaying = false;
-			bool stats_updated = UpdateStats(msg.GetDouble());
+			std::cout<<"Stat from "<<msg.GetCommunity()<<std::endl;
 
-			if(stats_updated){
+			if(msg.GetCommunity()=="tech_node"){
+				transmit_success = true;
+				relaying = false;
+
+				UpdateStats(link1_stat);
+				bool stats_updated = UpdateStats(msg.GetDouble());
+
+				if(stats_updated){
 					stats_updated = false;
 					int closest_ind = closest_vertex(myx,myy);
 					double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
@@ -72,10 +76,10 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 						if(data[closest_ind].size()<2){
 							//Not enough data, Stay in place
-							m_Comms.Notify("RELAY_MODE","KEEP");
 						}
 						else{
 							ComputeIndex();
+
 							if(closest_ind<wpx.size()-1 && data[closest_ind+1].size()<2){ //First pass
 								targetx = wpx[closest_ind+1];
 								targety = wpy[closest_ind+1];
@@ -98,13 +102,24 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 						}
 					}
+					else{
+						std::stringstream ss;
+						ss<<"points="<<myx<<","<<myy<<":"<<seglist.get_vx(closest_ind)<<","<<seglist.get_vy(closest_ind);
+						std::cout<<"Updating: "<<ss.str()<<std::endl;
+						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+						m_Comms.Notify("RELAY_MODE","GOTO");
+					}
 				}
+			}
+			else{
+				link1_stat = msg.GetDouble();
+			}
 
 		}
 
 		else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
+			std::cout<<"Msg from: "<<msg.GetCommunity()<<std::endl;
 			if(msg.GetCommunity()=="shore_node"){
-
 				if(waiting){	//Missed sync with shore node
 					std::cout<<"Missed Sync with Shore"<<std::endl;
 					UpdateStats(0.0);
@@ -181,6 +196,7 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("NAV_Y",0);
 		m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 		m_Comms.Register("SEARCH_RELAY_RESET",0);
+		m_Comms.Register("ACOMMS_TRANSMIT_SIMPLE",0);
 
 		if(mode=="normal"){
 			if(discount==5){
@@ -307,7 +323,7 @@ void SearchRelay::ComputeIndex(){
 		if(closest_dist<fudge_factor){
 			std::cout<<"Computing Index..."<<std::endl;
 			int num_obs = data[closest_ind].size();
-
+			std::cout<<"Num Obs: "<<num_obs<<std::endl;
 			if(num_obs==100){
 				std::cout<<"Exceeded maximum observations. Switching Modes."<<std::endl;
 				m_Comms.Notify("RELAY_MODE","KEEP");
@@ -336,11 +352,13 @@ int SearchRelay::Decision(){
 	//Find largest index
 
 	for(int i=0;i<indices.size();i++){
+		std::cout<<"Point: "<<i<<" Index: "<<indices[i]<<std::endl;
 		if(indices[i]>indices[target]){
 			target = i;
 		}
 	}
 
+	std::cout<<"Decided on Point: "<<target<<" with Index: "<<indices[target]<<std::endl;
 	return target;
 }
 
@@ -348,9 +366,9 @@ void SearchRelay::GetWaypoints(){
 	std::string filename = "relay_waypoints.txt";
 	std::string one_point;
 	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
-		int counter=0;
+	int counter=0;
 
-	while(waypointsfile.good()&&counter<99){
+	while(waypointsfile.good()&&counter<5){
 		std::cout<<"ReadingPoints"<<std::endl;
 		getline(waypointsfile,one_point);
 		int pos = one_point.find(',');
