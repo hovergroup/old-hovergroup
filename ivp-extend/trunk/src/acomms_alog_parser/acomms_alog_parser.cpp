@@ -8,6 +8,7 @@
 #include "acomms_alog_parser.h"
 
 using namespace std;
+using namespace boost::posix_time;
 
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 }
@@ -56,18 +57,44 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 
 	ALogEntry entry = getNextRawALogEntry( logfile );
 	moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 - entry.time();
-	cout << filename << "  header offset: " << moos_time_offset << endl;
 }
 
 bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
+	ALogEntry entry = getNextRawALogEntry( logfile );
+	if ( entry.getStatus() == "invalid" )
+		return false;
+	double first_moos_time = entry.getTimeStamp();
+	int first_moos_time_seconds = floor(entry.getTimeStamp());
+	int first_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_moos_time_seconds*1000;
+	time_duration first_moos_time_td = seconds( first_moos_time_seconds ) +
+			milliseconds( first_moos_time_milliseconds );
+	while ( entry.getStatus() != "eof" ) {
+		if ( entry.getVarName() == "GPS_PTIME" ) {
+			cout << entry.getStringVal() << endl;
+			ptime first_gps_ptime( time_from_string( entry.getStringVal() ) );
+			int first_gps_moos_time_seconds = floor(entry.getTimeStamp() );
+			int first_gps_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_gps_moos_time_seconds*1000;
+			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
+					milliseconds( first_gps_moos_time_milliseconds );
 
+			creation_time = first_gps_ptime - first_gps_td - first_moos_time_td;
+			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0 -first_moos_time;
+			return true;
+		}
+		entry = getNextRawALogEntry( logfile );
+	}
+	return false;
 }
 
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
 		alog_files[i].parseHeaderLines();
-		if ( !alog_files[i].offsetViaGPS() )
+		if ( !alog_files[i].offsetViaGPS() ) {
+			cout << "Failed to offset using gps time, using header." << endl;
 			alog_files[i].offsetViaHeader();
+		}
+		cout << alog_files[i].filename << "  header offset: " << alog_files[i].moos_time_offset <<
+				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
 //		cout << alog_files[i].filename << "  " << alog_files[i].header_lines[1] << endl;
 	}
 }
