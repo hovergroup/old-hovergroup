@@ -77,6 +77,8 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 			} catch ( exception &e ) {
 				return false;
 			}
+			time_duration utc_correction = hours(UTC_TIME_OFFSET);
+			first_gps_ptime += utc_correction;
 			int first_gps_moos_time_seconds = floor(entry.getTimeStamp() );
 			int first_gps_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_gps_moos_time_seconds*1000;
 			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
