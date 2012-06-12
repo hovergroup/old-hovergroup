@@ -88,7 +88,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 								std::cout<<"Updating: "<<ss.str()<<std::endl;
 								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
 								m_Comms.Notify("RELAY_MODE","GOTO");
-								ss.clear();
+								ss.str("");
 								ss<<"station_pt="<<targetx<<","<<targety;
 								m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 							}
@@ -101,7 +101,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 								std::cout<<"Updating: "<<ss.str()<<std::endl;
 								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
 								m_Comms.Notify("RELAY_MODE","GOTO");
-								ss.clear();
+								ss.str("");
 								ss<<"station_pt="<<targetx<<","<<targety;
 								m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 							}
@@ -224,7 +224,7 @@ bool SearchRelay::OnConnectToServer()
 		ss<<"points="<<targetx<<","<<targety;
 		//std::cout<<"Updating: "<<ss.str()<<std::endl;
 		m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-		ss.clear();
+		ss.str("");
 		ss<<"station_pt="<<targetx<<","<<targety;
 		m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 		m_Comms.Notify("RELAY_MODE","GOTO");
@@ -236,7 +236,6 @@ bool SearchRelay::OnConnectToServer()
 	else if(my_role=="end"){
 		m_Comms.Notify("END_STATUS","ready");
 	}
-
 	else if(my_role=="shore"){
 		m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
