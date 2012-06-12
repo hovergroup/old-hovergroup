@@ -24,8 +24,52 @@ void ACOMMS_ALOG_PARSER::runParser() {
 
 	cout << endl << endl;
 	lookForEvents();
-	cout << "Found " << initial_transmit_events.size() << " transmit events and " <<
+	cout << endl << "Found " << initial_transmit_events.size() << " transmit events and " <<
 			initial_receive_events.size() << " receive events." << endl;
+
+	sync_losses = 0;
+	self_receives =0;
+	matchWithTime();
+
+	cout << endl << endl;
+	cout << leftover_receive_events.size() << " homeless receipts" << endl;
+	cout << sync_losses << " sync losses and " << self_receives << " self receipts" << endl;
+
+	outputResults();
+}
+
+void ACOMMS_ALOG_PARSER::matchWithTime() {
+	for ( int i=0; i<initial_transmit_events.size(); i++ ) {
+		TRANSMISSION_EVENT t_event = initial_transmit_events[i];
+		double transmit_time = t_event.transmission_time;
+		for ( int j=0; j<vehicle_names.size(); j++ ) {
+			string name = vehicle_names[j];
+			bool receive_found = false;
+			for ( int k=0; k<initial_receive_events.size(); k++ ) {
+				double time_diff = initial_receive_events[k].receive_time - transmit_time;
+				if ( time_diff > 0 && time_diff < TRANSMISSION_TIMEOUT ){
+					t_event.receptions_vector.push_back( initial_receive_events[k] );
+					t_event.receptions_map["name"] = initial_receive_events[k];
+					initial_receive_events.erase( initial_receive_events.begin()+=k );
+					receive_found = true;
+
+					if ( initial_receive_events[k].vehicle_name == t_event.transmitter_name )
+						self_receives++;
+
+					break;
+				}
+			}
+			if ( !receive_found ) {
+				if ( name != t_event.transmitter_name )
+					sync_losses++;
+				RECEPTION_EVENT r_event;
+				r_event.receive_status = 2;
+				r_event.vehicle_name = name;
+			}
+		}
+	}
+
+	leftover_receive_events = initial_receive_events;
 }
 
 void ACOMMS_ALOG_PARSER::lookForEvents() {
