@@ -29,6 +29,80 @@
 #define TRANSMISSION_TIMEOUT 10
 
 class ACOMMS_ALOG_PARSER {
+
+public:
+	class RECEPTION_EVENT {
+	public:
+		RECEPTION_EVENT() { receive_status = -1; }
+
+		// this vehicle's name and id at time of receipt
+		std::string vehicle_name;
+		int vehicle_id;
+
+		// only sync loss implemented
+		int receive_status;
+		// 0 = received fully
+		// 1 = sync ok, bad crc(s)
+		// 2 = sync loss, no detection
+
+		// time receipt was published by driver
+		double receive_time;
+		// time micromodem reported hearing start of packet
+		double receive_start_time;
+
+		// gps information at time of receipt
+		int gps_x, gps_y;
+		double gps_age;
+
+		// packet information
+		goby::acomms::protobuf::ModemTransmission data_msg;
+	};
+
+	class TRANSMISSION_EVENT {
+	public:
+		TRANSMISSION_EVENT() {}
+
+		// name and id of transmitting vehicle
+		std::string transmitter_name;
+		int source_id;
+
+		// transmission rate
+		int rate;
+		// -1 = fsk mini
+		// 0 = fsk
+		// 2 = psk
+
+		int destination_id;
+		// 0 = broadcast
+
+		// data_sent in transmission, binary data not implemented
+		std::string data;
+
+		// gps information at time of transmission
+		int gps_x, gps_y;
+		double gps_age;
+
+		// transmission time
+		double transmission_time;
+
+		// reception events are stored in both a map and vector for ease of access
+		// they contain the same reception events
+		std::map<std::string,RECEPTION_EVENT> receptions_map;
+		std::vector<RECEPTION_EVENT> receptions_vector;
+	};
+
+private:
+	void outputResults();
+
+	std::vector<std::string> vehicle_names;
+	std::vector<TRANSMISSION_EVENT> matched_transmit_events;
+	std::vector<RECEPTION_EVENT> leftover_receive_events;
+
+// --------------------------------------------------------------------------------
+// Don't look past here
+// --------------------------------------------------------------------------------
+
+
 public:
 	ACOMMS_ALOG_PARSER();
 	~ACOMMS_ALOG_PARSER() {};
@@ -72,57 +146,22 @@ public:
 
 	};
 
-	class RECEPTION_EVENT {
-	public:
-		RECEPTION_EVENT() {}
-
-		std::string vehicle_name;
-		int vehicle_id;
-
-		int receive_status;
-		// 0 = received fully
-		// 1 = sync ok, bad crc(s)
-		// 2 = sync loss, no detection
-
-		double receive_time, receive_start_time;
-
-		int gps_x, gps_y;
-		double gps_age;
-
-		goby::acomms::protobuf::ModemTransmission data_msg;
-	};
-
-	class TRANSMISSION_EVENT {
-	public:
-		TRANSMISSION_EVENT() {}
-
-		std::string transmitter_name;
-		int rate, source_id, destination_id;
-		std::string data;
-
-		int gps_x, gps_y;
-		double gps_age;
-
-		double transmission_time;
-
-		std::map<std::string,RECEPTION_EVENT> receptions_map;
-		std::vector<RECEPTION_EVENT> receptions_vector;
-	};
-
 private:
 	void parseAllHeaders();
 	void parseMOOSFiles();
 	void generateHistories();
 	void lookForEvents();
+	void matchWithTime();
 
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
 
 	std::vector<FILE_INFO> alog_files;
-	std::vector<std::string> vehicle_names;
 	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
 
 	std::vector<RECEPTION_EVENT> initial_receive_events;
 	std::vector<TRANSMISSION_EVENT> initial_transmit_events;
+
+	int sync_losses, self_receives;
 };
 
 

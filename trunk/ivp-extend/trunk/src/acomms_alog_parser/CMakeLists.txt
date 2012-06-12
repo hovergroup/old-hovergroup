@@ -12,7 +12,7 @@ else (${WIN32})
     m)
 endif (${WIN32})
 
-SET(SRC acomms_alog_parser_main.cpp acomms_alog_parser.cpp)
+SET(SRC acomms_alog_parser_main.cpp acomms_alog_parser.cpp acomms_alog_parser_output.cpp)
 
 ADD_EXECUTABLE(acomms_alog_parser ${SRC})
    
