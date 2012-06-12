@@ -38,6 +38,101 @@ void ACOMMS_ALOG_PARSER::runParser() {
 //	outputResults();
 }
 
+// ------------------------------------------------------------------------------------------------
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::processFile() {
+	openFile();
+
+	parseMOOSFile();
+	parseHeaderLines();
+	collectData();
+
+	closeFile();
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
+	AlogEntry entry = getNextEntry();
+	while ( entry.getStatus != "eof" ) {
+
+	}
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::openFile() {
+	cout << "opening " << filename << endl;
+	logfile = fopen( filename.c_str(), "r" );
+	file_is_open = true;
+	cout << "fetching header" << endl;
+	parseHeaderLines();
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
+	getNextLine();
+	header_lines.clear();
+	for ( int i=0; i<3; i++ )
+		header_lines.push_back( getNextLine() );
+	getNextLine();
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::closeFile() {
+	fclose(logfile);
+	file_is_open = false;
+}
+
+ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getNextEntry() {
+	if ( !file_is_open )
+		openFile();
+	return getNextRawALogEntry_josh( logfile );
+}
+
+string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
+	if ( !file_is_open )
+		openFile();
+	return getNextRawLine_josh( logfile );
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
+	string moosfilename = filename;
+	int extension_index = moosfilename.find(".alog");
+	moosfilename.replace(extension_index, 5, "._moos");
+
+	FILE * this_moos_file = fopen( moosfilename.c_str(), "r");
+	string line = getNextRawLine( this_moos_file );
+	while ( line != "eof" ) {
+		// needs improvement
+		if ( line.find("community") != string::npos || line.find("Community") != string::npos ) {
+			int tmp_index = line.find("=")+1;
+			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
+			break;
+		}
+		line = getNextRawLine( this_moos_file );
+	}
+
+	fclose( this_moos_file );
+
+	CProcessConfigReader missionreader;
+	missionreader.SetFile( moosfilename );
+	missionreader.GetConfigurationParam("iacomms_driver", "ID", vehicle_id);
+}
+
+// ------------------------------------------------------------------------------------------------
+
+void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
+	alog_files.push_back( FILE_INFO( filename ) );
+}
+
+void ACOMMS_ALOG_PARSER::addAlogFile( boost::filesystem::path filepath ) {
+//	NEVER LOOK HERE
+	alog_files.push_back( FILE_INFO( string( filepath.string().c_str() ) ) );
+}
+
+
+
+
+
+
+
+
+
 void ACOMMS_ALOG_PARSER::matchWithTime() {
 	for ( int i=0; i<initial_transmit_events.size(); i++ ) {
 		TRANSMISSION_EVENT t_event = initial_transmit_events[i];
@@ -98,11 +193,14 @@ void ACOMMS_ALOG_PARSER::lookForEvents() {
 //			my_file->logfile
 			// look through the file
 //			ALogEntry entry = getNextRawALogEntry( my_file->logfile );
+			cout << "getting first line" << endl;
+			cout << my_file->getNextLine() << endl;
 			ALogEntry entry = my_file->getTimeAdjustedNextEntry();
+			cout << "got first entry" << endl;
 			int iteration = 0;
 			while ( entry.getStatus() != "eof" ) {
 				iteration++;
-				if ( iteration%1000 == 0 ) {
+				if ( iteration%10000 == 0 ) {
 					cout << "MOOSTime: " << entry.getTimeStamp()-my_file->moos_time_offset << endl;
 				}
 //				cout << my_file->filename << "  " << entry.getTimeStamp() << endl;
@@ -172,27 +270,6 @@ void ACOMMS_ALOG_PARSER::lookForEvents() {
 	}
 }
 
-void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
-	FILE_INFO new_info;
-	new_info.filename = filename;
-//	new_info.logfile = fopen( filename.c_str(), "r" );
-	alog_files.push_back( new_info );
-}
-
-void ACOMMS_ALOG_PARSER::addAlogFile( boost::filesystem::path filepath ) {
-	FILE_INFO new_info;
-	new_info.filename = string(filepath.string().c_str());
-//	new_info.logfile = fopen( filepath.string().c_str(), "r" );
-	alog_files.push_back( new_info );
-}
-
-void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
-	getNextLine();
-	for ( int i=0; i<3; i++ )
-		header_lines.push_back( getNextLine() );
-	getNextLine();
-}
-
 void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 	int date_start = header_lines[1].find("ON ") + 3;
 	string date_string = header_lines[1].substr(date_start, header_lines[1].size()-date_start);
@@ -250,7 +327,8 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 
 void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
-		alog_files[i].parseHeaderLines();
+//		alog_files[i].parseHeaderLines();
+		alog_files[i].resetFile();
 		if ( !alog_files[i].offsetViaGPS() ) {
 			cout << "Failed to offset using gps time, using header: " <<
 					alog_files[i].filename << endl;
@@ -259,33 +337,6 @@ void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 //		cout << alog_files[i].filename << "  moos time offset: " << alog_files[i].moos_time_offset <<
 //				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
 	}
-}
-
-void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
-	string moosfilename = filename;
-	int extension_index = moosfilename.find(".alog");
-	moosfilename.replace(extension_index, 5, "._moos");
-
-	FILE * this_moos_file = fopen( moosfilename.c_str(), "r");
-	string line = getNextRawLine( this_moos_file );
-	while ( line != "eof" ) {
-		if ( line.find("community") != string::npos || line.find("Community") != string::npos ) {
-			int tmp_index = line.find("=")+1;
-			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
-			break;
-		}
-		line = getNextRawLine( this_moos_file );
-	}
-
-	fclose( this_moos_file );
-
-	CProcessConfigReader missionreader;
-	missionreader.SetFile( moosfilename );
-	missionreader.GetConfigurationParam("iacomms_driver", "ID", vehicle_id);
-
-//	cout << "filename: " << filename <<
-//			"  vehicle: " << vehicle_name <<
-//			"  id: " << vehicle_id << endl;
 }
 
 void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
@@ -319,41 +370,54 @@ void ACOMMS_ALOG_PARSER::generateHistories() {
 	}
 }
 
-void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
-	if ( fclose( logfile ) != 0 ) {
-		cout << "Error closing " << filename << endl;
-		exit(1);
-	}
-	logfile = fopen( filename.c_str(), "r");
-//	parseHeaderLines();
-}
+//void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
+//	if ( file_is_open ) {
+//		closeFile();
+//	}
+//	openFile();
+//}
 
-ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getNextEntry() {
-	if ( !file_is_open )
-		openFile();
-	return getNextRawALogEntry_josh( logfile );
-}
+//ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getTimeAdjustedNextEntry() {
+//	ALogEntry next_entry = getNextEntry();
+//	next_entry.skewForward( moos_time_offset );
+//	return next_entry;
+//}
 
-string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
-	if ( !file_is_open )
-		openFile();
-	return getNextRawLine( logfile );
-}
+string ACOMMS_ALOG_PARSER::getNextRawLine_josh(FILE *fileptr)
+{
+  if(!fileptr) {
+    cout << "failed getNextLine() - null file pointer" << endl;
+    return("err");
+  }
 
-void ACOMMS_ALOG_PARSER::FILE_INFO::openFile() {
-	logfile = fopen( filename.c_str(), "r" );
-	file_is_open = true;
-}
+  bool   EOL     = false;
+  int    buffix  = 0;
+  int    myint   = '\0';
+  char   buff[MAX_LINE_LENGTH];
 
-void ACOMMS_ALOG_PARSER::FILE_INFO::closeFile() {
-	fclose(logfile);
-	file_is_open = false;
-}
-
-ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getTimeAdjustedNextEntry() {
-	ALogEntry next_entry = getNextEntry();
-	next_entry.skewForward( moos_time_offset );
-	return next_entry;
+  int iteration = 0;
+  while((!EOL) && (buffix < MAX_LINE_LENGTH)) {
+	  iteration++;
+//	cout << iteration << endl;
+    myint = fgetc(fileptr);
+//    cout << "got that character" << endl;
+    unsigned char mychar = myint;
+    switch(myint) {
+    case EOF:
+      fclose(fileptr);
+      fileptr = 0;
+      return("eof");
+    case '\n':
+      buff[buffix] = '\0';  // attach terminating NULL
+      EOL = true;
+      break;
+    default:
+      buff[buffix] = mychar;
+      buffix++;
+    }
+  }
+  string str = buff;
+  return(str);
 }
 
 ALogEntry ACOMMS_ALOG_PARSER::getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
@@ -393,10 +457,10 @@ ALogEntry ACOMMS_ALOG_PARSER::getNextRawALogEntry_josh(FILE *fileptr, bool allst
 			EOFile = true;
 			break;
 		case ' ':
-			if (state == 6) {
-				buff[buffix] = mychar;
-				buffix++;
-			}
+//			if (state == 6) {
+//				buff[buffix] = mychar;
+//				buffix++;
+//			}
 //			break;
 		case '\t':
 			if (state == 0) {

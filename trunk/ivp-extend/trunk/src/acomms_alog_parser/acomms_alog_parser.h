@@ -118,34 +118,38 @@ public:
 
 	class FILE_INFO {
 	public:
-		FILE_INFO() {}
+		FILE_INFO( std::string filename ) {
+			this.filename = filename;
+			file_is_open = false;
+		}
 
-		std::string filename;
-		FILE * logfile;
-		std::vector<std::string> header_lines;
+		void processFile();
 
-		boost::posix_time::ptime creation_time;
-		double moos_time_offset;
-		std::string vehicle_name;
-		int vehicle_id;
-
-		ALogEntry getNextEntry();
-		ALogEntry getTimeAdjustedNextEntry();
-
-		std::string getNextLine();
-		void parseMOOSFile();
+	private:
 		void parseHeaderLines();
-
+		void parseMOOSFile();
+		void collectData();
 		bool offsetViaGPS();
 		void offsetViaHeader();
 
-		void resetFile();
+		ALogEntry getNextEntry();
+		std::string getNextLine();
 
-	private:
 		bool file_is_open;
 		void openFile();
 		void closeFile();
 
+		std::string filename;
+		std::string vehicle_name;
+		int vehicle_id;
+		FILE * logfile;
+		double moos_time_offset;
+		std::vector<std::string> header_lines;
+		boost::posix_time::ptime creation_time;
+
+		std::vector< std::pair<double,double> > gps_x, gps_y;
+		std::vector< std::pair<double,std::string> > driver_status;
+		std::vector< std::>
 	};
 
 	class VEHICLE_HISTORY {
@@ -164,6 +168,7 @@ private:
 	void matchWithTime();
 
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
+	static std::string getNextRawLine_josh(FILE *fileptr);
 
 	std::vector<FILE_INFO> alog_files;
 	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
