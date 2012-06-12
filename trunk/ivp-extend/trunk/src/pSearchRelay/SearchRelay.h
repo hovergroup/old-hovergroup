@@ -44,7 +44,7 @@ protected:
 
 	//relay
 	std::string mode;
-	int discount;
+	int discount,min_obs;
 	std::map<double, std::vector<double> > data;
 	std::vector<double> mean, var,indices;
 	std::vector<double> normal_indices;

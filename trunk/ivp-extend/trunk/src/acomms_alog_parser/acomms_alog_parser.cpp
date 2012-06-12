@@ -35,7 +35,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 	cout << leftover_receive_events.size() << " homeless receipts" << endl;
 	cout << sync_losses << " sync losses and " << self_receives << " self receipts" << endl;
 
-	outputResults();
+//	outputResults();
 }
 
 void ACOMMS_ALOG_PARSER::matchWithTime() {
