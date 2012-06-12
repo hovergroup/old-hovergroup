@@ -91,12 +91,22 @@ void ACOMMS_ALOG_PARSER::lookForEvents() {
 			// get current log file
 			FILE_INFO * my_file = &(my_history->vehicle_logs[j]);
 			cout << "Searching " << my_file->filename << endl;
+			cout << " belonging to " << my_name << endl;
 
 			int rcount = 0, tcount = 0;
 
+//			my_file->logfile
 			// look through the file
+//			ALogEntry entry = getNextRawALogEntry( my_file->logfile );
 			ALogEntry entry = my_file->getTimeAdjustedNextEntry();
+			int iteration = 0;
 			while ( entry.getStatus() != "eof" ) {
+				iteration++;
+				if ( iteration%1000 == 0 ) {
+					cout << "MOOSTime: " << entry.getTimeStamp()-my_file->moos_time_offset << endl;
+				}
+//				cout << my_file->filename << "  " << entry.getTimeStamp() << endl;
+
 				string key = entry.getVarName();
 				if ( key == "GPS_X" || key == "NAV_X" ) {
 					gps_x = entry.getDoubleVal();
@@ -165,19 +175,15 @@ void ACOMMS_ALOG_PARSER::lookForEvents() {
 void ACOMMS_ALOG_PARSER::addAlogFile( std::string filename ) {
 	FILE_INFO new_info;
 	new_info.filename = filename;
-	new_info.logfile = fopen( filename.c_str(), "r" );
+//	new_info.logfile = fopen( filename.c_str(), "r" );
 	alog_files.push_back( new_info );
 }
 
 void ACOMMS_ALOG_PARSER::addAlogFile( boost::filesystem::path filepath ) {
 	FILE_INFO new_info;
 	new_info.filename = string(filepath.string().c_str());
-	new_info.logfile = fopen( filepath.string().c_str(), "r" );
+//	new_info.logfile = fopen( filepath.string().c_str(), "r" );
 	alog_files.push_back( new_info );
-}
-
-string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
-	return getNextRawLine( logfile );
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::parseHeaderLines() {
@@ -204,7 +210,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
 }
 
 bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
-	ALogEntry entry = getNextRawALogEntry_josh( logfile );
+	ALogEntry entry = getNextEntry();
 	if ( entry.getStatus() == "invalid" )
 		return false;
 //	double first_moos_time = entry.getTimeStamp();
@@ -237,7 +243,7 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// -first_moos_time;
 			return true;
 		}
-		entry = getNextRawALogEntry_josh( logfile );
+		entry = getNextEntry();
 	}
 	return false;
 }
@@ -253,12 +259,6 @@ void ACOMMS_ALOG_PARSER::parseAllHeaders() {
 //		cout << alog_files[i].filename << "  moos time offset: " << alog_files[i].moos_time_offset <<
 //				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
 	}
-}
-
-void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
-	fclose( logfile );
-	logfile = fopen( filename.c_str(), "r");
-	parseHeaderLines();
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
@@ -319,12 +319,39 @@ void ACOMMS_ALOG_PARSER::generateHistories() {
 	}
 }
 
+void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
+	if ( fclose( logfile ) != 0 ) {
+		cout << "Error closing " << filename << endl;
+		exit(1);
+	}
+	logfile = fopen( filename.c_str(), "r");
+//	parseHeaderLines();
+}
+
 ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getNextEntry() {
+	if ( !file_is_open )
+		openFile();
 	return getNextRawALogEntry_josh( logfile );
 }
 
+string ACOMMS_ALOG_PARSER::FILE_INFO::getNextLine() {
+	if ( !file_is_open )
+		openFile();
+	return getNextRawLine( logfile );
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::openFile() {
+	logfile = fopen( filename.c_str(), "r" );
+	file_is_open = true;
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::closeFile() {
+	fclose(logfile);
+	file_is_open = false;
+}
+
 ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getTimeAdjustedNextEntry() {
-	ALogEntry next_entry = getNextRawALogEntry_josh( logfile );
+	ALogEntry next_entry = getNextEntry();
 	next_entry.skewForward( moos_time_offset );
 	return next_entry;
 }
@@ -358,6 +385,7 @@ ALogEntry ACOMMS_ALOG_PARSER::getNextRawALogEntry_josh(FILE *fileptr, bool allst
 	int state = 0;
 
 	while ((!EOLine) && (!EOFile) && (lineix < MAX_LINE_LENGTH)) {
+//		cout << "state: " << state << endl;
 		myint = fgetc(fileptr);
 		unsigned char mychar = myint;
 		switch (myint) {

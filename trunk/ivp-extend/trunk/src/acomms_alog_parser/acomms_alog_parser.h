@@ -20,6 +20,7 @@
 #include <math.h>
 #include <algorithm>
 #include "acomms_messages.h"
+#include <stdlib.h>
 
 #ifndef ACOMMS_ALOG_PARSER_H_
 #define ACOMMS_ALOG_PARSER_H_
@@ -139,6 +140,12 @@ public:
 		void offsetViaHeader();
 
 		void resetFile();
+
+	private:
+		bool file_is_open;
+		void openFile();
+		void closeFile();
+
 	};
 
 	class VEHICLE_HISTORY {
