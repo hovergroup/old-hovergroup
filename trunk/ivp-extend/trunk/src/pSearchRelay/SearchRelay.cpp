@@ -309,6 +309,15 @@ bool SearchRelay::UpdateStats(double snr_data){
 		std::cout<<"  Updating Mean and Var for Point #"<<closest_ind<<std::endl;
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
 		std::cout<<   "Mean:"<<mean[closest_ind]<<" , "<<"Var:"<<var[closest_ind]<< std::endl;
+
+		std::stringstream ss;
+		ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
+		"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
+		"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
+		"SAMPLE_MEAN:"<<mean[closest_ind]<<"<|>"<<
+		"SAMPLE_VAR:"<<var[closest_ind];
+		m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
+
 		return true;
 	}
 	else{
@@ -348,6 +357,13 @@ void SearchRelay::ComputeIndex(){
 			}
 			indices[closest_ind] = mean[closest_ind]+sqrt(var[closest_ind])*gindex;
 			std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
+
+			std::stringstream ss;
+			ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
+			"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
+			"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
+			"INDEX:"<<indices[closest_ind];
+			m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
 		}
 	}
 }
@@ -364,6 +380,13 @@ int SearchRelay::Decision(){
 	}
 
 	std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
+
+	std::stringstream ss;
+	ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
+			"TARGET_X:"<<seglist.get_vx(target)<<"<|>"<<
+			"TARGET_Y:"<<seglist.get_vy(target);
+	m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
+
 	return target;
 }
 
