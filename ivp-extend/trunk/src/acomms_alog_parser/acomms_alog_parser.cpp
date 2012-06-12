@@ -49,7 +49,7 @@ void ACOMMS_ALOG_PARSER::matchWithTime() {
 				double time_diff = initial_receive_events[k].receive_time - transmit_time;
 				if ( time_diff > 0 && time_diff < TRANSMISSION_TIMEOUT ){
 					t_event.receptions_vector.push_back( initial_receive_events[k] );
-					t_event.receptions_map["name"] = initial_receive_events[k];
+					t_event.receptions_map[name] = initial_receive_events[k];
 					initial_receive_events.erase( initial_receive_events.begin()+=k );
 					receive_found = true;
 
