@@ -251,7 +251,6 @@ ProcessConfig = pEchoVar
   CommsTick = 20
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-  Echo = COMPASS_HEADING -> NAV_HEADING
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
   Echo = GPS_SPEED -> NAV_SPEED
