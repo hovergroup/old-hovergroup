@@ -224,6 +224,9 @@ bool SearchRelay::OnConnectToServer()
 		ss<<"points="<<targetx<<","<<targety;
 		//std::cout<<"Updating: "<<ss.str()<<std::endl;
 		m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+		ss.clear();
+		ss<<"station_pt="<<targetx<<","<<targety;
+		m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 		m_Comms.Notify("RELAY_MODE","GOTO");
 		m_Comms.Notify("MISSION_MODE","RELAY");
 		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",2);
