@@ -102,13 +102,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 						}
 					}
-					else{
-						std::stringstream ss;
-						ss<<"points="<<myx<<","<<myy<<":"<<seglist.get_vx(closest_ind)<<","<<seglist.get_vy(closest_ind);
-						std::cout<<"Updating: "<<ss.str()<<std::endl;
-						m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-						m_Comms.Notify("RELAY_MODE","GOTO");
-					}
 				}
 			}
 			else{
