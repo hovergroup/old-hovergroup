@@ -7,6 +7,9 @@
 
 
 #include "acomms_alog_parser.h"
+#include <fstream>
+
+using namespace std;
 
 // parsed data is stored in the vectors matched_transmit_events and leftover_receive_events
 //
@@ -27,4 +30,7 @@
 
 void ACOMMS_ALOG_PARSER::outputResults() {
 	// YOUR CODE HERE
+	ofstream log_output_file("logfile.txt");
+
+	log_output_file.close()
 }

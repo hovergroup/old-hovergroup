@@ -99,7 +99,7 @@ private:
 	std::vector<RECEPTION_EVENT> leftover_receive_events;
 
 // --------------------------------------------------------------------------------
-// Don't look past here
+// Don't look past here or you will go blind ~ Josh
 // --------------------------------------------------------------------------------
 
 
