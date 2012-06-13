@@ -47,7 +47,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		else if(key=="SEARCH_RELAY_RESET"){
 			data.clear();
 			mean.clear();
-			var.clear();
+			stdev.clear();
 			indices.clear();
 			targetx = wpx[0];
 			targety = wpy[0];
@@ -61,60 +61,11 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		else if(key=="ACOMMS_SNR_OUT"){
 			std::cout<<"Stat from "<<msg.GetCommunity()<<std::endl;
 
-			if(msg.GetCommunity()=="tech_node"){
-				transmit_success = true;
+			UpdateStats(msg.GetDouble());
+
+			if(relaying&&msg.GetCommunity()=="tech_node"){
 				relaying = false;
-
-				bool stats_updated = UpdateStats(msg.GetDouble());
-
-				if(stats_updated){
-					stats_updated = false;
-					int closest_ind = closest_vertex(myx,myy);
-					double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
-
-					if(closest_dist<fudge_factor){
-
-						if(data[closest_ind].size() < min_obs){
-							//Not enough data, Stay in place
-						}
-						else{
-							ComputeIndex();
-
-							if(closest_ind < wpx.size() && data[closest_ind+1].size() < min_obs){ //First pass
-								targetx = wpx[closest_ind+1];
-								targety = wpy[closest_ind+1];
-								std::stringstream ss;
-								ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-								std::cout<<"Updating: "<<ss.str()<<std::endl;
-								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-								m_Comms.Notify("RELAY_MODE","GOTO");
-								ss.str("");
-								ss<<"station_pt="<<targetx<<","<<targety;
-								m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-							}
-							else{
-								int target = Decision();
-								targetx = wpx[target];
-								targety = wpy[target];
-								std::stringstream ss;
-								ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-								std::cout<<"Updating: "<<ss.str()<<std::endl;
-								m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-								m_Comms.Notify("RELAY_MODE","GOTO");
-								ss.str("");
-								ss<<"station_pt="<<targetx<<","<<targety;
-								m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-							}
-
-						}
-					}
-				}
 			}
-			else{
-				link1_stat = msg.GetDouble();
-				UpdateStats(link1_stat);
-			}
-
 		}
 
 		else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
@@ -136,7 +87,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 				waiting = true;
 				relaying = false;
-				transmit_success = false;
 			}
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
@@ -295,7 +245,7 @@ bool SearchRelay::OnStartUp()
 	return(true);
 }
 
-bool SearchRelay::UpdateStats(double snr_data){
+void SearchRelay::UpdateStats(double snr_data){
 	//Here assuming last nav variables is current position
 	//Update the mean and var of one node if current position is within
 	//a fudge factor of that node
@@ -307,23 +257,54 @@ bool SearchRelay::UpdateStats(double snr_data){
 	if(closest_dist<fudge_factor){
 		data[closest_ind].push_back(snr_data);
 		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
-		var[closest_ind] = gsl_stats_variance(&(data[closest_ind][0]),1,data[closest_ind].size());
-		std::cout<<"  Updating Mean and Var for Point #"<<closest_ind<<std::endl;
+		stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
+		std::cout<<"  Updating MEAN and STDev for Point #"<<closest_ind<<std::endl;
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-		std::cout<<   "Mean:"<<mean[closest_ind]<<" , "<<"Var:"<<var[closest_ind]<< std::endl;
+		std::cout<<   "Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
 
 		std::stringstream ss;
 		ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
-		"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
-		"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
-		"SAMPLE_MEAN:"<<mean[closest_ind]<<"<|>"<<
-		"SAMPLE_VAR:"<<var[closest_ind];
+				"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
+				"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
+				"SAMPLE_MEAN:"<<mean[closest_ind]<<"<|>"<<
+				"SAMPLE_STDEV:"<<stdev[closest_ind];
 		m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
 
-		return true;
-	}
-	else{
-		return false;
+		if(data[closest_ind].size() < min_obs){
+			std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
+			std::cout<<"--->Holding Station";
+		}
+		else{
+			ComputeIndex();
+
+			if(closest_ind < wpx.size() && data[closest_ind+1].size() < min_obs){ //First pass
+				targetx = wpx[closest_ind+1];
+				targety = wpy[closest_ind+1];
+				std::stringstream ss;
+				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+				std::cout<<"Updating: "<<ss.str()<<std::endl;
+				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				m_Comms.Notify("RELAY_MODE","GOTO");
+				ss.str("");
+				ss<<"station_pt="<<targetx<<","<<targety;
+				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
+			}
+			else{
+				int target = Decision();
+				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
+							std::cout<<"--->Making a Decision";
+				targetx = wpx[target];
+				targety = wpy[target];
+				std::stringstream ss;
+				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+				std::cout<<"Updating: "<<ss.str()<<std::endl;
+				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				m_Comms.Notify("RELAY_MODE","GOTO");
+				ss.str("");
+				ss<<"station_pt="<<targetx<<","<<targety;
+				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
+			}
+		}
 	}
 }
 
@@ -334,6 +315,7 @@ void SearchRelay::ComputeIndex(){
 		std::cout<<"Trying COMPUTE INDEX"<<std::endl;
 		std::cout<<" Closest distance was: "<<closest_dist<<std::endl;
 		std::cout<<" Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
+
 		if(closest_dist<fudge_factor){
 			std::cout<<"  Computing Index..."<<std::endl;
 			int num_obs = data[closest_ind].size()/2;
@@ -348,23 +330,23 @@ void SearchRelay::ComputeIndex(){
 			double gindex;
 			if(num_obs<=10){
 				gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
-				std::cout<<"  1-10 gindex: "<<gindex<<std::endl;
+				std::cout<<"   Observations: "<<num_obs<<", gindex: "<<gindex<<std::endl;
 			}
 			else{	//interpolate
 				int base = 7+(num_obs/10);
 				int offset = num_obs%10;
 				double difference = (normal_indices[base+1]-normal_indices[base])/10;
 				gindex = normal_indices[base] + offset*difference;
-				std::cout<<"  10-100 gindex: "<<gindex<<std::endl;
+				std::cout<<"   Observations: "<<" ,gindex: "<<gindex<<std::endl;
 			}
-			indices[closest_ind] = mean[closest_ind]+sqrt(var[closest_ind])*gindex;
+			indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
 			std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
 
 			std::stringstream ss;
 			ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
-			"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
-			"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
-			"INDEX:"<<indices[closest_ind];
+					"TARGET_X:"<<seglist.get_vx(closest_ind)<<"<|>"<<
+					"TARGET_Y:"<<seglist.get_vy(closest_ind)<<"<|>"<<
+					"INDEX:"<<indices[closest_ind];
 			m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
 		}
 	}
@@ -414,7 +396,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 			wpy.push_back(atof(suby.c_str()));
 			seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
 			mean.push_back(0.0);
-			var.push_back(0.0);
+			stdev.push_back(0.0);
 			std::vector<double> temp_vec;
 			data[counter] = temp_vec;
 			indices.push_back(0.0);
