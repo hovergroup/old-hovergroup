@@ -267,6 +267,9 @@ ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructT
 		t_event.gps_age = t_event.transmission_time - gps_x.back().first;
 	}
 
+	if ( acomms_transmit_data.size()!=0 )
+		t_event.data = acomms_transmit_data.back().second;
+
 	SIMPLIFIED_TRANSMIT_INFO ats( msg_val );
 	t_event.rate = ats.rate;
 	t_event.destination_id = ats.dest;
