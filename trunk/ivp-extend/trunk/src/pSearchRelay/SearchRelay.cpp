@@ -102,7 +102,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
 
-			if()
 			int targind = (int) msg.GetDouble();
 			targetx = wpx[targind];
 			targety = wpy[targind];
