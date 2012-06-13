@@ -80,6 +80,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 			}
 			if ( !reception_found ) {
 				RECEPTION_EVENT r_event;
+				r_event.vehicle_name = name;
 				r_event.receive_status = 2;
 				sync_losses++;
 				if ( name == t_event.transmitter_name )
