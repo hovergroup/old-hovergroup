@@ -88,6 +88,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 				t_event.receptions_vector.push_back( r_event );
 			}
 		}
+		all_transmissions[i] = t_event;
 //		string tmp;
 //		getline( cin, tmp);
 
