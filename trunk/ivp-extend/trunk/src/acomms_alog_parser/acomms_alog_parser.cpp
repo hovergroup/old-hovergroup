@@ -124,7 +124,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 //	cout << leftover_receive_events.size() << " homeless receipts" << endl;
 //	cout << sync_losses << " sync losses and " << self_receives << " self receipts" << endl;
 
-//	outputResults();
+	outputResults();
 }
 //
 //bool history_sort ( ACOMMS_ALOG_PARSER::FILE_INFO f1, ACOMMS_ALOG_PARSER::FILE_INFO f2 ) {
@@ -161,7 +161,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::processFile() {
 
 //	cout << "parsing moos file" << endl;
 	parseMOOSFile();
-	cout << "vehicle: " << vehicle_name << endl;
+//	cout << "vehicle: " << vehicle_name << endl;
 //	cout << "getting header lines" << endl;
 	parseHeaderLines();
 //	cout << "collecting data" << endl;
@@ -316,7 +316,8 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
 	string line = getNextRawLine( this_moos_file );
 	while ( line != "eof" ) {
 		// needs improvement
-		if ( line.find("community") != string::npos || line.find("Community") != string::npos ) {
+		if ( (line.find("community") != string::npos || line.find("Community") != string::npos)
+				 && (line.find("//") == string::npos || line.find("//") > 10 ) ) {
 			int tmp_index = line.find("=")+1;
 			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
 			break;
