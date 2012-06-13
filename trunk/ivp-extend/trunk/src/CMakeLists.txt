@@ -25,6 +25,7 @@ ADD_SUBDIRECTORY(testing_app)
 ADD_SUBDIRECTORY(plossRate)
 ADD_SUBDIRECTORY(pacomms_timer)
 ADD_SUBDIRECTORY(acomms_alog_parser)
+ADD_SUBDIRECTORY(simple_acomms_parser)
 ADD_SUBDIRECTORY(pSearchRelay)
 
 ##############################################################################
