@@ -37,7 +37,8 @@ public:
 
 	class RECEPTION_EVENT {
 	public:
-		RECEPTION_EVENT() { receive_status = -1; }
+		RECEPTION_EVENT() { receive_status = -1;
+							receive_start_time = -1; }
 
 		// this vehicle's name and id at time of receipt
 		std::string vehicle_name;
@@ -99,8 +100,8 @@ private:
 	void outputResults();
 
 	std::vector<std::string> vehicle_names;
-	std::vector<TRANSMISSION_EVENT> matched_transmit_events;
-	std::vector<RECEPTION_EVENT> leftover_receive_events;
+	std::vector<TRANSMISSION_EVENT> all_transmissions;
+	std::map<std::string, std::vector<RECEPTION_EVENT> > all_receptions;
 
 // --------------------------------------------------------------------------------
 // Don't look past here or you will go blind ~ Josh
@@ -118,12 +119,19 @@ public:
 
 	class FILE_INFO {
 	public:
-		FILE_INFO( std::string filename ) {
-			this.filename = filename;
+		FILE_INFO( std::string file_name ) {
+			filename = file_name;
 			file_is_open = false;
 		}
 
 		void processFile();
+
+		double getMOOSTimeOffset() { return moos_time_offset; }
+		std::string getVehicleName() { return vehicle_name; }
+		std::string getFilename() { return filename; }
+
+		std::vector< std::pair<double,RECEPTION_EVENT> > receptions;
+		std::vector< std::pair<double,TRANSMISSION_EVENT> > transmissions;
 
 	private:
 		void parseHeaderLines();
@@ -131,6 +139,9 @@ public:
 		void collectData();
 		bool offsetViaGPS();
 		void offsetViaHeader();
+
+		RECEPTION_EVENT constructReception( double msg_time, std::string msg_val );
+		TRANSMISSION_EVENT constructTransmission( double msg_time, std::string msg_val );
 
 		ALogEntry getNextEntry();
 		std::string getNextLine();
@@ -140,16 +151,19 @@ public:
 		void closeFile();
 
 		std::string filename;
+		FILE * logfile;
+
+		// parsed from moos file
 		std::string vehicle_name;
 		int vehicle_id;
-		FILE * logfile;
+
 		double moos_time_offset;
 		std::vector<std::string> header_lines;
 		boost::posix_time::ptime creation_time;
 
-		std::vector< std::pair<double,double> > gps_x, gps_y;
-		std::vector< std::pair<double,std::string> > driver_status;
-		std::vector< std::>
+		std::vector< std::pair<double,double> > gps_x, gps_y, desired_thrust;
+		std::vector< std::pair<double,std::string> > acomms_driver_status, acomms_transmit_data;
+		std::vector< std::pair<double,boost::posix_time::ptime> > gps_time;
 	};
 
 	class VEHICLE_HISTORY {
@@ -161,22 +175,17 @@ public:
 	};
 
 private:
-	void parseAllHeaders();
-	void parseMOOSFiles();
-	void generateHistories();
-	void lookForEvents();
-	void matchWithTime();
+//	void parseAllHeaders();
+//	void parseMOOSFiles();
+//	void generateHistories();
+//	void lookForEvents();
+//	void matchWithTime();
 
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
 	static std::string getNextRawLine_josh(FILE *fileptr);
 
 	std::vector<FILE_INFO> alog_files;
-	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
-
-	std::vector<RECEPTION_EVENT> initial_receive_events;
-	std::vector<TRANSMISSION_EVENT> initial_transmit_events;
-
-	int sync_losses, self_receives;
+//	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
 };
 
 
