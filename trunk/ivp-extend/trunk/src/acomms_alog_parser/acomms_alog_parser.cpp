@@ -195,7 +195,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 			double msg_time = entry.getTimeStamp();
 			if ( key == "GPS_X" || key == "NAV_X" ) {
 				gps_x.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
-			} else if ( key == "GPS_Y" || key == "NAV_X=Y" ) {
+			} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
 				gps_y.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
 			} else if ( key == "GPS_PTIME" ) {
 				try {

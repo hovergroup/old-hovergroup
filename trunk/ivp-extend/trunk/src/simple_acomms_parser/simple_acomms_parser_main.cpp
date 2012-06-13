@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 		double msg_time = entry.getTimeStamp();
 		if ( key == "GPS_X" || key == "NAV_X" ) {
 			gps_x = entry.getDoubleVal();
-		} else if ( key == "GPS_Y" || key == "NAV_X=Y" ) {
+		} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
 			gps_y = entry.getDoubleVal();
 		} else if ( key == "ACOMMS_RECEIVED_ALL" ) {
 			string msg_val = entry.getStringVal();
