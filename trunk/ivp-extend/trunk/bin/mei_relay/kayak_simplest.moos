@@ -111,7 +111,7 @@ ProcessConfig = pMOOSBridge
 	
 	//Search Relay Shares
 	SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
-	
+	SHARE = [VIEW_MARKER] -> shoreside@192.168.1.100:9000
 	}
 
 ProcessConfig = pMarinePID

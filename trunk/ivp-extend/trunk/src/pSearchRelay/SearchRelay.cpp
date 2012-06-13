@@ -277,7 +277,7 @@ void SearchRelay::UpdateStats(double snr_data){
 		stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
 		std::cout<<"  Updating MEAN and STDev for Point #"<<closest_ind<<std::endl;
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-		std::cout<<   "Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
+		std::cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
 
 		std::stringstream ss;
 		ss<<"STAT_X:"<<myx<<"<|>"<<"STAT_Y:"<<myy<<"<|>"<<
@@ -429,6 +429,10 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 
 	total_points = counter;
 	std::cout<<"Read "<<counter<<" points."<<std::endl;
+
+}
+
+void SearchRelay::ComputeLossRates(){
 
 }
 

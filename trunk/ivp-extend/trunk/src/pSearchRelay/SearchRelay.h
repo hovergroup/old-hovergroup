@@ -35,6 +35,7 @@ public:
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
+	void ComputeLossRates();
 
 protected:
 	// insert local vars here
