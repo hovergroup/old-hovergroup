@@ -17,6 +17,7 @@ SearchRelay::SearchRelay()
 	fudge_factor = 5; //m
 	start = "default";
 	min_obs = 10;	//each link is one obs
+	discount = 5;
 }
 
 //---------------------------------------------------------
@@ -69,21 +70,21 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 
 		else if(key=="ACOMMS_TRANSMIT_SIMPLE"){
-			std::cout<<"Msg from: "<<msg.GetCommunity()<<std::endl;
+			std::cout<<"Transmitting from: "<<msg.GetCommunity()<<std::endl;
 			if(msg.GetCommunity()=="shore_node"){
 				if(waiting){	//Missed sync with shore node
-					std::cout<<"Missed Sync with Shore"<<std::endl;
+					std::cout<<" Missed Sync with Shore"<<std::endl;
 					UpdateStats(0.0);
 					UpdateStats(0.0);
 				}
 
 				else if(relaying){	//Missed sync with end node
-					std::cout<<"Missed Sync with Tech"<<std::endl;
+					std::cout<<" Missed Sync with Tech"<<std::endl;
 					relaying = false;
 					UpdateStats(0.0);
 				}
 
-				std::cout<<"Shore Transmitted Something... Waiting..."<<std::endl;
+				std::cout<<"--->Shore Transmitted Something... Waiting..."<<std::endl;
 
 				waiting = true;
 				relaying = false;
@@ -91,7 +92,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(waiting){
-				std::cout<<"Relaying..."<<std::endl;
+				std::cout<<"--->Relaying..."<<std::endl;
 				relay_message = msg.GetString();
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",relay_message);
 				relaying = true;
@@ -99,9 +100,26 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 		}
 
+		else if(key=="SEARCH_RELAY_GOTO_POINT"){
+
+			if()
+			int targind = (int) msg.GetDouble();
+			targetx = wpx[targind];
+			targety = wpy[targind];
+
+			std::stringstream ss;
+			ss<<"points="<<targetx<<","<<targety;
+			std::cout<<"Updating GOTO Point: "<<ss.str()<<std::endl;
+			m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+			m_Comms.Notify("RELAY_MODE","GOTO");
+			ss.str("");
+			ss<<"station_pt="<<targetx<<","<<targety;
+		}
+
 		//shore
 		else if(key=="SEARCH_RELAY_WAIT_TIME"){
 			wait_time = pt::seconds((long) msg.GetDouble());
+			std::cout<<"Setting wait time: "<<wait_time<<std::endl;
 		}
 		else if(key=="RELAY_STATUS"){
 			relay_status = msg.GetString();
@@ -138,8 +156,6 @@ bool SearchRelay::OnConnectToServer()
 
 	if(my_role=="relay"){
 
-		discount = 5;
-
 		m_MissionReader.GetConfigurationParam("Mode",mode);
 		m_MissionReader.GetConfigurationParam("Discount",discount);
 		m_Comms.Register("ACOMMS_SNR_OUT",0);
@@ -147,6 +163,7 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("NAV_Y",0);
 		m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 		m_Comms.Register("SEARCH_RELAY_RESET",0);
+		m_Comms.Register("SEARCH_RELAY_GOTO_POINT",0);
 		m_Comms.Register("ACOMMS_TRANSMIT_SIMPLE",0);
 
 		if(mode=="normal"){
@@ -292,7 +309,7 @@ void SearchRelay::UpdateStats(double snr_data){
 			else{
 				int target = Decision();
 				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
-							std::cout<<"--->Making a Decision";
+				std::cout<<"--->Making a Decision";
 				targetx = wpx[target];
 				targety = wpy[target];
 				std::stringstream ss;
@@ -378,10 +395,10 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 	std::string filename = "relay_waypoints.txt";
 	std::string one_point;
 	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
-	int counter=0;
+	int counter = 0;
 
 	while(waypointsfile.good()){
-		std::cout<<"ReadingPoints"<<std::endl;
+		std::cout<<"Reading Points"<<std::endl;
 		getline(waypointsfile,one_point);
 		int pos = one_point.find(',');
 
@@ -395,6 +412,12 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 			std::cout<<suby<<std::endl;
 			wpy.push_back(atof(suby.c_str()));
 			seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
+
+			std::stringstream ss;
+			ss<<"type=gateway,x="<<atof(subx.c_str())<<
+					",y="<<atof(suby.c_str())<<",SCALE=4.3,label="<<counter<<",COLOR=green,width=4.5";
+			m_Comms.Notify("VIEW_MARKER",ss.str());
+
 			mean.push_back(0.0);
 			stdev.push_back(0.0);
 			std::vector<double> temp_vec;
@@ -403,6 +426,10 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 			counter++;
 		}
 	}
+
+	total_points = counter;
+	std::cout<<"Read "<<counter<<" points."<<std::endl;
+
 }
 
 std::string SearchRelay::getRandomString( int length ) {

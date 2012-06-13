@@ -44,7 +44,7 @@ protected:
 
 	//relay
 	std::string mode;
-	int discount,min_obs;
+	int discount,min_obs,total_points;
 	std::map<double, std::vector<double> > data;
 	std::vector<double> mean, stdev,indices;
 	std::vector<double> normal_indices;
@@ -55,7 +55,7 @@ protected:
 	double myx,myy;
 	double targetx,targety;
 	double link1_stat;
-	bool waiting, relaying, transmit_success;
+	bool waiting, relaying;
 
 	//shore
 	pt::time_duration wait_time;
