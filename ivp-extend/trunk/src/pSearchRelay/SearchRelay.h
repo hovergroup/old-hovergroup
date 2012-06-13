@@ -31,7 +31,7 @@ public:
 	bool OnStartUp();
 	void ComputeIndex();
 	int Decision();
-	bool UpdateStats(double);
+	void UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
@@ -46,7 +46,7 @@ protected:
 	std::string mode;
 	int discount,min_obs;
 	std::map<double, std::vector<double> > data;
-	std::vector<double> mean, var,indices;
+	std::vector<double> mean, stdev,indices;
 	std::vector<double> normal_indices;
 	std::vector<double> wpx, wpy;
 	std::string relay_message;
