@@ -353,7 +353,7 @@ void SearchRelay::ComputeIndex(){
 			else{	//interpolate
 				int base = 7+(num_obs/10);
 				int offset = num_obs%10;
-				double difference = (normal_indices[base]-normal_indices[base+1])/10;
+				double difference = (normal_indices[base+1]-normal_indices[base])/10;
 				gindex = normal_indices[base] + offset*difference;
 				std::cout<<"  10-100 gindex: "<<gindex<<std::endl;
 			}
