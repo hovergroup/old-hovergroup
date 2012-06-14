@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 	ofstream output;
 	output.open("log.txt");
 
-	output << "gps_x, gps_y, snr_in, snr_out, spl" << endl;
+	output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
 	while ( entry.getStatus() != "eof" ) {
 		string key = entry.getVarName();
 		double msg_time = entry.getTimeStamp();
@@ -175,7 +175,9 @@ int main(int argc, char *argv[]) {
 					output << gps_x << "," << gps_y << ",";
 					output << stat.snr_in() << ",";
 					output << stat.snr_out() << ",";
-					output << stat.spl() << endl;
+					output << stat.spl() << ",";
+					output << stat.stddev_noise() << ",";
+					output << stat.mse_equalizer()<< endl;
 				}
 			}
 		}
