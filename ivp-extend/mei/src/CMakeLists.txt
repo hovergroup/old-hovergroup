@@ -14,18 +14,6 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
-ADD_SUBDIRECTORY(lib_acomms_messages)
-#ADD_SUBDIRECTORY(lib_behaviors-test)
-#ADD_SUBDIRECTORY(pXRelayTest)
-ADD_SUBDIRECTORY(simple_gps)
-ADD_SUBDIRECTORY(kayak_interface)
-ADD_SUBDIRECTORY(iOS5000_filtered)
-ADD_SUBDIRECTORY(iacomms_driver)
-ADD_SUBDIRECTORY(testing_app)
-ADD_SUBDIRECTORY(plossRate)
-ADD_SUBDIRECTORY(pacomms_timer)
-ADD_SUBDIRECTORY(acomms_alog_parser)
-ADD_SUBDIRECTORY(simple_acomms_parser)
 ADD_SUBDIRECTORY(pSearchRelay)
 
 ##############################################################################
