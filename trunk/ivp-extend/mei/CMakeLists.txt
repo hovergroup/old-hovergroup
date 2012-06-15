@@ -14,6 +14,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( IVP_EXTEND )
 
 #=============================================================================
+# Find the hovergroup trunk
+#=============================================================================
 
 find_path( HOVERGROUP_TRUNK_BASE
 			NAMES src/iacomms_driver
