@@ -31,8 +31,11 @@ scalex2 = 1000*deg2km(scalelon2-pavlon)/xmperpix+pavx;
 scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
 line([scalex1 scalex2],[scaley scaley]);
 
-endx = 1000*deg2km(endlon-pavlon)/xmperpix;
-endy = 1000*deg2km(endlat-pavlat)/ymperpix;
+%endx = 1000*deg2km(endlon-pavlon)/xmperpix;
+%endy = 1000*deg2km(endlat-pavlat)/ymperpix;
+
+endx = -179.4/xmperpix;
+endy = -564.9/ymperpix;
 
 line([pavx,endx+pavx],[pavy,endy+pavy]);
 
@@ -81,25 +84,62 @@ yy = linspace(y(2),y(4),n);
 for i=1:n
     xpts{i} = linspace(rx(i),yx(n+1-i),n);
     ypts{i} = linspace(ry(i),yy(n+1-i),n);
-    scatter(xpts{i},ypts{i});
+    %scatter(xpts{i},ypts{i});
 end
 
-set(gca,'ydir','normal');
+hold on
+
 
 fileID = fopen('relay_waypoints.txt','w');
-for i=1:n
-    myx = xpts{i};
-    myy = ypts{i};   
-    
-    if(mod(i,2)==0)
-       myx = fliplr(myx);
-       myy = fliplr(myy);
-    end
-    
-    for j=1:n
-        mylon = km2deg((myx(j)-pavx)*xmperpix/1000) + pavlon;
-        mylat = km2deg((myy(j)-pavy)*ymperpix/1000) + pavlat;
-        fprintf(fileID,'%f,%f\n',mylat,mylon);
-    end
+
+myx = xpts{1};
+myy = ypts{1};       
+
+for j=1:n
+        mylon = (myx(j)-pavx)*xmperpix
+        mylat = (myy(j)-pavy)*ymperpix
+        
+        fprintf(fileID,'%f,%f\n',mylon,mylat);
 end
+
+for j=1:n
+    mylon = (xpts{j}(10)-pavx)*xmperpix;
+        mylat = (ypts{j}(10)-pavy)*ymperpix;
+        fprintf(fileID,'%f,%f\n',mylon,mylat);
+end
+
+myx = xpts{10};
+myy = ypts{10};       
+
+for j=1:n
+        mylon = (myx(11-j)-pavx)*xmperpix;
+        mylat = (myy(11-j)-pavy)*ymperpix;
+%scatter(myx(j),myy(j));
+
+        fprintf(fileID,'%f,%f\n',mylon,mylat);
+end
+
+for j=1:10
+    mylon = (xpts{11-j}(1)-pavx)*xmperpix;
+        mylat = (ypts{11-j}(1)-pavy)*ymperpix;
+scatter(xpts{11-j}(10),ypts{11-j}(10));
+
+        fprintf(fileID,'%f,%f\n',mylon,mylat);
+end
+set(gca,'ydir','normal');
+% for i=1:n
+%     myx = xpts{i};
+%     myy = ypts{i};   
+%     
+%     if(mod(i,2)==0)
+%        myx = fliplr(myx);
+%        myy = fliplr(myy);
+%     end
+%     
+%     for j=1:n
+%         mylon = (myx(j)-pavx)*xmperpix;
+%         mylat = (myy(j)-pavy)*ymperpix;
+%         fprintf(fileID,'%f,%f\n',mylon,mylat);
+%     end
+% end
 fclose(fileID);
