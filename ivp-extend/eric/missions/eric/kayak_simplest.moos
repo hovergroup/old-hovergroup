@@ -21,6 +21,7 @@ ProcessConfig = ANTLER
 	Run = pMarinePID		@ NewConsole = false
 	Run = pHelmIvP		@ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false ~ pEchoVar_Eric
+	Run = pEchoVar 		@ NewConsole = false ~ pEchoVar_a
 	Run = iOS5000_filtered		@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
@@ -149,7 +150,7 @@ ProcessConfig = pHelmIvP
 	AppTick		= 2
 	CommsTick		= 2
 	VERBOSE		= false
-	Behaviors	= kayak_mei.bhv
+	Behaviors	= kayak_eric.bhv
 	OK_SKEW		= ANY
 	Domain		= course,0:359:36
 	Domain		= speed,0:2.0:21
@@ -249,7 +250,6 @@ ProcessConfig = pEchoVar_a
   AppTick   = 20
   CommsTick = 20
 
-  Echo = COMPASS_HEADING -> NAV_HEADING
   Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
 
