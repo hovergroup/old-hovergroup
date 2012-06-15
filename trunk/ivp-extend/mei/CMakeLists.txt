@@ -15,7 +15,17 @@ PROJECT( IVP_EXTEND )
 
 #=============================================================================
 
+find_path( HOVERGROUP_TRUNK_BASE
+			NAMES src/iacomms_driver
+			PATHS "../trunk"
+			NO_DEFAULT_PATH
+)
 
+set ( HOVERGROUP_INCLUDE_DIRECTORIES
+		${HOVERGROUP_TRUNK_BASE}/src/ )
+		
+set ( HOVERGROUP_LIBRARY_PATH
+		${HOVERGROUP_TRUNK_BASE}/lib/ )
 
 
 #=============================================================================
@@ -88,9 +98,10 @@ SET(MOOS_LIB_DIR
 	${MOOS_BASE_DIR}/MOOSBin)
 
 LINK_DIRECTORIES(	${MOOS_LIB_DIR}
-					${IVP_LIBRARY_DIRS}
-					${GOBY_LIBRARY_PATH}
-					${IVP_ANRP_LIBRARY_PATH}	)
+			${IVP_LIBRARY_DIRS}
+			${GOBY_LIBRARY_PATH}
+			${IVP_ANRP_LIBRARY_PATH}
+			${HOVERGROUP_LIBRARY_PATH}	)
 
 # No harm in giving all IvP software access to MOOS's include libraries.
 SET(MOOS_INCLUDE_DIRS
@@ -102,9 +113,10 @@ SET(MOOS_INCLUDE_DIRS
 )
 
 INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
-   						${GOBY_INCLUDE_DIRS}
-   						${IVP_ANRP_INCLUDE_DIRS}
-   						${IVP_INCLUDE_DIRS}			)
+			${GOBY_INCLUDE_DIRS}
+			${IVP_ANRP_INCLUDE_DIRS}
+			${IVP_INCLUDE_DIRS}
+			${HOVERGROUP_INCLUDE_DIRECTORIES}	)
 
 
 #=============================================================================
