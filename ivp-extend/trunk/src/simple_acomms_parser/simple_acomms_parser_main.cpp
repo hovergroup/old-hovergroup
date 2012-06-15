@@ -134,6 +134,11 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false)
 }
 
 int main(int argc, char *argv[]) {
+	if ( argc != 2 ) {
+
+	} else {
+
+	}
 	FILE *logfile = fopen( "log.alog", "r" );
 	for ( int i=0; i<5; i++ ) {
 		getNextRawLine( logfile );
