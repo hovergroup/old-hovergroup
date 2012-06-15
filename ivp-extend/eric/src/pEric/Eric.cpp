@@ -57,12 +57,29 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 			heading = msg.GetDouble();
 		}
 
-		else if(key=="GPS_PTIME"){
-			now = pt::time_from_string(msg.GetString());
-		}
+		else if(key=="X_DATA"){
+					navx = msg.GetDouble();
+				}
+
+		else if(key=="Y_DATA"){
+					navy = msg.GetDouble();
+				}
 
 		else if(key=="ACOMMS_RECEIVED_DATA"){
-			m_Comms.Notify("NAV_HEADING",atof(msg.GetString().c_str()));
+			string data = msg.GetString();
+			vector<string> substrings;
+
+			int pos = 0;
+				while ( data.find(",", pos) != string::npos ) {
+					int newpos = data.find(",", pos);
+					string temp_sub = data.substr(pos, newpos-pos);
+					substrings.push_back(temp_sub);
+					pos = newpos+1;
+				}
+
+			m_Comms.Notify("NAV_HEADING",substrings[0]);
+			m_Comms.Notify("NAV_X",substrings[1]);
+			m_Comms.Notify("NAV_Y",substrings[2]);
 		}
 
 		else if(key=="MISSION_START"){
@@ -94,6 +111,8 @@ bool Eric::OnConnectToServer()
 	 m_MissionReader.GetConfigurationParam("Role", role);
 
 	m_Comms.Register("HEADING_DATA",0);
+	m_Comms.Register("X_DATA",0);
+	m_Comms.Register("Y_DATA",0);
 	m_Comms.Register("MISSION_START",0);
 	m_Comms.Register("GPS_PTIME",0);
 	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
@@ -112,7 +131,7 @@ bool Eric::Iterate()
 	// happens AppTick times per second
 	if(MOOSTime()-mlast>=7 && transmit){
 		stringstream ss;
-		ss<<heading;
+		ss<<heading<<","<<navx<<","<<navy;
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",ss.str());
 		mlast = MOOSTime();
 	}
