@@ -69,6 +69,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 			string data = msg.GetString();
 			vector<string> substrings;
 
+			if(data.size()>0){
 			int pos = 0;
 				while ( data.find(",", pos) != string::npos ) {
 					int newpos = data.find(",", pos);
@@ -80,6 +81,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_Comms.Notify("NAV_HEADING",substrings[0]);
 			m_Comms.Notify("NAV_X",substrings[1]);
 			m_Comms.Notify("NAV_Y",substrings[2]);
+			}
 		}
 
 		else if(key=="MISSION_START"){
