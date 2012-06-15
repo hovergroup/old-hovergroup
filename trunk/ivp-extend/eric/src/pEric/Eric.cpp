@@ -78,7 +78,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 
 		else if(key=="ACOMMS_RECEIVED_DATA"){
-			m_Comms.Notify("NAV_HEADING",msg.GetDouble());
+			m_Comms.Notify("NAV_HEADING",atof(msg.GetString().c_str()));
 		}
 
 		else if(key=="MISSION_START"){
