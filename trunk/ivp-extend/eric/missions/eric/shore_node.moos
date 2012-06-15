@@ -20,12 +20,12 @@ ProcessConfig = ANTLER
   Run = pEchoVar		@ NewConsole = false
 }
 
-ProcessConfig = pSearchRelay
+ProcessConfig = pEric
 {
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = shore
+	Role = kayak
 }
 
 ProcessConfig = simple_gps

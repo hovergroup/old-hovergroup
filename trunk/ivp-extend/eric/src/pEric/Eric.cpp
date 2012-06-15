@@ -90,6 +90,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 				ss<<y[i];
 				ss<<":";
 			}
+			m_Comms.Notify("MISSION_MODE","GOTO");
 			m_Comms.Notify("WPT_SURVEY_UPDATES",ss.str());
 		}
 	}
@@ -106,6 +107,8 @@ bool Eric::OnConnectToServer()
 	// m_MissionReader.GetConfigurationParam("Name", <string>);
 	// m_Comms.Register("VARNAME", is_float(int));
 
+	 m_MissionReader.GetConfigurationParam("Role", role);
+
 	m_Comms.Register("HEADING_DATA",0);
 	m_Comms.Register("MISSION_START",0);
 	m_Comms.Register("GPS_PTIME",0);
@@ -121,12 +124,14 @@ bool Eric::OnConnectToServer()
 
 bool Eric::Iterate()
 {
+	if(role=="shore"){
 	// happens AppTick times per second
 	if(MOOSTime()-mlast>=7 && transmit){
 		stringstream ss;
 		ss<<heading;
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",ss.str());
 		mlast = MOOSTime();
+	}
 	}
 	return(true);
 }

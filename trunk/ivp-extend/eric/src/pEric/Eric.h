@@ -34,6 +34,7 @@ protected:
 	pt::ptime last,now;
 	vector<double> x,y;
 	double mlast;
+	string role;
 };
 
 #endif 
