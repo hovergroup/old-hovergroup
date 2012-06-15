@@ -18,26 +18,10 @@ Eric::Eric()
 	last = pt::ptime(pt::pos_infin);
 	mlast = 0;
 
-	x.push_back(7.0053);
-	x.push_back(23.6845);
-	x.push_back(40.3638);
-	x.push_back(57.0430);
-	x.push_back(73.7222);
-	x.push_back(90.4015);
-	x.push_back(107.0807);
-	x.push_back(123.7600);
-	x.push_back(140.4392);
+	x.push_back(26.4);
 	x.push_back(157.1184);
 
-	y.push_back(-21.0158);
-	y.push_back(-43.8479);
-	y.push_back(-66.6799);
-	y.push_back(-89.5119);
-	y.push_back(-112.3439);
-	y.push_back(-135.1760);
-	y.push_back(-158.0080);
-	y.push_back(-180.8400);
-	y.push_back(-203.6720);
+	y.push_back(-20);
 	y.push_back(-226.5041);
 
 }
