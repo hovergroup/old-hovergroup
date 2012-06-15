@@ -25,7 +25,7 @@ ProcessConfig = pEric
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = kayak
+	Role = shore
 }
 
 ProcessConfig = simple_gps
