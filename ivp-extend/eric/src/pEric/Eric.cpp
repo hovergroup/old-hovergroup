@@ -16,6 +16,7 @@ Eric::Eric()
 	transmit = false;
 	wait_time = pt::seconds(5);
 	last = pt::ptime(pt::pos_infin);
+	mlast = 0;
 
 	x.push_back(7.0053);
 	x.push_back(23.6845);
@@ -119,11 +120,11 @@ bool Eric::OnConnectToServer()
 bool Eric::Iterate()
 {
 	// happens AppTick times per second
-	if(now-last>wait_time && transmit){
+	if(MOOSTime()-last>=5 && transmit){
 		stringstream ss;
 		ss<<heading;
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",ss.str());
-		last = pt::ptime(now);
+		mlast = MOOSTime();
 	}
 	return(true);
 }

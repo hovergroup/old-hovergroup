@@ -33,6 +33,7 @@ protected:
 	pt::time_duration wait_time;
 	pt::ptime last,now;
 	vector<double> x,y;
+	double mlast;
 };
 
 #endif 
