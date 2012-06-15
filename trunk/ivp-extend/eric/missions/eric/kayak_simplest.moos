@@ -244,7 +244,7 @@ ProcessConfig = pLogger
 //------------------------------------------
 // pEchoVar configuration block
 
-ProcessConfig = pEchoVar_Eric
+ProcessConfig = pEchoVar_a
 {
   AppTick   = 20
   CommsTick = 20
@@ -253,7 +253,7 @@ ProcessConfig = pEchoVar_Eric
   Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
 
-ProcessConfig = pEchoVar
+ProcessConfig = pEchoVar_Eric
 {
   AppTick   = 20
   CommsTick = 20
