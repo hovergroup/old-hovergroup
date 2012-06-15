@@ -32,7 +32,7 @@ protected:
 	double heading;
 	pt::time_duration wait_time;
 	pt::ptime last,now;
-
+	vector<double> x,y;
 };
 
 #endif 

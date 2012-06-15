@@ -20,7 +20,7 @@ ProcessConfig = ANTLER
 	Run = pMOOSBridge		@ NewConsole = false
 	Run = pMarinePID		@ NewConsole = false
 	Run = pHelmIvP		@ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
+	Run = pEchoVar		@ NewConsole = false ~ pEchoVar_Eric
 	Run = iOS5000_filtered		@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
@@ -109,9 +109,8 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@192.168.1.100:9000 [VIEW_RANGE_PULSE]
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
 	
-	//Search Relay Shares
-	SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
-	SHARE = [VIEW_MARKER] -> shoreside@192.168.1.100:9000
+	//ERIC Shares
+	SHARE = [COMPASS_HEADING_FILTERED] -> shore_node@192.168.1.102:9002 [HEADING_DATA]
 	}
 
 ProcessConfig = pMarinePID
@@ -245,15 +244,24 @@ ProcessConfig = pLogger
 //------------------------------------------
 // pEchoVar configuration block
 
+ProcessConfig = pEchoVar_Eric
+{
+  AppTick   = 20
+  CommsTick = 20
+
+  Echo = COMPASS_HEADING -> NAV_HEADING
+  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+}
+
 ProcessConfig = pEchoVar
 {
   AppTick   = 20
   CommsTick = 20
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-  Echo = COMPASS_HEADING -> NAV_HEADING
+  //Echo = COMPASS_HEADING -> NAV_HEADING
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
   Echo = GPS_SPEED -> NAV_SPEED
-  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+  //Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
