@@ -11,5 +11,6 @@ TARGET_LINK_LIBRARIES(pEric
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   boost_date_time)
 

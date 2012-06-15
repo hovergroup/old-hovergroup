@@ -9,6 +9,11 @@
 #define Eric_HEADER
 
 #include "MOOSLib.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <sstream>
+
+using namespace std;
+namespace pt = boost::posix_time;
 
 class Eric : public CMOOSApp
 {
@@ -23,6 +28,11 @@ public:
 
 protected:
 	// insert local vars here
+	bool transmit;
+	double heading;
+	pt::time_duration wait_time;
+	pt::ptime last,now;
+
 };
 
 #endif 
