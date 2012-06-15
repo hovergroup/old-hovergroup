@@ -120,7 +120,7 @@ bool Eric::OnConnectToServer()
 bool Eric::Iterate()
 {
 	// happens AppTick times per second
-	if(MOOSTime()-last>=5 && transmit){
+	if(MOOSTime()-mlast>=5 && transmit){
 		stringstream ss;
 		ss<<heading;
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",ss.str());
