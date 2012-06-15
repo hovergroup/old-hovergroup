@@ -81,7 +81,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 			string temp_sub = data.substr(pos,data.size()-pos);
 			substrings.push_back(temp_sub);
 
-			if(substrings.size()<3){
+			if(substrings.size()>=3){
 			m_Comms.Notify("NAV_HEADING",substrings[0]);
 			m_Comms.Notify("NAV_X",substrings[1]);
 			m_Comms.Notify("NAV_Y",substrings[2]);
