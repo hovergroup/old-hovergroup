@@ -33,7 +33,7 @@ protected:
 	pt::time_duration wait_time;
 	pt::ptime last,now;
 	vector<double> x,y;
-	double mlast;
+	double mlast,navx,navy,navheading;
 	string role;
 };
 

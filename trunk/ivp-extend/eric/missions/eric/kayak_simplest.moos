@@ -109,7 +109,9 @@ ProcessConfig = pMOOSBridge
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
 	
 	//ERIC Shares
-	SHARE = [COMPASS_HEADING_FILTERED] -> shore_node@192.168.1.102:9002 [HEADING_DATA]
+	UDPSHARE = [COMPASS_HEADING_FILTERED] -> shore_node@192.168.1.102:9002 [HEADING_DATA]
+	UDPSHARE = [NAV_X] -> shore_node@192.168.1.102:9002 [X_DATA]
+	UDPSHARE = [NAV_Y] -> shore_node@192.168.1.102:9002 [Y_DATA]
 	}
 
 ProcessConfig = pMarinePID
@@ -249,6 +251,8 @@ ProcessConfig = pEchoVar_a
   CommsTick = 20
 
   Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
 }
 
 ProcessConfig = pEchoVar_Eric
@@ -258,8 +262,8 @@ ProcessConfig = pEchoVar_Eric
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   //Echo = COMPASS_HEADING -> NAV_HEADING
-  Echo = GPS_X -> NAV_X
-  Echo = GPS_Y -> NAV_Y
+  //Echo = GPS_X -> NAV_X
+  //Echo = GPS_Y -> NAV_Y
   Echo = GPS_SPEED -> NAV_SPEED
   //Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
