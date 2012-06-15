@@ -15,6 +15,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 # List the subdirectories to build...
 #============================================================================
 #ADD_SUBDIRECTORY(pSearchRelay)
+ADD_SUBDIRECTORY(pEric)
 
 ##############################################################################
 #                           END of CMakeLists.txt
