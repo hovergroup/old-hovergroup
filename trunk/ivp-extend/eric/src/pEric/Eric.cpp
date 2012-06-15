@@ -109,6 +109,7 @@ bool Eric::OnConnectToServer()
 	m_Comms.Register("HEADING_DATA",0);
 	m_Comms.Register("MISSION_START",0);
 	m_Comms.Register("GPS_PTIME",0);
+	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);
 
