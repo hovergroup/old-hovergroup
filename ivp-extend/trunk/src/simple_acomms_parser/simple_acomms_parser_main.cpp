@@ -12,7 +12,6 @@ using namespace std;
 #include "goby/acomms/protobuf/mm_driver.pb.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <google/protobuf/text_format.h>
-#include <boost/filesystem.hpp>
 #include "LogUtils.h"
 #include "MBUtils.h"
 #include "ProcessConfigReader.h"
@@ -32,7 +31,116 @@ using namespace lib_acomms_messages;
 
 #define MAX_LINE_LENGTH 10000
 
-ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false)
+ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
+void printHelp();
+
+ofstream output;
+
+double last_print_time = -100;
+
+// define the variables you want to keep track of here
+double gps_x, gps_y;
+int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
+
+void printLine( double time_stamp ) {
+	output << gps_x << ",";
+	output << gps_y << ",";
+	output << snr_in << ",";
+	output << snr_out << ",";
+	output << spl << ",";
+	output << stddev_noise << ",";
+	output << mse_equalizer;
+}
+
+void printHeader() {
+	output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
+}
+
+int main(int argc, char *argv[]) {
+	// Look for a request for version information
+	if (scanArgs(argc, argv, "-h", "--help")) {
+		printHelp();
+		return (0);
+	}
+
+	if ( argc != 2 ) {
+		cout << "Insufficient arguments - must provide input log file." << endl;
+		return 0;
+	}
+	FILE *logfile = fopen( argv[1], "r" );
+	for ( int i=0; i<5; i++ ) {
+		getNextRawLine( logfile );
+	}
+
+	// open output file and print header
+	output.open("log.txt");
+	printHeader();
+
+	// read first alog entry
+	ALogEntry entry = getNextRawALogEntry_josh( logfile );
+	while ( entry.getStatus() != "eof" ) {
+		// variable name and message time
+		string key = entry.getVarName();
+		double msg_time = entry.getTimeStamp();
+
+
+		if ( key == "GPS_X" || key == "NAV_X" ) {
+			gps_x = entry.getDoubleVal();
+		} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
+			gps_y = entry.getDoubleVal();
+
+		// parsing acomms statistics data
+		} else if ( key == "ACOMMS_RECEIVED_ALL" ) {
+			string msg_val = entry.getStringVal();
+
+			goby::acomms::protobuf::ModemTransmission trans;
+			string temp;
+			while ( msg_val.find("<|>") != string::npos ) {
+				msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+			}
+			string const* ptr = &msg_val;
+			google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
+
+			if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
+				int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
+				micromodem::protobuf::ReceiveStatistics stat;
+	//			if ( numstats == 2 )
+	//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+				if ( numstats == 1 ) {
+					stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+
+					snr_in = stat.snr_in();
+					snr_out = stat.snr_out();
+					spl = stat.spl();
+					stddev_noise = stat.stddev_noise();
+					mse_equalizer = stat.mse_equalizer();
+
+					// here we print a line whenever we get an acomms reception
+					printLine( msg_time );
+				}
+			}
+		}
+
+		// here we print a line every .1 seconds
+//		if ( msg_time - last_print_time > .1 ) {
+//			printLine( msg_time );
+//			last_print_time = msg_time;
+//		}
+
+		// get the next entry from the log
+		entry = getNextRawALogEntry_josh( logfile );
+	}
+
+	return 0;
+}
+
+
+void printHelp() {
+
+}
+
+
+ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 {
 	ALogEntry entry;
 	if (!fileptr) {
@@ -131,63 +239,4 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false)
 	}
 
 	return (entry);
-}
-
-int main(int argc, char *argv[]) {
-	if ( argc != 2 ) {
-
-	} else {
-
-	}
-	FILE *logfile = fopen( "log.alog", "r" );
-	for ( int i=0; i<5; i++ ) {
-		getNextRawLine( logfile );
-	}
-
-	ALogEntry entry = getNextRawALogEntry_josh( logfile );
-	double gps_x, gps_y;
-
-	ofstream output;
-	output.open("log.txt");
-
-	output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
-	while ( entry.getStatus() != "eof" ) {
-		string key = entry.getVarName();
-		double msg_time = entry.getTimeStamp();
-		if ( key == "GPS_X" || key == "NAV_X" ) {
-			gps_x = entry.getDoubleVal();
-		} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
-			gps_y = entry.getDoubleVal();
-		} else if ( key == "ACOMMS_RECEIVED_ALL" ) {
-			string msg_val = entry.getStringVal();
-
-			goby::acomms::protobuf::ModemTransmission trans;
-			string temp;
-			while ( msg_val.find("<|>") != string::npos ) {
-				msg_val.replace( msg_val.find("<|>"), 3, "\n" );
-			}
-			string const* ptr = &msg_val;
-			google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
-
-			if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
-				int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
-				micromodem::protobuf::ReceiveStatistics stat;
-	//			if ( numstats == 2 )
-	//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
-				if ( numstats == 1 ) {
-					stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
-
-					output << gps_x << "," << gps_y << ",";
-					output << stat.snr_in() << ",";
-					output << stat.snr_out() << ",";
-					output << stat.spl() << ",";
-					output << stat.stddev_noise() << ",";
-					output << stat.mse_equalizer()<< endl;
-				}
-			}
-		}
-		entry = getNextRawALogEntry_josh( logfile );
-	}
-
-	return 0;
 }
