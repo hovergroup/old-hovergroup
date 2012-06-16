@@ -1,6 +1,6 @@
 #summary Quick description of applications found in the trunk
 
-See the help information for individual applications or the documentation pages for more complete descriptions of the various applications.  This is meant solely as a quick reference.  
+See the help information for individual applications or the documentation pages for more complete descriptions of the various applications.  Application author is probably Josh unless noted otherwise.  
 
 = Vehicle Drivers =
 
@@ -11,6 +11,10 @@ See the help information for individual applications or the documentation pages 
 *simple_gps* - Connects to a gps unit via serial and parses GPRMC sentences.  
 
 *iacomms_driver* - Handles communication with the micromodem using the Goby modem driver as a base.  
+
+= Real time monitoring and analysis =
+
+*plossRate* - _Mei_ - Monitors simple transmit and receive reports and determines packet loss statistics.
 
 = Libraries = 
 
