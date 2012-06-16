@@ -1,0 +1,29 @@
+#summary Quick description of applications found in the trunk
+
+See the help information for individual applications or the documentation pages for more complete descriptions of the various applications.  This is meant solely as a quick reference.  
+
+= Vehicle Drivers =
+
+*kayak_interface* - Interface for communicating with the Arduino on the first kayak hull.  Listens for thrust and rudder commands, reports status and gps information.  
+
+*iOS5000_filtered* - A slightly modified version of the iOS5000 driver provided by moos-ivp-anrp that adds a first order low-pass filter.  
+
+*simple_gps* - Connects to a gps unit via serial and parses GPRMC sentences.  
+
+*iacomms_driver* - Handles communication with the micromodem using the Goby modem driver as a base.  
+
+= Libraries = 
+
+*lib_acomms_message* - Collection of message types containing acomms data.  Most classes include serialization methods.  
+
+= Post-run Data Handling =
+
+*simple_acomms_parser* - A simple application designed to be tailored by individual users to suit their needs.  Creates a synchronous log file from a single alog file.  Copy this to your own tree before making modifications.  
+
+*acomms_alog_parser* (in development) - A more complex parser that synchronizes alog files across multiple vehicles and builds a complete report of acoustic communication activity.  Standard outputting is implemented independently of the parsing.  
+
+= Miscellaneous =
+
+*lib_behaviors-test* - sample behaviors provided included with moos-ivp-extend
+
+*testing-app* - an open workspace for testing things.  This will soon be removed from the trunk, but you can make your own versions separately.  
