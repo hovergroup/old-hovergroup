@@ -24,6 +24,8 @@ See the help information for individual applications or the documentation pages 
 
 = Miscellaneous =
 
-*lib_behaviors-test* - sample behaviors provided included with moos-ivp-extend
+*lib_behaviors-test* - sample behaviors provided included from moos-ivp-extend
+
+*pXRelayTest* - sample application included from moos-ivp-extend.  Will be deleted soon.
 
 *testing-app* - an open workspace for testing things.  This will soon be removed from the trunk, but you can make your own versions separately.  
