@@ -1,0 +1,26 @@
+#summary General todo list affecting the trunk
+
+= Introduction =
+
+Ongoing development and fixes in the trunk should be listed here.  
+
+
+= Ongoing =
+
+*Minipackets* - Minipackets need to be fully implemented in the driver, acomms_messages, and log parsers.  
+
+*Binary Data* - Need to test Binary data transmission through the MOOSDB and investigate how binary data is logged.  
+
+*Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately.  
+
+*Acomms Alog Parser* - Work in progress.
+
+= Future =
+
+*Launch Scripting*
+
+*Log scripting* - For fetching from vehicles, compressing, uploading to AWS.  Maybe downloading from AWS.
+
+*auto-generated moos files* - use nsplug to generate vehicle specific mission files from meta mission and behavior files.  
+
+*build scripting* - automatic updating, building (using distcc)
