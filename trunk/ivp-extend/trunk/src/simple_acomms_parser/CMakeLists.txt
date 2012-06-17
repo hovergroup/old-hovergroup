@@ -22,11 +22,11 @@ TARGET_LINK_LIBRARIES(simple_acomms_parser
 	boost_system
 	boost_signals
 	protobuf
-  logutils
-  mbutil
-  boost_system
-  boost_filesystem
-  boost_date_time
-  MOOSGen
-  acomms_messages
-  ${SYSTEM_LIBS})
+	logutils
+	mbutil
+	boost_system
+	boost_filesystem
+	boost_date_time
+	MOOSGen
+	acomms_messages
+	${SYSTEM_LIBS} )
