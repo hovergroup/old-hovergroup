@@ -58,7 +58,7 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  transmission_data = msg.GetString();
     	  transmit_data( true );
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
-          my_name = msg.GetCommunity();
+//          my_name = msg.GetCommunity();
           startDriver( msg.GetString() );
       }
    }
@@ -83,6 +83,7 @@ bool acomms_driver::OnConnectToServer()
    // possibly look at the mission file?
    m_MissionReader.GetConfigurationParam("PortName", port_name);
    m_MissionReader.GetConfigurationParam("ID", my_id);
+   m_MissionReader.GetValue("Community", my_name);
    // m_Comms.Register("VARNAME", is_float(int));
 
    RegisterVariables();
@@ -133,20 +134,27 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	driver_ready = false;
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
-	if ( transmission_rate == -1 ) {
+	if ( transmission_rate == 100 ) {
+		// send mini data transmission
 		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
 		transmit_message.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
 	} else {
+		// send normal fsk or psk
 		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 		transmit_message.set_rate( transmission_rate );
 	}
+
+	// set source to be our id
 	transmit_message.set_src(goby::util::as<unsigned>(my_id));
+
+	// set tranmission destination, 0 is broadcast
 	if ( transmission_dest == 0 )
 		transmit_message.set_dest(goby::acomms::BROADCAST_ID);
 	else
 		transmit_message.set_dest( transmission_dest );
 
 	if ( transmission_rate == 0 ) {
+		// if using fsk, take up to 32 bytes by truncating if necessary
 		int data_size = transmission_data.size();
 		if ( data_size > 32 ) {
 			transmit_message.add_frame( transmission_data.data(), 32 );
@@ -155,6 +163,7 @@ void acomms_driver::transmit_data( bool isBinary ) {
 		}
 		transmission_data = "";
 	} else if ( transmission_rate == 2 ) {
+		// if psk, take up to 192 bytes in 64 byte frames
 		for ( int i=0; i<3; i++ ) {
 			int data_size = transmission_data.size();
 			if ( data_size > 64 ) {
@@ -166,7 +175,9 @@ void acomms_driver::transmit_data( bool isBinary ) {
 			}
 		}
 		transmission_data = "";
-	} else if ( transmission_rate == -1 ) {
+	} else if ( transmission_rate == 100 ) {
+		// if mini packet, just take up to the first two bytes
+		// truncating done in goby
 		if ( transmission_data.size() ==1 )
 			transmit_message.add_frame( transmission_data.data(), 1 );
 		else if ( transmission_data.size() >= 2 ) {
@@ -176,15 +187,15 @@ void acomms_driver::transmit_data( bool isBinary ) {
 
 	transmit_message.set_ack_requested(false);
 
+	// send transmission to modem
 	driver->handle_initiate_transmission( transmit_message );
 
+	// publish transmit information to moosdb
     lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
     transmit_info.vehicle_name = my_name;
-//    transmit_info.rate = transmit_message.rate();
     transmit_info.rate = transmission_rate;
     transmit_info.dest = transmit_message.dest();
     transmit_info.num_frames = transmit_message.frame_size();
-
     m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
 }
 
@@ -260,7 +271,22 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	}
 	receive_info.vehicle_name = my_name;
 	receive_info.source = stat.source();
-	receive_info.rate = stat.rate();
+	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
+		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
+			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
+			if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA )
+				receive_info.rate = 100;
+			else {
+				publishWarning( "unrecognized transmission type" );
+				receive_info.rate = -1;
+			}
+		} else {
+			publishWarning( "missing driver specific transmission type extension" );
+			receive_info.rate = -1;
+		}
+	} else {
+		receive_info.rate = stat.rate();
+	}
 	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
 	m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
