@@ -24,12 +24,13 @@ SIMPLIFIED_RECEIVE_INFO::SIMPLIFIED_RECEIVE_INFO( string msg ) {
 	int another_pos = temp_sub.find(",");
 	substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
 
-	if ( substrings.size() >=5 ) {
+	if ( substrings.size() >=6 ) {
 		vehicle_name = substrings[0];
-		rate = atoi(substrings[1].c_str());
-		num_frames = atoi(substrings[2].c_str());
-		num_good_frames = atoi(substrings[3].c_str());
-		num_bad_frames = atoi(substrings[4].c_str());
+		source = atoi(substrings[1].c_str());
+		rate = atoi(substrings[2].c_str());
+		num_frames = atoi(substrings[3].c_str());
+		num_good_frames = atoi(substrings[4].c_str());
+		num_bad_frames = atoi(substrings[5].c_str());
 	}
 }
 
@@ -37,6 +38,7 @@ string SIMPLIFIED_RECEIVE_INFO::serializeToString() {
 	stringstream ss;
 
 	ss << "vehicle_name," << vehicle_name;
+	ss << ":source," << source;
 	ss << ":rate," << rate;
 	ss << ":num_frames," << num_frames;
 	ss << ":num_good_frames," << num_good_frames;

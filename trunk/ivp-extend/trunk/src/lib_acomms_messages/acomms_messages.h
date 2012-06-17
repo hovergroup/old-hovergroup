@@ -22,7 +22,7 @@ public:
 	SIMPLIFIED_RECEIVE_INFO( std::string msg );
 
 	std::string vehicle_name;
-	int rate;
+	int rate, source;
 	int num_frames, num_good_frames, num_bad_frames;
 
 	std::string serializeToString();
