@@ -19,6 +19,8 @@ Ongoing development and fixes in the trunk should be listed here.
 
 *CAIRE impulse response* - needs to be logged to MOOSDB
 
+*GobyLog appending* - if driver restarted, goby log should append not overwrite
+
 = Future =
 
 *Launch Scripting*
