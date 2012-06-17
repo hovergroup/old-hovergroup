@@ -49,7 +49,7 @@ void printLine( double time_stamp ) {
 	output << snr_out << ",";
 	output << spl << ",";
 	output << stddev_noise << ",";
-	output << mse_equalizer;
+	output << mse_equalizer << endl;
 }
 
 void printHeader() {
