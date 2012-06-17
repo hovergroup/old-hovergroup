@@ -188,23 +188,31 @@ void acomms_driver::transmit_data( bool isBinary ) {
     m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
 }
 
-void acomms_driver::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
+// handle incoming data received or statistics from the modem
+void acomms_driver::handle_data_receive(
+		const goby::acomms::protobuf::ModemTransmission& data_msg) {
+	// take out endlines and publish the received protobuf
 	string publish_me = data_msg.DebugString();
-    while ( publish_me.find("\n") != string::npos ) {
-            publish_me.replace( publish_me.find("\n"), 1, "<|>" );
-    }
-    m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
+	while (publish_me.find("\n") != string::npos) {
+		publish_me.replace(publish_me.find("\n"), 1, "<|>");
+	}
+	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 
-    int num_stats = data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
-    if ( num_stats == 1 ) {
-            publishReceivedInfo( data_msg, 0 );
-    } else if ( num_stats == 2 ) {
-            publishReceivedInfo( data_msg, 1 );
-    } else {
-            stringstream ss;
-            ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
-            publishWarning( ss.str() );
-    }
+	// look at the number of receive statistics in the message
+	int num_stats = data_msg.ExtensionSize(micromodem::protobuf::receive_stat);
+	if (num_stats == 1) {
+		// psk or mini only
+		publishReceivedInfo(data_msg, 0);
+	} else if (num_stats == 2) {
+		// fsk with mini packet in front - publish the fsk statistics
+		publishReceivedInfo(data_msg, 1);
+	} else {
+		// should not have been
+		stringstream ss;
+		ss << "Error handling ModemTransmission - contained " << num_stats
+				<< "statistics.";
+		publishWarning(ss.str());
+	}
 }
 
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
@@ -235,28 +243,37 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 	}
 }
 
+// publish the info we want on received statistics
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
-        micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
+	// get statistics out of the transmission
+	micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
 
-        lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-        receive_info.vehicle_name = my_name;
-        receive_info.rate = stat.rate();
-        receive_info.num_frames = stat.number_frames();
-        receive_info.num_bad_frames = stat.number_bad_frames();
-        receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-        m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
+	lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
+	if ( stat.psk_error_code() == 2 ) {
+		receive_info.num_frames = stat.number_frames();
+		receive_info.num_bad_frames = receive_info.num_frames;
+		receive_info.num_good_frames = 0;
+	} else {
+		receive_info.num_frames = stat.number_frames();
+		receive_info.num_bad_frames = stat.number_bad_frames();
+		receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
+	}
+	receive_info.vehicle_name = my_name;
+	receive_info.source = stat.source();
+	receive_info.rate = stat.rate();
+	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
-        m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
-        m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
-        m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
+	m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
+	m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
+	m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
 
-        if ( trans.frame_size() > 0 ) {
-			string frame_string = trans.frame(0);
-			for ( int i=1; i<trans.frame_size(); i++ ) {
-				frame_string += trans.frame(i);
-			}
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
-        }
+	if ( trans.frame_size() > 0 ) {
+		string frame_string = trans.frame(0);
+		for ( int i=1; i<trans.frame_size(); i++ ) {
+			frame_string += trans.frame(i);
+		}
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
+	}
 }
 
 void acomms_driver::publishWarning( std::string message ) {
