@@ -139,7 +139,6 @@ void printHelp() {
 
 }
 
-
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 {
 	ALogEntry entry;
