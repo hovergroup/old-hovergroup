@@ -14,9 +14,9 @@ endif (${WIN32})
 
 SET(SRC simple_acomms_parser_main.cpp)
 
-ADD_EXECUTABLE(simple_parser ${SRC})
+ADD_EXECUTABLE(simple_acomms_parser ${SRC})
    
-TARGET_LINK_LIBRARIES(simple_parser
+TARGET_LINK_LIBRARIES(simple_acomms_parser
 	goby_common
 	goby_acomms
 	boost_system
