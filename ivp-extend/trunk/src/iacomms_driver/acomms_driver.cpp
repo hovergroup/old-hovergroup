@@ -42,6 +42,7 @@ acomms_driver::~acomms_driver()
 bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 {
    MOOSMSG_LIST::iterator p;
+   int transmit_code = 0;
    
    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
       CMOOSMsg &msg = *p;
@@ -53,14 +54,29 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
     	  transmission_data = msg.GetString();
-    	  transmit_data( false );
+    	  transmit_code = 1;
+//    	  transmit_data( false );
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
     	  transmission_data = msg.GetString();
-    	  transmit_data( true );
+    	  transmit_code = 2;
+//    	  transmit_data( true );
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
 //          my_name = msg.GetCommunity();
           startDriver( msg.GetString() );
       }
+   }
+
+
+
+   switch ( transmit_code ) {
+   case 1:
+	   transmit_data(false);
+	   break;
+   case 2:
+	   transmit_data(true);
+	   break;
+   default:
+	   break;
    }
 	
    return(true);
