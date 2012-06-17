@@ -317,24 +317,25 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::parseMOOSFile() {
 	int extension_index = moosfilename.find(".alog");
 	moosfilename.replace(extension_index, 5, "._moos");
 
-	FILE * this_moos_file = fopen( moosfilename.c_str(), "r");
-	string line = getNextRawLine( this_moos_file );
-	while ( line != "eof" ) {
-		// needs improvement
-		if ( (line.find("community") != string::npos || line.find("Community") != string::npos)
-				 && (line.find("//") == string::npos || line.find("//") > 10 ) ) {
-			int tmp_index = line.find("=")+1;
-			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
-			break;
-		}
-		line = getNextRawLine( this_moos_file );
-	}
-
-	fclose( this_moos_file );
+//	FILE * this_moos_file = fopen( moosfilename.c_str(), "r");
+//	string line = getNextRawLine( this_moos_file );
+//	while ( line != "eof" ) {
+//		// needs improvement
+//		if ( (line.find("community") != string::npos || line.find("Community") != string::npos)
+//				 && (line.find("//") == string::npos || line.find("//") > 10 ) ) {
+//			int tmp_index = line.find("=")+1;
+//			vehicle_name = stripBlankEnds( line.substr(tmp_index, line.size()-tmp_index) );
+//			break;
+//		}
+//		line = getNextRawLine( this_moos_file );
+//	}
+//
+//	fclose( this_moos_file );
 
 	CProcessConfigReader missionreader;
 	missionreader.SetFile( moosfilename );
 	missionreader.GetConfigurationParam("iacomms_driver", "ID", vehicle_id);
+	missionreader.GetValue("Community", vehicle_name);
 }
 
 void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
