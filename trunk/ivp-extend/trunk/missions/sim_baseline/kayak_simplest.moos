@@ -11,11 +11,11 @@ LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 //Sim Adds
-MOOSTimeWarp = 15
+MOOSTimeWarp = 1
 ProcessConfig = uSimMarine
 {
   AppTick   = 10
-  CommsTic  = 10
+  CommsTick  = 10
 
   START_POS = 0,0,180,0
   PREFIX    = NAV
@@ -25,17 +25,18 @@ ProcessConfig = ANTLER
 {
 	MSBetweenLaunches	= 1000
 
-	Run = MOOSDB		@ NewConsole = false
-	Run = uSimMarine @ NewConsole = false
-	Run = pNodeReporter	@ NewConsole = false
+	Run = MOOSDB			@ NewConsole = false
+	Run = uSimMarine 		@ NewConsole = false
+	Run = pNodeReporter		@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
 	Run = pMarinePID		@ NewConsole = false
-	Run = pHelmIvP		@ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
+	Run = pHelmIvP			@ NewConsole = false
+	Run = pEchoVar			@ NewConsole = false
+	Run = uXMS            	@ NewConsole = true
+	Run = pLogger			@ NewConsole = false	// Logs messages to disk
+	Run = iacomms_driver_sim @ NewConsole = true
+	
 	//Run = iOS5000_filtered		@ NewConsole = false
-
-	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	//Run = iacomms_driver @ NewConsole = false
 }
 
 ProcessConfig = pSearchRelay
@@ -53,16 +54,16 @@ ProcessConfig = uXMS
 	DISPLAY_TIME = true
 	VAR = ACOMMS_DRIVER_STATUS,ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
 	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
+	VAR = ACOMMS_RECEIVED_ALL
 	VAR = NAV_X, NAV_Y, ACOMMS_SNR_OUT, RELAY_STATUS, SEARCH_RELAY_TARGET_WAYPOINT
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iacomms_driver_sim
 {
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
-	ID = 1
+	ID = 2
 }
 
 ProcessConfig = kayak_interface
