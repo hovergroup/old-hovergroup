@@ -39,21 +39,29 @@ ofstream output;
 double last_print_time = -100;
 
 // define the variables you want to keep track of here
-double gps_x, gps_y;
-int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
+double gps_x, gps_y, sensor_heading, current_heading, desired_heading;
+double nav_x, nav_y;
+//int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
 
 void printLine( double time_stamp ) {
+	output << time_stamp << ",";
 	output << gps_x << ",";
 	output << gps_y << ",";
-	output << snr_in << ",";
-	output << snr_out << ",";
-	output << spl << ",";
-	output << stddev_noise << ",";
-	output << mse_equalizer << endl;
+	output << sensor_heading << ",";
+	output << current_heading << ",";
+	output << desired_heading << ",";
+	output << nav_x <<",";
+			output << nav_y<<endl;
+	//output << snr_in << ",";
+	//output << snr_out << ",";
+	//output << spl << ",";
+	//output << stddev_noise << ",";
+	//output << mse_equalizer << endl;
 }
 
 void printHeader() {
-	output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
+	//output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
+	output << "time_stamp, gps_x, gps_y, sensor_heading, current_heading" << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -83,55 +91,68 @@ int main(int argc, char *argv[]) {
 		string key = entry.getVarName();
 		double msg_time = entry.getTimeStamp();
 
-
-		if ( key == "GPS_X" || key == "NAV_X" ) {
+		if ( key == "GPS_X" ) {
 			gps_x = entry.getDoubleVal();
-		} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
+		} else if ( key == "GPS_Y") {
 			gps_y = entry.getDoubleVal();
-
-		// parsing acomms statistics data
-		} else if ( key == "ACOMMS_RECEIVED_ALL" ) {
-			string msg_val = entry.getStringVal();
-
-			goby::acomms::protobuf::ModemTransmission trans;
-			string temp;
-			while ( msg_val.find("<|>") != string::npos ) {
-				msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+		} else if(key=="COMPASS_HEADING_FILTERED"){
+			sensor_heading = entry.getDoubleVal();
+		} else if(key=="NAV_HEADING"){
+			current_heading = entry.getDoubleVal();
+			if(entry.getSource()!="pEchoVar_a"){
+				printLine( msg_time );
 			}
-			string const* ptr = &msg_val;
-			google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
-
-			if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
-				int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
-				micromodem::protobuf::ReceiveStatistics stat;
-	//			if ( numstats == 2 )
-	//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
-				if ( numstats == 1 ) {
-					stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
-
-					snr_in = stat.snr_in();
-					snr_out = stat.snr_out();
-					spl = stat.spl();
-					stddev_noise = stat.stddev_noise();
-					mse_equalizer = stat.mse_equalizer();
-
-					// here we print a line whenever we get an acomms reception
-					printLine( msg_time );
-				}
-			}
+		} else if(key=="NAV_X"){
+			nav_x = entry.getDoubleVal();
+		} else if(key=="NAV_Y"){
+			nav_y = entry.getDoubleVal();
+		} else if(key=="DESIRED_HEADING"){
+			desired_heading = entry.getDoubleVal();
 		}
 
-		// here we print a line every .1 seconds
-//		if ( msg_time - last_print_time > .1 ) {
-//			printLine( msg_time );
-//			last_print_time = msg_time;
-//		}
+		// parsing acomms statistics data
+	 else if ( key == "ACOMMS_RECEIVED_ALL" ) {
+		string msg_val = entry.getStringVal();
 
-		// get the next entry from the log
-		entry = getNextRawALogEntry_josh( logfile );
+		goby::acomms::protobuf::ModemTransmission trans;
+		string temp;
+		while ( msg_val.find("<|>") != string::npos ) {
+			msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+		}
+		string const* ptr = &msg_val;
+		google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
+
+		if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
+			int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
+			micromodem::protobuf::ReceiveStatistics stat;
+			//			if ( numstats == 2 )
+			//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+			if ( numstats == 1 ) {
+				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+
+				//					snr_in = stat.snr_in();
+				//					snr_out = stat.snr_out();
+				//					spl = stat.spl();
+				//					stddev_noise = stat.stddev_noise();
+				//					mse_equalizer = stat.mse_equalizer();
+
+				// here we print a line whenever we get an acomms reception
+//				printLine( msg_time );
+			}
+		}
 	}
 
-	return 0;
+	// here we print a line every .1 seconds
+	//		if ( msg_time - last_print_time > .1 ) {
+	//			printLine( msg_time );
+	//			last_print_time = msg_time;
+	//		}
+
+	// get the next entry from the log
+	entry = getNextRawALogEntry_josh( logfile );
+}
+
+return 0;
 }
 
 
@@ -168,7 +189,7 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 	int state = 0;
 
 	while ((!EOLine) && (!EOFile) && (lineix < MAX_LINE_LENGTH)) {
-//		cout << "state: " << state << endl;
+		//		cout << "state: " << state << endl;
 		myint = fgetc(fileptr);
 		unsigned char mychar = myint;
 		switch (myint) {
@@ -180,7 +201,7 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 				buff[buffix] = mychar;
 				buffix++;
 			}
-//			break;
+			//			break;
 		case '\t':
 			if (state == 0) {
 				buff[buffix] = '\0';
@@ -222,7 +243,7 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 
 	val = stripBlankEnds(val);
 
-//	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
+	//	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
 
 	if ((time != "") && (var != "") && (src != "") && (val != "")
 			&& isNumber(time)) {
