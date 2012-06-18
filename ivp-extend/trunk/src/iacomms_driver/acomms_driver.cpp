@@ -27,6 +27,8 @@ acomms_driver::acomms_driver()
 
 	receive_set_time = 0;
 	status_set_time = 0;
+
+	use_psk_for_minipackets = false;
 }
 
 //---------------------------------------------------------
@@ -50,11 +52,6 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 
       if ( key == "ACOMMS_TRANSMIT_RATE" ) {
     	  transmission_rate = (int) msg.GetDouble();
-    	  switch ( transmission_rate ) {
-    	  case 100:
-    		  // fsk mini packet
-    		  break;
-    	  }
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
@@ -103,6 +100,7 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetConfigurationParam("PortName", port_name);
    m_MissionReader.GetConfigurationParam("ID", my_id);
    m_MissionReader.GetValue("Community", my_name);
+   m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
    // m_Comms.Register("VARNAME", is_float(int));
 
    RegisterVariables();
@@ -258,6 +256,8 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		RXD_received = false;
 		publishStatus("receiving");
 		receive_set_time = MOOSTime();
+	} else if ( descriptor == "IRE" ) {
+		m_Comms.Notify("ACOMMS_INPULSE_RESPONSE", msg.raw());
 	}
 //	} else if ( descriptor == "CST" ) {
 //		CST_received = true;
@@ -333,9 +333,30 @@ void acomms_driver::publishStatus( std::string status_update ) {
 	status_set_time = MOOSTime();
 }
 
+bool acomms_driver::file_exists( std::string filename ) {
+	ifstream my_file(filename.c_str());
+	if ( my_file.good() ) {
+		my_file.close();
+		return true;
+	} else {
+		my_file.close();
+		return false;
+	}
+}
+
 void acomms_driver::startDriver( std::string logDirectory ) {
-	cout << "opening log file: " << logDirectory+"/goby_log.txt" << endl;
-	verbose_log.open((logDirectory+"/goby_log.txt").c_str());
+	cout << "opening goby log file..." << endl;
+	int file_index = 0;
+	string filename = logDirectory + "/goby_log_" +
+		boost::lexical_cast<string>( file_index ) + ".txt";
+	while ( file_exists( filename ) ) {
+		cout << filename << " already exists." << endl;
+		file_index++;
+		string filename = logDirectory + "/goby_log_" +
+			boost::lexical_cast<string>( file_index ) + ".txt";
+	}
+	verbose_log.open(filename.c_str());
+	cout << "Goby logging to " << filename << endl;
 
 	cfg.set_serial_port( port_name );
 	cfg.set_modem_id( my_id );
@@ -346,6 +367,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	std::cout << "Starting WHOI Micro-Modem MMDriver" << std::endl;
 	driver = new goby::acomms::MMDriver;
+//	driver = new MMDriver_extended;
 	// turn data quality factor message on
 	// (example of setting NVRAM configuration)
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DQF,1");
@@ -353,6 +375,10 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SHF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DOP,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
+	if ( use_psk_for_minipackets )
+		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
+	else
+		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,0");
 
 	goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );
 	goby::acomms::connect( &driver->signal_raw_incoming, boost::bind(&acomms_driver::handle_raw_incoming, this, _1) );
