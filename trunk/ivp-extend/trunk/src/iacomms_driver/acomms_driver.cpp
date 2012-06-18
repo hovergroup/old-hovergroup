@@ -50,6 +50,11 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 
       if ( key == "ACOMMS_TRANSMIT_RATE" ) {
     	  transmission_rate = (int) msg.GetDouble();
+    	  switch ( transmission_rate ) {
+    	  case 100:
+    		  // fsk mini packet
+    		  break;
+    	  }
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
@@ -65,8 +70,6 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
           startDriver( msg.GetString() );
       }
    }
-
-
 
    switch ( transmit_code ) {
    case 1:
@@ -237,9 +240,10 @@ void acomms_driver::handle_data_receive(
 		// should not have been
 		stringstream ss;
 		ss << "Error handling ModemTransmission - contained " << num_stats
-				<< "statistics.";
+				<< " statistics.";
 		publishWarning(ss.str());
 	}
+	publishStatus("ready");
 }
 
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
@@ -254,20 +258,21 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		RXD_received = false;
 		publishStatus("receiving");
 		receive_set_time = MOOSTime();
-	} else if ( descriptor == "CST" ) {
-		CST_received = true;
-	} else if ( descriptor == "RXD" ) {
-		RXD_received = true;
 	}
-//	} else {
-//		cout << "unhandled raw msg with descriptor " << descriptor << endl;
+//	} else if ( descriptor == "CST" ) {
+//		CST_received = true;
+//	} else if ( descriptor == "RXD" ) {
+//		RXD_received = true;
 //	}
-	if ( !driver_ready && CST_received && RXD_received ) {
-		CST_received = false;
-		RXD_received = false;
-		driver_ready = true;
-		publishStatus("ready");
-	}
+////	} else {
+////		cout << "unhandled raw msg with descriptor " << descriptor << endl;
+////	}
+//	if ( !driver_ready && CST_received && RXD_received ) {
+//		CST_received = false;
+//		RXD_received = false;
+//		driver_ready = true;
+//		publishStatus("ready");
+//	}
 }
 
 // publish the info we want on received statistics
