@@ -17,8 +17,6 @@ Ongoing development and fixes in the trunk should be listed here.
 
 *acomms messages and cmake* - Individual user trees only look in trunk to find common libraries.  Top level CMakeLists.txt needs to also check in kayak-stable when building on kayaks without the trunk built.
 
-*CAIRE impulse response* - needs to be logged to MOOSDB
-
 *GobyLog appending* - if driver restarted, goby log should append not overwrite
 
 = Future =
@@ -33,4 +31,6 @@ Ongoing development and fixes in the trunk should be listed here.
 
 = Complete = 
 
-*Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately.  Should be accurate, but careful parsing required for edge cases.
+*Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately. - Should be accurate, but careful parsing required for edge cases.
+
+*CAIRE impulse response* - needs to be logged to MOOSDB - Full raw message now posting to ACOMMS_INPULSE_RESPONSE
