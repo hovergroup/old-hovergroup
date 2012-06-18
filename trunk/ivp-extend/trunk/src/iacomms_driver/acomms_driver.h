@@ -28,6 +28,7 @@ public:
 protected:
 	google::protobuf::uint32 my_id;
 	std::string port_name, my_name;
+	bool use_psk_for_minipackets;
 
 	int transmission_rate, transmission_dest;
 	std::string transmission_data;
@@ -50,6 +51,8 @@ protected:
 	void publishStatus( std::string status_update );
 
 	void RegisterVariables();
+
+	bool file_exists( std::string filename );
 
 	std::ofstream verbose_log;
 };
