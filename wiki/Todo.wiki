@@ -33,4 +33,4 @@ Ongoing development and fixes in the trunk should be listed here.
 
 *Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately. - Should be accurate, but careful parsing required for edge cases.
 
-*CAIRE impulse response* - needs to be logged to MOOSDB - Full raw message now posting to ACOMMS_INPULSE_RESPONSE
+*CAIRE impulse response* - needs to be logged to MOOSDB - Full raw message now posting to ACOMMS_IMPULSE_RESPONSE
