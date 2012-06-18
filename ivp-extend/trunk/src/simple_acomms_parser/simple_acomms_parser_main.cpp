@@ -5,7 +5,8 @@
  *      Author: josh
  */
 
-
+// copy to your own tree before making modifications
+// this version is subject to being changed or overwritten
 
 using namespace std;
 
