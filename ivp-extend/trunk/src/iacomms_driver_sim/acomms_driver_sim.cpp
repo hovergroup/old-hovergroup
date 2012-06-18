@@ -27,8 +27,11 @@ acomms_driver_sim::acomms_driver_sim()
 	status_set_time = 0;
 
 	//Sims
-	encoding_time = 1;
 	sending_time = 3;
+	channel_delay = 3;
+
+	receiving = false;
+	transmitting = false;
 }
 
 //---------------------------------------------------------
@@ -135,11 +138,16 @@ bool acomms_driver_sim::Iterate()
 	}
 
 	if(receiving){
-		while(MOOSTime()-sent_time < sending_time){
-			//wait
+		driver_ready=false;
+		publishStatus("receiving");
+		while(MOOSTime()-sent_time < channel_delay){
+			driver_ready = false;
+			cout<<"channel delay"<<endl;
 		}
 		handle_data_receive(sent_data);
 		receiving = false;
+		driver_ready = true;
+		publishStatus("ready");
 	}
 
 	// happens AppTick times per second
@@ -165,10 +173,6 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 		return;
 	}
 
-	publishStatus("transmitting");
-	driver_ready = false;
-	start_time = MOOSTime();
-
 	stringstream ss;
 	int num_frames = 0;
 
@@ -179,11 +183,17 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 			<<my_id<<","
 			<<transmission_dest<<",";
 
+	cout<<"Transmitting: "<<ss.str()<<endl;
+	cout<<transmission_data<<endl;
+
 	if ( transmission_rate == 0 ) {
 		int data_size = transmission_data.size();
+		cout<<"Size: "<<data_size<<endl;
 		num_frames = 1;
 		if ( data_size > 32 ) {
-			ss.write(transmission_data.data(),32);
+			transmission_data=transmission_data.substr(0,32);
+			cout<<transmission_data<<endl;
+			ss<<transmission_data;
 			ss<<",1"; //num_frames
 		} else {
 			ss<<transmission_data.data();
@@ -211,22 +221,29 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	}
 
 
-	while(MOOSTime()-start_time<encoding_time){
+	publishStatus("transmitting");
+	driver_ready = false;
+	start_time = MOOSTime();
+
+	while(MOOSTime()-start_time<sending_time){
 		//wait
+		cout<<"sending time"<<endl;
 	}
 
 	//x,y,name,rate,src id,dest id,data, num-frames
 	m_Comms.Notify("ACOMMS_SIM_SENT_DATA",ss.str());
 	ss.str("");
 
+	driver_ready = true;
+	publishStatus("ready");
+
 	//x=100,y=-50,radius=40,duration=15,fill=0.25,
 	//fill color=green,label=04,time=@MOOSTIME
-	ss<<"x="<<x<<",y="<<y<<",time="<<MOOSTime();
+	ss<<"x="<<x<<",y="<<y;
 	m_Comms.Notify("VIEW_RANGE_PULSE", ss.str());
 
 	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
 	transmit_info.vehicle_name = my_name;
-	//    transmit_info.rate = transmit_message.rate();
 	transmit_info.rate = transmission_rate;
 	transmit_info.dest = transmission_dest;
 	transmit_info.num_frames = num_frames;
@@ -268,6 +285,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			data = substrings[6];
 			num_frames = atoi(substrings[7].c_str());
 			cout<<"Sent from: "<<sender <<" at "<< srcx<<","<<srcy<<endl;
+			cout<<"rate: "<<rate<<" num_frames: "<<num_frames<<endl;
 			parsed = true;
 		}
 		else{
@@ -277,36 +295,39 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 	else{
 		cout<<"No sent data"<<endl;
 	}
+	cout<<"is here";
 
-	vector<string> frames;
-
+	vector<string> my_frames;
 	if(rate==0){
+		cout<<"here";
 		cst_mini = data_msg->AddExtension(micromodem::protobuf::receive_stat);
 		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
-		frames[0] = data;
+		my_frames.push_back(data);
 	}
 	else if(rate==2){
+		cout<<"or here";
 		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
 		if(data.size()>0){
 			int pos = 0;
 			while ( data.find(":", pos) != string::npos ) {
 				int newpos = data.find(":", pos);
 				string temp_sub = sent_data.substr(pos, newpos-pos);
-				frames.push_back(temp_sub);
+				my_frames.push_back(temp_sub);
 				pos = newpos+1;
 			}
 
 			string temp_sub = data.substr(pos,sent_data.size()-pos);
-			frames.push_back(temp_sub);
+			my_frames.push_back(temp_sub);
 		}
-		if(frames.size()<=3){
+		if(my_frames.size()<3){
 			parsed = false;
-			cout << "PSK: only got "<<frames.size()<<" frames."<<endl;
+			cout << "PSK: only parsed "<<my_frames.size()<<" frames."<<endl;
 		}
 	}
-
+	cout<<"or or here";
 	if(parsed){
 		vector<double> probs = getProbabilities(x,y,srcx,srcy,rate);
+		cout<<"Rolling dice"<<endl;
 
 		if(rollDice(probs[0])){ //sync
 			if(rollDice(probs[1])){ //header
@@ -319,12 +340,13 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 
 				else{ //modulation loss
 					//no header
+					cout<<"mod loss"<<endl;
 					cst->set_psk_error_code(1);
 				}
 
 				for(int i=0;i<num_frames;i++){
 					if(rollDice(probs[3])){//frame
-						data_msg->add_frame(frames[i]);
+						data_msg->add_frame(my_frames[i]);
 					}
 					else{ //frame loss
 						data_msg->add_frame("");
@@ -334,7 +356,8 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 
 			}
 			else{	//header loss
-				//get nothing
+				//get nothing, reporting empty
+				cout<<"header loss"<<endl;
 				cst->set_psk_error_code(2);
 			}
 
@@ -367,34 +390,43 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 
 		}
 		else{
-			//sync loss
+			//sync loss - reporting nothing
+			cout<<"sync loss"<<endl;
 		}
 	}
 }
 
 bool acomms_driver_sim::rollDice(double p){
 	srand((unsigned) time(NULL));
-	int face = rand() % 1;
-	if(face<p){
+	int face = rand() % 100;
+	if(face<=p){
+		cout<<"pass"<<endl;
 		return true;
 	}
 	else{
+		cout<<"fail"<<endl;
 		return false;
 	}
 
 }
 
-vector<double> acomms_driver_sim::getProbabilities(double myx, double my, double x, double y, int rate)
+vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, double x, double y, int rate)
 {
-	std::vector<double> probabilities;
-	double sync_loss = 0.2;
-	double header_loss = 0.01;
-	double modulation_loss = 0.05;
-	double frame_loss = 0.05;
+	vector<double> probabilities;
+	if(abs(myx-x) <5 && abs(myy-y)<5){
+		cout<<"Really close!"<<endl;
+		probabilities.push_back(100);
+	}
+	else{
+	double sync_loss = 20;
+	double header_loss = 1;
+	double modulation_loss = 5;
+	double frame_loss = 5;
 	probabilities.push_back(sync_loss);
 	probabilities.push_back(header_loss);
 	probabilities.push_back(modulation_loss);
-	probabilities.push_back(frame_loss);
+	probabilities.push_back(frame_loss);}
+
 	return probabilities;
 }
 
