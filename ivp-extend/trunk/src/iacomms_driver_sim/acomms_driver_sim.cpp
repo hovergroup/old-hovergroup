@@ -295,17 +295,17 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 	else{
 		cout<<"No sent data"<<endl;
 	}
-	cout<<"is here";
+	cout<<"is here" << endl;
 
 	vector<string> my_frames;
 	if(rate==0){
-		cout<<"here";
+		cout<<"here" << endl;
 		cst_mini = data_msg->AddExtension(micromodem::protobuf::receive_stat);
 		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
 		my_frames.push_back(data);
 	}
 	else if(rate==2){
-		cout<<"or here";
+		cout<<"or here" << endl;
 		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
 		if(data.size()>0){
 			int pos = 0;
@@ -324,7 +324,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			cout << "PSK: only parsed "<<my_frames.size()<<" frames."<<endl;
 		}
 	}
-	cout<<"or or here";
+	cout<<"or or here" << endl;
 	if(parsed){
 		vector<double> probs = getProbabilities(x,y,srcx,srcy,rate);
 		cout<<"Rolling dice"<<endl;
