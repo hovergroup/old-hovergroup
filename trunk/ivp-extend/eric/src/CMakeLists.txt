@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 #ADD_SUBDIRECTORY(pSearchRelay)
 ADD_SUBDIRECTORY(pEric)
+ADD_SUBDIRECTORY(simple_acomms_parser)
 
 ##############################################################################
 #                           END of CMakeLists.txt
