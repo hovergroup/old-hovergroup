@@ -70,7 +70,7 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 			vector<string> substrings;
 
 			if(data.size()>0){
-			int pos = 0;
+				int pos = 0;
 				while ( data.find(",", pos) != string::npos ) {
 					int newpos = data.find(",", pos);
 					string temp_sub = data.substr(pos, newpos-pos);
@@ -79,15 +79,15 @@ bool Eric::OnNewMail(MOOSMSG_LIST &NewMail)
 					pos = newpos+1;
 				}
 
-			string temp_sub = data.substr(pos,data.size()-pos);
-			substrings.push_back(temp_sub);
-			cout<<temp_sub<<endl;
+				string temp_sub = data.substr(pos,data.size()-pos);
+				substrings.push_back(temp_sub);
+				cout<<temp_sub<<endl;
 
-			if(substrings.size()>=3){
-			m_Comms.Notify("NAV_HEADING", atof(substrings[0].c_str()));
-			m_Comms.Notify("NAV_X",atof(substrings[1].c_str()));
-			m_Comms.Notify("NAV_Y",atof(substrings[2].c_str()));
-			}
+				if(substrings.size()>=3){
+					m_Comms.Notify("NAV_HEADING", atof(substrings[0].c_str()));
+					m_Comms.Notify("NAV_X",atof(substrings[1].c_str()));
+					m_Comms.Notify("NAV_Y",atof(substrings[2].c_str()));
+				}
 			}
 		}
 
