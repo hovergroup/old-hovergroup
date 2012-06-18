@@ -11,8 +11,6 @@ Ongoing development and fixes in the trunk should be listed here.
 
 *Binary Data* - Need to test Binary data transmission through the MOOSDB and investigate how binary data is logged.  
 
-*Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately.  
-
 *Acomms Alog Parser* - Work in progress.
 
 *acomms messages and cmake* - Individual user trees only look in trunk to find common libraries.  Top level CMakeLists.txt needs to also check in kayak-stable when building on kayaks without the trunk built.
@@ -30,3 +28,7 @@ Ongoing development and fixes in the trunk should be listed here.
 *auto-generated moos files* - use nsplug to generate vehicle specific mission files from meta mission and behavior files.  
 
 *build scripting* - automatic updating, building (using distcc)
+
+= Complete = 
+
+*Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately.  Should be accurate, but careful parsing required for edge cases.
