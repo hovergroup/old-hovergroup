@@ -252,7 +252,7 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 }
 
 void acomms_driver_sim::handle_data_receive(string sent_data){
-	goby::acomms::protobuf::ModemTransmission* data_msg;
+	goby::acomms::protobuf::ModemTransmission data_msg; // changed to not be pointer
 	micromodem::protobuf::ReceiveStatistics* cst;
 	micromodem::protobuf::ReceiveStatistics* cst_mini;
 
@@ -299,14 +299,17 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 
 	vector<string> my_frames;
 	if(rate==0){
-		cout<<"here" << endl;
-		cst_mini = data_msg->AddExtension(micromodem::protobuf::receive_stat);
-		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
+		cout<<"about to add stats" << endl;
+		cst_mini =data_msg.AddExtension(micromodem::protobuf::receive_stat);
+		cout << "added mini stats" << endl;
+		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
+		cout << "added fsk stats" << endl;
 		my_frames.push_back(data);
+		cout << "added frame" << endl;
 	}
 	else if(rate==2){
 		cout<<"or here" << endl;
-		cst = data_msg->AddExtension(micromodem::protobuf::receive_stat);
+		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		if(data.size()>0){
 			int pos = 0;
 			while ( data.find(":", pos) != string::npos ) {
@@ -346,10 +349,10 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 
 				for(int i=0;i<num_frames;i++){
 					if(rollDice(probs[3])){//frame
-						data_msg->add_frame(my_frames[i]);
+						data_msg.add_frame(my_frames[i]);
 					}
 					else{ //frame loss
-						data_msg->add_frame("");
+						data_msg.add_frame("");
 						cst->set_psk_error_code(3);
 					}
 				}
@@ -361,7 +364,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 				cst->set_psk_error_code(2);
 			}
 
-			string publish_me = data_msg->DebugString();
+			string publish_me = data_msg.DebugString();
 			while (publish_me.find("\n") != string::npos) {
 				publish_me.replace(publish_me.find("\n"), 1, "<|>");
 			}
