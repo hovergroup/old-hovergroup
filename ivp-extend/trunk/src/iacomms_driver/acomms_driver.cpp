@@ -29,6 +29,12 @@ acomms_driver::acomms_driver()
 	status_set_time = 0;
 
 	use_psk_for_minipackets = false;
+
+	transmission_pulse_range = 50;
+	transmission_pulse_duration = 5;
+
+	receive_pulse_range = 20;
+	receive_pulse_duration = 4;
 }
 
 //---------------------------------------------------------
@@ -44,7 +50,7 @@ acomms_driver::~acomms_driver()
 bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 {
    MOOSMSG_LIST::iterator p;
-   int transmit_code = 0;
+   bool new_transmit = false;
    
    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
       CMOOSMsg &msg = *p;
@@ -56,28 +62,20 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
     	  transmission_data = msg.GetString();
-    	  transmit_code = 1;
+    	  new_transmit = true;
 //    	  transmit_data( false );
-      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
-    	  transmission_data = msg.GetString();
-    	  transmit_code = 2;
-//    	  transmit_data( true );
+//      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
+//    	  transmission_data = msg.GetString();
+//    	  transmit_code = 2;
+////    	  transmit_data( true );
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
 //          my_name = msg.GetCommunity();
           startDriver( msg.GetString() );
       }
    }
 
-   switch ( transmit_code ) {
-   case 1:
-	   transmit_data(false);
-	   break;
-   case 2:
-	   transmit_data(true);
-	   break;
-   default:
-	   break;
-   }
+   if ( new_transmit )
+	   transmit_data();
 	
    return(true);
 }
@@ -87,7 +85,9 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
-    m_Comms.Register( "LOGGER_DIRECTORY", 0 );
+    m_Comms.Register( "LOGGER_DIRECTORY", 1 );
+    m_Comms.Register( "NAV_X", 1 );
+    m_Comms.Register( "NAV_Y", 1 );
 }
 
 //---------------------------------------------------------
@@ -141,9 +141,14 @@ bool acomms_driver::OnStartUp()
    return(true);
 }
 
-void acomms_driver::transmit_data( bool isBinary ) {
+void acomms_driver::transmit_data() {
 	if ( !driver_ready ) {
 		publishWarning("Driver not ready");
+		return;
+	}
+
+	if ( transmission_data.size() == 0 ) {
+		publishWarning("No transmission data");
 		return;
 	}
 
@@ -170,36 +175,56 @@ void acomms_driver::transmit_data( bool isBinary ) {
 	else
 		transmit_message.set_dest( transmission_dest );
 
+	vector<unsigned char> transmitted_data;
 	if ( transmission_rate == 0 ) {
 		// if using fsk, take up to 32 bytes by truncating if necessary
 		int data_size = transmission_data.size();
-		if ( data_size > 32 ) {
-			transmit_message.add_frame( transmission_data.data(), 32 );
-		} else {
-			transmit_message.add_frame( transmission_data.data(), data_size );
-		}
+		if ( data_size > 32 )
+			data_size = 32;
+		transmit_message.add_frame( transmission_data.data(), data_size );
+
+		// save transmitted data
+		transmitted_data = vector<unsigned char> (data_size, 0);
+		memcpy( &transmitted_data[0], transmission_data.data(), data_size);
+
+		// clear transmission data
 		transmission_data = "";
+
 	} else if ( transmission_rate == 2 ) {
 		// if psk, take up to 192 bytes in 64 byte frames
-		for ( int i=0; i<3; i++ ) {
-			int data_size = transmission_data.size();
-			if ( data_size > 64 ) {
-				transmit_message.add_frame( transmission_data.data(), 64 );
-				transmission_data = transmission_data.substr( 64, data_size-64 );
-			} else if ( data_size > 0 ) {
-				transmit_message.add_frame( transmission_data.data(), data_size);
-				break;
-			}
+		int total_size = transmission_data.size();
+		if ( total_size > 192 ) // max size across 3 frames
+			total_size = 192;
+		transmitted_data = vector<unsigned char> (total_size, 0);
+
+		// while more than 64 bytes left, add another 64 byte frame
+		while ( total_size-64 > 0 ) {
+			transmit_message.add_frame( transmission_data.data(), 64 );
+			int index = (transmit_message.frame_size()-1)*64;
+			// save transmitted data
+			memcpy( &transmitted_data[index], transmission_data.data(), 64 );
+			transmission_data = transmission_data.substr( 64, transmission_data.size()-64 );
+			total_size-=64;
 		}
+		// when 64 bytes or less left, copy remaining data
+		transmit_message.add_frame( transmission_data.data(), total_size );
+		int index = (transmit_message.frame_size()-1)*64;
+		memcpy( &transmitted_data[index], transmission_data.data(), total_size );
+
+		// clear transmission data
 		transmission_data = "";
+
 	} else if ( transmission_rate == 100 ) {
 		// if mini packet, just take up to the first two bytes
 		// truncating done in goby
-		if ( transmission_data.size() ==1 )
-			transmit_message.add_frame( transmission_data.data(), 1 );
-		else if ( transmission_data.size() >= 2 ) {
-			transmit_message.add_frame( transmission_data.data(), 2 );
-		}
+		int data_size = transmission_data.size();
+		if ( data_size > 2 ) // max of 2 bytes ( 13 bits actually )
+			data_size = 2;
+		transmit_message.add_frame( transmission_data.data(), data_size );
+
+		// keep track of transmitted data
+		transmitted_data = vector<unsigned char> (data_size, 0);
+		memcpy( &transmitted_data[0], transmission_data.data(), data_size );
 	}
 
 	transmit_message.set_ack_requested(false);
@@ -214,7 +239,31 @@ void acomms_driver::transmit_data( bool isBinary ) {
     transmit_info.dest = transmit_message.dest();
     transmit_info.num_frames = transmit_message.frame_size();
     m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
+
+    // publish transmitted data in hexadecimal format
+    stringstream ss;
+    for ( int i=0; i<transmitted_data.size(); i++ ) {
+    	ss << hex << (int) transmitted_data[i];
+    }
+    m_Comms.Notify("TRANSMITTED_DATA_HEX", ss.str() );
+
+    postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
 }
+
+void acomms_driver::postRangePulse( string label, double range, double duration, string color ) {
+	XYRangePulse pulse;
+	pulse.set_x(m_navx);
+	pulse.set_y(m_navy);
+	pulse.set_label(label);
+	pulse.set_rad(range);
+	pulse.set_duration(duration);
+	pulse.set_time(MOOSTime());
+	pulse.set_color("edge", color);
+	pulse.set_color("fill", color);
+
+	m_Comms.Notify("VIEW_RANGE_PULSE", pulse.get_spec());
+}
+
 
 // handle incoming data received or statistics from the modem
 void acomms_driver::handle_data_receive(
@@ -320,6 +369,12 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 			frame_string += trans.frame(i);
 		}
 		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
+	}
+
+	if ( receive_info.num_frames > 0 && receive_info.num_frames == 0 ) {
+		postRangePulse( "receipt good", receive_pulse_range, receive_pulse_duration, "green" );
+	} else {
+		postRangePulse( "receipt bad", receive_pulse_range, receive_pulse_duration, "red" );
 	}
 }
 

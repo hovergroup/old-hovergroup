@@ -13,6 +13,7 @@ TARGET_LINK_LIBRARIES(iacomms_driver
 	boost_system
 	boost_signals
 	protobuf
+	geometry
 	MOOS
 	MOOSGen
 	mbutil
