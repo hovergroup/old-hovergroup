@@ -7,7 +7,7 @@ Ongoing development and fixes in the trunk should be listed here.
 
 = Ongoing =
 
-*Minipackets* - Minipackets need to be fully implemented in the driver, acomms_messages, and log parsers.  
+*Minipackets* - Minipackets need to be fully implemented in the driver (complete), acomms_messages (rate 100), and log parsers.  
 
 *Binary Data* - Need to test Binary data transmission through the MOOSDB and investigate how binary data is logged.  
 
@@ -16,8 +16,6 @@ Ongoing development and fixes in the trunk should be listed here.
 *Acomms Messages* - update string parsing methods.
 
 *acomms messages and cmake* - Individual user trees only look in trunk to find common libraries.  Top level CMakeLists.txt needs to also check in kayak-stable when building on kayaks without the trunk built.
-
-*GobyLog appending* - if driver restarted, goby log should append not overwrite
 
 = Future =
 
@@ -34,3 +32,5 @@ Ongoing development and fixes in the trunk should be listed here.
 *Acomms Messages* - Total number of frames and number of good frames are sometimes reported inaccurately. - Should be accurate, but careful parsing required for edge cases.
 
 *CAIRE impulse response* - needs to be logged to MOOSDB - Full raw message now posting to ACOMMS_IMPULSE_RESPONSE
+
+*GobyLog appending* - if driver restarted, goby log should append not overwrite. - Should now append a number to the file.
