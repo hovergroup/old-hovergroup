@@ -34,7 +34,7 @@ acomms_driver::acomms_driver()
 	transmission_pulse_duration = 5;
 
 	receive_pulse_range = 20;
-	receive_pulse_duration = 4;
+	receive_pulse_duration = 3;
 }
 
 //---------------------------------------------------------
@@ -71,6 +71,10 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
 //          my_name = msg.GetCommunity();
           startDriver( msg.GetString() );
+      } else if ( key == "NAV_X" ) {
+    	  m_navx = msg.GetDouble();
+      } else if ( key == "NAV_Y" ) {
+    	  m_navy = msg.GetDouble();
       }
    }
 
@@ -245,7 +249,7 @@ void acomms_driver::transmit_data() {
     for ( int i=0; i<transmitted_data.size(); i++ ) {
     	ss << hex << (int) transmitted_data[i];
     }
-    m_Comms.Notify("TRANSMITTED_DATA_HEX", ss.str() );
+    m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", ss.str() );
 
     postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
 }
@@ -329,6 +333,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	// get statistics out of the transmission
 	micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
 
+	// file simplified receive info
 	lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
 	if ( stat.psk_error_code() == 2 ) {
 		receive_info.num_frames = stat.number_frames();
@@ -341,6 +346,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	}
 	receive_info.vehicle_name = my_name;
 	receive_info.source = stat.source();
+	// check for mini data type to set custom rate, otherwise use reported rate
 	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
 		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
 			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
@@ -359,21 +365,36 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	}
 	m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
+	// notify individual statistics that are considered useful to know about or convienient to
+	// see outside ACOMMS_RECEIVED_ALL
 	m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
 	m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
 	m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
 
 	if ( trans.frame_size() > 0 ) {
+		// notify data received in ascii format
 		string frame_string = trans.frame(0);
 		for ( int i=1; i<trans.frame_size(); i++ ) {
 			frame_string += trans.frame(i);
 		}
 		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
+
+		// notify data received in hex format
+		vector<unsigned char> received_data (frame_string.size(), 0);
+		memcpy( &received_data[0], frame_string.data(), frame_string.size() );
+		stringstream ss;
+		for ( int i=0; i<received_data.size(); i++ ) {
+			ss << hex << (int) received_data[i];
+		}
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
 	}
 
+	// create a range pulse
 	if ( receive_info.num_frames > 0 && receive_info.num_frames == 0 ) {
+		// for believed good receipts, green pulse
 		postRangePulse( "receipt good", receive_pulse_range, receive_pulse_duration, "green" );
 	} else {
+		// red pulse for receipts we think are bad
 		postRangePulse( "receipt bad", receive_pulse_range, receive_pulse_duration, "red" );
 	}
 }
