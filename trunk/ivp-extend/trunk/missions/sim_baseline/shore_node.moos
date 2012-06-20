@@ -25,9 +25,9 @@ ProcessConfig = ANTLER
 	Run = uSimMarine 			@ NewConsole = false
   	Run = MOOSDB 				@ NewConsole = false
   	Run = pMOOSBridge 			@ NewConsole = false
-  	Run = pLogger 				@ NewConsole = false
+ // 	Run = pLogger 				@ NewConsole = false
   	Run = pNodeReporter			@ NewConsole = false
-//  	Run = iacomms_driver_sim 	@ NewConsole = false
+  	Run = iacomms_driver_sim 	@ NewConsole = false
   	Run = uTimerScript			@ NewConsole = false
   //Run = simple_gps 			@ NewConsole = false
   	Run = pEchoVar				@ NewConsole = false
@@ -42,7 +42,7 @@ ProcessConfig = uTimerScript
   reset_max = nolimit
   reset_time = all-posted
 
-  event = var=ACOMMS_TRANSMIT_DATA,val="Hello simworld. - $[TCOUNT]",time=10
+  event = var=ACOMMS_TRANSMIT_DATA,val="Hello simworld. - $[TCOUNT]",time=5
 }
 
 ProcessConfig = pSearchRelay
@@ -100,7 +100,7 @@ ProcessConfig = pMOOSBridge
 //	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@localhost:9000 [NODE_REPORT]
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@localhost:9000
 	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@localhost:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_SIM_SENT_DATA] -> kayak@localhost:9001 [ACOMMS_SIM_SENT_DATA]
+	SHARE = [ACOMMS_SIM_SENT_DATA_LOCAL] -> kayak@localhost:9001 [ACOMMS_SIM_SENT_DATA]
 	}
 
 ProcessConfig = pLogger

@@ -13,6 +13,7 @@
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
 #include "goby/acomms/connect.h"
+#include <acomms_messages.h>
 
 class acomms_driver_sim : public CMOOSApp
 {

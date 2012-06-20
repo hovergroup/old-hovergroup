@@ -27,11 +27,13 @@ acomms_driver_sim::acomms_driver_sim()
 	status_set_time = 0;
 
 	//Sims
-	sending_time = 3;
+	sending_time = 1;
 	channel_delay = 3;
 
 	receiving = false;
 	transmitting = false;
+
+	srand((unsigned) time(NULL));
 }
 
 //---------------------------------------------------------
@@ -65,7 +67,7 @@ bool acomms_driver_sim::OnNewMail(MOOSMSG_LIST &NewMail)
 			transmitting = true;
 			transmit_data( true );
 		} else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
-			startDriver( msg.GetString() );
+			//startDriver( msg.GetString() );
 		}
 
 		//Sims
@@ -115,8 +117,9 @@ bool acomms_driver_sim::OnConnectToServer()
 
 	RegisterVariables();
 
-	publishStatus("not running");
+	//publishStatus("not running");
 
+	startDriver("");
 	return(true);
 }
 
@@ -142,7 +145,7 @@ bool acomms_driver_sim::Iterate()
 		publishStatus("receiving");
 		while(MOOSTime()-sent_time < channel_delay){
 			driver_ready = false;
-			cout<<"channel delay"<<endl;
+		//	cout<<"channel delay"<<endl;
 		}
 		handle_data_receive(sent_data);
 		receiving = false;
@@ -187,36 +190,38 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	cout<<transmission_data<<endl;
 
 	if ( transmission_rate == 0 ) {
+
+		ss<<"1,"; // num_frames
 		int data_size = transmission_data.size();
-		cout<<"Size: "<<data_size<<endl;
+		//cout<<"Size: "<<data_size<<endl;
 		num_frames = 1;
 		if ( data_size > 32 ) {
 			transmission_data=transmission_data.substr(0,32);
-			cout<<transmission_data<<endl;
+			//cout<<transmission_data<<endl;
 			ss<<transmission_data;
-			ss<<",1"; //num_frames
 		} else {
 			ss<<transmission_data.data();
-			ss<<",1"; //num_frames
 		}
 		transmission_data = "";
 	}
 
 	else if ( transmission_rate == 2 ) {
+		stringstream psk_ss;
 		for ( int i=0; i<3; i++ ) {
 			int data_size = transmission_data.size();
 			if ( data_size > 64 ) {
-				ss.write(transmission_data.data(),64);
+				psk_ss.write(transmission_data.data(),64);
 				transmission_data = transmission_data.substr( 64, data_size-64 );
-				ss<<":";
+				if(i!=2){psk_ss<<":";}
 				num_frames++;
 			} else if ( data_size > 0 ) {
 				num_frames++;
-				ss<<transmission_data.data();
-				ss<<","<<num_frames;
+				psk_ss<<transmission_data.data();
 				break;
 			}
 		}
+		ss<<num_frames<<",";
+		ss<<psk_ss.str();
 		transmission_data = "";
 	}
 
@@ -227,11 +232,12 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 
 	while(MOOSTime()-start_time<sending_time){
 		//wait
-		cout<<"sending time"<<endl;
+	//	cout<<"sending time"<<endl;
 	}
 
+	ss.flush();
 	//x,y,name,rate,src id,dest id,data, num-frames
-	m_Comms.Notify("ACOMMS_SIM_SENT_DATA",ss.str());
+	m_Comms.Notify("ACOMMS_SIM_SENT_DATA_LOCAL",ss.str());
 	ss.str("");
 
 	driver_ready = true;
@@ -240,6 +246,7 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	//x=100,y=-50,radius=40,duration=15,fill=0.25,
 	//fill color=green,label=04,time=@MOOSTIME
 	ss<<"x="<<x<<",y="<<y;
+	ss << ",radius=25,duration=10,label=one";
 	m_Comms.Notify("VIEW_RANGE_PULSE", ss.str());
 
 	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
@@ -282,20 +289,21 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			rate = atoi(substrings[3].c_str());
 			srcid = atoi(substrings[4].c_str());
 			destid = atoi(substrings[5].c_str());
-			data = substrings[6];
-			num_frames = atoi(substrings[7].c_str());
+			num_frames = atoi(substrings[6].c_str());
+			data = substrings[7];
 			cout<<"Sent from: "<<sender <<" at "<< srcx<<","<<srcy<<endl;
 			cout<<"rate: "<<rate<<" num_frames: "<<num_frames<<endl;
+			cout << data << endl;
 			parsed = true;
 		}
 		else{
 			cout<<"Parsing error."<<endl;
+			cout<<"Sent data: "<<sent_data<<endl;
 		}
 	}
 	else{
 		cout<<"No sent data"<<endl;
 	}
-	cout<<"is here" << endl;
 
 	vector<string> my_frames;
 	if(rate==0){
@@ -308,31 +316,34 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 		cout << "added frame" << endl;
 	}
 	else if(rate==2){
-		cout<<"or here" << endl;
+
 		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		if(data.size()>0){
 			int pos = 0;
 			while ( data.find(":", pos) != string::npos ) {
 				int newpos = data.find(":", pos);
-				string temp_sub = sent_data.substr(pos, newpos-pos);
+				string temp_sub = data.substr(pos, newpos-pos);
+				cout << "Found: "<<temp_sub<<endl;
 				my_frames.push_back(temp_sub);
 				pos = newpos+1;
 			}
 
 			string temp_sub = data.substr(pos,sent_data.size()-pos);
 			my_frames.push_back(temp_sub);
+			cout << "Found: "<<temp_sub<<endl;
 		}
-		if(my_frames.size()<3){
+		if(my_frames.size()<num_frames){
 			parsed = false;
 			cout << "PSK: only parsed "<<my_frames.size()<<" frames."<<endl;
 		}
 	}
-	cout<<"or or here" << endl;
+
 	if(parsed){
 		vector<double> probs = getProbabilities(x,y,srcx,srcy,rate);
 		cout<<"Rolling dice"<<endl;
 
 		if(rollDice(probs[0])){ //sync
+			int num_bad_frames = 0;
 			if(rollDice(probs[1])){ //header
 				if(rollDice(probs[2])){ //modulation
 					cst->set_rate(rate);
@@ -354,6 +365,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 					else{ //frame loss
 						data_msg.add_frame("");
 						cst->set_psk_error_code(3);
+						num_bad_frames++;
 					}
 				}
 
@@ -364,32 +376,57 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 				cst->set_psk_error_code(2);
 			}
 
+			cst->set_number_bad_frames(num_bad_frames);
+
 			string publish_me = data_msg.DebugString();
 			while (publish_me.find("\n") != string::npos) {
 				publish_me.replace(publish_me.find("\n"), 1, "<|>");
 			}
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 
-			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-			if ( cst->psk_error_code() == 2 ) {
-				receive_info.num_frames = num_frames;
-				receive_info.num_bad_frames = num_frames;
-				receive_info.num_good_frames = 0;
-			} else {
-				receive_info.num_frames = num_frames;
-				receive_info.num_bad_frames = cst->number_bad_frames();
-				receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-			}
-			receive_info.vehicle_name = my_name;
-			receive_info.source = cst->source();
-			receive_info.rate = cst->rate();
-			m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
+			// file simplified receive info
+				lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
+				if ( cst->psk_error_code() == 2 ) {
+					receive_info.num_frames = cst->number_frames();
+					receive_info.num_bad_frames = receive_info.num_frames;
+					receive_info.num_good_frames = 0;
+				} else {
+					receive_info.num_frames = cst->number_frames();
+					receive_info.num_bad_frames = cst->number_bad_frames();
+					receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
+				}
+				receive_info.vehicle_name = my_name;
+				receive_info.source = cst->source();
+				// check for mini data type to set custom rate, otherwise use reported rate
+			//	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
+			//		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
+			//			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
+			//			if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA )
+			//				receive_info.rate = 100;
+			//			else {
+			//				publishWarning( "unrecognized transmission type" );
+			//				receive_info.rate = -1;
+			//			}
+			//		} else {
+			//			publishWarning( "missing driver specific transmission type extension" );
+			//			receive_info.rate = -1;
+			//		}
+			//	} else {
+			//		receive_info.rate = stat.rate();
+				//}
+				m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
 			m_Comms.Notify("ACOMMS_SNR_OUT", cst->snr_out());
 			m_Comms.Notify("ACOMMS_SNR_IN",cst->snr_in());
 			m_Comms.Notify("ACOMMS_DQR",cst->data_quality_factor());
 
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", data);
+			if ( data_msg.frame_size() > 0 ) {
+				string frame_string = data_msg.frame(0);
+				for ( int i=1; i<data_msg.frame_size(); i++ ) {
+					frame_string += data_msg.frame(i);
+				}
+				m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
+			}
 
 		}
 		else{
@@ -400,13 +437,14 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 }
 
 bool acomms_driver_sim::rollDice(double p){
-	srand((unsigned) time(NULL));
 	int face = rand() % 100;
 	if(face<=p){
+		cout<<face<<endl;
 		cout<<"pass"<<endl;
 		return true;
 	}
 	else{
+		cout<<face<<endl;
 		cout<<"fail"<<endl;
 		return false;
 	}
@@ -418,17 +456,17 @@ vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, doubl
 	vector<double> probabilities;
 	if(abs(myx-x) <5 && abs(myy-y)<5){
 		cout<<"Really close!"<<endl;
-		probabilities.push_back(100);
+		probabilities.push_back(0);
 	}
 	else{
-	double sync_loss = 20;
-	double header_loss = 1;
-	double modulation_loss = 5;
-	double frame_loss = 5;
-	probabilities.push_back(sync_loss);
-	probabilities.push_back(header_loss);
-	probabilities.push_back(modulation_loss);
-	probabilities.push_back(frame_loss);}
+	double sync = 95;
+	double header = 99;
+	double modulation = 99;
+	double frame = 95;
+	probabilities.push_back(sync);
+	probabilities.push_back(header);
+	probabilities.push_back(modulation);
+	probabilities.push_back(frame);}
 
 	return probabilities;
 }
@@ -520,6 +558,7 @@ void acomms_driver_sim::publishStatus( std::string status_update ) {
 	status = status_update;
 	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update );
 	status_set_time = MOOSTime();
+	cout << status_update << endl;
 }
 
 void acomms_driver_sim::startDriver( std::string logDirectory ) {

@@ -35,7 +35,7 @@ Run = uSimMarine @ NewConsole = false
   Run = MOOSDB				@ NewConsole = false
   Run = pMOOSBridge     	@ NewConsole = false
   Run = pMarineViewer		@ NewConsole = true
-  Run = pLogger 			@ NewConsole = false 
+//  Run = pLogger 			@ NewConsole = false 
   Run = uXMS            	@ NewConsole = true
 }
 
