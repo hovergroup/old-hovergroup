@@ -1,17 +1,23 @@
-// Shore station for Kingfisher simple deployment
-//	Author:	Alon Y
-//	Date:		Mar 31, 2012
 
-ServerHost = 192.168.1.100
+ServerHost = localhost
 ServerPort = 9000
  
-// Community name IS the vehicle name
 Community  = shoreside
 
 // Datum for the MIT Sailing Pavilion
 LatOrigin	=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
+//Sim Adds
+MOOSTimeWarp = 1
+ProcessConfig = uSimMarine
+{
+  AppTick   = 10
+  CommsTick  = 10
+
+  START_POS = 0,0,180,0
+  PREFIX    = NAV
+}
 
 //-------------------------------------------------------------
 // Antler configuration  block
@@ -21,11 +27,13 @@ ProcessConfig = ANTLER
   MSBetweenLaunches = 200
 
   //crucial processes
-  Run = MOOSDB			@ NewConsole = false
+  Run = MOOSDB				@ NewConsole = false
   Run = pMOOSBridge     	@ NewConsole = false
   Run = pMarineViewer		@ NewConsole = true
-  Run = pLogger @ NewConsole = false 
- //Run = uXMS            	@ NewConsole = true
+  //Run = pLogger 			@ NewConsole = false 
+  //Run = uXMS            	@ NewConsole = true
+  Run = uSimMarine			@ NewConsole = false
+ 
 }
 
 ProcessConfig = plossRate
@@ -48,7 +56,7 @@ ProcessConfig = pMOOSBridge
 
   // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
 
-	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, WPT_SURVEY_UPDATES] -> kayak@192.168.1.101:9001
+	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, WPT_SURVEY_UPDATES] -> kayak@localhost:9001
 	//SHARE = [DEPLOY, RETURN, KEEP, MOOS_MANUAL_OVERRIDE] -> kayak@192.168.1.101:9002
 }
 
@@ -68,7 +76,7 @@ ProcessConfig = pMarineViewer
 
   HASH_VIEW     = false
   HASH_DELTA    = 100
-  HASH_SHADE    = 0.45
+ HASH_SHADE    = 0.45
   BACK_SHADE    = 0.70
 
           trails_viewable = true
@@ -133,7 +141,6 @@ ProcessConfig = uXMS
   VAR = ACOMMS_RECEIVED_SIMPLE
 }   
   
-
 ProcessConfig = pLogger
 {
 	AppTick = 10

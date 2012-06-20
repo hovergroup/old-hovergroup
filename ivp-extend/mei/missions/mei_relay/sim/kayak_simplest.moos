@@ -1,30 +1,42 @@
-// Archie: Kingfisher simple deployment
-//	Author:	Alon Y
-//	Date:		Mar 31, 2012
-
 Community			= kayak
 
-ServerHost			= 192.168.1.101
+ServerHost			= localhost
 ServerPort			= 9001
 
 LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
+//Sim Adds
+MOOSTimeWarp = 1
+ProcessConfig = uSimMarine
+{
+  AppTick   = 10
+  CommsTick  = 10
+
+  START_POS = 0,0,180,0
+  PREFIX    = NAV
+  TURN_RATE = 100
+}
+
 ProcessConfig = ANTLER
 {
 	MSBetweenLaunches	= 1000
 
-	Run = MOOSDB		@ NewConsole = false
-	Run = kayak_interface @ NewConsole = false
-	Run = pNodeReporter	@ NewConsole = false
+	Run = MOOSDB			@ NewConsole = false
+//	Run = kayak_interface 	@ NewConsole = false
+	Run = pNodeReporter		@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
 	Run = pMarinePID		@ NewConsole = false
-	Run = pHelmIvP		@ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
-	Run = iOS5000_filtered		@ NewConsole = false
+	Run = pHelmIvP			@ NewConsole = false
+	Run = pEchoVar			@ NewConsole = false
+	Run = uSimMarine		@ NewConsole = false
+//	Run = uXMS				@ NewConsole = false
+	Run = pSearchRelay		@ NewConsole = true
+	Run = iacomms_driver_sim	@ NewConsole = true
 
-	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	Run = iacomms_driver @ NewConsole = false
+//	Run = iOS5000_filtered		@ NewConsole = false
+//	Run = pLogger		@ NewConsole = false	// Logs messages to disk
+//	Run = iacomms_driver @ NewConsole = false
 }
 
 ProcessConfig = pSearchRelay
@@ -35,22 +47,24 @@ ProcessConfig = pSearchRelay
 	Role = relay
 	Mode = normal
 	Discount = 5
+	MinObs = 10
+	FudgeFactor = 5  //m
 }
 
 ProcessConfig = uXMS
 {
 	DISPLAY_TIME = true
 	VAR = ACOMMS_DRIVER_STATUS,ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
-	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
-	VAR = NAV_X, NAV_Y, ACOMMS_SNR_OUT, RELAY_STATUS, SEARCH_RELAY_TARGET_WAYPOINT
+	VAR = ACOMMS_TRANSMIT_DATA
+	VAR = NAV_X, NAV_Y, SEARCH_RELAY_TARGET_WAYPOINT, SEARCH_RELAY_STATS
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iacomms_driver_sim
 {
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+//	PortName = /dev/ttyUSB0
 	ID = 1
 }
 
@@ -78,7 +92,6 @@ ProcessConfig = iOS5000_filtered
 	UpdateFraction = .05
 }
 
-
 ProcessConfig = pNodeReporter
 	{
 	// xxxTick	= 5 when using 5hz GPS, 2 when using 1hz GPS 
@@ -101,17 +114,21 @@ ProcessConfig = pMOOSBridge
 
 	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
 	// Destination is shore station	shoreside@YOURIP:9000
-	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@192.168.1.100:9200 [NODE_REPORT]
-//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@192.168.1.100:9000 [NODE_REPORT]
-	SHARE = [VIEW_POLYGON]		-> shoreside@192.168.1.100:9000 [VIEW_POLYGON]
-	SHARE = [VIEW_POINT]		-> shoreside@192.168.1.100:9000 [VIEW_POINT]
-	SHARE = [VIEW_SEGLIST]		-> shoreside@192.168.1.100:9000 [VIEW_SEGLIST]
-	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
+	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@localhost:9200 [NODE_REPORT]
+//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@localhost:9000 [NODE_REPORT]
+	SHARE = [VIEW_POLYGON]		-> shoreside@localhost:9000 [VIEW_POLYGON]
+	SHARE = [VIEW_POINT]		-> shoreside@localhost:9000 [VIEW_POINT]
+	SHARE = [VIEW_SEGLIST]		-> shoreside@localhost:9000 [VIEW_SEGLIST]
+	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@localhost:9000 [VIEW_RANGE_PULSE]
 	
 	//Search Relay Shares
-	SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
-	SHARE = [VIEW_MARKER] -> shoreside@192.168.1.100:9000
+	SHARE = [RELAY_STATUS] -> shore_node@localhost:9002
+	SHARE = [RELAY_SUCCESSFUL] -> shore_node@localhost:9002
+	SHARE = [VIEW_MARKER] -> shoreside@localhost:9000
+	
+	//Sim Shares
+	SHARE = [ACOMMS_SIM_SENT_DATA_LOCAL] -> tech_node@localhost:9003 [ACOMMS_SIM_SENT_DATA]
+	
 	}
 
 ProcessConfig = pMarinePID
@@ -128,7 +145,7 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 50
+	//SPEED_FACTOR	= 50
 
 	// Yaw PID controller
 //	YAW_PID_KP		= 0.3
@@ -251,9 +268,9 @@ ProcessConfig = pEchoVar
   CommsTick = 20
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-  Echo = COMPASS_HEADING -> NAV_HEADING
-  Echo = GPS_X -> NAV_X
-  Echo = GPS_Y -> NAV_Y
-  Echo = GPS_SPEED -> NAV_SPEED
-  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+ // Echo = COMPASS_HEADING -> NAV_HEADING
+//  Echo = GPS_X -> NAV_X
+ // Echo = GPS_Y -> NAV_Y
+ // Echo = GPS_SPEED -> NAV_SPEED
+ // Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }

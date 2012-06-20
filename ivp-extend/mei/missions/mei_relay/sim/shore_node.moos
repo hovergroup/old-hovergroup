@@ -1,4 +1,4 @@
-ServerHost = 192.168.1.102
+ServerHost = localhost
 ServerPort = 9002
 Simulator = false
 
@@ -7,17 +7,31 @@ Community = shore_node
 LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
+//Sim Adds
+MOOSTimeWarp = 1
+ProcessConfig = uSimMarine
+{
+  AppTick   = 10
+  CommsTick  = 10
+
+  START_POS = 0,0,180,0
+  PREFIX    = NAV
+}
+
 ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 200
 
-  Run = MOOSDB @ NewConsole = false
-  Run = pMOOSBridge @ NewConsole = false
-  Run = pLogger @ NewConsole = false
-  Run = pNodeReporter	@ NewConsole = false
-  Run = iacomms_driver @ NewConsole = false
-  Run = simple_gps @ NewConsole = false
-  Run = pEchoVar		@ NewConsole = false
+  Run = MOOSDB 				@ NewConsole = false
+  Run = pMOOSBridge 		@ NewConsole = false
+  //Run = pLogger 			@ NewConsole = false
+  Run = pNodeReporter		@ NewConsole = false
+  //Run = iacomms_driver 	@ NewConsole = false
+  //Run = simple_gps 		@ NewConsole = false
+  Run = pEchoVar			@ NewConsole = false
+  Run = iacomms_driver_sim 	@ NewConsole = true
+  Run = uXMS 				@ NewConsole = true
+  Run = pSearchRelay		@ NewConsole = true
 }
 
 ProcessConfig = pSearchRelay
@@ -41,19 +55,18 @@ ProcessConfig = uXMS
 {
 	DISPLAY_TIME=true
 	VAR = ACOMMS_DRIVER_STATUS,ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
-	VAR = ACOMMS_TRANSMIT_DEST, ACOMMS_TRANSMIT_RATE, ACOMMS_TRANSMIT_DATA
+	VAR = ACOMMS_TRANSMIT_DATA
 	VAR = SEARCH_RELAY_WAIT_TIME, SEARCH_RELAY_RATE, RELAY_STATUS, END_STATUS, SEARCH_RELAY_START
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iacomms_driver_sim
 {
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+//	PortName = /dev/ttyUSB0
 	ID = 2
 }
-
 
 ProcessConfig = pacomms_timer
 {
@@ -74,12 +87,14 @@ ProcessConfig = pMOOSBridge
 
 	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
 	// Destination is shore station	shoreside@YOURIP:9000
-	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@192.168.1.100:9200 [NODE_REPORT]
-//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@192.168.1.100:9000 [NODE_REPORT]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
+	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@localhost:9200 [NODE_REPORT]
+//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@localhost:9000 [NODE_REPORT]
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@localhost:9000
+	SHARE = [VIEW_RANGE_PULSE] -> shoreside@localhost:9000
 	
 	//Relay Shares
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kayak@192.168.1.101:9001
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kayak@localhost:9001
+	SHARE = [ACOMMS_SIM_SENT_DATA_LOCAL] -> kayak@localhost:9001 [ACOMMS_SIM_SENT_DATA]
 	}
 
 ProcessConfig = pLogger
@@ -143,6 +158,6 @@ ProcessConfig = pEchoVar
   AppTick   = 20
   CommsTick = 20
 
-  Echo = GPS_X -> NAV_X
-  Echo = GPS_Y -> NAV_Y
+//  Echo = GPS_X -> NAV_X
+//  Echo = GPS_Y -> NAV_Y
 }
