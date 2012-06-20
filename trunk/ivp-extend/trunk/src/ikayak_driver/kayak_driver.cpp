@@ -279,7 +279,7 @@ void kayak_driver::parseSensors( string msg ) {
 
 void kayak_driver::parseLine( string msg ) {
 	if ( msg.find("voltage") != -1 ) {
-		int index = msg.find("heading");
+		int index = msg.find("voltage");
 		parseSensors( msg.substr(index, msg.length()-index) );
 //		cout << "found sensors: " << index << endl;
 	} else {
