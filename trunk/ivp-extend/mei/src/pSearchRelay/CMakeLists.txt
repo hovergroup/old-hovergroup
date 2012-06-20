@@ -16,5 +16,6 @@ TARGET_LINK_LIBRARIES(pSearchRelay
    gslcblas
    boost_date_time
    geometry
-   mbutil)
+   mbutil
+   acomms_messages)
 

@@ -1,7 +1,7 @@
 /************************************************************/
-/*    NAME:                                               */
+/*    NAME: Mei Cheung                                      */
 /*    ORGN: MIT                                             */
-/*    FILE: SearchRelay.h                                          */
+/*    FILE: SearchRelay.h                                   */
 /*    DATE:                                                 */
 /************************************************************/
 
@@ -11,13 +11,15 @@
 #include "MOOSLib.h"
 #include <map>
 #include <gsl/gsl_statistics_double.h>
-#include <boost/date_time/posix_time/posix_time.hpp>
+//#include <boost/date_time/posix_time/posix_time.hpp>
 #include <sstream>
 #include <iostream>
 #include "XYSegList.h"
 #include <math.h>
+#include <string.h>
+#include <lib_acomms_messages/acomms_messages.h>
 
-namespace pt = boost::posix_time;
+//namespace pt = boost::posix_time;
 
 class SearchRelay : public CMOOSApp
 {
@@ -29,37 +31,47 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
-	void ComputeIndex();
+	void ComputeIndex(int);
 	int Decision();
-	void UpdateStats(double);
+	//void UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
-	void ComputeLossRates();
+	void ComputeSuccessRates(bool);
 
 protected:
+
+	class RelayStat{
+	public:
+			std::string debug_string;
+			double x,y,next_x,next_y;
+			double stat_mean,stat_std, index;
+
+			RelayStat(): debug_string("Default"), x(0), y(0), next_x(0), next_y(0),
+					stat_mean(-1), stat_std(-1), index(-1) {}
+		};
+
+	void Confess(RelayStat stats);
+
 	// insert local vars here
 	//all
 	std::string my_role;
-	pt::ptime last,now;
 
 	//relay
-	std::string mode;
+	std::string mode,relay_message;
 	int discount,min_obs,total_points;
 	std::map<double, std::vector<double> > data;
 	std::vector<double> mean, stdev,indices;
 	std::vector<double> normal_indices;
 	std::vector<double> wpx, wpy;
-	std::string relay_message;
 	double fudge_factor;
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	double link1_stat;
-	bool waiting, relaying;
+	bool waiting, relaying, relay_successful;
 
 	//shore
-	pt::time_duration wait_time;
+	double last, wait_time;
 	int rate,counter;
 	std::string relay_status,end_status;
 	std::string acomms_driver_status, start;
