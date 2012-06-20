@@ -69,8 +69,8 @@ int kayak_driver::mapRudder( int rudder_command ) {
 int kayak_driver::mapThrust( int thrust_command ) {
 	if ( thrust_command >= 100 )
 		return 100;
-	else if ( thrust_command < 0 )
-		return 0;
+	else if ( thrust_command <= -100 )
+		return -100;
 	else
 		return thrust_command;
 }
