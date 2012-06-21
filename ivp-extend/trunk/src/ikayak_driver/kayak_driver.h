@@ -61,15 +61,11 @@ private:
 	void parseLine( std::string msg );
 	void parseSensors( std::string msg );
 
-	// local gps info
-	double m_lat, m_lon, m_speed, m_course;
-	double m_lat_origin, m_lon_origin;
-
 	// commands
 	int m_desired_rudder, m_desired_thrust;
 	bool newCommand;
 	int RUDDER_OFFSET;
-	double MIN_UPDATE_PERIOD, m_last_command_time;
+	double m_last_command_time;
 	bool INVERT_RUDDER;
 
 	int mapThrust( int thrust_command );

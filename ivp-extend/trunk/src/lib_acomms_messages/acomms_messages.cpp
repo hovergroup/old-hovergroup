@@ -6,9 +6,38 @@
  */
 
 #include "acomms_messages.h"
+#include <string.h>
 
 using namespace lib_acomms_messages;
 using namespace std;
+
+string string_chomp( string s, char c ) {
+	for ( int i=0; i<s.size()-1; i++ ) {
+		if ( s[i]==c ) return s.substr(i+1, s.size()-i+1);
+	}
+	return s;
+}
+
+vector<string> tokenizeString( string message, string tokens ) {
+	char * cstr = new char [message.size() + 1];
+	strcpy(cstr, message.c_str());
+	char * ctokens = new char [tokens.size()+1];
+	strcpy(ctokens, tokens.c_str());
+
+	char * pch;
+	vector<string> subs;
+
+	pch = strtok(cstr,ctokens);
+	while (pch != NULL) {
+		subs.push_back(string(pch));
+		pch  = strtok(NULL,ctokens);
+	}
+
+	delete cstr;
+	delete ctokens;
+
+	return subs;
+}
 
 SIMPLIFIED_RECEIVE_INFO::SIMPLIFIED_RECEIVE_INFO( string msg ) {
 	vector<string> substrings;

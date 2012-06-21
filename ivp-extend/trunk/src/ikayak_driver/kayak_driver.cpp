@@ -26,7 +26,6 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 	newCommand = false;
 	m_last_command_time = 0;
 
-	MIN_UPDATE_PERIOD = .25;
 	INVERT_RUDDER = false;
 	RUDDER_OFFSET = 0;
 }
@@ -41,6 +40,7 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 		CMOOSMsg &msg = *p;
 		string key  = msg.GetKey();
 
+		// check for new commands from moosdb
 		if (key == "DESIRED_RUDDER") {
 			m_desired_rudder = mapRudder( (int) msg.GetDouble() );
 			newCommand = true;
@@ -54,10 +54,12 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 }
 
 int kayak_driver::mapRudder( int rudder_command ) {
+	// invert and offset rudder
 	if ( INVERT_RUDDER )
 		rudder_command*=-1;
 	rudder_command += RUDDER_OFFSET;
 
+	// limit
 	if ( rudder_command > 90 )
 		rudder_command = 90;
 	else if ( rudder_command < -90 )
@@ -67,6 +69,7 @@ int kayak_driver::mapRudder( int rudder_command ) {
 }
 
 int kayak_driver::mapThrust( int thrust_command ) {
+	// limit thrust command
 	if ( thrust_command >= 100 )
 		return 100;
 	else if ( thrust_command <= -100 )
@@ -80,43 +83,45 @@ int kayak_driver::mapThrust( int thrust_command ) {
 
 bool kayak_driver::OnConnectToServer()
 {
+	m_MissionReader.GetConfigurationParam( "BAUD_RATE", my_baud_rate );
+	m_MissionReader.GetConfigurationParam( "PORT_NAME", my_port_name );
+	m_MissionReader.GetConfigurationParam( "INVERT_RUDDER", INVERT_RUDDER );
+	m_MissionReader.GetConfigurationParam( "RUDDER_OFFSET", RUDDER_OFFSET );
+
 	// I prefer to read my config file here, so I can be sure I finish reading it before doing anything else
-	STRING_LIST sParams;
-	m_MissionReader.EnableVerbatimQuoting(false);
-	m_MissionReader.GetConfiguration(GetAppName(), sParams);
-
-	STRING_LIST::iterator p;
-	for (p=sParams.begin(); p!=sParams.end(); p++) {
-		string sLine = *p;
-		string sVarName = MOOSChomp(sLine, "=");
-		sLine = stripBlankEnds(sLine);
-
-		// this is the variable name we found
-		cout << sVarName << endl;
-
-		// match names to what you expect, and parse the values
-		if (MOOSStrCmp(sVarName, "BAUD_RATE")) {
-			if(!strContains(sLine, " "))
-				my_baud_rate = boost::lexical_cast<int>(stripBlankEnds(sLine));
-		} else if (MOOSStrCmp(sVarName, "PORT_NAME")) {
-			if(!strContains(sLine, " "))
-				my_port_name = stripBlankEnds(sLine);
-		} else if ( sVarName == "MIN_UPDATE_PERIOD" ) {
-			if(!strContains(sLine, " "))
-				MIN_UPDATE_PERIOD = atof(stripBlankEnds(sLine).c_str());
-		} else if ( sVarName == "INVERT_RUDDER" ) {
-			if(!strContains(sLine, " ")) {
-				int tmp = atoi(stripBlankEnds(sLine).c_str());
-				if ( tmp==0 )
-					INVERT_RUDDER = false;
-				else if ( tmp==1 )
-					INVERT_RUDDER = true;
-			}
-		} else if ( sVarName == "RUDDER_OFFSET" ) {
-			if(!strContains(sLine, " "))
-				RUDDER_OFFSET = atoi(stripBlankEnds(sLine).c_str());
-		}
-	}
+//	STRING_LIST sParams;
+//	m_MissionReader.EnableVerbatimQuoting(false);
+//	m_MissionReader.GetConfiguration(GetAppName(), sParams);
+//
+//	STRING_LIST::iterator p;
+//	for (p=sParams.begin(); p!=sParams.end(); p++) {
+//		string sLine = *p;
+//		string sVarName = MOOSChomp(sLine, "=");
+//		sLine = stripBlankEnds(sLine);
+//
+//		// this is the variable name we found
+//		cout << sVarName << endl;
+//
+//		// match names to what you expect, and parse the values
+//		if (MOOSStrCmp(sVarName, "BAUD_RATE")) {
+//			if(!strContains(sLine, " "))
+//				my_baud_rate = boost::lexical_cast<int>(stripBlankEnds(sLine));
+//		} else if (MOOSStrCmp(sVarName, "PORT_NAME")) {
+//			if(!strContains(sLine, " "))
+//				my_port_name = stripBlankEnds(sLine);
+//		}else if ( sVarName == "INVERT_RUDDER" ) {
+//			if(!strContains(sLine, " ")) {
+//				int tmp = atoi(stripBlankEnds(sLine).c_str());
+//				if ( tmp==0 )
+//					INVERT_RUDDER = false;
+//				else if ( tmp==1 )
+//					INVERT_RUDDER = true;
+//			}
+//		} else if ( sVarName == "RUDDER_OFFSET" ) {
+//			if(!strContains(sLine, " "))
+//				RUDDER_OFFSET = atoi(stripBlankEnds(sLine).c_str());
+//		}
+//	}
 
 	RegisterVariables();
 
@@ -137,6 +142,7 @@ void kayak_driver::RegisterVariables()
 
 
 void kayak_driver::sendMotorCommands() {
+	// format motor commands and write to arduino
 	char tmp [100];
 	int size = sprintf(&tmp[0], "mtr:thrust=%d,angle=%d\n",
 			m_desired_thrust, m_desired_rudder);
@@ -150,7 +156,8 @@ void kayak_driver::sendMotorCommands() {
 
 bool kayak_driver::Iterate()
 {
-	if ( MOOSTime() > m_last_command_time + MIN_UPDATE_PERIOD ) {
+	// send at least 4 commands a second
+	if ( MOOSTime() > m_last_command_time + .25 ) {
 		sendMotorCommands();
 		m_last_command_time = MOOSTime();
 		newCommand = false;

@@ -14,7 +14,8 @@
 
 namespace lib_acomms_messages {
 
-std::string getRandomString(int);
+std::string string_chomp( std::string s, char c );
+std::vector<std::string> tokenizeString( std::string message, std::string tokens );
 
 class SIMPLIFIED_RECEIVE_INFO {
 public:
