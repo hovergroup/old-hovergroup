@@ -390,7 +390,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	}
 
 	// create a range pulse
-	if ( receive_info.num_frames > 0 && receive_info.num_frames == 0 ) {
+	if ( receive_info.num_frames > 0 && receive_info.num_bad_frames == 0 ) {
 		// for believed good receipts, green pulse
 		postRangePulse( "receipt good", receive_pulse_range, receive_pulse_duration, "green" );
 	} else {
