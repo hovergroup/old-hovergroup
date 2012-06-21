@@ -40,8 +40,7 @@ ProcessConfig = ikayak_driver
 	AppTick = 20
 	CommsTick = 20
 	
-	MIN_UPDATE_PERIOD = .25
-	INVERT_RUDDER = 1
+	INVERT_RUDDER = false
 	RUDDER_OFFSET = 0
 }
 
