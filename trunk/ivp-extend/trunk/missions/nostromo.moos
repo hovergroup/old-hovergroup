@@ -27,6 +27,11 @@ ProcessConfig = ANTLER
 	//Run = iacomms_driver @ NewConsole = false
 }
 
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+}
+
 ProcessConfig = iacomms_driver
 {
 	AppTick = 5
