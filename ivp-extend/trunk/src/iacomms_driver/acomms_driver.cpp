@@ -428,7 +428,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	while ( file_exists( filename ) ) {
 		cout << filename << " already exists." << endl;
 		file_index++;
-		string filename = logDirectory + "/goby_log_" +
+		filename = logDirectory + "/goby_log_" +
 			boost::lexical_cast<string>( file_index ) + ".txt";
 	}
 	verbose_log.open(filename.c_str());
