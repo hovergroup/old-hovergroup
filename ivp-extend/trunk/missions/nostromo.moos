@@ -11,7 +11,7 @@ LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 ProcessConfig = ANTLER
 {
-	MSBetweenLaunches	= 1000
+	MSBetweenLaunches	= 500
 
 	Run = MOOSDB		@ NewConsole = false
 	Run = ikayak_driver @ NewConsole = false
