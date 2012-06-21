@@ -50,7 +50,7 @@ ProcessConfig = iOS5000_filtered
 	AppTick		= 20
 	CommsTick	= 20
 
-	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
+	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 19200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
@@ -110,10 +110,10 @@ ProcessConfig = pMarinePID
 	SPEED_FACTOR	= 50
 
 	// Yaw PID controller
-//	YAW_PID_KP		= 0.3
-//	YAW_PID_KD		= 0.2
-	YAW_PID_KP		= 0.4
+	YAW_PID_KP		= 0.3
 	YAW_PID_KD		= 0.2
+//	YAW_PID_KP		= 0.4
+//	YAW_PID_KD		= 0.2
 	YAW_PID_KI		= 0.005
 	YAW_PID_INTEGRAL_LIMIT = 0.25
 
