@@ -116,7 +116,7 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 25
+	SPEED_FACTOR	= 40
 
 	// Yaw PID controller
 	YAW_PID_KP		= 0.35
