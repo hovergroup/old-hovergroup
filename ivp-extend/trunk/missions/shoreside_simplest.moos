@@ -6,7 +6,7 @@ ServerHost = 192.168.1.100
 ServerPort = 9000
  
 // Community name IS the vehicle name
-Community  = shoreside
+Community  = terra
 
 // Datum for the MIT Sailing Pavilion
 LatOrigin	=  42.358456	// 0,0 just in front of the MIT sailing pavilion
@@ -23,7 +23,7 @@ ProcessConfig = ANTLER
   //crucial processes
   Run = MOOSDB			@ NewConsole = false
   Run = pMOOSBridge     	@ NewConsole = false
-  Run = pMarineViewer		@ NewConsole = true
+  Run = pMarineViewer		@ NewConsole = false
   Run = pLogger @ NewConsole = false 
  //Run = uXMS            	@ NewConsole = true
 }
@@ -48,7 +48,7 @@ ProcessConfig = pMOOSBridge
 
   // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
 
-	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, WPT_SURVEY_UPDATES] -> kayak@192.168.1.101:9001
+	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, WPT_SURVEY_UPDATES] -> nostromo@192.168.1.103:9003
 	//SHARE = [DEPLOY, RETURN, KEEP, MOOS_MANUAL_OVERRIDE] -> kayak@192.168.1.101:9002
 }
 
@@ -131,19 +131,15 @@ ProcessConfig = uXMS
 
   VAR  = ACOMMS_TRANSMIT_SIMPLE
   VAR = ACOMMS_RECEIVED_SIMPLE
-}   
-  
+}  
 
 ProcessConfig = pLogger
 {
-	AppTick = 10
-	CommsTick = 10
+	AppTick			= 20
+	CommsTick		= 20
 
-	Log	= NODE_REPORT @ 0
-	Log	= ARCHIE_X @ 0
-	Log	= ARCHIE_Y @ 0
-	Log	= BETTY_X @ 0
-	Log	= BETTY_Y @ 0
-	Log = NAV_X @ 0
-	Log = NAV_Y @ 0
+	AsyncLog		= true
+	FileTimeStamp		= true
+	WildCardLogging		= true
 }
+
