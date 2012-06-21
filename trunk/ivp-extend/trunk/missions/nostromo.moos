@@ -24,7 +24,7 @@ ProcessConfig = ANTLER
 	Run = simple_gps	@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	//Run = iacomms_driver @ NewConsole = false
+	Run = iacomms_driver @ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -37,7 +37,7 @@ ProcessConfig = iacomms_driver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+	PortName = /dev/ttyUSB1
 	ID = 1
 }
 
