@@ -176,8 +176,8 @@ ProcessConfig = pLogger
 
 ProcessConfig = pEchoVar
 {
-  AppTick   = 40
-  CommsTick = 40
+  AppTick   = 20
+  CommsTick = 20
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   Echo = GPS_X -> NAV_X
