@@ -294,6 +294,7 @@ void acomms_driver::handle_data_receive(
 				<< " statistics.";
 		publishWarning(ss.str());
 	}
+	driver_ready = true;
 	publishStatus("ready");
 }
 
@@ -310,7 +311,7 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		publishStatus("receiving");
 		receive_set_time = MOOSTime();
 	} else if ( descriptor == "IRE" ) {
-		m_Comms.Notify("ACOMMS_INPULSE_RESPONSE", msg.raw());
+		m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
 	}
 //	} else if ( descriptor == "CST" ) {
 //		CST_received = true;
