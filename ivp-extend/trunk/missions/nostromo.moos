@@ -119,8 +119,8 @@ ProcessConfig = pMarinePID
 	SPEED_FACTOR	= 25
 
 	// Yaw PID controller
-	YAW_PID_KP		= 0.2
-	YAW_PID_KD		= 0.15
+	YAW_PID_KP		= 0.35
+	YAW_PID_KD		= 0.2
 //	YAW_PID_KP		= 0.4
 //	YAW_PID_KD		= 0.2
 	YAW_PID_KI		= 0.005
