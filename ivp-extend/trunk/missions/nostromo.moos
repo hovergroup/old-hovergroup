@@ -27,6 +27,17 @@ ProcessConfig = ANTLER
 	Run = iacomms_driver @ NewConsole = false
 }
 
+ProcessConfig = uTimerScript
+{
+  AppTick = 4
+  CommsTick = 4
+
+  reset_max = nolimit
+  reset_time = all-posted
+
+  event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]-asdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfgk",time=7
+}
+
 ProcessConfig = uXMS
 {
 	DISPLAY_TIME = true
