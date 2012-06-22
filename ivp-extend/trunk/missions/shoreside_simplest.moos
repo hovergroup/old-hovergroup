@@ -106,6 +106,7 @@ ProcessConfig = pMarineViewer
   
   ACTION = MENU_KEY=GO_COME # GOSTAY =false
   ACTION = MENU_KEY=GO_STAY # GOSTAY=true
+  ACTION = MENU_KEY=LINE_SURVEY # MISSION_MODE=LINE_SURVEY
   
   right_context = WPT_SURVEY_UPDATES= points=$(XPOS),$(YPOS)
 
