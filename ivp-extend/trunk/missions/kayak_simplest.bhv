@@ -69,7 +69,7 @@ Behavior = BHV_Waypoint
          speed = 2.0   // meters per second
         radius = 4.0
    slip_radius = 10.0
-        points = 40,-20 : 40, -200 : 50,-200 : 50,-20
+        points = 40,-20 : -30, -40 : -30,-60 : 40,-40
         repeat = 1000
   visual_hints = nextpt_color=red, nextpt_lcolor=green
   visual_hints = vertex_color=red, line_color=green
