@@ -16,6 +16,10 @@ See the help information for individual applications or the documentation pages 
 
 *plossRate* - _Mei_ - Monitors simple transmit and receive reports and determines packet loss statistics.
 
+= Simulation =
+
+*iacomms_driver_sim* - _Mei_ - Simulates acomms channel performance for use with uSimMarine - probabilities for various loss circumstances are implemented
+
 = Libraries = 
 
 *lib_acomms_message* - Collection of message types containing acomms data.  Most classes include serialization methods.  
