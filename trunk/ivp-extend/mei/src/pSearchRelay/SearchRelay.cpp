@@ -70,12 +70,12 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 			if(msg.GetCommunity()=="shore_node"){
 				if(waiting){	//Missed sync with shore node
-					std::cout<<" Missed Sync with Shore!"<<std::endl;
+					std::cout<<" Failure to Hear!"<<std::endl;
 					ComputeSuccessRates(false);
 				}
 
 				else if(relaying){	//Missed sync with end node
-					std::cout<<" Missed Sync with Tech!"<<std::endl;
+					std::cout<<" Failure to Relay!"<<std::endl;
 					ComputeSuccessRates(false);
 				}
 
@@ -86,7 +86,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
-			std::cout << msg.GetString() << std::endl;
+			//std::cout << msg.GetString() << std::endl;
 			if(my_role=="relay"){
 				if(waiting){
 					std::cout<<"--->Relaying..."<<std::endl;
@@ -106,6 +106,9 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				m_Comms.Notify("RELAY_SUCCESSFUL","true");
 				waiting = false;
 				relaying = false;
+			}
+			else{
+				std::cout << msg.GetString();
 			}
 		}
 
@@ -150,8 +153,13 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		//end
 		else if(key=="ACOMMS_RECEIVED_SIMPLE"){
 			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
-			if(receive_info.vehicle_name == "kayak" && receive_info.num_good_frames==receive_info.num_bad_frames){
+			if(receive_info.source==relay_id && receive_info.num_good_frames==receive_info.num_frames){
 				m_Comms.Notify("TRANSMITTED_DATA","good");
+			}
+			else{
+				std::stringstream ss;
+				ss << "Lost "<<receive_info.num_bad_frames<<" number of frames."<<std::endl;
+				m_Comms.Notify("TRANSMITTED_DATA",ss.str());
 			}
 		}
 	}
@@ -218,11 +226,13 @@ bool SearchRelay::OnConnectToServer()
 	}
 
 	else if(my_role=="end"){
+		m_MissionReader.GetConfigurationParam("RelayID",relay_id);
 		m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 		m_Comms.Notify("END_STATUS","ready");
 	}
 
 	else if(my_role=="shore"){
+
 		m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
 		m_Comms.Register("RELAY_STATUS",0);
@@ -233,6 +243,7 @@ bool SearchRelay::OnConnectToServer()
 		rate = 2;
 		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 		last = 0;
+		m_MissionReader.GetConfigurationParam("WaitTime",wait_time);
 	}
 
 	return(true);
@@ -254,9 +265,11 @@ bool SearchRelay::Iterate()
 
 	else if(my_role=="shore" && relay_status=="ready" && end_status=="ready" && start=="ready" && acomms_driver_status=="ready"){
 		//transmit as soon as possible
-		std::cout<< last <<std::endl;
+		double temp = MOOSTime() - last;
+		std::cout<<"Last: "<< temp <<std::endl;
 		if( (MOOSTime()-last>=wait_time) || (relay_successful)){
 
+			if(relay_successful){std::cout << "Relay Successful" << std::endl;}
 			relay_successful = false;
 
 			int length;
@@ -269,7 +282,6 @@ bool SearchRelay::Iterate()
 			std::string mail = ss.str()+"---"+getRandomString(length);
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 			last = MOOSTime();
-
 			counter++;
 		}
 	}
@@ -300,6 +312,8 @@ void SearchRelay::ComputeIndex(int closest_ind){
 				std::cout<<"  Exceeded maximum observations. Switching Modes."<<std::endl;
 				m_Comms.Notify("MISSION_MODE","KEEP");
 				m_Comms.Notify("RELAY_STATUS","Completed");
+				std::cout<<"  The final point was: "<<std::endl;
+				Decision();
 			}
 
 			double gindex;
@@ -383,7 +397,7 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 
 		if(data[closest_ind].size() < min_obs){
 			std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
-			std::cout<<"--->Holding Station";
+			std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 		}
 		else{
 			ComputeIndex(closest_ind);
@@ -393,7 +407,7 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 				targety = wpy[closest_ind+1];
 				std::stringstream ss;
 				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl;
+				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
 				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
 				m_Comms.Notify("RELAY_MODE","GOTO");
 				ss.str("");
@@ -403,12 +417,12 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 			else{
 				int target = Decision();
 				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
-				std::cout<<"--->Making a Decision";
+				std::cout<<"--->Making a Decision"<<std::endl;
 				targetx = wpx[target];
 				targety = wpy[target];
 				std::stringstream ss;
 				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl;
+				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
 				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
 				m_Comms.Notify("RELAY_MODE","GOTO");
 				ss.str("");
@@ -437,7 +451,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 	std::string filename = "relay_waypoints.txt";
 	std::string one_point;
 	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
-	int counter = 0;
+	int counter = 1;
 
 	while(waypointsfile.good()){
 		std::cout<<"Reading Points"<<std::endl;

@@ -7,7 +7,7 @@ LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 //Sim Adds
-MOOSTimeWarp = 1
+MOOSTimeWarp = 10
 ProcessConfig = uSimMarine
 {
   AppTick   = 10

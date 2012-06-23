@@ -56,6 +56,7 @@ protected:
 	// insert local vars here
 	//all
 	std::string my_role;
+	int relay_id;
 
 	//relay
 	std::string mode,relay_message;
