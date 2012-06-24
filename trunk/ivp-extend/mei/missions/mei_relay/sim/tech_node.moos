@@ -14,7 +14,7 @@ ProcessConfig = uSimMarine
   AppTick   = 10
   CommsTick  = 10
 
-  START_POS = -300,-500,180,0
+  START_POS = -179.4,-564.9,180,0
   PREFIX    = NAV
 }
 
@@ -24,12 +24,12 @@ ProcessConfig = ANTLER
 
   Run = MOOSDB 			@ NewConsole = false
   Run = pMOOSBridge 	@ NewConsole = false
-  //Run = pLogger 		@ NewConsole = false
+  Run = pLogger 		@ NewConsole = false
   Run = pNodeReporter	@ NewConsole = false
   //Run = pEchoVar		@ NewConsole = false
   Run = uSimMarine 		@ NewConsole = false
-  Run = pSearchRelay 	@ NewConsole = true
-  Run = iacomms_driver_sim @ NewConsole = true
+  Run = pSearchRelay 	@ NewConsole = false
+  Run = iacomms_driver_sim @ NewConsole = false
   
   //Run = iacomms_driver @ NewConsole = false
   //Run = simple_gps @ NewConsole = false
@@ -102,8 +102,8 @@ ProcessConfig = pLogger
   AppTick       = 10
   CommsTick     = 10
   
-  File          = LOG_SHORE_NODE
-  PATH          = ./
+  File          = LOG_TECH_NODE
+  PATH          = ./logs/
   AsyncLog      = true
   FileTimeStamp = true
 

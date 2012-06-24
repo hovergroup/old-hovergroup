@@ -146,6 +146,11 @@ ProcessConfig = pLogger
 	AppTick = 10
 	CommsTick = 10
 
+  File          = LOG_SHORESIDE
+  PATH          = ./logs/
+  AsyncLog      = true
+  FileTimeStamp = true
+
 	Log	= NODE_REPORT @ 0
 	Log	= ARCHIE_X @ 0
 	Log	= ARCHIE_Y @ 0

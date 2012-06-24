@@ -24,7 +24,7 @@ ProcessConfig = ANTLER
 
   Run = MOOSDB 				@ NewConsole = false
   Run = pMOOSBridge 		@ NewConsole = false
-  //Run = pLogger 			@ NewConsole = false
+  Run = pLogger 			@ NewConsole = false
   Run = pNodeReporter		@ NewConsole = false
   //Run = iacomms_driver 	@ NewConsole = false
   //Run = simple_gps 		@ NewConsole = false
@@ -104,7 +104,7 @@ ProcessConfig = pLogger
   CommsTick     = 10
   
   File          = LOG_SHORE_NODE
-  PATH          = ./
+  PATH          = ./logs/
   AsyncLog      = true
   FileTimeStamp = true
 
