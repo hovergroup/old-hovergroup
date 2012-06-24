@@ -35,7 +35,7 @@ ProcessConfig = ANTLER
 	Run = iacomms_driver_sim	@ NewConsole = true
 
 //	Run = iOS5000_filtered		@ NewConsole = false
-//	Run = pLogger		@ NewConsole = false	// Logs messages to disk
+	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 //	Run = iacomms_driver @ NewConsole = false
 }
 
@@ -54,6 +54,7 @@ ProcessConfig = pSearchRelay
 ProcessConfig = uXMS
 {
 	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
 	VAR = ACOMMS_DRIVER_STATUS,ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
 	VAR = ACOMMS_TRANSMIT_DATA
 	VAR = NAV_X, NAV_Y, SEARCH_RELAY_TARGET_WAYPOINT, SEARCH_RELAY_STATS
@@ -192,7 +193,7 @@ ProcessConfig = pLogger
 	AppTick			= 20
 	CommsTick		= 20
 
-	//File			= 
+	File			= LOG_RELAY
 	PATH			= ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
