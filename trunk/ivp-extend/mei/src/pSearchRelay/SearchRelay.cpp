@@ -559,7 +559,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 		}
 	}
 
-	total_points = counter;
+	total_points = counter-1;
 	std::cout<<"Read "<<counter<<" points."<<std::endl;
 }
 
