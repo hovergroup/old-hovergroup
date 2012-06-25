@@ -30,7 +30,7 @@ protected:
 
 	//Sims
 	double x, y;
-	double encoding_time,sending_time,channel_delay;
+	double sending_time,channel_delay;
 	double sent_time, start_time;
 	bool transmitting, receiving;
 	void handle_data_receive(std::string);

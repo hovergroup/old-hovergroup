@@ -145,7 +145,7 @@ bool acomms_driver_sim::Iterate()
 		publishStatus("receiving");
 		while(MOOSTime()-sent_time < channel_delay){
 			driver_ready = false;
-		//	cout<<"channel delay"<<endl;
+			//	cout<<"channel delay"<<endl;
 		}
 		handle_data_receive(sent_data);
 		receiving = false;
@@ -232,7 +232,7 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 
 	while(MOOSTime()-start_time<sending_time){
 		//wait
-	//	cout<<"sending time"<<endl;
+		//	cout<<"sending time"<<endl;
 	}
 
 	ss.flush();
@@ -385,19 +385,19 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
 
 			// file simplified receive info
-				lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-				if ( cst->psk_error_code() == 2 ) {
-					receive_info.num_frames = cst->number_frames();
-					receive_info.num_bad_frames = receive_info.num_frames;
-					receive_info.num_good_frames = 0;
-				} else {
-					receive_info.num_frames = cst->number_frames();
-					receive_info.num_bad_frames = cst->number_bad_frames();
-					receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-				}
-				receive_info.vehicle_name = my_name;
-				receive_info.source = cst->source();
-				// check for mini data type to set custom rate, otherwise use reported rate
+			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
+			if ( cst->psk_error_code() == 2 ) {
+				receive_info.num_frames = cst->number_frames();
+				receive_info.num_bad_frames = receive_info.num_frames;
+				receive_info.num_good_frames = 0;
+			} else {
+				receive_info.num_frames = cst->number_frames();
+				receive_info.num_bad_frames = cst->number_bad_frames();
+				receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
+			}
+			receive_info.vehicle_name = my_name;
+			receive_info.source = cst->source();
+			// check for mini data type to set custom rate, otherwise use reported rate
 			//	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
 			//		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
 			//			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
@@ -413,8 +413,8 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			//		}
 			//	} else {
 			//		receive_info.rate = stat.rate();
-				//}
-				m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
+			//}
+			m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
 			m_Comms.Notify("ACOMMS_SNR_OUT", cst->snr_out());
 			m_Comms.Notify("ACOMMS_SNR_IN",cst->snr_in());
@@ -451,104 +451,36 @@ bool acomms_driver_sim::rollDice(double p){
 
 }
 
-vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, double x, double y, int rate)
+vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, double xin, double yin, int rate)
 {
 	vector<double> probabilities;
-	if(abs(myx-x) <5 && abs(myy-y)<5){
-		cout<<"Really close!"<<endl;
-		probabilities.push_back(0);
-	}
-	else{
-	double sync = 95;
+		// X-Y Dependent
+
+	double limit = 700;
+	double scale = 3;
+
+	double x = scale*(myx+xin)/2/limit;
+	double y = scale*(myy+yin)/2/limit;
+
+	double sync = 0.5*abs(3 * std::pow((1-x),2) * std::exp(-(std::pow(x,2)) - std::pow((y+1),2))
+	   - 9 * (x/5 - std::pow(x,2) - std::pow(y,5)) * std::exp(-pow(x,2)-pow(y,2))
+	   - 1/3 * std::exp(-pow((x+1),2) - pow(y,2))) + 7;
+
+	sync=sync*10;
+	std::cout << std::endl;
+	std::cout << x << "," << y << std::endl;
+	std::cout << sync << std::endl;
+
 	double header = 99;
 	double modulation = 99;
 	double frame = 95;
 	probabilities.push_back(sync);
 	probabilities.push_back(header);
 	probabilities.push_back(modulation);
-	probabilities.push_back(frame);}
+	probabilities.push_back(frame);
 
 	return probabilities;
 }
-
-//void acomms_driver_sim::handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg ) {
-//	string publish_me = data_msg.DebugString();
-//    while ( publish_me.find("\n") != string::npos ) {
-//            publish_me.replace( publish_me.find("\n"), 1, "<|>" );
-//    }
-//    m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
-//
-//    int num_stats = data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
-//    if ( num_stats == 1 ) {
-//            publishReceivedInfo( data_msg, 0 );
-//    } else if ( num_stats == 2 ) {
-//            publishReceivedInfo( data_msg, 1 );
-//    } else {
-//            stringstream ss;
-//            ss << "Error handling ModemTransmission - contained " << num_stats << "statistics.";
-//            publishWarning( ss.str() );
-//    }
-//}
-
-//void acomms_driver_sim::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
-//	string descriptor = msg.raw().substr(3,3);
-//		if ( descriptor == "TXF") {
-//	//		cout << "transmission finished" << endl;
-//			driver_ready = true;
-//			publishStatus("ready");
-//		} else if ( descriptor == "RXP" ) {
-//			driver_ready = false;
-//			CST_received = false;
-//			RXD_received = false;
-//			publishStatus("receiving");
-//			receive_set_time = MOOSTime();
-//		} else if ( descriptor == "CST" ) {
-//			CST_received = true;
-//		} else if ( descriptor == "RXD" ) {
-//			RXD_received = true;
-//		}
-//	//	} else {
-//	//		cout << "unhandled raw msg with descriptor " << descriptor << endl;
-//	//	}
-//		if ( !driver_ready && CST_received && RXD_received ) {
-//			CST_received = false;
-//			RXD_received = false;
-//			driver_ready = true;
-//			publishStatus("ready");
-//		}
-//}
-
-//void acomms_driver_sim::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
-//	// get statistics out of the transmission
-//		micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
-//
-//		lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-//		if ( stat.psk_error_code() == 2 ) {
-//			receive_info.num_frames = stat.number_frames();
-//			receive_info.num_bad_frames = receive_info.num_frames;
-//			receive_info.num_good_frames = 0;
-//		} else {
-//			receive_info.num_frames = stat.number_frames();
-//			receive_info.num_bad_frames = stat.number_bad_frames();
-//			receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-//		}
-//		receive_info.vehicle_name = my_name;
-//		receive_info.source = stat.source();
-//		receive_info.rate = stat.rate();
-//		m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
-//
-//		m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
-//		m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
-//		m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
-//
-//		if ( trans.frame_size() > 0 ) {
-//			string frame_string = trans.frame(0);
-//			for ( int i=1; i<trans.frame_size(); i++ ) {
-//				frame_string += trans.frame(i);
-//			}
-//			m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
-//		}
-//}
 
 void acomms_driver_sim::publishWarning( std::string message ) {
 	m_Comms.Notify("ACOMMS_DRIVER_WARNING", message );

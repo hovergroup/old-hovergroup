@@ -47,8 +47,10 @@ ProcessConfig = pSearchRelay
 	Role = relay
 	Mode = normal
 	Discount = 5
-	MinObs = 10
+	MinObs = 20		//at least 2x Lookback
 	FudgeFactor = 5  //m
+	Lookback = 10    //observations per result
+	Epsilon = 5		//percent
 }
 
 ProcessConfig = uXMS
@@ -198,6 +200,11 @@ ProcessConfig = pLogger
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
+
+	Log = SEARCH_RELAY_STATS 	@ 0
+	Log = SEARCH_RELAY_INDEX_LIST	@ 0
+	Log = RELAY_REWARD			@ 0
+	Log = SEARCH_RELAY_MEAN_LIST @ 0
 
 	// PID Output
 	Log	= DESIRED_THRUST       @ 0
