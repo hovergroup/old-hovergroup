@@ -355,7 +355,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 				else{ //modulation loss
 					//no header
 					cout<<"mod loss"<<endl;
-					cst->set_psk_error_code(1);
+					cst->set_psk_error_code( goby::util::as<micromodem::protobuf::PSKErrorCode>(1) );
 				}
 
 				for(int i=0;i<num_frames;i++){
@@ -364,7 +364,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 					}
 					else{ //frame loss
 						data_msg.add_frame("");
-						cst->set_psk_error_code(3);
+						cst->set_psk_error_code( goby::util::as<micromodem::protobuf::PSKErrorCode>(3) );
 						num_bad_frames++;
 					}
 				}
@@ -373,7 +373,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			else{	//header loss
 				//get nothing, reporting empty
 				cout<<"header loss"<<endl;
-				cst->set_psk_error_code(2);
+				cst->set_psk_error_code( goby::util::as<micromodem::protobuf::PSKErrorCode>(2) );
 			}
 
 			cst->set_number_bad_frames(num_bad_frames);
