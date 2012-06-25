@@ -20,6 +20,8 @@ SearchRelay::SearchRelay()
 	discount = 5;
 	rate = 2;
 	relay_successful = false;
+	num_lookback = 1;
+	cumulative_reward = 0;
 }
 
 //---------------------------------------------------------
@@ -124,6 +126,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_Comms.Notify("RELAY_MODE","GOTO");
 			ss.str("");
 			ss<<"station_pt="<<targetx<<","<<targety;
+			m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 		}
 
 		//shore
@@ -184,6 +187,7 @@ bool SearchRelay::OnConnectToServer()
 		m_MissionReader.GetConfigurationParam("Discount",discount);
 		m_MissionReader.GetConfigurationParam("MinObs",min_obs);
 		m_MissionReader.GetConfigurationParam("FudgeFactor",fudge_factor);
+		m_MissionReader.GetConfigurationParam("Lookback",num_lookback);
 
 		m_Comms.Register("NAV_X",0);
 		m_Comms.Register("NAV_Y",0);
@@ -205,6 +209,10 @@ bool SearchRelay::OnConnectToServer()
 						0.223,0.1579,0.1235,0.1019,0.087,0.076,0.0675,0.0608,0.0554};
 				memcpy( &normal_indices[0], &temp_normal_indices_one[0], sizeof(temp_normal_indices_one[0])*18 );
 			}
+		}
+		else if(mode == "greedy"){
+			m_MissionReader.GetConfigurationParam("Epsilon",epsilon);
+			srand((unsigned) time(NULL));
 		}
 
 		waiting = false;
@@ -239,7 +247,7 @@ bool SearchRelay::OnConnectToServer()
 		m_Comms.Register("END_STATUS",0);
 		m_Comms.Register("SEARCH_RELAY_START",0);
 		m_Comms.Register("RELAY_SUCCESSFUL",0);
-		wait_time = 10; //s
+		wait_time = 15; //s
 		rate = 2;
 		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 		last = 0;
@@ -303,68 +311,112 @@ bool SearchRelay::OnStartUp()
 // Search Relay Methods
 
 void SearchRelay::ComputeIndex(int closest_ind){
-	if(mode=="normal"){
-		std::cout<<"---------->Computing Index"<<std::endl;
-		int num_obs = data[closest_ind].size();
-		std::cout<<"  Num Obs: "<<num_obs<<std::endl;
+	std::cout<<"---------->Computing Index"<<std::endl;
+	int num_obs = data[closest_ind].size()/num_lookback;
+	std::cout<<"  Num Obs: "<<num_obs<<std::endl;
 
-			if(num_obs==100){
-				std::cout<<"  Exceeded maximum observations. Switching Modes."<<std::endl;
-				m_Comms.Notify("MISSION_MODE","KEEP");
-				m_Comms.Notify("RELAY_STATUS","Completed");
-				std::cout<<"  The final point was: "<<std::endl;
-				Decision();
-			}
-
-			double gindex;
-			if(num_obs<=10){
-				gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
-				std::cout<<"   Observations: "<<num_obs<<", gindex: "<<gindex<<std::endl;
-			}
-			else{	//interpolate
-				int base = 7+(num_obs/10);
-				int offset = num_obs%10;
-				double difference = (normal_indices[base+1]-normal_indices[base])/10;
-				gindex = normal_indices[base] + offset*difference;
-				std::cout<<"   Observations: "<<" ,gindex: "<<gindex<<std::endl;
-			}
-
-			indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
-			std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
-
-			int target = closest_ind;
-			RelayStat my_stat = RelayStat();
-			my_stat.debug_string = "Compute";
-			my_stat.x = myx; my_stat.x = myy;
-			my_stat.next_x = wpx[target]; my_stat.next_y = wpy[target];
-			my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
-			my_stat.index = indices[target];
-
-			Confess(my_stat);
-	}
-}
-
-int SearchRelay::Decision(){
-	int target=0;
-	//Find largest index
-
-	for(int i=0;i<indices.size();i++){
-		std::cout<<"Point: "<<i<<" Index: "<<indices[i]<<std::endl;
-		if(indices[i]>indices[target]){
-			target = i;
-		}
+	if(num_obs==100){
+		std::cout<<"  Exceeded maximum observations. Switching Modes."<<std::endl;
+		m_Comms.Notify("MISSION_MODE","KEEP");
+		m_Comms.Notify("RELAY_STATUS","Completed");
+		std::cout<<"  The final point was: "<<std::endl;
+		Decision();
 	}
 
-	std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
+	double gindex;
+	if(num_obs<=10){
+		gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
+		std::cout<<"   Observations: "<<num_obs<<", gindex: "<<gindex<<std::endl;
+	}
+	else{	//interpolate
+		int base = 7+(num_obs/10);
+		int offset = num_obs%10;
+		double difference = (normal_indices[base+1]-normal_indices[base])/10;
+		gindex = normal_indices[base] + offset*difference;
+		std::cout<<"   Observations: "<<" ,gindex: "<<gindex<<std::endl;
+	}
 
+	indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
+	std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
+
+	int target = closest_ind;
 	RelayStat my_stat = RelayStat();
-	my_stat.debug_string = "Decision";
+	my_stat.debug_string = "Compute";
 	my_stat.x = myx; my_stat.x = myy;
 	my_stat.next_x = wpx[target]; my_stat.next_y = wpy[target];
 	my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
 	my_stat.index = indices[target];
 
+	double temp_successes=0;
+	for(int i=0;i<data[closest_ind].size();i++){
+		temp_successes += data[closest_ind][i];
+	}
+
+	my_stat.successful_packets = temp_successes;
+
 	Confess(my_stat);
+}
+
+int SearchRelay::Decision(){
+	int target=0;
+	std::stringstream ss;
+	bool complete = false;
+
+	if(mode == "normal"){
+		//Find largest index
+
+		for(int i=0;i<indices.size();i++){
+			std::cout<<"Point: "<<i<<" Index: "<<indices[i]<<std::endl;
+
+			if(indices[i]<0){
+				target = i;
+				complete = false;
+				break;
+			}
+
+			else if(indices[i]>indices[target]){
+				target = i;
+			}
+			ss<<indices[i]<<",";
+			complete = true;
+		}
+
+		std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
+
+		RelayStat my_stat = RelayStat();
+		my_stat.debug_string = "Decision";
+		my_stat.x = myx; my_stat.x = myy;
+		my_stat.next_x = wpx[target]; my_stat.next_y = wpy[target];
+		my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
+		my_stat.index = indices[target];
+
+		Confess(my_stat);
+		if(complete){
+			m_Comms.Notify("SEARCH_RELAY_INDEX_LIST",ss.str());
+		}
+	}
+
+	else if(mode == "greedy"){
+		for(int i=0;i<mean.size();i++){
+			std::cout<<"Point: "<<i<<" Mean: "<<mean[i]<<std::endl;
+
+			if(mean[i]<0){
+				target = i;
+				complete = false;
+				break;
+			}
+
+			else if(mean[i]>mean[target]){
+				target = i;
+			}
+			ss<<mean[i]<<",";
+			complete = true;
+		}
+		std::cout<<"Decided on Point #"<<target<<" with Mean: "<<mean[target]<<std::endl;
+		if(complete){
+			m_Comms.Notify("SEARCH_RELAY_MEAN_LIST",ss.str());
+		}
+	}
 
 	return target;
 }
@@ -383,6 +435,8 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 	if(closest_dist<=fudge_factor){
 		if(packet_got){
 			data[closest_ind].push_back(1);
+			cumulative_reward += 1;
+			m_Comms.Notify("RELAY_REWARD",cumulative_reward);
 		}
 		else{
 			data[closest_ind].push_back(0);
@@ -395,16 +449,19 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
 		std::cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
 
-		if(data[closest_ind].size() < min_obs){
-			std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
-			std::cout<<"--->Holding Station"<<std::endl<<std::endl;
-		}
-		else{
-			ComputeIndex(closest_ind);
+		if(mode == "normal"){
+			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
+				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
+				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
+			}
+			else{
+				ComputeIndex(closest_ind);
 
-			if(closest_ind < wpx.size() && data[closest_ind+1].size() < min_obs){ //First pass
-				targetx = wpx[closest_ind+1];
-				targety = wpy[closest_ind+1];
+				int target = Decision();
+				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
+				std::cout<<"--->Making a Decision"<<std::endl;
+				targetx = wpx[target];
+				targety = wpy[target];
 				std::stringstream ss;
 				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
 				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
@@ -414,10 +471,28 @@ void SearchRelay::ComputeSuccessRates(bool packet_got){
 				ss<<"station_pt="<<targetx<<","<<targety;
 				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 			}
-			else{
-				int target = Decision();
+		}
+		else if(mode == "greedy"){
+			if(data[closest_ind].size()<min_obs){
 				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
+				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
+			}
+			else{
+				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
 				std::cout<<"--->Making a Decision"<<std::endl;
+
+				double temp = rand() % 100;
+				std::cout<<"Dice Rolled: "<<temp<<std::endl;
+				int target;
+				if(temp <= epsilon){
+					target = rand()%(total_points-1);
+					std::cout<< "Random point: " << target << std::endl;
+				}
+				else{
+					target = Decision();
+				}
+
+
 				targetx = wpx[target];
 				targety = wpy[target];
 				std::stringstream ss;
@@ -442,7 +517,8 @@ void SearchRelay::Confess(RelayStat stats){
 			<<"TARGET_Y: " << stats.next_y <<"<|>"
 			<< "MEAN: " << stats.stat_mean <<"<|>"
 			<< "STDEV: " << stats.stat_std << "<|>"
-			<< "INDEX: "<< stats.index << std::endl;
+			<< "INDEX: "<< stats.index << "<|>"
+			<< "SUCCESSES: "<<stats.successful_packets << std::endl;
 
 	m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
 }
@@ -474,11 +550,11 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 					",y="<<atof(suby.c_str())<<",SCALE=4.3,label="<<counter<<",COLOR=green,width=4.5";
 			m_Comms.Notify("VIEW_MARKER",ss.str());
 
-			mean.push_back(0.0);
+			mean.push_back(-1.0);
 			stdev.push_back(0.0);
 			std::vector<double> temp_vec;
 			data[counter] = temp_vec;
-			indices.push_back(0.0);
+			indices.push_back(-1.0);
 			counter++;
 		}
 	}

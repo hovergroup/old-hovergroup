@@ -46,9 +46,10 @@ protected:
 			std::string debug_string;
 			double x,y,next_x,next_y;
 			double stat_mean,stat_std, index;
+			double successful_packets;
 
 			RelayStat(): debug_string("Default"), x(0), y(0), next_x(0), next_y(0),
-					stat_mean(-1), stat_std(-1), index(-1) {}
+					stat_mean(-1), stat_std(-1), index(-1), successful_packets(-1) {}
 		};
 
 	void Confess(RelayStat stats);
@@ -60,12 +61,13 @@ protected:
 
 	//relay
 	std::string mode,relay_message;
-	int discount,min_obs,total_points;
+	int discount,min_obs,total_points,num_lookback;
+	int cumulative_reward;
 	std::map<double, std::vector<double> > data;
 	std::vector<double> mean, stdev,indices;
 	std::vector<double> normal_indices;
 	std::vector<double> wpx, wpy;
-	double fudge_factor;
+	double fudge_factor, epsilon;
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
