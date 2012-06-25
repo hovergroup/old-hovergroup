@@ -530,11 +530,11 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 	int counter = 1;
 
 	while(waypointsfile.good()){
-		std::cout<<"Reading Points"<<std::endl;
 		getline(waypointsfile,one_point);
 		int pos = one_point.find(',');
 
 		if(pos>0){
+			std::cout<<"Reading Points"<<std::endl;
 			std::cout<<one_point<<std::endl;
 			std::cout<<counter<<std::endl;
 			std::string subx = one_point.substr(0,pos-1);
@@ -559,7 +559,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 		}
 	}
 
-	total_points = counter-1;
+	total_points = counter;
 	std::cout<<"Read "<<counter<<" points."<<std::endl;
 }
 
