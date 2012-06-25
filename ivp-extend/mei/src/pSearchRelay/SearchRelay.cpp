@@ -532,7 +532,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 	while(waypointsfile.good()){
 		getline(waypointsfile,one_point);
 		int pos = one_point.find(',');
-
+		std::cout << pos << std::endl;
 		if(pos>0){
 			std::cout<<"Reading Points"<<std::endl;
 			std::cout<<one_point<<std::endl;
