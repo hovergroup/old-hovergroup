@@ -78,7 +78,9 @@ protected:
 	int rate,counter;
 	std::string relay_status,end_status;
 	std::string acomms_driver_status, start;
+
 	//end
+	double end_x,end_y;
 };
 
 #endif

@@ -32,6 +32,8 @@ ProcessConfig = pSearchRelay
 	
 	Role = end
 	RelayID = 1
+	Endx = -179.4
+	Endy = -564.9
 }
 
 ProcessConfig = uTimerScript

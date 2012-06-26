@@ -137,7 +137,9 @@ ProcessConfig = pLogger
 {
 	AppTick			= 20
 	CommsTick		= 20
-
+	
+	File			= LOG_TERRA
+	PATH			= ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
