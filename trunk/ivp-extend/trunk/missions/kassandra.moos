@@ -2,7 +2,7 @@
 //	Author:	Alon Y
 //	Date:		Mar 31, 2012
 
-Community			= kayak
+Community			= kassandra
 
 ServerHost			= 192.168.1.101
 ServerPort			= 9001
