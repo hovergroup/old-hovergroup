@@ -342,7 +342,7 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	int target = closest_ind;
 	RelayStat my_stat = RelayStat();
 	my_stat.debug_string = "Compute";
-	my_stat.x = myx; my_stat.x = myy;
+	my_stat.x = myx; my_stat.y = myy;
 	my_stat.next_x = wpx[target]; my_stat.next_y = wpy[target];
 	my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
 	my_stat.index = indices[target];
@@ -385,7 +385,7 @@ int SearchRelay::Decision(){
 
 		RelayStat my_stat = RelayStat();
 		my_stat.debug_string = "Decision";
-		my_stat.x = myx; my_stat.x = myy;
+		my_stat.x = myx; my_stat.y = myy;
 		my_stat.next_x = wpx[target]; my_stat.next_y = wpy[target];
 		my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
 		my_stat.index = indices[target];
@@ -553,7 +553,7 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 			mean.push_back(-1.0);
 			stdev.push_back(0.0);
 			std::vector<double> temp_vec;
-			data[counter] = temp_vec;
+			data[counter-1] = temp_vec;
 			indices.push_back(-1.0);
 			counter++;
 		}
