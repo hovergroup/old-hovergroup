@@ -1,42 +1,28 @@
-Community			= kayak
+Community			= kassandra
 
-ServerHost			= localhost
+ServerHost			= 192.168.1.101
 ServerPort			= 9001
 
 LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
-//Sim Adds
-MOOSTimeWarp = 10
-ProcessConfig = uSimMarine
-{
-  AppTick   = 10
-  CommsTick  = 10
-
-  START_POS = 0,0,180,0
-  PREFIX    = NAV
-  TURN_RATE = 100
-}
-
 ProcessConfig = ANTLER
 {
-	MSBetweenLaunches	= 1000
+	MSBetweenLaunches	= 200
 
 	Run = MOOSDB			@ NewConsole = false
-//	Run = kayak_interface 	@ NewConsole = false
+	Run = kayak_interface 	@ NewConsole = false
 	Run = pNodeReporter		@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
 	Run = pMarinePID		@ NewConsole = false
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
-	Run = uSimMarine		@ NewConsole = false
-//	Run = uXMS				@ NewConsole = false
+	
 	Run = pSearchRelay		@ NewConsole = true
-	Run = iacomms_driver_sim	@ NewConsole = true
-
-//	Run = iOS5000_filtered		@ NewConsole = false
+	
+	Run = iOS5000_filtered		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-//	Run = iacomms_driver @ NewConsole = false
+	Run = iacomms_driver @ NewConsole = false
 }
 
 ProcessConfig = pSearchRelay
@@ -117,20 +103,17 @@ ProcessConfig = pMOOSBridge
 
 	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
 	// Destination is shore station	shoreside@YOURIP:9000
-	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@localhost:9200 [NODE_REPORT]
-//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> shoreside@localhost:9000 [NODE_REPORT]
-	SHARE = [VIEW_POLYGON]		-> shoreside@localhost:9000 [VIEW_POLYGON]
-	SHARE = [VIEW_POINT]		-> shoreside@localhost:9000 [VIEW_POINT]
-	SHARE = [VIEW_SEGLIST]		-> shoreside@localhost:9000 [VIEW_SEGLIST]
-	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@localhost:9000 [VIEW_RANGE_PULSE]
+
+	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
+	SHARE = [VIEW_POLYGON]		-> terra@192.168.1.100:9000 [VIEW_POLYGON]
+	SHARE = [VIEW_POINT]		-> terra@192.168.1.100:9000 [VIEW_POINT]
+	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
+	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
 	
 	//Search Relay Shares
-	SHARE = [RELAY_STATUS] -> shore_node@localhost:9002
-	SHARE = [RELAY_SUCCESSFUL] -> shore_node@localhost:9002
-	SHARE = [VIEW_MARKER] -> shoreside@localhost:9000
-	
-	//Sim Shares
-	SHARE = [ACOMMS_SIM_SENT_DATA_LOCAL] -> tech_node@localhost:9003 [ACOMMS_SIM_SENT_DATA]
+	SHARE = [RELAY_STATUS] -> icarus@192.168.1.102:9002
+	SHARE = [RELAY_SUCCESSFUL] -> icarus@192.168.1.102:9002
+	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000
 	
 	}
 
@@ -148,7 +131,7 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	//SPEED_FACTOR	= 50
+	SPEED_FACTOR	= 50
 
 	// Yaw PID controller
 //	YAW_PID_KP		= 0.3
@@ -201,69 +184,6 @@ ProcessConfig = pLogger
 	FileTimeStamp		= true
 	WildCardLogging		= true
 
-	Log = SEARCH_RELAY_STATS 	@ 0
-	Log = SEARCH_RELAY_INDEX_LIST	@ 0
-	Log = RELAY_REWARD			@ 0
-	Log = SEARCH_RELAY_MEAN_LIST @ 0
-
-	// PID Output
-	Log	= DESIRED_THRUST       @ 0
-	Log	= DESIRED_RUDDER       @ 0
-
-	// Helm Output
-	Log	= DEPLOY               @ 0
-	Log	= RETURN               @ 0
-	Log = KEEP				   @ 0
-	Log = GOCOME			   @ 0
-	
-	Log	= MOOS_MANUAL_OVERIDE  @ 0
-	Log	= MOOS_MANUAL_OVERRIDE @ 0
-	Log	= DESIRED_SPEED        @ 0
-	Log	= DESIRED_HEADING      @ 0
-	Log	= HELM_IPF_COUNT       @ 0 
-	log	= LOOP_CPU             @ 0
-	log	= LOOP_WALL            @ 0
-	Log	= VEHICLE_WPT_INDEX    @ 0
-	Log	= DIST_TO_STATION      @ 0
-	Log	= DIST_TO_REGION       @ 0
-
-	// Vehicle Position
-	Log	= NAV_X         @ 0
-	Log	= NAV_Y         @ 0
-	Log	= NAV_HEADING   @ 0
-	Log	= NAV_SPEED		@ 0
-
-	// GPS
-	Log = GPS_LOCK		@ 0
-	Log	= GPS_X         @ 0
-	Log	= GPS_Y         @ 0
-	Log	= GPS_SPEED     @ 0
-	Log	= GPS_COURSE	@ 0
-	Log	= GPS_TIME      @ 0
-	Log = GPS_DATE		@ 0
-	Log = GPS_LATITUDE  @ 0
-	Log = GPS_LONGITUDE	@ 0
-	Log = GPS_MAGNETIC_VARIATION @ 0
-	Log = GPS_TIME_SECONDS @ 0
-
-	// Compass
-	Log	= COMPASS_HEADING_FILTERED 		@ 0
-	Log = COMPASS_HEADING_UNFILTERED 	@ 0
-	Log = COMPASS_YAW_FILTERED 			@ 0
-	Log = COMPASS_YAW_UNFILTERED 		@ 0
-	Log	= COMPASS_PITCH 				@ 0
-	Log	= COMPASS_ROLL 					@ 0
-	Log = COMPASS_TEMPERATURE 			@ 0
-
-	// acomms
-	Log	= ACOMMS_TRANSMIT_RATE 			@ 0
-	Log = ACOMMS_TRANSMIT_DEST 			@ 0
-	Log	= ACOMMS_TRANSMIT_DATA 			@ 0
-	Log	= ACOMMS_TRANSMIT_DATA_BINARY 	@ 0
-	Log	= ACOMMS_RECEIVED_ALL 			@ 0
-	Log	= ACOMMS_RECEIVED_SIMPLE 		@ 0
-	Log	= ACOMMS_DRIVER_WARNING			@ 0
-	Log = ACOMMS_DRIVER_STATUS			@ 0
 }
 
 
@@ -276,9 +196,8 @@ ProcessConfig = pEchoVar
   CommsTick = 20
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
- // Echo = COMPASS_HEADING -> NAV_HEADING
-//  Echo = GPS_X -> NAV_X
- // Echo = GPS_Y -> NAV_Y
- // Echo = GPS_SPEED -> NAV_SPEED
- // Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
+  Echo = GPS_SPEED -> NAV_SPEED
+  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
