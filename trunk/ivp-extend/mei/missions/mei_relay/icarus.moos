@@ -18,6 +18,7 @@ ProcessConfig = ANTLER
   Run = iacomms_driver @ NewConsole = false
   Run = simple_gps @ NewConsole = false
   Run = pEchoVar		@ NewConsole = false
+  Run = pSearchRelay    @ NewConsole = true
 }
 
 ProcessConfig = pSearchRelay
@@ -26,6 +27,7 @@ ProcessConfig = pSearchRelay
 	CommsTick = 5
 	
 	Role = shore
+	WaitTime = 15
 }
 
 ProcessConfig = simple_gps
@@ -40,6 +42,7 @@ ProcessConfig = simple_gps
 ProcessConfig = uXMS
 {
 	DISPLAY_TIME=true
+	VAR = ACOMMS_DRIVER_STATUS, ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE
 }
 
 ProcessConfig = iacomms_driver
@@ -66,6 +69,10 @@ ProcessConfig = pMOOSBridge
 	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
+	
+	//Relay Shares
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kassandra@192.168.1.101 [SHORE_SAID]
+	
 	}
 
 ProcessConfig = pLogger
@@ -73,33 +80,14 @@ ProcessConfig = pLogger
   AppTick       = 10
   CommsTick     = 10
   
-  File          = LOG_SHORE_NODE
-  PATH          = ./
+  File          = LOG_ICARUS
+  PATH          = ./logs
   AsyncLog      = true
   FileTimeStamp = true
 
   // Log it all!!!!!
   WildCardLogging = true 
 }
-ProcessConfig = uXMS
-{
-//  DISPLAY_ALL    = true
-  DISPLAY_SOURCE = true
-  DISPLAY_TIME   = true
-
-  VAR = GPS_SENTENCE
-VAR = ACOMMS_RATE
-VAR = ACOMMS_PAUSED
-VAR = ACOMMS_MODE
-VAR = MESSAGE_FORMAT
-VAR = ACOMMS_DRIVER_STATUS
-VAR = ACOMMS_TIMER_PAUSED
-VAR = ACOMMS_TIMER_MISSION
-VAR = ACOMMS_DUTY_CYCLE
-VAR = ACOMMS_TRANSMIT_RATE
-VAR = ACOMMS_COUNTER_RESET
-}
-
 
 ProcessConfig = pNodeReporter
 	{

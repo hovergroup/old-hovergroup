@@ -8,7 +8,7 @@ LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 ProcessConfig = ANTLER
 {
-	MSBetweenLaunches	= 500
+	MSBetweenLaunches	= 200
 
 	Run = MOOSDB		@ NewConsole = false
 	Run = ikayak_driver @ NewConsole = false
@@ -22,6 +22,16 @@ ProcessConfig = ANTLER
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iacomms_driver @ NewConsole = false
+	Run = pSearchRelay	@ NewConsole = false
+}
+
+ProcessConfig = pSearchRelay
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	Role = end
+	RelayID = 1
 }
 
 ProcessConfig = uTimerScript
@@ -51,8 +61,8 @@ ProcessConfig = iacomms_driver
 
 ProcessConfig = simple_gps
 {
-	AppTick = 5
-	CommsTick = 5
+	AppTick = 2
+	CommsTick = 2
 	
 	PORT_NAME = /dev/ttyUSB0
 	BAUD_RATE = 57600
@@ -111,8 +121,8 @@ ProcessConfig = pMOOSBridge
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
 	//Search Relay Shares
-	//SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
-	
+	SHARE = [END_STATUS] -> icarus@192.168.1.102:9002
+	SHARE = [TRANSMITTED_DATA] -> kassandra@192.168.1.101:9001 [TRANSMITTED_DATA]
 	}
 
 ProcessConfig = pMarinePID
@@ -178,6 +188,8 @@ ProcessConfig = pLogger
 	AppTick			= 20
 	CommsTick		= 20
 
+ 	File          = LOG_NOSTROMO
+  	PATH          = ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
