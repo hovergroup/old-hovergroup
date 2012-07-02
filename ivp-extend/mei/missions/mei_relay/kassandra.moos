@@ -18,7 +18,7 @@ ProcessConfig = ANTLER
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
 	
-	Run = pSearchRelay		@ NewConsole = true
+//	Run = pSearchRelay		@ NewConsole = true
 	
 	Run = iOS5000_filtered		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
@@ -46,6 +46,15 @@ ProcessConfig = uXMS
 	VAR = ACOMMS_DRIVER_STATUS,ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE
 	VAR = ACOMMS_TRANSMIT_DATA
 	VAR = NAV_X, NAV_Y, SEARCH_RELAY_TARGET_WAYPOINT, SEARCH_RELAY_STATS
+}
+
+ProcessConfig = iacomms_driver
+{
+	AppTick =5
+	CommsTick = 5
+
+	PortName = /dev/ttyUSB0
+	ID = 1
 }
 
 ProcessConfig = iacomms_driver_sim
