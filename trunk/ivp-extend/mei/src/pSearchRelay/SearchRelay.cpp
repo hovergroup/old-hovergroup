@@ -104,15 +104,15 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			std::cout << "Got from Tech: "<< msg.GetString()<<std::endl;
 			if(msg.GetString() == "good"){
 				ComputeSuccessRates(true);
+				waiting = false;
+				relaying = false;
 			}
 			else{
 				std::cout << msg.GetString();
+				waiting = false;
 			}
 
 			m_Comms.Notify("RELAY_SUCCESSFUL","true");
-							waiting = false;
-							relaying = false;
-
 		}
 
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
