@@ -9,6 +9,7 @@
 #define RelayStart_HEADER
 
 #include "MOOSLib.h"
+#include <lib_acomms_messages/acomms_messages.h>
 
 using namespace std;
 
@@ -22,10 +23,11 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
+	string getRandomString(int);
 
 protected:
 		double last, wait_time;
-		int rate,mail_counter,end_id,length;
+		int rate,mail_counter,length;
 		string relay_status,end_status, driver_status, pause;
 
 		bool relay_sync;

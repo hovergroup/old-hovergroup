@@ -10,6 +10,7 @@
 
 #include "MOOSLib.h"
 #include <lib_acomms_messages/acomms_messages.h>
+#include <math.h>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
+
 
 protected:
 	int relay_id;

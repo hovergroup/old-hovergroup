@@ -7,8 +7,6 @@
 
 #include <iterator>
 #include "acomms_driver_sim.h"
-#include <sstream>
-#include <acomms_messages.h>
 
 using namespace std;
 
@@ -69,6 +67,11 @@ bool acomms_driver_sim::OnNewMail(MOOSMSG_LIST &NewMail)
 		} else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
 			//startDriver( msg.GetString() );
 		}
+		else if ( key == "NAV_X" ) {
+		    	  m_navx = msg.GetDouble();
+		      } else if ( key == "NAV_Y" ) {
+		    	  m_navy = msg.GetDouble();
+		      }
 
 		//Sims
 		else if (key=="ACOMMS_SIM_SENT_DATA"){
@@ -117,7 +120,7 @@ bool acomms_driver_sim::OnConnectToServer()
 
 	RegisterVariables();
 
-	//publishStatus("not running");
+	publishStatus("not running");
 
 	startDriver("");
 	return(true);
@@ -225,6 +228,15 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 		transmission_data = "";
 	}
 
+	else if ( transmission_rate == 100 ) {
+			// if mini packet, just take up to the first two bytes
+			// truncating not done
+
+			int data_size = transmission_data.size();
+			if ( data_size > 2 ) // max of 2 bytes ( 13 bits actually )
+				data_size = 2;
+			ss.write( transmission_data.data(), data_size );
+	}
 
 	publishStatus("transmitting");
 	driver_ready = false;
@@ -243,11 +255,7 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	driver_ready = true;
 	publishStatus("ready");
 
-	//x=100,y=-50,radius=40,duration=15,fill=0.25,
-	//fill color=green,label=04,time=@MOOSTIME
-	ss<<"x="<<x<<",y="<<y;
-	ss << ",radius=25,duration=10,label=one";
-	m_Comms.Notify("VIEW_RANGE_PULSE", ss.str());
+    postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
 
 	lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
 	transmit_info.vehicle_name = my_name;
@@ -256,6 +264,20 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	transmit_info.num_frames = num_frames;
 
 	m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
+}
+
+void acomms_driver_sim::postRangePulse( string label, double range, double duration, string color ) {
+	XYRangePulse pulse;
+	pulse.set_x(m_navx);
+	pulse.set_y(m_navy);
+	pulse.set_label(label);
+	pulse.set_rad(range);
+	pulse.set_duration(duration);
+	pulse.set_time(MOOSTime());
+	pulse.set_color("edge", color);
+	pulse.set_color("fill", color);
+
+	m_Comms.Notify("VIEW_RANGE_PULSE", pulse.get_spec());
 }
 
 void acomms_driver_sim::handle_data_receive(string sent_data){
@@ -397,25 +419,8 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			}
 			receive_info.vehicle_name = my_name;
 			receive_info.source = cst->source();
-			// check for mini data type to set custom rate, otherwise use reported rate
-			//	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
-			//		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
-			//			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
-			//			if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA )
-			//				receive_info.rate = 100;
-			//			else {
-			//				publishWarning( "unrecognized transmission type" );
-			//				receive_info.rate = -1;
-			//			}
-			//		} else {
-			//			publishWarning( "missing driver specific transmission type extension" );
-			//			receive_info.rate = -1;
-			//		}
-			//	} else {
-			//		receive_info.rate = stat.rate();
-			//}
-			m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
+			m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 			m_Comms.Notify("ACOMMS_SNR_OUT", cst->snr_out());
 			m_Comms.Notify("ACOMMS_SNR_IN",cst->snr_in());
 			m_Comms.Notify("ACOMMS_DQR",cst->data_quality_factor());

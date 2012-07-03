@@ -14,7 +14,6 @@
 #include <sstream>
 #include <iostream>
 #include "XYSegList.h"
-#include <math.h>
 #include <string.h>
 
 using namespace std;
@@ -33,7 +32,6 @@ public:
 	void ComputeIndex(int);
 	int Decision();
 	void GetWaypoints();
-	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
 	void ComputeSuccessRates(bool);
 

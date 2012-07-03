@@ -28,22 +28,24 @@ ProcessConfig = ANTLER
   Run = pNodeReporter	@ NewConsole = false
   //Run = pEchoVar		@ NewConsole = false
   Run = uSimMarine 		@ NewConsole = false
-  Run = pSearchRelay 	@ NewConsole = false
+ 
   Run = iacomms_driver_sim @ NewConsole = false
   Run = pMarinePID		@ NewConsole = false
-	Run = pHelmIvP		@ NewConsole = false
-  
+  Run = pHelmIvP		@ NewConsole = false
+  Run = pRelayEnd 	@ NewConsole = false
+   
   //Run = iacomms_driver @ NewConsole = false
   //Run = simple_gps @ NewConsole = false
 }
 
-ProcessConfig = pSearchRelay
+ProcessConfig = pRelayEnd
 {
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = end
 	RelayID = 1
+	Endx = -179.4
+	Endy = -564.9
 }
 
 ProcessConfig = simple_gps
@@ -95,7 +97,6 @@ ProcessConfig = pMOOSBridge
 		
 	//Search Relay Shares
 	SHARE = [END_STATUS] -> shore_node@localhost:9002
-	SHARE = [TRANSMITTED_DATA] -> kayak@localhost:9001 [TRANSMITTED_DATA]
 	
 	}
 

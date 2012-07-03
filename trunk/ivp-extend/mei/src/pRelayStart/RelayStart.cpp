@@ -74,6 +74,8 @@ bool RelayStart::OnConnectToServer()
 	// m_Comms.Register("VARNAME", is_float(int));
 
 	m_MissionReader.GetConfigurationParam("Rate",rate);
+	m_MissionReader.GetConfigurationParam("WaitTime",wait_time);
+
 	if(rate==0){length = 32;}
 	else if(rate==2){length = 192;}
 
@@ -100,7 +102,7 @@ bool RelayStart::Iterate()
 	if(pause=="false"){
 		if(relay_status=="ready"){
 			if(end_status=="ready"){
-				if(driver_status = "ready"){
+				if(driver_status == "ready"){
 
 					//transmit as soon as possible
 					double time_since = MOOSTime()-last;
@@ -117,22 +119,39 @@ bool RelayStart::Iterate()
 						m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 						last = MOOSTime();
 						mail_counter++;
+					}
+				} else{cout<<"MMDRIVER: " << driver_status <<endl;}
+			} else{cout << end_status << endl;}
+		} else{cout << relay_status << endl;}
+	} else{cout << "EXPERIMENT PAUSED" << endl;}
 
-					} else{cout<<"MMDRIVER: " << driver_status <<endl;}
-				} else{cout << end_status << endl;}
-			} else{cout << relay_status << endl;}
-		} else{cout << "EXPERIMENT PAUSED" << endl;}
+	return(true);
+}
 
-		return(true);
+//---------------------------------------------------------
+// Procedure: OnStartUp()
+
+bool RelayStart::OnStartUp()
+{
+	// happens before connection is open
+
+	return(true);
+}
+
+string RelayStart::getRandomString( int length ) {
+
+	stringstream ss;
+	const int passLen = length;
+	for (int i = 0; i < passLen; i++) {
+		char num = (char) ( rand() % 62 );
+		if ( num < 10 )
+			num += '0';
+		else if ( num < 36 )
+			num += 'A'-10;
+		else
+			num += 'a'-36;
+		ss << num;
 	}
 
-	//---------------------------------------------------------
-	// Procedure: OnStartUp()
-
-	bool RelayStart::OnStartUp()
-	{
-		// happens before connection is open
-
-		return(true);
-	}
-
+	return ss.str();
+}
