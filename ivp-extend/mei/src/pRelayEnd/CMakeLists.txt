@@ -11,5 +11,7 @@ TARGET_LINK_LIBRARIES(pRelayEnd
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   acomms_messages
+   )
 
