@@ -29,10 +29,10 @@ ProcessConfig = ANTLER
   //crucial processes
   Run = MOOSDB				@ NewConsole = false
   Run = pMOOSBridge     	@ NewConsole = false
-  Run = pMarineViewer		@ NewConsole = true
+  Run = pMarineViewer		@ NewConsole = false
   //Run = pLogger 			@ NewConsole = false 
   //Run = uXMS            	@ NewConsole = true
-  Run = uSimMarine			@ NewConsole = false
+  //Run = uSimMarine			@ NewConsole = false
  
 }
 

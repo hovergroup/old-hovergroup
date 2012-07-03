@@ -9,6 +9,9 @@
 #define RelayEnd_HEADER
 
 #include "MOOSLib.h"
+#include <lib_acomms_messages/acomms_messages.h>
+
+using namespace std;
 
 class RelayEnd : public CMOOSApp
 {
@@ -22,7 +25,10 @@ public:
 	bool OnStartUp();
 
 protected:
-	// insert local vars here
+	int relay_id;
+	double end_x,end_y,myx,myy;
+	double fudge_factor,now,last,update_time;
+	bool driver_ready;
 };
 
 #endif 

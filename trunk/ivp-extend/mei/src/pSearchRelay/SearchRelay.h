@@ -11,15 +11,13 @@
 #include "MOOSLib.h"
 #include <map>
 #include <gsl/gsl_statistics_double.h>
-//#include <boost/date_time/posix_time/posix_time.hpp>
 #include <sstream>
 #include <iostream>
 #include "XYSegList.h"
 #include <math.h>
 #include <string.h>
-#include <lib_acomms_messages/acomms_messages.h>
 
-//namespace pt = boost::posix_time;
+using namespace std;
 
 class SearchRelay : public CMOOSApp
 {
@@ -31,9 +29,9 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
+
 	void ComputeIndex(int);
 	int Decision();
-	//void UpdateStats(double);
 	void GetWaypoints();
 	std::string getRandomString(int);
 	unsigned int closest_vertex(double, double);
@@ -43,7 +41,7 @@ protected:
 
 	class RelayStat{
 	public:
-			std::string debug_string;
+			string debug_string;
 			double x,y,next_x,next_y;
 			double stat_mean,stat_std, index;
 			double successful_packets;
@@ -54,33 +52,20 @@ protected:
 
 	void Confess(RelayStat stats);
 
-	// insert local vars here
-	//all
-	std::string my_role;
-	int relay_id;
-
 	//relay
-	std::string mode,relay_message;
-	int discount,min_obs,total_points,num_lookback;
-	int cumulative_reward;
-	std::map<double, std::vector<double> > data;
-	std::vector<double> mean, stdev,indices;
-	std::vector<double> normal_indices;
-	std::vector<double> wpx, wpy;
+	string mode;
+	int discount,min_obs,total_points,num_lookback, rate;
+	map<double, std::vector<double> > data;
+	vector<double> mean, stdev,indices;
+	vector<double> normal_indices;
+	vector<double> wpx, wpy;
 	double fudge_factor, epsilon;
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool waiting, relaying, relay_successful;
+	bool waiting, relaying;
+	int connected;
 
-	//shore
-	double last, wait_time;
-	int rate,counter;
-	std::string relay_status,end_status;
-	std::string acomms_driver_status, start;
-
-	//end
-	double end_x,end_y;
 };
 
 #endif

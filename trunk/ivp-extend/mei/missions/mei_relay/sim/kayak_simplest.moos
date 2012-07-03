@@ -45,7 +45,7 @@ ProcessConfig = pSearchRelay
 	CommsTick = 5
 	
 	Role = relay
-	Mode = normal
+	Mode = greedy
 	Discount = 5
 	MinObs = 10		//at least 2x Lookback
 	FudgeFactor = 5  //m

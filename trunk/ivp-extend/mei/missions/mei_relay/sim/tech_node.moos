@@ -14,7 +14,7 @@ ProcessConfig = uSimMarine
   AppTick   = 10
   CommsTick  = 10
 
-  START_POS = -179.4,-564.9,180,0
+  START_POS = -100,-100,180,0
   PREFIX    = NAV
 }
 
@@ -30,6 +30,8 @@ ProcessConfig = ANTLER
   Run = uSimMarine 		@ NewConsole = false
   Run = pSearchRelay 	@ NewConsole = false
   Run = iacomms_driver_sim @ NewConsole = false
+  Run = pMarinePID		@ NewConsole = false
+	Run = pHelmIvP		@ NewConsole = false
   
   //Run = iacomms_driver @ NewConsole = false
   //Run = simple_gps @ NewConsole = false
@@ -139,4 +141,48 @@ ProcessConfig = pEchoVar
 
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
+}
+
+ProcessConfig = pMarinePID
+{
+	AppTick		= 20
+	CommsTick	= 20
+
+	Verbose		= false
+	DEPTH_CONTROL	= false
+	ACTIVE_START	= true
+	MAXRUDDER	= 45
+	MAXTHRUST	= 100
+
+	// SPEED_FACTOR
+	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
+	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
+	SPEED_FACTOR	= 30
+	// 25-30 for no modem
+	// 40 with modem
+
+	// Yaw PID controller
+	YAW_PID_KP		= 0.35
+	YAW_PID_KD		= 0.2
+//	YAW_PID_KP		= 0.4
+//	YAW_PID_KD		= 0.2
+	YAW_PID_KI		= 0.005
+	YAW_PID_INTEGRAL_LIMIT = 0.25
+
+	// Speed PID controller
+	SPEED_PID_KP				= 0.4
+	SPEED_PID_KD				= 0.0
+	SPEED_PID_KI				= 0.0
+	SPEED_PID_INTEGRAL_LIMIT		= 0.07
+}
+
+ProcessConfig = pHelmIvP
+{
+	AppTick		= 2
+	CommsTick		= 2
+	VERBOSE		= false
+	Behaviors	= kayak_mei.bhv
+	OK_SKEW		= ANY
+	Domain		= course,0:359:36
+	Domain		= speed,0:2.0:21
 }

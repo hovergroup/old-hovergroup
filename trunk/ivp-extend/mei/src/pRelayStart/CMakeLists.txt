@@ -11,5 +11,6 @@ TARGET_LINK_LIBRARIES(pRelayStart
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   )
 

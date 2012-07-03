@@ -10,6 +10,8 @@
 
 #include "MOOSLib.h"
 
+using namespace std;
+
 class RelayStart : public CMOOSApp
 {
 public:
@@ -22,7 +24,11 @@ public:
 	bool OnStartUp();
 
 protected:
-	// insert local vars here
+		double last, wait_time;
+		int rate,mail_counter,end_id,length;
+		string relay_status,end_status, driver_status, pause;
+
+		bool relay_sync;
 };
 
 #endif 
