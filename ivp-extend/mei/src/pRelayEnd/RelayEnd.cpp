@@ -113,7 +113,7 @@ bool RelayEnd::Iterate()
 	now = MOOSTime();
 	if(now - last >= update_time){
 		// happens AppTick times per second
-		if(abs(myx-endx)<=fudge_factor && abs(myy-endy)<=fudge_factor){
+		if(fabs(myx-end_x)<=fudge_factor && fabs(myy-end_y)<=fudge_factor){
 			cout << "In Position"<<endl;
 			if(driver_ready){
 				cout << "Driver Ready" << endl;

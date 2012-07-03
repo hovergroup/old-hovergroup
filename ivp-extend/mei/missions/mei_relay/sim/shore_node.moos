@@ -31,16 +31,16 @@ ProcessConfig = ANTLER
   Run = pEchoVar			@ NewConsole = false
   Run = iacomms_driver_sim 	@ NewConsole = true
   Run = uXMS 				@ NewConsole = true
-  Run = pSearchRelay		@ NewConsole = true
+  Run = pRelayStart			@ NewConsole = true
 }
 
-ProcessConfig = pSearchRelay
+ProcessConfig = pRelayStart
 {
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = shore
 	WaitTime = 15
+	Rate = 2
 }
 
 ProcessConfig = simple_gps
@@ -94,7 +94,7 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_RANGE_PULSE] -> shoreside@localhost:9000
 	
 	//Relay Shares
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kayak@localhost:9001
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kayak@localhost:9001 [START_SAID]
 	SHARE = [ACOMMS_SIM_SENT_DATA_LOCAL] -> kayak@localhost:9001 [ACOMMS_SIM_SENT_DATA]
 	}
 

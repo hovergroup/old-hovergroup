@@ -94,8 +94,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 					cout << "Heard: " << msg.GetString() << endl;
 				}
 			}
-
-			m_Comms.Notify("RELAY_SUCCESSFUL","true");
 		}
 
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
@@ -453,24 +451,6 @@ void SearchRelay::GetWaypoints(){ //Waypoints Ordered
 }
 
 //---------------------------------------------------------  MISC
-
-std::string SearchRelay::getRandomString( int length ) {
-
-	stringstream ss;
-	const int passLen = length;
-	for (int i = 0; i < passLen; i++) {
-		char num = (char) ( rand() % 62 );
-		if ( num < 10 )
-			num += '0';
-		else if ( num < 36 )
-			num += 'A'-10;
-		else
-			num += 'a'-36;
-		ss << num;
-	}
-
-	return ss.str();
-}
 
 unsigned int SearchRelay::closest_vertex(double x, double y)
 {
