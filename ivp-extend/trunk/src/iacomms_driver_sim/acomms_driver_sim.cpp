@@ -31,6 +31,12 @@ acomms_driver_sim::acomms_driver_sim()
 	receiving = false;
 	transmitting = false;
 
+	transmission_pulse_range = 50;
+	transmission_pulse_duration = 5;
+
+	receive_pulse_range = 20;
+	receive_pulse_duration = 3;
+
 	srand((unsigned) time(NULL));
 }
 
@@ -231,7 +237,7 @@ void acomms_driver_sim::transmit_data( bool isBinary ) {
 	else if ( transmission_rate == 100 ) {
 			// if mini packet, just take up to the first two bytes
 			// truncating not done
-
+		ss<<"1,";
 			int data_size = transmission_data.size();
 			if ( data_size > 2 ) // max of 2 bytes ( 13 bits actually )
 				data_size = 2;
@@ -330,7 +336,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 	vector<string> my_frames;
 	if(rate==0){
 		cout<<"about to add stats" << endl;
-		cst_mini =data_msg.AddExtension(micromodem::protobuf::receive_stat);
+		cst_mini = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		cout << "added mini stats" << endl;
 		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		cout << "added fsk stats" << endl;
@@ -338,7 +344,6 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 		cout << "added frame" << endl;
 	}
 	else if(rate==2){
-
 		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		if(data.size()>0){
 			int pos = 0;
@@ -358,6 +363,10 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 			parsed = false;
 			cout << "PSK: only parsed "<<my_frames.size()<<" frames."<<endl;
 		}
+	}
+	else if(rate==100){
+		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
+		cout << "added mini stats" << endl;
 	}
 
 	if(parsed){
@@ -386,6 +395,7 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 					}
 					else{ //frame loss
 						data_msg.add_frame("");
+
 						cst->set_psk_error_code( goby::util::as<micromodem::protobuf::PSKErrorCode>(3) );
 						num_bad_frames++;
 					}
@@ -459,7 +469,17 @@ bool acomms_driver_sim::rollDice(double p){
 vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, double xin, double yin, int rate)
 {
 	vector<double> probabilities;
-		// X-Y Dependent
+	double sync,header,modulation,frame;
+
+	if(rate==100){
+		sync = 100;
+		header = 100;
+		modulation = 100;
+		frame = 100;
+	}
+
+	else{
+	// X-Y Dependent
 
 	double limit = 700;
 	double scale = 3;
@@ -467,7 +487,7 @@ vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, doubl
 	double x = scale*(myx+xin)/2/limit;
 	double y = scale*(myy+yin)/2/limit;
 
-	double sync = 0.5*abs(3 * std::pow((1-x),2) * std::exp(-(std::pow(x,2)) - std::pow((y+1),2))
+	sync = 0.5*abs(3 * std::pow((1-x),2) * std::exp(-(std::pow(x,2)) - std::pow((y+1),2))
 	   - 9 * (x/5 - std::pow(x,2) - std::pow(y,5)) * std::exp(-pow(x,2)-pow(y,2))
 	   - 1/3 * std::exp(-pow((x+1),2) - pow(y,2))) + 7;
 
@@ -476,14 +496,15 @@ vector<double> acomms_driver_sim::getProbabilities(double myx, double myy, doubl
 	std::cout << x << "," << y << std::endl;
 	std::cout << sync << std::endl;
 
-	double header = 99;
-	double modulation = 99;
-	double frame = 95;
+	header = 99;
+	modulation = 99;
+	frame = 95;
+	}
+
 	probabilities.push_back(sync);
 	probabilities.push_back(header);
 	probabilities.push_back(modulation);
 	probabilities.push_back(frame);
-
 	return probabilities;
 }
 
