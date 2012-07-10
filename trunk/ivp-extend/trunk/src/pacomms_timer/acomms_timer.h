@@ -10,6 +10,7 @@
 
 #include "MOOSLib.h"
 #include <sstream>
+#include <acomms_messages.h>
 
 class acomms_timer : public CMOOSApp
 {
@@ -21,7 +22,8 @@ public:
 	bool Iterate();
 	bool OnConnectToServer();
 	bool OnStartUp();
-	std::string getRandomString(int length);
+	std::string getRandomString(int);
+	int getPacketSize(int);
 
 protected:
 	// insert local vars here
@@ -31,8 +33,7 @@ protected:
 	bool driver_ready;
 	std::string mode;
 	std::string data_out;
-	int rate;
-	int counter;
+	int rate,counter,size;
 };
 
 #endif 

@@ -119,4 +119,5 @@ ProcessConfig = pEchoVar
 
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
+  Echo = ACOMMS_RECEIVED_DATA -> ACOMMS_TRANSMIT_DATA
 }

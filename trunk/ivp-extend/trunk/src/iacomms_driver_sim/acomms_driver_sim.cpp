@@ -367,6 +367,8 @@ void acomms_driver_sim::handle_data_receive(string sent_data){
 	else if(rate==100){
 		cst = data_msg.AddExtension(micromodem::protobuf::receive_stat);
 		cout << "added mini stats" << endl;
+		my_frames.push_back(data);
+		cout << "added frame" << endl;
 	}
 
 	if(parsed){
