@@ -11,5 +11,6 @@ TARGET_LINK_LIBRARIES(pacomms_timer
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   acomms_messages)
 

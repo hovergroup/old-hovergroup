@@ -420,7 +420,7 @@ void KAYAK_INTERFACE::serialLoop() {
 		timeout.expires_from_now( boost::posix_time::milliseconds(1000) );
 		timeout.async_wait( boost::bind( &KAYAK_INTERFACE::wait_callback, this, boost::ref(port),
 				boost::asio::placeholders::error ) );
-
+ping
 		// reset then run the io service to start the asynchronous operation
 		io.reset();
 		io.run();
