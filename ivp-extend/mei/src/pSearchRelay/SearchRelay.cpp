@@ -24,7 +24,6 @@ SearchRelay::SearchRelay()
 	relaying = false;
 	connected = 0;
 
-	srand((unsigned) time(NULL));
 }
 
 //---------------------------------------------------------

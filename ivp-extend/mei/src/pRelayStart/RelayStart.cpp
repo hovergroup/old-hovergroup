@@ -12,10 +12,13 @@
 
 RelayStart::RelayStart()
 {
-	wait_time = 17; //s
+	wait_time = 20; //s
 	last = 0;
 	relay_sync = false;
 	mail_counter = 0;
+
+	srand((unsigned) time(NULL));
+
 }
 
 //---------------------------------------------------------
@@ -42,7 +45,7 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="SEARCH_RELAY_WAIT_TIME"){
 			wait_time = msg.GetDouble();
-			cout<<"Setting wait time: "<<wait_time<<std::endl;
+			cout<<"Setting wait time: "<<wait_time<<endl;
 		}
 		else if(key=="RELAY_STATUS"){
 			relay_status = msg.GetString();
@@ -57,7 +60,7 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
 			if(receive_info.rate == 100){
 				relay_sync = true;
-				cout << "Relay Synced" << std::endl;
+				cout << "Relay Synced" << endl;
 			}
 		}
 	}
@@ -110,6 +113,7 @@ bool RelayStart::Iterate()
 
 					if( (time_since>=wait_time) || (relay_sync)){
 
+						if(relay_sync){cout << "Relay synced" << endl;}
 						relay_sync = false;
 
 						stringstream ss;
