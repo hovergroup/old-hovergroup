@@ -120,14 +120,15 @@ bool RelayStart::Iterate()
 						ss << mail_counter;
 
 						string mail = ss.str()+"---"+getRandomString(length);
+						cout << "Transmitting: "<<mail << endl;
 						m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 						last = MOOSTime();
 						mail_counter++;
 					}
-				} else{cout<<"MMDRIVER: " << driver_status <<endl;}
-			} else{cout << end_status << endl;}
-		} else{cout << relay_status << endl;}
-	} else{cout << "EXPERIMENT PAUSED" << endl;}
+				} else{cout<<"MMDriver: " << driver_status <<endl;}
+			} else{cout << "End Status: " << end_status << endl;}
+		} else{cout <<"Relay Status: " << relay_status << endl;}
+	} else{cout << "Experiment Paused" << endl;}
 
 	return(true);
 }
