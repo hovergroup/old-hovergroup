@@ -56,7 +56,7 @@ Behavior = BHV_Waypoint
   visual_hints = vertex_size=2, edge_size=1
 }
 
-Behavior=BHV_Waypoint
+Behavior = BHV_Waypoint
 {
   name       = return
   pwt        = 100
@@ -70,17 +70,19 @@ Behavior=BHV_Waypoint
         points = -1,-9
 }
 
-Behavior=BHV_StationKeep
+Behavior = BHV_StationKeep
 {
   name		= Archie_Stationkeep
   priority		= 100
   condition		= MISSION_MODE = STATION-KEEP
+  endflag 		= MISSION_MODE = RETURN
   center_activate	= true
   station_pt            = 0,-10
   inner_radius	= 3
   outer_radius	= 6
   outer_speed	= 1.0
   swing_time	= 0
+  duration = 50
 }
 
 //-- Relay -------------------------------------------------------------
@@ -107,7 +109,7 @@ Behavior = BHV_Waypoint
   visual_hints = vertex_size=2, edge_size=1
 }
 
-Behavior=BHV_StationKeep
+Behavior = BHV_StationKeep
 {
   name		= Relay_Stationkeep
   priority		= 100

@@ -8,13 +8,13 @@ LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 //Sim Adds
-MOOSTimeWarp = 10
+MOOSTimeWarp = 1
 ProcessConfig = uSimMarine
 {
   AppTick   = 10
   CommsTick  = 10
 
-  START_POS = 0,0,180,0
+  START_POS = 1,1,180,0
   PREFIX    = NAV
 }
 
@@ -24,14 +24,15 @@ ProcessConfig = ANTLER
 
   Run = MOOSDB 				@ NewConsole = false
   Run = pMOOSBridge 		@ NewConsole = false
-  Run = pLogger 			@ NewConsole = false
+ // Run = pLogger 			@ NewConsole = false
   Run = pNodeReporter		@ NewConsole = false
   //Run = iacomms_driver 	@ NewConsole = false
   //Run = simple_gps 		@ NewConsole = false
   Run = pEchoVar			@ NewConsole = false
-  Run = iacomms_driver_sim 	@ NewConsole = true
-  Run = uXMS 				@ NewConsole = true
-  Run = pRelayStart			@ NewConsole = true
+  Run = iacomms_driver_sim 	@ NewConsole = false
+ // Run = uXMS 				@ NewConsole = false
+ // Run = pRelayStart			@ NewConsole = false
+ Run = uSimMarine 			@NewConsole = false
 }
 
 ProcessConfig = pRelayStart

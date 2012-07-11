@@ -9,7 +9,7 @@
 #define RelayEnd_HEADER
 
 #include "MOOSLib.h"
-#include <lib_acomms_messages/acomms_messages.h>
+#include <acomms_messages.h>
 #include <math.h>
 
 using namespace std;
