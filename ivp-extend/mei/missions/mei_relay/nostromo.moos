@@ -29,7 +29,7 @@ ProcessConfig = pRelayEnd
 	AppTick = 5
 	CommsTick = 5
 	
-	RelayID = 1
+	RelayID = 2
 	
 	Endx = 23
 	Endy = -100
