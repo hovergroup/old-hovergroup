@@ -31,11 +31,11 @@ ProcessConfig = pRelayEnd
 	
 	RelayID = 2
 	
-	//Endx = 23
-	//Endy = -100
+	//Endx = -125
+	//Endy = -400
 	
-	Endx = -179.4
-	Endy = -564.9
+	//Endx = -179.4
+	//Endy = -564.9
 }
 
 ProcessConfig = uTimerScript
