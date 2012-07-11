@@ -18,7 +18,13 @@ ProcessConfig = ANTLER
   Run = iacomms_driver @ NewConsole = false
   Run = simple_gps @ NewConsole = false
   Run = pEchoVar		@ NewConsole = false
-  Run = pSearchRelay    @ NewConsole = true
+}
+
+ProcessConfig = pRelayStart
+{
+	AppTick = 5
+	CommsTick = 5
+
 }
 
 ProcessConfig = pSearchRelay
@@ -26,8 +32,12 @@ ProcessConfig = pSearchRelay
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = shore
-	WaitTime = 15
+	Mode = greedy
+	Discount = 5
+	MinObs = 10		//at least 2x Lookback
+	FudgeFactor = 5  //m
+	Lookback = 1    //observations per result
+	Epsilon = 5		//percent
 }
 
 ProcessConfig = simple_gps
