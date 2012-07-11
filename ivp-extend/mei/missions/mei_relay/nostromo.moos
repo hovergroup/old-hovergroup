@@ -22,18 +22,20 @@ ProcessConfig = ANTLER
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iacomms_driver @ NewConsole = false
-	Run = pSearchRelay	@ NewConsole = false
 }
 
-ProcessConfig = pSearchRelay
+ProcessConfig = pRelayEnd
 {
 	AppTick = 5
 	CommsTick = 5
 	
-	Role = end
 	RelayID = 1
-	Endx = -179.4
-	Endy = -564.9
+	
+	Endx = 23
+	Endy = -100
+	
+	//Endx = -179.4
+	//Endy = -564.9
 }
 
 ProcessConfig = uTimerScript
