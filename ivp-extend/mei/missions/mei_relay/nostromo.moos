@@ -31,8 +31,8 @@ ProcessConfig = pRelayEnd
 	
 	RelayID = 2
 	
-	//Endx = -125
-	//Endy = -400
+	Endx = -125
+	Endy = -400
 	
 	//Endx = -179.4
 	//Endy = -564.9
