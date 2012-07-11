@@ -47,11 +47,11 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
 
 			if(receive_info.source==relay_id && receive_info.num_good_frames==receive_info.num_frames){
-				m_Comms.Notify("ACOMMS_TRANSMIT_DATA","1");
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA","111");
 			}
 
 			else{
-				m_Comms.Notify("ACOMMS_TRANSMIT_DATA","0");
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA","000");
 			}
 		}
 
