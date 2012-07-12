@@ -125,6 +125,11 @@ bool acomms_driver::Iterate()
 		driver_ready = true;
 		publishStatus("ready");
 	}
+	if ( status=="transmitting" && MOOSTime()-transmit_set_time > 8 ) {
+		publishWarning("Timed out in transmitting state.");
+		driver_ready = true;
+		publishStatus("ready");
+	}
 
 	if ( MOOSTime()-status_set_time > 5 ) {
 		publishStatus( status );
@@ -157,6 +162,7 @@ void acomms_driver::transmit_data() {
 	}
 
 	publishStatus("transmitting");
+	transmit_set_time = MOOSTime();
 	driver_ready = false;
 
 	goby::acomms::protobuf::ModemTransmission transmit_message;
@@ -221,14 +227,18 @@ void acomms_driver::transmit_data() {
 	} else if ( transmission_rate == 100 ) {
 		// if mini packet, just take up to the first two bytes
 		// truncating done in goby
-		int data_size = transmission_data.size();
-		if ( data_size > 2 ) // max of 2 bytes ( 13 bits actually )
-			data_size = 2;
-		transmit_message.add_frame( transmission_data.data(), data_size );
-
-		// keep track of transmitted data
-		transmitted_data = vector<unsigned char> (data_size, 0);
-		memcpy( &transmitted_data[0], transmission_data.data(), data_size );
+		if ( transmission_data.size() == 1 ) {
+			transmit_message.add_frame( transmission_data.data(), 1 );
+			transmitted_data = vector<unsigned char> (1, 0);
+			memcpy( &transmitted_data[0], transmission_data.data(), 1 );
+		} else {
+			unsigned short data;
+			memcpy( &data, transmission_data.data(), 2 );
+			data = data&0x1fff;
+			transmit_message.add_frame( &data, 2 );
+			transmitted_data = vector<unsigned char> (2, 0);
+			memcpy( &transmitted_data[0], transmission_data.data(), 2 );
+		}
 	}
 
 	transmit_message.set_ack_requested(false);
