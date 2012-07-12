@@ -200,7 +200,7 @@ void acomms_driver::transmit_data() {
 		// clear transmission data
 		transmission_data = "";
 
-	} else if ( transmission_rate == 2 ) {
+	} else if ( transmission_rate == 2 || transmission_rate == 1) {
 		// if psk, take up to 192 bytes in 64 byte frames
 		int total_size = transmission_data.size();
 		if ( total_size > 192 ) // max size across 3 frames
