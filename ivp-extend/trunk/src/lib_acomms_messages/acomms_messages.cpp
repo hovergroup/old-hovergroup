@@ -123,21 +123,23 @@ LOSS_RATE_INFO::LOSS_RATE_INFO(string msg){
 		int another_pos = temp_sub.find(",");
 		substrings.push_back( temp_sub.substr(another_pos+1,temp_sub.size()-another_pos) );
 
-		if ( substrings.size() >=5 ) {
+		if ( substrings.size() ==6 ) {
 			transmitter_name = substrings[0];
 			receiver_name = substrings[1];
 			sync_loss_rate = atoi(substrings[2].c_str());
 			bad_crc_loss_rate = atoi(substrings[3].c_str());
 			success_rate = atoi(substrings[4].c_str());
+			total_messages = atoi(substrings[5].c_str());
 		}
 }
 
-LOSS_RATE_INFO::LOSS_RATE_INFO(string transmitter, string receiver, double sync, double crc, double success){
+LOSS_RATE_INFO::LOSS_RATE_INFO(string transmitter, string receiver, double sync, double crc, double success, double expected){
 	transmitter_name = transmitter;
 	receiver_name = receiver;
 	sync_loss_rate = sync;
 	bad_crc_loss_rate = crc;
 	success_rate = success;
+	total_messages = expected;
 }
 
 string LOSS_RATE_INFO::serializeToString(){
@@ -148,6 +150,7 @@ string LOSS_RATE_INFO::serializeToString(){
 	ss << ":syncloss," << sync_loss_rate;
 	ss << ":crcloss," << bad_crc_loss_rate;
 	ss << ":success," << success_rate;
+	ss << ":totalmessages," <<total_messages;
 
 	return ss.str();
 }
