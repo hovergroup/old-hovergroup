@@ -24,6 +24,7 @@ using namespace std;
 #include <algorithm>
 #include "acomms_messages.h"
 #include <stdlib.h>
+#include <sstream>
 
 
 using namespace std;
@@ -44,7 +45,7 @@ double gps_x, gps_y, sensor_heading, current_heading, desired_heading;
 double nav_x, nav_y, desired_thrust;
 int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
 
-int log_number;
+string log_number;
 
 void printLine( double time_stamp ) {
 	output << time_stamp << ",";
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]) {
 		return (0);
 	}
 
-	if ( argc != 2 ) {
+	if ( argc < 2 ) {
 		cout << "Insufficient arguments - must provide input log file." << endl;
 		return 0;
 	}
@@ -102,10 +103,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	if(argc == 3){
-		log_number = argv[3];
+		stringstream ss;
+		ss << *argv[2];
+		log_number = ss.str();
 	}
 	else{
-		log_number = 1;
+		log_number = "1";
 	}
 
 	// open output file and print header
