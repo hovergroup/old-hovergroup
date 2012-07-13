@@ -17,9 +17,7 @@ ProcessConfig = ANTLER
 	Run = pMarinePID		@ NewConsole = false
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
-	
-//	Run = pSearchRelay		@ NewConsole = true
-	
+		
 	Run = iOS5000_filtered		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iacomms_driver @ NewConsole = false
@@ -119,11 +117,8 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
 	
-	//Search Relay Shares
-	SHARE = [RELAY_STATUS] -> icarus@192.168.1.102:9002
-	SHARE = [RELAY_SUCCESSFUL] -> icarus@192.168.1.102:9002
-	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000
-	
+	//Rateless Shares
+	SHARE = [ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000 [HEARD]	
 	}
 
 ProcessConfig = pMarinePID
@@ -188,7 +183,6 @@ ProcessConfig = pLogger
 	CommsTick		= 20
 
 	File			= LOG_KASSANDRA
-	PATH			= ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true

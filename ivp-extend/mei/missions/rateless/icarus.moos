@@ -78,11 +78,9 @@ ProcessConfig = pMOOSBridge
 	// Destination is shore station	terra@YOURIP:9000
 	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
-	//Relay Shares
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE] -> kassandra@192.168.1.101:9001 [SHORE_SAID]
-	
+	//Rateless Shares
+	SHARE = [ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000 [HEARD]		
 	}
 
 ProcessConfig = pLogger
@@ -91,7 +89,6 @@ ProcessConfig = pLogger
   CommsTick     = 10
   
   File          = LOG_ICARUS
-  PATH          = ./logs
   AsyncLog      = true
   FileTimeStamp = true
 

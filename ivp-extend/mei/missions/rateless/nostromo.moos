@@ -122,11 +122,9 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_POINT]		-> terra@192.168.1.100:9000 [VIEW_POINT]
 	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
 	//Search Relay Shares
-	SHARE = [END_STATUS] -> icarus@192.168.1.102:9002
-	SHARE = [TRANSMITTED_DATA] -> kassandra@192.168.1.101:9001 [TRANSMITTED_DATA]
+	SHARE = [ACOMMS_DRIVER_STATUS] -> terra@192.168.1.100:9000 [TRANSMITTER_STATUS] 
 	}
 
 ProcessConfig = pMarinePID
@@ -193,7 +191,6 @@ ProcessConfig = pLogger
 	CommsTick		= 20
 
  	File          = LOG_NOSTROMO
-  	PATH          = ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true

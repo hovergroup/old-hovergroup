@@ -11,7 +11,7 @@
 #include "MOOSLib.h"
 #include "acomms_messages.h"
 #include <vector>
-#include <stringstream>
+#include <sstream>
 
 using namespace std;
 
@@ -29,6 +29,7 @@ public:
 protected:
 	// insert local vars here
 	double last_time, total_frames, successful_frames;
+	int total_successes,total_failures;
 	double counter, duty_cycle;
 	bool paused, driver_ready;
 	vector<string> rateless_data;
