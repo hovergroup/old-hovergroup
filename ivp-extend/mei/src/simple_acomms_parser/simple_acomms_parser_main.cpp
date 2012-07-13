@@ -41,28 +41,45 @@ double last_print_time = -100;
 
 // define the variables you want to keep track of here
 double gps_x, gps_y, sensor_heading, current_heading, desired_heading;
-double nav_x, nav_y;
-//int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
+double nav_x, nav_y, desired_thrust;
+int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
+
+int log_number;
 
 void printLine( double time_stamp ) {
 	output << time_stamp << ",";
 	output << gps_x << ",";
 	output << gps_y << ",";
-	output << sensor_heading << ",";
-	output << current_heading << ",";
-	output << desired_heading << ",";
-	output << nav_x <<",";
-			output << nav_y<<endl;
-	//output << snr_in << ",";
-	//output << snr_out << ",";
-	//output << spl << ",";
-	//output << stddev_noise << ",";
-	//output << mse_equalizer << endl;
+	//	output << sensor_heading << ",";
+	//	output << current_heading << ",";
+	//	output << desired_heading << ",";
+	//	output << nav_x <<",";
+	//	output << nav_y<<endl;
+	output << snr_in << ",";
+	output << snr_out << ",";
+	output << spl << ",";
+	output << stddev_noise << ",";
+	output << mse_equalizer << endl;
 }
 
 void printHeader() {
-	//output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
-	output << "time_stamp, gps_x, gps_y, sensor_heading, current_heading" << endl;
+	output << "time_stamp"
+			<< log_number << ", "
+			"gps_x"
+			<< log_number << ", "
+			"gps_y"
+			<< log_number << ", "
+			"snr_in"
+			<< log_number << ", "
+			"snr_out"
+			<< log_number << ", "
+			"spl"
+			<< log_number << ", "
+			"noise"
+			<< log_number << ", "
+			"mse"
+			<< log_number
+			<< endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -76,9 +93,17 @@ int main(int argc, char *argv[]) {
 		cout << "Insufficient arguments - must provide input log file." << endl;
 		return 0;
 	}
+
 	FILE *logfile = fopen( argv[1], "r" );
 	for ( int i=0; i<5; i++ ) {
 		getNextRawLine( logfile );
+	}
+
+	if(argc == 3){
+		log_number = argv[3];
+	}
+	else{
+		log_number = 1;
 	}
 
 	// open output file and print header
@@ -100,9 +125,6 @@ int main(int argc, char *argv[]) {
 			sensor_heading = entry.getDoubleVal();
 		} else if(key=="NAV_HEADING"){
 			current_heading = entry.getDoubleVal();
-			if(entry.getSource()!="pEchoVar_a"){
-				printLine( msg_time );
-			}
 		} else if(key=="NAV_X"){
 			nav_x = entry.getDoubleVal();
 		} else if(key=="NAV_Y"){
@@ -112,48 +134,48 @@ int main(int argc, char *argv[]) {
 		}
 
 		// parsing acomms statistics data
-	 else if ( key == "ACOMMS_RECEIVED_ALL" ) {
-		string msg_val = entry.getStringVal();
+		else if ( key == "ACOMMS_RECEIVED_ALL" ) {
+			string msg_val = entry.getStringVal();
 
-		goby::acomms::protobuf::ModemTransmission trans;
-		string temp;
-		while ( msg_val.find("<|>") != string::npos ) {
-			msg_val.replace( msg_val.find("<|>"), 3, "\n" );
-		}
-		string const* ptr = &msg_val;
-		google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
+			goby::acomms::protobuf::ModemTransmission trans;
+			string temp;
+			while ( msg_val.find("<|>") != string::npos ) {
+				msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+			}
+			string const* ptr = &msg_val;
+			google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
 
-		if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
-			int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
-			micromodem::protobuf::ReceiveStatistics stat;
-			//			if ( numstats == 2 )
-			//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
-			if ( numstats == 1 ) {
-				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+			if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
+				int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
+				micromodem::protobuf::ReceiveStatistics stat;
+				//			if ( numstats == 2 )
+				//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+				if ( numstats == 1 ) {
+					stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
 
-				//					snr_in = stat.snr_in();
-				//					snr_out = stat.snr_out();
-				//					spl = stat.spl();
-				//					stddev_noise = stat.stddev_noise();
-				//					mse_equalizer = stat.mse_equalizer();
+					snr_in = stat.snr_in();
+					snr_out = stat.snr_out();
+					spl = stat.spl();
+					stddev_noise = stat.stddev_noise();
+					mse_equalizer = stat.mse_equalizer();
 
-				// here we print a line whenever we get an acomms reception
-//				printLine( msg_time );
+					//here we print a line whenever we get an acomms reception
+					printLine( msg_time );
+				}
 			}
 		}
+
+		// here we print a line every .1 seconds
+		//		if ( msg_time - last_print_time > .1 ) {
+		//			printLine( msg_time );
+		//			last_print_time = msg_time;
+		//		}
+
+		// get the next entry from the log
+		entry = getNextRawALogEntry_josh( logfile );
 	}
 
-	// here we print a line every .1 seconds
-	//		if ( msg_time - last_print_time > .1 ) {
-	//			printLine( msg_time );
-	//			last_print_time = msg_time;
-	//		}
-
-	// get the next entry from the log
-	entry = getNextRawALogEntry_josh( logfile );
-}
-
-return 0;
+	return 0;
 }
 
 // nothing past here to worry about
