@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY(pSearchRelay)
 ADD_SUBDIRECTORY(pRelayEnd)
 ADD_SUBDIRECTORY(pRelayStart)
 ADD_SUBDIRECTORY(prateless_coding)
+ADD_SUBDIRECTORY(simple_acomms_parser)
 
 ##############################################################################
 #                           END of CMakeLists.txt
