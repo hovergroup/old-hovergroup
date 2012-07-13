@@ -19,6 +19,9 @@ rateless_coding::rateless_coding()
 	counter = 0;
 	duty_cycle=10;
 
+	total_successes =0;
+	total_failures =0;
+
 	paused = true;
 	driver_ready = false;
 	waiting = false;
@@ -110,6 +113,9 @@ bool rateless_coding::Iterate()
 		cout << ss.str() << endl;
 
 		rateless_index = 0;
+		total_successes++;
+		cout << "Successes so far: "<< total_successes << endl;
+
 	}
 	else{
 		if(rateless_index == rateless_data.size()){
@@ -120,6 +126,8 @@ bool rateless_coding::Iterate()
 			cout << ss.str() << endl;
 
 			rateless_index = 0;
+			total_failures++;
+			cout << "Failures so far: " << total_failures << endl;
 		}
 		else{
 			cout << "Total transmissions: " << total_frames << endl;
