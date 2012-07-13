@@ -52,7 +52,7 @@ void printLine( double time_stamp ) {
 	output << gps_y << ",";
 	//	output << sensor_heading << ",";
 	//	output << current_heading << ",";
-	//	output << desired_heading << ",";
+	output << desired_thrust << ",";
 	//	output << nav_x <<",";
 	//	output << nav_y<<endl;
 	output << snr_in << ",";
@@ -68,6 +68,8 @@ void printHeader() {
 			"gps_x"
 			<< log_number << ", "
 			"gps_y"
+			<< log_number << ", "
+			"desired_thrust"
 			<< log_number << ", "
 			"snr_in"
 			<< log_number << ", "
@@ -131,6 +133,8 @@ int main(int argc, char *argv[]) {
 			nav_y = entry.getDoubleVal();
 		} else if(key=="DESIRED_HEADING"){
 			desired_heading = entry.getDoubleVal();
+		} else if(key=="DESIRED_THRUST"){
+			desired_thrust = entry.getDoubleVal();
 		}
 
 		// parsing acomms statistics data
