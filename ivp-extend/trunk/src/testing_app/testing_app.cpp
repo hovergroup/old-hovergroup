@@ -6,6 +6,8 @@
  */
 
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <fstream>
 #include <sstream>
 //#include <acomms_messages.h>
@@ -31,33 +33,55 @@ string string_chomp( string s, char c ) {
 
 int main() {
 
-	int x, y;
-	string lat, lon;
-	string s = "lat,102:lon,-5";
-	s = string_chomp( s, ',' );
-	stringstream ss(s);
-	ss >> x;
-	s = string_chomp( s, ',' );
-	ss.str(s);
-	ss >> y;
-	cout << x << " " << y << endl;
-//	double normal_indices[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
-//			0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-//	double gindex;
-//	for(int num_obs=1;num_obs<100;num_obs++){
-//		if(num_obs<=10){
-//			gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
-//			std::cout<<num_obs<<": "<<gindex<<std::endl;
-//		}
-//		else{	//interpolate
-//			int base = 7+(num_obs/10);
-//			int offset = num_obs%10;
-//			double difference = (normal_indices[base+1]-normal_indices[base])/10;
-//			gindex = normal_indices[base] + offset*difference;
-//			//std::cout<<"Base: "<<normal_indices[base]<<endl;
-//			std::cout<<num_obs<<": "<<gindex<<std::endl;
-//		}
+	fstream filestr;
+
+	filestr.open ("Experiment1_July13_10OriPcks.txt", fstream::in | fstream::out | fstream::app);
+
+	// >> i/o operations here <<
+//int data;
+	//for(int j=0;j<3;j++){
+//int counter = 0;
+	for(int j=0;j<21;j++){
+		for(int i=0;i<32;i++){
+			int	data;
+			filestr >> data;
+			cout << (char) data;
+		}
+		cout <<endl;
+		cout << endl;
+	}
+
+//		cout << data << endl;
 //	}
+
+	filestr.close();
+	//	int x, y;
+	//	string lat, lon;
+	//	string s = "lat,102:lon,-5";
+	//	s = string_chomp( s, ',' );
+	//	stringstream ss(s);
+	//	ss >> x;
+	//	s = string_chomp( s, ',' );
+	//	ss.str(s);
+	//	ss >> y;
+	//	cout << x << " " << y << endl;
+	//	double normal_indices[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
+	//			0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
+	//	double gindex;
+	//	for(int num_obs=1;num_obs<100;num_obs++){
+	//		if(num_obs<=10){
+	//			gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
+	//			std::cout<<num_obs<<": "<<gindex<<std::endl;
+	//		}
+	//		else{	//interpolate
+	//			int base = 7+(num_obs/10);
+	//			int offset = num_obs%10;
+	//			double difference = (normal_indices[base+1]-normal_indices[base])/10;
+	//			gindex = normal_indices[base] + offset*difference;
+	//			//std::cout<<"Base: "<<normal_indices[base]<<endl;
+	//			std::cout<<num_obs<<": "<<gindex<<std::endl;
+	//		}
+	//	}
 	//	string time_string = "2012-06-11T20:16:24.800000";
 	//	string time_string = "2002-Jan-01 10:00:01.123456789";
 	//	ptime p = time_from_string(time_string);
