@@ -127,7 +127,7 @@ Behavior = BHV_Waypoint
   visual_hints = vertex_size=2, edge_size=1
 }
 
-Behavior=BHV_StationKeep
+Behavior = BHV_StationKeep
 {
   name		= Relay_Stationkeep
   priority		= 100
