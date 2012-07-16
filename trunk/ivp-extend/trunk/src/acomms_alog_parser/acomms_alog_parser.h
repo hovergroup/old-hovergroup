@@ -6,7 +6,7 @@
  */
 
 
-#include "goby/acomms/protobuf/mm_driver.pb.h"
+#include "goby/acomms/modem_driver.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <google/protobuf/text_format.h>
 #include <boost/filesystem.hpp>
@@ -40,6 +40,9 @@ public:
 		RECEPTION_EVENT() { receive_status = -1;
 							receive_start_time = -1; }
 
+		std::string source_filename;
+		int source_line;
+
 		// this vehicle's name and id at time of receipt
 		std::string vehicle_name;
 		int vehicle_id;
@@ -61,11 +64,16 @@ public:
 
 		// packet information
 		goby::acomms::protobuf::ModemTransmission data_msg;
+
+		std::string received_data_hex;
 	};
 
 	class TRANSMISSION_EVENT {
 	public:
 		TRANSMISSION_EVENT() {}
+
+		std::string source_filename;
+		int source_line;
 
 		// name and id of transmitting vehicle
 		std::string transmitter_name;
@@ -82,6 +90,7 @@ public:
 
 		// data_sent in transmission, binary data not implemented
 		std::string data;
+		std::string transmitted_data_hex;
 
 		// gps information at time of transmission
 		int gps_x, gps_y;
@@ -140,8 +149,8 @@ public:
 		bool offsetViaGPS();
 		void offsetViaHeader();
 
-		RECEPTION_EVENT constructReception( double msg_time, std::string msg_val );
-		TRANSMISSION_EVENT constructTransmission( double msg_time, std::string msg_val );
+		RECEPTION_EVENT constructReception( double msg_time, int line_number, std::string msg_val );
+		TRANSMISSION_EVENT constructTransmission( double msg_time, int line_number, std::string msg_val );
 
 		ALogEntry getNextEntry();
 		std::string getNextLine();
@@ -161,8 +170,13 @@ public:
 		std::vector<std::string> header_lines;
 		boost::posix_time::ptime creation_time;
 
-		std::vector< std::pair<double,double> > gps_x, gps_y, desired_thrust;
-		std::vector< std::pair<double,std::string> > acomms_driver_status, acomms_transmit_data;
+		// indexed by line
+//		std::vector< std::pair<int,double> > moos_time;
+//		std::vector< std::pair<int,std::string> >  unprocessed_receipts, unprocessed_transmissions;
+		// indexed by time
+		std::vector< std::pair<double,double> > gps_x, gps_y, desired_thrust, voltage;
+		std::vector< std::pair<double,std::string> > acomms_driver_status, acomms_transmit_data,
+			acomms_transmitted_data_hex, acomms_received_data_hex;
 		std::vector< std::pair<double,boost::posix_time::ptime> > gps_time;
 	};
 

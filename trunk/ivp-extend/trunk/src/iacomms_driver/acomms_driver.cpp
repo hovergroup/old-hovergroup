@@ -161,10 +161,6 @@ void acomms_driver::transmit_data() {
 		return;
 	}
 
-	publishStatus("transmitting");
-	transmit_set_time = MOOSTime();
-	driver_ready = false;
-
 	goby::acomms::protobuf::ModemTransmission transmit_message;
 	if ( transmission_rate == 100 ) {
 		// send mini data transmission
@@ -239,7 +235,14 @@ void acomms_driver::transmit_data() {
 			transmitted_data = vector<unsigned char> (2, 0);
 			memcpy( &transmitted_data[0], transmission_data.data(), 2 );
 		}
+	} else {
+		// unhandled rate
+		return;
 	}
+
+	publishStatus("transmitting");
+	transmit_set_time = MOOSTime();
+	driver_ready = false;
 
 	transmit_message.set_ack_requested(false);
 
