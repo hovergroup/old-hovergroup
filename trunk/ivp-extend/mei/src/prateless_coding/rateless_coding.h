@@ -29,13 +29,14 @@ public:
 protected:
 	// insert local vars here
 	double last_time, total_frames, successful_frames;
+	double loss_total, loss_success;
 	int total_successes,total_failures;
 	double counter, duty_cycle;
-	bool paused, driver_ready;
+	bool paused, driver_ready, print_out;
 	vector<string> rateless_data;
 	int rateless_index, min_frames;
 	bool waiting,received;
-
+	bool started_transmitting;
 };
 
 #endif 
