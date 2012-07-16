@@ -11,13 +11,17 @@ using namespace std;
 using namespace boost::posix_time;
 using namespace lib_acomms_messages;
 
+#define MAX_LINE_LENGTH 10000
+
 #define COLOR_YELLOW "\33[33m"
 #define COLOR_RED "\33[31m"
+#define COLOR_CYAN "\33[36m"
 #define COLOR_RESET "\33[0m"
 
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 }
 
+// find the nearest entry by time, returns index and time diff
 pair<int,double> findNearest( vector<double> time_vector, double msg_time ) {
 	if ( time_vector.empty() ) return pair<int,double>(-1,-1);
 	double min_diff = 10000;
@@ -31,6 +35,7 @@ pair<int,double> findNearest( vector<double> time_vector, double msg_time ) {
 	return pair<int,double>(index,min_diff);
 }
 
+// find the nearest entry by time, returns index and time diff
 template <class T>
 pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_time ) {
 	if ( item_list.empty() ) return pair<int,double>(-1,-1);
@@ -45,17 +50,17 @@ pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_tim
 	return pair<int,double>(index,min_diff);
 }
 
+// functions for sorting by time
 bool transmission_sort ( ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT t1, ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT t2 ) {
 	return t1.transmission_time < t2.transmission_time;
 }
-
 bool reception_sort ( ACOMMS_ALOG_PARSER::RECEPTION_EVENT r1, ACOMMS_ALOG_PARSER::RECEPTION_EVENT r2 ) {
 	return r1.receive_time < r2.receive_time;
 }
 
 void ACOMMS_ALOG_PARSER::runParser() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
-		// perform intial processing
+		// perform initial processing
 		// gets header lines, vehicle name, acomms ID, time offset, data, etc.
 		alog_files[i].processFile();
 
@@ -67,13 +72,15 @@ void ACOMMS_ALOG_PARSER::runParser() {
 			RECEPTION_EVENT r_event = alog_files[i].receptions[j].second;
 			r_event.receive_time += time_offset;
 			r_event.receive_start_time += time_offset;
-			all_receptions[alog_files[i].getVehicleName()].push_back( r_event );
+			vehicle_receptions[alog_files[i].getVehicleName()].push_back( r_event );
+			all_receptions.push_back( r_event );
 		}
 
 		// add transmissions to our list of all recptions, now with absolute time
 		for ( int j=0; j<alog_files[i].transmissions.size(); j++ ) {
 			TRANSMISSION_EVENT t_event = alog_files[i].transmissions[j].second;
 			t_event.transmission_time += time_offset;
+			vehicle_transmissions[alog_files[i].getVehicleName()].push_back(t_event);
 			all_transmissions.push_back( t_event );
 		}
 
@@ -85,22 +92,28 @@ void ACOMMS_ALOG_PARSER::runParser() {
 
 	// for each vehicle, sort receptions by time
 	for ( int i=0; i<vehicle_names.size(); i++ ) {
-		sort( all_receptions[vehicle_names[i]].begin(),
-				all_receptions[vehicle_names[i]].end(), reception_sort );
+		sort( vehicle_receptions[vehicle_names[i]].begin(),
+				vehicle_receptions[vehicle_names[i]].end(), reception_sort );
 	}
 
 	// sort all transmissions by time
 	sort( all_transmissions.begin(), all_transmissions.end(), transmission_sort );
 
-	// count up total number of receptions
-	int sum = 0;
+	// per vehicle
 	for ( int i=0; i<vehicle_names.size(); i++ ) {
-		sum+=all_receptions[vehicle_names[i]].size();
+		cout << vehicle_names[i] << ": ";
+		cout << vehicle_receptions[vehicle_names[i]].size() << " receptions,  ";
+		cout << vehicle_transmissions[vehicle_names[i]].size() << " transmissions" << endl;
 	}
-	cout << sum << " receptions" << endl;
-	cout << all_transmissions.size() << " transmissions" << endl;
+	// total
+	cout << all_receptions.size() << " total receptions" << endl;
+	cout << all_transmissions.size() << " total transmissions" << endl;
 
-	return;
+	cout << endl << COLOR_CYAN <<
+			"File reading complete.  Press enter to begin matching."
+			<< COLOR_RESET << endl;
+	cin.get();
+	cout << endl;
 
 	int sync_losses = 0;
 	for ( int i=0; i<all_transmissions.size(); i++ ) {
@@ -109,15 +122,15 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		for ( int j=0; j<vehicle_names.size(); j++ ) {
 			string name = vehicle_names[j];
 			bool reception_found = false;
-			for ( int k=0; k<all_receptions[name].size(); k++ ) {
-				RECEPTION_EVENT r_event = all_receptions[name][k];
+			for ( int k=0; k<vehicle_receptions[name].size(); k++ ) {
+				RECEPTION_EVENT r_event = vehicle_receptions[name][k];
 //				cout << "reception at time " << r_event.receive_time << endl;
 				double time_diff = r_event.receive_time - t_event.transmission_time;
-				if ( time_diff < 10 && time_diff > 0 ) {
+				if ( time_diff < 7 && time_diff > 0 ) {
 					t_event.receptions_map[name] = r_event;
 					t_event.receptions_vector.push_back( r_event );
 					reception_found = true;
-					all_receptions[name].erase( all_receptions[name].begin()+=k );
+					vehicle_receptions[name].erase( vehicle_receptions[name].begin()+=k );
 					break;
 				}
 			}
@@ -125,76 +138,29 @@ void ACOMMS_ALOG_PARSER::runParser() {
 				RECEPTION_EVENT r_event;
 				r_event.vehicle_name = name;
 				r_event.receive_status = 2;
-				sync_losses++;
-				if ( name == t_event.transmitter_name )
-					sync_losses--;
+				if ( name != t_event.transmitter_name ) {
+					sync_losses++;
+//					cout << "sync loss #" << sync_losses << ": " << t_event.transmitter_name << " to " <<
+//							name << endl;
+				}
 				t_event.receptions_map[name] = r_event;
 				t_event.receptions_vector.push_back( r_event );
 			}
 		}
 		all_transmissions[i] = t_event;
-//		string tmp;
-//		getline( cin, tmp);
 
 	}
 
 	cout << all_transmissions.size() << " transmissions" << endl;
 	cout << sync_losses << " sync losses" << endl;
-	sum = 0;
+	int sum= 0;
 	for ( int i=0; i<vehicle_names.size(); i++ ) {
-		sum+=all_receptions[vehicle_names[i]].size();
+		sum+=vehicle_receptions[vehicle_names[i]].size();
 	}
 	cout << sum << " unsynced receptions" << endl;
 
-//	generateHistories();
-
-
-//	cout << endl << endl;
-//	parseAllHeaders();
-//	parseMOOSFiles();
-//
-//	cout << endl;
-//	generateHistories();
-//
-//	cout << endl << endl;
-//	lookForEvents();
-//	cout << endl << "Found " << initial_transmit_events.size() << " transmit events and " <<
-//			initial_receive_events.size() << " receive events." << endl;
-//
-//	sync_losses = 0;
-//	self_receives =0;
-//	matchWithTime();
-//
-//	cout << endl << endl;
-//	cout << leftover_receive_events.size() << " homeless receipts" << endl;
-//	cout << sync_losses << " sync losses and " << self_receives << " self receipts" << endl;
-
 	outputResults();
 }
-//
-//bool history_sort ( ACOMMS_ALOG_PARSER::FILE_INFO f1, ACOMMS_ALOG_PARSER::FILE_INFO f2 ) {
-//	return f1.getMOOSTimeOffset() < f2.getMOOSTimeOffset();
-//}
-
-//void ACOMMS_ALOG_PARSER::generateHistories() {
-//	for ( int i=0; i<alog_files.size(); i++ ) {
-////		cout << alog_files[i].vehicle_name << endl;
-//		vehicle_histories[alog_files[i].getVehicleName()].vehicle_logs.push_back(alog_files[i]);
-//		if ( find( vehicle_names.begin(), vehicle_names.end(), alog_files[i].getVehicleName() ) == vehicle_names.end() ) {
-//			vehicle_names.push_back( alog_files[i].getVehicleName() );
-//		}
-//	}
-//	for ( int i=0; i<vehicle_names.size(); i++ ) {
-//		string vehicle_name = vehicle_names[i];
-//		cout << endl << vehicle_name << endl;
-//		sort( 	vehicle_histories[vehicle_name].vehicle_logs.begin(),
-//				vehicle_histories[vehicle_name].vehicle_logs.end(),
-//				history_sort );
-//		for ( int j=0; j<vehicle_histories[vehicle_name].vehicle_logs.size(); j++ ) {
-//			cout << vehicle_histories[vehicle_name].vehicle_logs[j].getFilename() << endl;
-//		}
-//	}
-//}
 
 // ------------------------------------------------------------------------------------------------
 
@@ -373,15 +339,15 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	if ( msg_val.find("time: \"") != string::npos ) {
 		cout << COLOR_YELLOW << "WARNING at line " << line_number <<
 				": bad time in received_all - attempting to correct" << COLOR_RESET << endl;
-		// position of bad time
+		// position of bad time in receive statistics
 		int bad_time_index = msg_val.find("time: \"");
 		int bad_time_end_index = msg_val.find("<|>",bad_time_index)-1;
 
-		// position of good time
+		// position of good time in modem transmission
 		int good_time_index = msg_val.find("time: ");
 		int good_time_end_index = msg_val.find("<|>",good_time_index)-1;
 
-		// make switch
+		// make replacement
 		string good_time = msg_val.substr(good_time_index, good_time_end_index-good_time_index+1);
 		msg_val.replace(bad_time_index, bad_time_end_index-bad_time_index+1,
 				good_time);
@@ -390,10 +356,13 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	while ( msg_val.find("<|>") != string::npos ) {
 		msg_val.replace( msg_val.find("<|>"), 3, "\n" );
 	}
+	// parse protobuf
 	string const* ptr = &msg_val;
 	if ( !google::protobuf::TextFormat::ParseFromString( *ptr, &r_event.data_msg ) ) {
 		cout << COLOR_RED << "ERROR parsing protobuf at line " << line_number
-				<< COLOR_RESET << endl;
+				<< " when attempting to parse: " << COLOR_RESET << endl;
+		cout << COLOR_RED << msg_val << COLOR_RESET << endl;
+		// protobuf should show details of error on previous line
 	}
 
 	// most recent gps information
@@ -576,261 +545,6 @@ void ACOMMS_ALOG_PARSER::addAlogFile( boost::filesystem::path filepath ) {
 	// AVERT THINE EYES
 	alog_files.push_back( FILE_INFO( string( filepath.string().c_str() ) ) );
 }
-
-
-
-
-//
-//
-//void ACOMMS_ALOG_PARSER::matchWithTime() {
-//	for ( int i=0; i<initial_transmit_events.size(); i++ ) {
-//		TRANSMISSION_EVENT t_event = initial_transmit_events[i];
-//		double transmit_time = t_event.transmission_time;
-//		for ( int j=0; j<vehicle_names.size(); j++ ) {
-//			string name = vehicle_names[j];
-//			bool receive_found = false;
-//			for ( int k=0; k<initial_receive_events.size(); k++ ) {
-//				double time_diff = initial_receive_events[k].receive_time - transmit_time;
-//				if ( time_diff > 0 && time_diff < TRANSMISSION_TIMEOUT ){
-//					t_event.receptions_vector.push_back( initial_receive_events[k] );
-//					t_event.receptions_map[name] = initial_receive_events[k];
-//					initial_receive_events.erase( initial_receive_events.begin()+=k );
-//					receive_found = true;
-//
-//					if ( initial_receive_events[k].vehicle_name == t_event.transmitter_name )
-//						self_receives++;
-//
-//					break;
-//				}
-//			}
-//			if ( !receive_found ) {
-//				if ( name != t_event.transmitter_name )
-//					sync_losses++;
-//				RECEPTION_EVENT r_event;
-//				r_event.receive_status = 2;
-//				r_event.vehicle_name = name;
-//			}
-//		}
-//	}
-//
-//	leftover_receive_events = initial_receive_events;
-//}
-//
-//void ACOMMS_ALOG_PARSER::lookForEvents() {
-//	// variables we want to keep an eye on;
-//	int gps_x, gps_y;
-//	double gps_update_time, receiving_start_time;
-//	string acomms_transmit_data;
-//
-//	// iterate over all vehicles
-//	for ( int i=0; i<vehicle_names.size(); i++ ) {
-//
-//		// get history for current vehicle
-//		string my_name = vehicle_names[i];
-//		VEHICLE_HISTORY * my_history = &vehicle_histories[my_name];
-//
-//		// iterate over all log files for that vehicle
-//		for ( int j=0; j<my_history->vehicle_logs.size(); j++ ) {
-//
-//			// get current log file
-//			FILE_INFO * my_file = &(my_history->vehicle_logs[j]);
-//			cout << "Searching " << my_file->filename << endl;
-//			cout << " belonging to " << my_name << endl;
-//
-//			int rcount = 0, tcount = 0;
-//
-////			my_file->logfile
-//			// look through the file
-////			ALogEntry entry = getNextRawALogEntry( my_file->logfile );
-//			cout << "getting first line" << endl;
-//			cout << my_file->getNextLine() << endl;
-//			ALogEntry entry = my_file->getTimeAdjustedNextEntry();
-//			cout << "got first entry" << endl;
-//			int iteration = 0;
-//			while ( entry.getStatus() != "eof" ) {
-//				iteration++;
-//				if ( iteration%10000 == 0 ) {
-//					cout << "MOOSTime: " << entry.getTimeStamp()-my_file->moos_time_offset << endl;
-//				}
-////				cout << my_file->filename << "  " << entry.getTimeStamp() << endl;
-//
-//				string key = entry.getVarName();
-//				if ( key == "GPS_X" || key == "NAV_X" ) {
-//					gps_x = entry.getDoubleVal();
-//					gps_update_time = entry.getTimeStamp();
-//				} else if ( key == "GPS_Y" || key == "NAV_Y" ) {
-//					gps_y = entry.getDoubleVal();
-//					gps_update_time = entry.getTimeStamp();
-//				} else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
-//					acomms_transmit_data = entry.getStringVal();
-//				} else if ( key == "ACOMMS_DRIVER_STATUS" ) {
-//					if ( entry.getStringVal() == "receiving" ) {
-//						receiving_start_time = entry.getTimeStamp();
-//					}
-//				}
-//
-//				else if ( key == "ACOMMS_TRANSMIT_SIMPLE" ) {
-//					TRANSMISSION_EVENT t_event;
-//					t_event.gps_x = gps_x;
-//					t_event.gps_y = gps_y;
-//					t_event.transmission_time = entry.getTimeStamp();
-//					t_event.gps_age = t_event.transmission_time - gps_update_time;
-//					t_event.data = acomms_transmit_data;
-//					t_event.transmitter_name = my_name;
-//
-//					SIMPLIFIED_TRANSMIT_INFO ats ( entry.getStringVal() );
-//					t_event.rate = ats.rate;
-//					t_event.destination_id = ats.dest;
-//					t_event.source_id = my_file->vehicle_id;
-//
-//					initial_transmit_events.push_back( t_event );
-//					tcount++;
-//				}
-//
-//				else if ( key == "ACOMMS_RECEIVED_ALL" ) {
-//					RECEPTION_EVENT r_event;
-//					r_event.gps_x = gps_x;
-//					r_event.gps_y = gps_y;
-//					r_event.receive_time = entry.getTimeStamp();
-//					r_event.gps_age = r_event.receive_time - gps_update_time;
-//					r_event.receive_start_time = receiving_start_time;
-//					r_event.vehicle_name = my_name;
-//					r_event.vehicle_id = my_file->vehicle_id;
-//
-//					string msg = entry.getStringVal();
-//					while ( msg.find("<|>") != string::npos ) {
-//						msg.replace( msg.find("<|>"), 3, "\n" );
-//					}
-//					string const* ptr = &msg;
-//					google::protobuf::TextFormat::ParseFromString( *ptr, &r_event.data_msg );
-//
-////					cout << r_event.data_msg.DebugString() << endl;
-////					cout << r_event.receive_time << endl;
-//
-//					initial_receive_events.push_back( r_event );
-//					rcount++;
-//				}
-//
-//				entry = my_file->getTimeAdjustedNextEntry();
-//			}
-//
-//			cout << tcount << " transmissions, " << rcount << " receipts." << endl;
-//		}
-//	}
-//}
-//
-//void ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaHeader() {
-//	int date_start = header_lines[1].find("ON ") + 3;
-//	string date_string = header_lines[1].substr(date_start, header_lines[1].size()-date_start);
-//	if ( date_string[0] == ' ' )
-//		date_string.erase(date_string.begin());
-////	cout << date_string << endl;
-//	tm header_time;
-//	strptime( date_string.c_str(), "%a %b %d %H:%M:%S %Y", &header_time);
-////	cout << asctime( &header_time ) << endl;
-//	creation_time = boost::posix_time::ptime_from_tm( header_time );
-////	cout << boost::posix_time::to_simple_string( creation_time ) << endl;
-//
-////	ALogEntry entry = getNextRawALogEntry( logfile );
-//	moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// - entry.time();
-//}
-//
-//bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
-//	ALogEntry entry = getNextEntry();
-//	if ( entry.getStatus() == "invalid" )
-//		return false;
-////	double first_moos_time = entry.getTimeStamp();
-////	int first_moos_time_seconds = floor(entry.getTimeStamp());
-////	int first_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_moos_time_seconds*1000;
-////	time_duration first_moos_time_td = seconds( first_moos_time_seconds ) +
-////			milliseconds( first_moos_time_milliseconds );
-////
-////	cout << "first moos time " << first_moos_time_td << endl;
-//	while ( entry.getStatus() != "eof" ) {
-//		if ( entry.getVarName() == "GPS_PTIME" ) {
-////			cout << ">>" << entry.getStringVal()<< "<<" << endl;
-//			ptime first_gps_ptime;
-//			try {
-//				first_gps_ptime = time_from_string( entry.getStringVal() );
-//			} catch ( exception &e ) {
-//				return false;
-//			}
-//			time_duration utc_correction = hours(UTC_TIME_OFFSET);
-//			first_gps_ptime += utc_correction;
-//			int first_gps_moos_time_seconds = floor(entry.getTimeStamp() );
-//			int first_gps_moos_time_milliseconds = floor(entry.getTimeStamp()*1000.0) - first_gps_moos_time_seconds*1000;
-//			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
-//					milliseconds( first_gps_moos_time_milliseconds );
-//
-////			cout << "first gps time " << first_gps_td << endl;
-////			cout << "ptime " << first_gps_ptime << endl;
-//
-//			creation_time = first_gps_ptime - first_gps_td;// - first_moos_time_td;
-//			moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// -first_moos_time;
-//			return true;
-//		}
-//		entry = getNextEntry();
-//	}
-//	return false;
-//}
-//
-//void ACOMMS_ALOG_PARSER::parseAllHeaders() {
-//	for ( int i=0; i<alog_files.size(); i++ ) {
-////		alog_files[i].parseHeaderLines();
-//		alog_files[i].resetFile();
-//		if ( !alog_files[i].offsetViaGPS() ) {
-//			cout << "Failed to offset using gps time, using header: " <<
-//					alog_files[i].filename << endl;
-//			alog_files[i].offsetViaHeader();
-//		}
-////		cout << alog_files[i].filename << "  moos time offset: " << alog_files[i].moos_time_offset <<
-////				"  creation time: " << to_simple_string(alog_files[i].creation_time) << endl;
-//	}
-//}
-//
-//void ACOMMS_ALOG_PARSER::parseMOOSFiles() {
-//	for ( int i=0; i<alog_files.size(); i++ ) {
-//		alog_files[i].parseMOOSFile();
-//	}
-//}
-//
-//bool history_sort ( ACOMMS_ALOG_PARSER::FILE_INFO f1, ACOMMS_ALOG_PARSER::FILE_INFO f2 ) {
-//	return f1.moos_time_offset < f2.moos_time_offset;
-//}
-//
-//void ACOMMS_ALOG_PARSER::generateHistories() {
-//	for ( int i=0; i<alog_files.size(); i++ ) {
-////		cout << alog_files[i].vehicle_name << endl;
-//		vehicle_histories[alog_files[i].vehicle_name].vehicle_logs.push_back(alog_files[i]);
-//		alog_files[i].resetFile();
-//		if ( find( vehicle_names.begin(), vehicle_names.end(), alog_files[i].vehicle_name ) == vehicle_names.end() ) {
-//			vehicle_names.push_back( alog_files[i].vehicle_name );
-//		}
-//	}
-//	for ( int i=0; i<vehicle_names.size(); i++ ) {
-//		string vehicle_name = vehicle_names[i];
-//		cout << endl << vehicle_name << endl;
-//		sort( 	vehicle_histories[vehicle_name].vehicle_logs.begin(),
-//				vehicle_histories[vehicle_name].vehicle_logs.end(),
-//				history_sort );
-//		for ( int j=0; j<vehicle_histories[vehicle_name].vehicle_logs.size(); j++ ) {
-//			cout << vehicle_histories[vehicle_name].vehicle_logs[j].filename << endl;
-//		}
-//	}
-//}
-//
-////void ACOMMS_ALOG_PARSER::FILE_INFO::resetFile() {
-////	if ( file_is_open ) {
-////		closeFile();
-////	}
-////	openFile();
-////}
-//
-////ALogEntry ACOMMS_ALOG_PARSER::FILE_INFO::getTimeAdjustedNextEntry() {
-////	ALogEntry next_entry = getNextEntry();
-////	next_entry.skewForward( moos_time_offset );
-////	return next_entry;
-////}
 
 string ACOMMS_ALOG_PARSER::getNextRawLine_josh(FILE *fileptr)
 {

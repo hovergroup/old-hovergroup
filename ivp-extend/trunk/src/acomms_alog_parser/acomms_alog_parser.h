@@ -26,8 +26,6 @@
 #define ACOMMS_ALOG_PARSER_H_
 
 #define UTC_TIME_OFFSET -4
-#define MAX_LINE_LENGTH 10000
-#define TRANSMISSION_TIMEOUT 10
 
 class ACOMMS_ALOG_PARSER {
 
@@ -110,7 +108,9 @@ private:
 
 	std::vector<std::string> vehicle_names;
 	std::vector<TRANSMISSION_EVENT> all_transmissions;
-	std::map<std::string, std::vector<RECEPTION_EVENT> > all_receptions;
+	std::vector<RECEPTION_EVENT> all_receptions;
+	std::map<std::string, std::vector<TRANSMISSION_EVENT> > vehicle_transmissions;
+	std::map<std::string, std::vector<RECEPTION_EVENT> > vehicle_receptions;
 
 // --------------------------------------------------------------------------------
 // Don't look past here or you will go blind ~ Josh
@@ -170,9 +170,6 @@ public:
 		std::vector<std::string> header_lines;
 		boost::posix_time::ptime creation_time;
 
-		// indexed by line
-//		std::vector< std::pair<int,double> > moos_time;
-//		std::vector< std::pair<int,std::string> >  unprocessed_receipts, unprocessed_transmissions;
 		// indexed by time
 		std::vector< std::pair<double,double> > gps_x, gps_y, desired_thrust, voltage;
 		std::vector< std::pair<double,std::string> > acomms_driver_status, acomms_transmit_data,
@@ -189,17 +186,10 @@ public:
 	};
 
 private:
-//	void parseAllHeaders();
-//	void parseMOOSFiles();
-//	void generateHistories();
-//	void lookForEvents();
-//	void matchWithTime();
-
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings=false);
 	static std::string getNextRawLine_josh(FILE *fileptr);
 
 	std::vector<FILE_INFO> alog_files;
-//	std::map<std::string,VEHICLE_HISTORY> vehicle_histories;
 };
 
 
