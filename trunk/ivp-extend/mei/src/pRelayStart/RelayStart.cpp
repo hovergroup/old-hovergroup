@@ -56,12 +56,9 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 		else if(key=="RELAY_PAUSE"){
 			pause = msg.GetString();
 		}
-		else if(key == "ACOMMS_RECEIVED_SIMPLE"){
-			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
-			if(receive_info.rate == 100){
+		else if(key == "ACOMMS_BRIDGE"){
 				relay_sync = true;
 				cout << "Relay Synced" << endl;
-			}
 		}
 	}
 
@@ -89,6 +86,7 @@ bool RelayStart::OnConnectToServer()
 	m_Comms.Register("END_STATUS",0);
 	m_Comms.Register("RELAY_PAUSE",0);
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
+	m_Comms.Register("ACOMMS_BRIDGE",0);
 
 	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 

@@ -78,7 +78,10 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				relaying = true;
 				waiting = false;
 			}
-			else if(relaying){
+		}
+
+		else if(key=="ACOMMS_BRIDGE"){
+			if(relaying){
 
 				relaying = false;
 				waiting = false;
@@ -138,6 +141,7 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 	m_Comms.Register("SEARCH_RELAY_GOTO_POINT",0);
 	m_Comms.Register("START_SAID",0);
+	m_Comms.Register("ACOMMS_BRIDGE",0);
 
 	if(mode=="normal"){
 		if(discount==5){
