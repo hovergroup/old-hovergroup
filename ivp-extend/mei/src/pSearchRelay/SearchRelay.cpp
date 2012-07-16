@@ -8,6 +8,8 @@
 #include <iterator>
 #include "SearchRelay.h"
 
+using namespace std;
+
 //---------------------------------------------------------
 // Constructor
 
@@ -182,6 +184,7 @@ bool SearchRelay::Iterate()
 		m_Comms.Notify("MISSION_MODE","RELAY");
 
 		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
+		m_Comms.Notify("RELAY_STATUS","ready");
 		connected++;
 	}
 
