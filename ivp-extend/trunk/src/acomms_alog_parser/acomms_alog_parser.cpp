@@ -115,49 +115,98 @@ void ACOMMS_ALOG_PARSER::runParser() {
 	cin.get();
 	cout << endl;
 
-	int sync_losses = 0;
-	for ( int i=0; i<all_transmissions.size(); i++ ) {
-		TRANSMISSION_EVENT t_event = all_transmissions[i];
-//		cout << "transmission at time " << t_event.transmission_time << endl;
-		for ( int j=0; j<vehicle_names.size(); j++ ) {
-			string name = vehicle_names[j];
-			bool reception_found = false;
-			for ( int k=0; k<vehicle_receptions[name].size(); k++ ) {
-				RECEPTION_EVENT r_event = vehicle_receptions[name][k];
-//				cout << "reception at time " << r_event.receive_time << endl;
-				double time_diff = r_event.receive_time - t_event.transmission_time;
-				if ( time_diff < 7 && time_diff > 0 ) {
-					t_event.receptions_map[name] = r_event;
-					t_event.receptions_vector.push_back( r_event );
-					reception_found = true;
-					vehicle_receptions[name].erase( vehicle_receptions[name].begin()+=k );
+	vector<RECEPTION_EVENT> unmatched_receptions;
+	for ( int i=0; i<all_receptions.size(); i++ ) {
+		RECEPTION_EVENT r_event = all_receptions[i];
+
+		bool matched = false;
+		for ( int j=0; j<all_transmissions.size(); j++ ) {
+			TRANSMISSION_EVENT * t_event = &all_transmissions[j];
+			if ( r_event.receive_start_time - t_event->transmission_time < 5 ) {
+				if ( t_event->receptions_map.find(r_event.vehicle_name) ==
+						t_event->receptions_map.end() && t_event->transmitter_name !=
+								r_event.vehicle_name ) {
+					t_event->receptions_map[r_event.vehicle_name] = r_event;
+					t_event->receptions_vector.push_back( r_event );
+					matched = true;
 					break;
+				} else {
+					cout << "Matching conflict" << endl;
 				}
-			}
-			if ( !reception_found ) {
-				RECEPTION_EVENT r_event;
-				r_event.vehicle_name = name;
-				r_event.receive_status = 2;
-				if ( name != t_event.transmitter_name ) {
-					sync_losses++;
-//					cout << "sync loss #" << sync_losses << ": " << t_event.transmitter_name << " to " <<
-//							name << endl;
-				}
-				t_event.receptions_map[name] = r_event;
-				t_event.receptions_vector.push_back( r_event );
 			}
 		}
-		all_transmissions[i] = t_event;
+		if ( !matched )
+			unmatched_receptions.push_back( r_event );
+	}
 
+	for ( int i=0; i<all_transmissions.size(); i++ ) {
+		if ( all_transmissions[i].receptions_vector.size() > 1 ) {
+			cout << "warning transmissions with " << all_transmissions[i].receptions_vector.size() << " receptions" << endl;
+			for ( int j=0; j<all_transmissions[i].receptions_vector.size(); j++ ) {
+				cout << all_transmissions[i].receptions_vector[j].vehicle_name << " ";
+			}
+			cout << endl;
+		}
+	}
+
+	int sync_losses =0;
+	for ( int i=0; i<all_transmissions.size(); i++ ) {
+		for ( int j=0; j<vehicle_names.size(); j++ ) {
+			if ( all_transmissions[i].receptions_map.find(vehicle_names[j]) ==
+					all_transmissions[i].receptions_map.end() && vehicle_names[j] !=
+							all_transmissions[i].transmitter_name ) {
+				sync_losses++;
+			}
+		}
 	}
 
 	cout << all_transmissions.size() << " transmissions" << endl;
 	cout << sync_losses << " sync losses" << endl;
-	int sum= 0;
-	for ( int i=0; i<vehicle_names.size(); i++ ) {
-		sum+=vehicle_receptions[vehicle_names[i]].size();
-	}
-	cout << sum << " unsynced receptions" << endl;
+	cout << unmatched_receptions.size() << " unmatched receptions" << endl;
+//
+//	int sync_losses = 0;
+//	for ( int i=0; i<all_transmissions.size(); i++ ) {
+//		TRANSMISSION_EVENT t_event = all_transmissions[i];
+////		cout << "transmission at time " << t_event.transmission_time << endl;
+//		for ( int j=0; j<vehicle_names.size(); j++ ) {
+//			string name = vehicle_names[j];
+//			bool reception_found = false;
+//			for ( int k=0; k<vehicle_receptions[name].size(); k++ ) {
+//				RECEPTION_EVENT r_event = vehicle_receptions[name][k];
+////				cout << "reception at time " << r_event.receive_time << endl;
+//				double time_diff = r_event.receive_time - t_event.transmission_time;
+//				if ( time_diff < 7 && time_diff > 0 ) {
+//					t_event.receptions_map[name] = r_event;
+//					t_event.receptions_vector.push_back( r_event );
+//					reception_found = true;
+//					vehicle_receptions[name].erase( vehicle_receptions[name].begin()+=k );
+//					break;
+//				}
+//			}
+//			if ( !reception_found ) {
+//				RECEPTION_EVENT r_event;
+//				r_event.vehicle_name = name;
+//				r_event.receive_status = 2;
+//				if ( name != t_event.transmitter_name ) {
+//					sync_losses++;
+////					cout << "sync loss #" << sync_losses << ": " << t_event.transmitter_name << " to " <<
+////							name << endl;
+//				}
+//				t_event.receptions_map[name] = r_event;
+//				t_event.receptions_vector.push_back( r_event );
+//			}
+//		}
+//		all_transmissions[i] = t_event;
+//
+//	}
+//
+//	cout << all_transmissions.size() << " transmissions" << endl;
+//	cout << sync_losses << " sync losses" << endl;
+//	int sum= 0;
+//	for ( int i=0; i<vehicle_names.size(); i++ ) {
+//		sum+=vehicle_receptions[vehicle_names[i]].size();
+//	}
+//	cout << sum << " unsynced receptions" << endl;
 
 	outputResults();
 }
