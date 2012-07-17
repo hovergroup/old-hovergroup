@@ -121,18 +121,18 @@ bool RelayEnd::Iterate()
 			cout << "In Position"<<endl;
 			if(driver_ready){
 				cout << "Driver Ready" << endl;
-				m_Comms.Notify("END_STATUS","ready");
 			}
 			else{
 				cout << "Driver not Ready" << endl;
-				m_Comms.Notify("END_STATUS","END STATUS: Modem not ready");
 			}
+
+			cout << endl;
 		}
 		else{
 			cout << "Not in Position" << endl;
-			m_Comms.Notify("END_STATUS","END STATUS: Not in place");
 		}
 		last = MOOSTime();
+		cout << endl;
 	}
 
 	return(true);
