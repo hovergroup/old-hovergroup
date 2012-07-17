@@ -194,12 +194,16 @@ bool SearchRelay::Iterate()
 	cout << "At: " << closest_dist << "from target" << endl;
 
 	if(closest_dist <= fudge_factor){
-		cout << "Turning thruster off" << endl;
-		m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+		if(mythrust != 0){
+			cout << "Turning thruster off" << endl;
+			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+		}
 	}
 	else{
-		cout << "Turning thruster on" << endl;
-		m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+		if(mythrust ==0){
+			cout << "Turning thruster on" << endl;
+			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+		}
 	}
 
 	//Acoustics

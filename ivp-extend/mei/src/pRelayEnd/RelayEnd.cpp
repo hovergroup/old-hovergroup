@@ -47,8 +47,8 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
 			if(receive_info.source==relay_id){
 				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
-				cout << "Sending mini ack" << endl << endl;
 				if(receive_info.num_good_frames==receive_info.num_frames){
+					cout << "Sending mini ack" << endl << endl;
 					m_Comms.Notify("ACOMMS_TRANSMIT_DATA","a");
 				}
 			}
