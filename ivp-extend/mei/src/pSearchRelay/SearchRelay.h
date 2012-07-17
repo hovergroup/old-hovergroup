@@ -57,16 +57,16 @@ protected:
 	vector<double> mean, stdev,indices;
 	vector<double> normal_indices;
 	vector<double> wpx, wpy;
-	double fudge_factor, epsilon;
+	double fudge_factor, epsilon, station_factor;
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool relaying;
-	bool heard_one, paused;
-	double wait_time, start_time;
+	bool relaying, heard_one, paused;
+	double wait_time, start_time, time_elapsed, update_time, last_update;
 	int connected;
-	double mythrust;
+	double mythrust, voltage;
 	string heard_what;
+	stringstream print_me;
 
 };
 

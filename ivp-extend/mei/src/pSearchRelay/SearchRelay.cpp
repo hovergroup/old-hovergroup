@@ -15,6 +15,7 @@ SearchRelay::SearchRelay()
 {
 	normal_indices = std::vector<double> (18, 0);
 	fudge_factor = 10; //m
+	station_factor = 5; //m
 	min_obs = 10;	//each link is one obs
 	discount = 5;
 	num_lookback = 1;
@@ -25,6 +26,10 @@ SearchRelay::SearchRelay()
 	paused = false;
 	connected = 0;
 	heard_what = "nothing";
+	time_elapsed = 0;
+	update_time = 7;
+	last_update = 0;
+	voltage = 0;
 }
 
 //---------------------------------------------------------
@@ -108,6 +113,9 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				paused = true;
 			}
 		}
+		else if(key=="VOLTAGE")	{
+			voltage = msg.GetDouble();
+		}
 	}
 
 	return(true);
@@ -140,6 +148,7 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
 	m_Comms.Register("RELAY_PAUSE",0);
 	m_Comms.Register("DESIRED_THRUST",0);
+	m_Comms.Register("VOLTAGE",0);
 
 	if(mode=="normal"){
 		if(discount==5){
@@ -191,16 +200,15 @@ bool SearchRelay::Iterate()
 
 	//Thruster control
 	double closest_dist = sqrt(pow((targetx-myx),2) + pow((targety-myy),2));
-	cout << "At: " << closest_dist << "from target" << endl;
 
-	if(closest_dist <= fudge_factor){
+	if(closest_dist <= station_factor){
 		if(mythrust != 0){
 			cout << "Turning thruster off" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 		}
 	}
 	else{
-		if(mythrust ==0){
+		if(mythrust == 0){
 			cout << "Turning thruster on" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 		}
@@ -210,15 +218,15 @@ bool SearchRelay::Iterate()
 	if(!paused){
 		if(heard_one){
 
-			double time_elapsed = MOOSTime() - start_time;
-			if(time_elapsed > (1.5*wait_time)){
+			time_elapsed = MOOSTime() - start_time;
+
+			if(time_elapsed >= (1.2*wait_time)){
 				cout << "Missed sync with start" << endl;
 				ComputeSuccessRates(0);
-				start_time = MOOSTime();
+				start_time = MOOSTime() - 0.2*wait_time;
 				relaying = false;
 			}
 			else{
-				cout << time_elapsed << endl;
 				if(heard_what == "start"){
 					if(relaying){
 						cout << "Missed sync with end" << endl;
@@ -237,11 +245,26 @@ bool SearchRelay::Iterate()
 						relaying = false;
 						heard_what = "nothing";
 					}
+					else{
+						cout << "End out of sync" << endl;
+					}
 				}
 			}
 
-		} else{cout << "Waiting to initialize" << endl;}
+		} else{cout <<  "Waiting to initialize" << endl;}
 	} else{cout << "Experiment Paused" << endl;}
+
+	//Update me!
+	if(MOOSTime() - last_update >= update_time){
+		print_me << "Now at: " << closest_dist << " m to target" << endl;
+		print_me << "Thrust at: " << mythrust << endl;
+		print_me << "Time elapsed: " << time_elapsed << endl;
+		print_me << "Voltage: " << voltage << endl;
+		cout << print_me.str() << endl;
+		cout << endl;
+		last_update = MOOSTime();
+		print_me.str("");
+	}
 
 	return(true);
 }
