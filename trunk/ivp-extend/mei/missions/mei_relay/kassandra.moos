@@ -25,6 +25,17 @@ ProcessConfig = ANTLER
 	Run = iacomms_driver @ NewConsole = false
 }
 
+ProcessConfig = pRelayEnd
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	RelayID = 3	
+	Radius = 10 //m
+	Endx = 600
+	Endy = -300
+}
+
 ProcessConfig = pSearchRelay
 {
 	AppTick = 5
