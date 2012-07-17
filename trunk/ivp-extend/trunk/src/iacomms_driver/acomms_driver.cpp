@@ -228,14 +228,14 @@ void acomms_driver::transmit_data() {
 			transmitted_data = vector<unsigned char> (1, 0);
 			memcpy( &transmitted_data[0], transmission_data.data(), 1 );
 		} else {
-			unsigned short data;
-			memcpy( &data, transmission_data.data(), 2 );
-			data = data&0x1fff;
-			transmit_message.add_frame( &data, 2 );
-			transmitted_data = vector<unsigned char> (2, 0);
-			memcpy( &transmitted_data[0], &data, 2 );
+			transmit_message.add_frame( transmission_data.data(), 2 );
+			transmit_message.mutable_frame(0)->at(0) &= 0x1f;
+			memcpy( &transmitted_data[0], transmit_message.frame(0).data(), 2 );
 		}
 	} else {
+		stringstream ss;
+		ss << "Requested rate " << transmission_rate << " is not supported.";
+		publishWarning(ss.str());
 		// unhandled rate
 		return;
 	}
