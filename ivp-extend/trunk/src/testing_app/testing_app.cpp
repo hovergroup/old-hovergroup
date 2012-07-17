@@ -33,28 +33,47 @@ string string_chomp( string s, char c ) {
 
 int main() {
 
-	fstream filestr;
-
-	filestr.open ("Experiment1_July13_10OriPcks.txt", fstream::in | fstream::out | fstream::app);
-
-	// >> i/o operations here <<
-//int data;
-	//for(int j=0;j<3;j++){
-//int counter = 0;
-	for(int j=0;j<21;j++){
-		for(int i=0;i<32;i++){
-			int	data;
-			filestr >> data;
-			cout << (char) data;
-		}
-		cout <<endl;
-		cout << endl;
+	string s = "00";
+	for ( int i=0; i<s.size(); i++ ) {
+		cout << hex << (int) s[i] << " ";
 	}
+	cout << endl;
 
-//		cout << data << endl;
+	unsigned short data;
+	memcpy( &data, s.data(), 2 );
+	data =data&0xff1f;
+
+	vector<unsigned char> v (2, 0);
+	memcpy( &v[0], &data, 2 );
+
+	for ( int i=0; i<v.size(); i++ ) {
+		cout << hex << (int) v[i] << " ";
+	}
+	cout << endl;
+
+//
+//	fstream filestr;
+//
+//	filestr.open ("Experiment1_July13_10OriPcks.txt", fstream::in | fstream::out | fstream::app);
+//
+//	// >> i/o operations here <<
+////int data;
+//	//for(int j=0;j<3;j++){
+////int counter = 0;
+//	for(int j=0;j<21;j++){
+//		for(int i=0;i<32;i++){
+//			int	data;
+//			filestr >> data;
+//			cout << (char) data;
+//		}
+//		cout <<endl;
+//		cout << endl;
 //	}
-
-	filestr.close();
+//
+////		cout << data << endl;
+////	}
+//
+//	filestr.close();
 	//	int x, y;
 	//	string lat, lon;
 	//	string s = "lat,102:lon,-5";
