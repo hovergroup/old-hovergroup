@@ -233,7 +233,7 @@ void acomms_driver::transmit_data() {
 			data = data&0x1fff;
 			transmit_message.add_frame( &data, 2 );
 			transmitted_data = vector<unsigned char> (2, 0);
-			memcpy( &transmitted_data[0], transmission_data.data(), 2 );
+			memcpy( &transmitted_data[0], &data, 2 );
 		}
 	} else {
 		// unhandled rate
