@@ -395,6 +395,15 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 			receive_info.num_bad_frames = stat.number_bad_frames();
 			receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
 		}
+		// for debugging, not sure if this is ever a problem
+		if( receive_info.num_good_frames > 0 && trans.frame_size() != stat.number_frames() ) {
+			stringstream ss;
+			ss << "calculated " << receive_info.num_good_frames << " good frames and "
+					<< receive_info.num_frames << " total, but found " <<
+					stat.number_frames();
+			publishWarning( ss.str() );
+		}
+
 		receive_info.vehicle_name = my_name;
 		receive_info.source = stat.source();
 		// check for mini data type to set custom rate, otherwise use reported rate
