@@ -12,7 +12,7 @@
 
 RelayStart::RelayStart()
 {
-	wait_time = 20; //s
+	wait_time = 15; //s
 	last = 0;
 	relay_sync = false;
 	mail_counter = 0;
@@ -39,7 +39,7 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 		CMOOSMsg &msg = *p;
 		std::string key = msg.GetKey();
 
-		//Key count: 6
+		//Key count: 3
 		if(key=="ACOMMS_DRIVER_STATUS"){
 			driver_status = msg.GetString();
 		}
@@ -47,18 +47,8 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 			wait_time = msg.GetDouble();
 			cout<<"Setting wait time: "<<wait_time<<endl;
 		}
-		else if(key=="RELAY_STATUS"){
-			relay_status = msg.GetString();
-		}
-		else if(key=="END_STATUS"){
-			end_status = msg.GetString();
-		}
 		else if(key=="RELAY_PAUSE"){
 			pause = msg.GetString();
-		}
-		else if(key == "ACOMMS_BRIDGE"){
-				relay_sync = true;
-				cout << "Relay Synced" << endl;
 		}
 	}
 
@@ -79,16 +69,17 @@ bool RelayStart::OnConnectToServer()
 	if(rate==0){length = 32;}
 	else if(rate==2){length = 192;}
 
-	//Reg Count: 6
+	//Reset variables
+	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
+	m_Comms.Notify("RELAY_PAUSE","true");
+	m_Comms.Notify("SEARCH_RELAY_WAIT_TIME",wait_time);
+
+	//Reg Count: 3
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 	m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
-	m_Comms.Register("RELAY_STATUS",0);
-	m_Comms.Register("END_STATUS",0);
 	m_Comms.Register("RELAY_PAUSE",0);
-	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
-	m_Comms.Register("ACOMMS_BRIDGE",0);
 
-	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
+	last = MOOSTime();
 
 	return(true);
 }
@@ -101,31 +92,25 @@ bool RelayStart::Iterate()
 	// happens AppTick times per second
 
 	if(pause=="false"){
-		if(relay_status=="ready"){
-			if(end_status=="ready"){
-				if(driver_status == "ready"){
+		if(driver_status == "ready"){
 
-					//transmit as soon as possible
-					double time_since = MOOSTime()-last;
-					cout << time_since << endl;
+			//transmit as soon as possible
+			double time_since = MOOSTime()-last;
+			cout << time_since << endl;
 
-					if( (time_since>=wait_time) || (relay_sync)){
+			if( (time_since>=wait_time)){
 
-						if(relay_sync){cout << "Relay synced" << endl;}
-						relay_sync = false;
+				stringstream ss;
+				ss << mail_counter;
 
-						stringstream ss;
-						ss << mail_counter;
+				string mail = ss.str()+"---"+getRandomString(length);
+				cout << "Transmitting: "<<mail << endl;
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+				last = MOOSTime();
+				mail_counter++;
+			}
 
-						string mail = ss.str()+"---"+getRandomString(length);
-						cout << "Transmitting: "<<mail << endl;
-						m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
-						last = MOOSTime();
-						mail_counter++;
-					}
-				} else{cout<<"MMDriver: " << driver_status <<endl;}
-			} else{cout << "End Status: " << end_status << endl;}
-		} else{cout <<"Relay Status: " << relay_status << endl;}
+		} else{cout<<"My Modem: " << driver_status <<endl;}
 	} else{cout << "Experiment Paused" << endl;}
 
 	return(true);

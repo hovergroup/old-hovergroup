@@ -8,24 +8,23 @@
 #include <iterator>
 #include "SearchRelay.h"
 
-using namespace std;
-
 //---------------------------------------------------------
 // Constructor
 
 SearchRelay::SearchRelay()
 {
 	normal_indices = std::vector<double> (18, 0);
-	fudge_factor = 5; //m
+	fudge_factor = 10; //m
 	min_obs = 10;	//each link is one obs
 	discount = 5;
 	num_lookback = 1;
-	rate = 2;
+	wait_time = 15; //s
 
-	waiting = false;
 	relaying = false;
+	heard_one = false;
+	paused = false;
 	connected = 0;
-
+	heard_what = "nothing";
 }
 
 //---------------------------------------------------------
@@ -52,68 +51,62 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		else if(key=="NAV_Y"){
 			myy = msg.GetDouble();
 		}
-
-		else if(key=="START_SAID"){
-			if(waiting){	//Missed sync with shore node
-				cout<<endl<<"Missed start sync"<<endl;
-				ComputeSuccessRates(false);
-			}
-
-			else if(relaying){	//Missed sync with end node
-				cout<<endl<<"Missed end sync"<<endl;
-				ComputeSuccessRates(false);
-			}
-
-			cout<<"--->Syncing with Start"<<endl;
-
-			waiting = true;
-			relaying = false;
+		else if(key=="DESIRED_THRUST"){
+			mythrust = msg.GetDouble();
 		}
 
+		else if(key=="SEARCH_RELAY_WAIT_TIME"){
+			wait_time = msg.GetDouble();
+			heard_one = false;
+			cout << "Resetting start time" << endl;
+		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
-			if(waiting){
-				cout<<"--->Relaying"<<endl;
-				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",msg.GetString());
 
-				relaying = true;
-				waiting = false;
-			}
-		}
-
-		else if(key=="ACOMMS_BRIDGE"){
-			if(relaying){
-
-				relaying = false;
-				waiting = false;
-
-				if(msg.GetString() == "1"){
-					cout << "Relay Good" << endl;
-					ComputeSuccessRates(true);
+			if(msg.GetString() != "reset"){
+				if(!heard_one){
+					heard_one = true;
+					start_time = MOOSTime();
+					cout << "Initializing my counter to: " << start_time << endl;
 				}
-				else if(msg.GetString() == "0"){
-					cout << "Relay Bad" << endl;
-					ComputeSuccessRates(false);
+
+				mail = msg.GetString();
+
+				if(mail.size() > 5){
+					heard_what = "start";
 				}
 				else{
-					cout << "Heard: " << msg.GetString() << endl;
+					heard_what = "end";
 				}
+
+				cout << "Got mail from " << heard_what << endl;
 			}
 		}
 
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
-			int targind = (int) msg.GetDouble();
-			targetx = wpx[targind];
-			targety = wpy[targind];
+			if(msg.GetString() != "reset"){
+				int targind = (int) msg.GetDouble();
+				targetx = wpx[targind];
+				targety = wpy[targind];
 
-			stringstream ss;
-			ss<<"points="<<targetx<<","<<targety;
-			cout<<"Updating GOTO Point: "<<ss.str()<<endl;
-			m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+				stringstream ss;
+				ss<<"points="<<targetx<<","<<targety;
+				cout<<"Updating GOTO Point: "<<ss.str()<<endl;
+				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
 
-			ss.str("");
-			ss<<"station_pt="<<targetx<<","<<targety;
-			m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-			m_Comms.Notify("RELAY_MODE","GOTO");
+				ss.str("");
+				ss<<"station_pt="<<targetx<<","<<targety;
+				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
+				m_Comms.Notify("RELAY_MODE","GOTO");
+			}
+		}
+
+		else if(key=="RELAY_PAUSE"){
+			if(msg.GetString() == "false"){
+				paused = false;
+			}
+			else{
+				paused = true;
+			}
 		}
 	}
 
@@ -128,6 +121,10 @@ bool SearchRelay::OnConnectToServer()
 	// m_MissionReader.GetConfigurationParam("Name", <string>);
 	// m_Comms.Register("VARNAME", is_float(int));
 
+	m_Comms.Notify("ACOMMS_RECEIVED_DATA","reset");
+	m_Comms.Notify("SEARCH_RELAY_GOTO_POINT","reset");
+	m_Comms.Notify("RELAY_PAUSE","reset");
+
 	m_MissionReader.GetConfigurationParam("Mode",mode);
 	m_MissionReader.GetConfigurationParam("Discount",discount);
 	m_MissionReader.GetConfigurationParam("MinObs",min_obs);
@@ -135,13 +132,14 @@ bool SearchRelay::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Lookback",num_lookback);
 	m_MissionReader.GetConfigurationParam("Rate",rate);
 
-	//Reg Count: 5
+	//Reg Count: 6
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 	m_Comms.Register("SEARCH_RELAY_GOTO_POINT",0);
-	m_Comms.Register("START_SAID",0);
-	m_Comms.Register("ACOMMS_BRIDGE",0);
+	m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
+	m_Comms.Register("RELAY_PAUSE",0);
+	m_Comms.Register("DESIRED_THRUST",0);
 
 	if(mode=="normal"){
 		if(discount==5){
@@ -161,7 +159,10 @@ bool SearchRelay::OnConnectToServer()
 	}
 
 	connected++;
-	cout << "Connected "<<connected<<" times"<<endl;
+	cout << "Connected to server "<<connected<<" times"<<endl;
+
+	m_Comms.Notify("RELAY_MODE","GOTO");
+	m_Comms.Notify("MISSION_MODE","RELAY");
 
 	return(true);
 }
@@ -171,7 +172,7 @@ bool SearchRelay::OnConnectToServer()
 
 bool SearchRelay::Iterate()
 {
-	// happens AppTick times per second
+	//Initialize
 	if(connected==1){
 		GetWaypoints();
 		targetx = wpx[0];
@@ -184,13 +185,59 @@ bool SearchRelay::Iterate()
 		ss.str("");
 		ss<<"station_pt="<<targetx<<","<<targety;
 		m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-		m_Comms.Notify("RELAY_MODE","GOTO");
-		m_Comms.Notify("MISSION_MODE","RELAY");
 
-		m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
-		m_Comms.Notify("RELAY_STATUS","ready");
 		connected++;
 	}
+
+	//Thruster control
+	double closest_dist = sqrt(pow((targetx-myx),2) + pow((targety-myy),2));
+	cout << "At: " << closest_dist << "from target" << endl;
+
+	if(closest_dist <= fudge_factor){
+		cout << "Turning thruster off" << endl;
+		m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+	}
+	else{
+		cout << "Turning thruster on" << endl;
+		m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+	}
+
+	//Acoustics
+	if(!paused){
+		if(heard_one){
+
+			double time_elapsed = MOOSTime() - start_time;
+			if(time_elapsed > (1.5*wait_time)){
+				cout << "Missed sync with start" << endl;
+				ComputeSuccessRates(0);
+				start_time = MOOSTime();
+				relaying = false;
+			}
+			else{
+				cout << time_elapsed << endl;
+				if(heard_what == "start"){
+					if(relaying){
+						cout << "Missed sync with end" << endl;
+						ComputeSuccessRates(0);
+					}
+
+					m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+					relaying = true;
+					heard_what = "nothing";
+					start_time = MOOSTime();
+				}
+				else if(heard_what == "end"){
+					if(relaying){
+						cout << "Successful Relay" << endl;
+						ComputeSuccessRates(1);
+						relaying = false;
+						heard_what = "nothing";
+					}
+				}
+			}
+
+		} else{cout << "Waiting to initialize" << endl;}
+	} else{cout << "Experiment Paused" << endl;}
 
 	return(true);
 }
@@ -208,15 +255,97 @@ bool SearchRelay::OnStartUp()
 //---------------------------------------------------------
 // Search Relay Methods
 
+void SearchRelay::ComputeSuccessRates(int packet_got){
+
+	if(mythrust == 0){
+		int closest_ind = closest_vertex(myx,myy);
+		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
+
+		std::cout<<"--->Updating data"<<std::endl;
+		std::cout<<" Closest distance was: "<<closest_dist<<std::endl;
+		std::cout<<" Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
+
+		if(closest_dist<=fudge_factor){
+			data[closest_ind].push_back(packet_got);
+
+			mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
+			stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
+
+			std::cout<<"  Updating MEAN and STDev for Point #"<<closest_ind<<std::endl;
+			std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
+			std::cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
+
+			if(mode == "normal"){
+				if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
+					std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
+					std::cout<<"--->Holding Station"<<std::endl<<std::endl;
+				}
+				else{
+					ComputeIndex(closest_ind);
+
+					int target = Decision();
+					std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
+					std::cout<<"--->Making a Decision"<<std::endl;
+					targetx = wpx[target];
+					targety = wpy[target];
+					std::stringstream ss;
+					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+					std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
+					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+					m_Comms.Notify("RELAY_MODE","GOTO");
+					ss.str("");
+					ss<<"station_pt="<<targetx<<","<<targety;
+					m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
+				}
+			}
+			else if(mode == "greedy"){
+				if(data[closest_ind].size()<min_obs){
+					std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
+					std::cout<<"--->Holding Station"<<std::endl<<std::endl;
+				}
+				else{
+					std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
+					std::cout<<"--->Making a Decision"<<std::endl;
+
+					double temp = rand() % 100;
+					std::cout<<"Dice Rolled: "<<temp<<std::endl;
+					int target;
+					if(temp <= epsilon){
+						target = rand()%(total_points-1);
+						std::cout<< "Random point: " << target << std::endl;
+					}
+					else{
+						target = Decision();
+					}
+
+
+					targetx = wpx[target];
+					targety = wpy[target];
+					std::stringstream ss;
+					ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+					std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
+					m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+					m_Comms.Notify("RELAY_MODE","GOTO");
+					ss.str("");
+					ss<<"station_pt="<<targetx<<","<<targety;
+					m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
+				}
+			}
+		}
+	}
+	else{
+		cout << "Thruster is on!" << endl;
+	}
+}
+
 void SearchRelay::ComputeIndex(int closest_ind){
-	std::cout<<"---------->Computing Index"<<std::endl;
+	cout << "--->Computing Index" << endl;
 	int num_obs = data[closest_ind].size()/num_lookback;
 	std::cout<<"  Num Obs: "<<num_obs<<std::endl;
 
 	if(num_obs==100){
 		std::cout<<"  Exceeded maximum observations. Switching Modes."<<std::endl;
 		m_Comms.Notify("MISSION_MODE","KEEP");
-		m_Comms.Notify("RELAY_STATUS","Completed");
 		std::cout<<"  The final point was: "<<std::endl;
 		Decision();
 	}
@@ -318,92 +447,6 @@ int SearchRelay::Decision(){
 
 	return target;
 }
-
-void SearchRelay::ComputeSuccessRates(bool packet_got){
-	//Here assuming last nav variables is current position
-	//Update the mean and var of one node if current position is within
-	//a fudge factor of that node
-	int closest_ind = closest_vertex(myx,myy);
-	double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
-
-	std::cout<<"Trying COMPUTE SUCCESS RATES"<<std::endl;
-	std::cout<<" Closest distance was: "<<closest_dist<<std::endl;
-	std::cout<<" Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
-
-	if(closest_dist<=fudge_factor){
-		if(packet_got){
-			data[closest_ind].push_back(1);
-		}
-		else{
-			data[closest_ind].push_back(0);
-		}
-
-		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
-		stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
-
-		std::cout<<"  Updating MEAN and STDev for Point #"<<closest_ind<<std::endl;
-		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-		std::cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
-
-		if(mode == "normal"){
-			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
-				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
-			}
-			else{
-				ComputeIndex(closest_ind);
-
-				int target = Decision();
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
-				std::cout<<"--->Making a Decision"<<std::endl;
-				targetx = wpx[target];
-				targety = wpy[target];
-				std::stringstream ss;
-				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
-				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-				m_Comms.Notify("RELAY_MODE","GOTO");
-				ss.str("");
-				ss<<"station_pt="<<targetx<<","<<targety;
-				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-			}
-		}
-		else if(mode == "greedy"){
-			if(data[closest_ind].size()<min_obs){
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
-				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
-			}
-			else{
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
-				std::cout<<"--->Making a Decision"<<std::endl;
-
-				double temp = rand() % 100;
-				std::cout<<"Dice Rolled: "<<temp<<std::endl;
-				int target;
-				if(temp <= epsilon){
-					target = rand()%(total_points-1);
-					std::cout<< "Random point: " << target << std::endl;
-				}
-				else{
-					target = Decision();
-				}
-
-
-				targetx = wpx[target];
-				targety = wpy[target];
-				std::stringstream ss;
-				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
-				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-				m_Comms.Notify("RELAY_MODE","GOTO");
-				ss.str("");
-				ss<<"station_pt="<<targetx<<","<<targety;
-				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-			}
-		}
-	}
-}
-
 void SearchRelay::Confess(RelayStat stats){
 	std::stringstream ss;
 	ss << "TYPE: " << stats.debug_string <<"<|>"

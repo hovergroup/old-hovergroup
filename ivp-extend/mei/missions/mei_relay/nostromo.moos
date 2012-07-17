@@ -1,4 +1,6 @@
 
+//Nostromo for Relay
+
 Community			= nostromo
 ServerHost			= 192.168.1.103
 ServerPort			= 9003
@@ -8,7 +10,7 @@ LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 ProcessConfig = ANTLER
 {
-	MSBetweenLaunches	= 200
+	MSBetweenLaunches	= 500
 
 	Run = MOOSDB		@ NewConsole = false
 	Run = ikayak_driver @ NewConsole = false
@@ -29,13 +31,33 @@ ProcessConfig = pRelayEnd
 	AppTick = 5
 	CommsTick = 5
 	
-	RelayID = 2
+	RelayID = 1	
+	Radius = 10 //m
+	Endx = 700
+	Endy = -300
+}
+
+ProcessConfig = pMOOSBridge
+	{
+	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
+	AppTick		= 5
+	CommsTick	= 5
 	
-	Endx = -125
-	Endy = -400
+	UDPListen = 9201
+
+	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
+
+	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
+	// Destination is shore station	terra@YOURIP:9000
+	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
+//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> terra@192.168.1.100:9000 [NODE_REPORT]
+	SHARE = [VIEW_POLYGON]		-> terra@192.168.1.100:9000 [VIEW_POLYGON]
+	SHARE = [VIEW_POINT]		-> terra@192.168.1.100:9000 [VIEW_POINT]
+	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
+	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
+	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
-	//Endx = -179.4
-	//Endy = -564.9
+	//Search Relay Shares
 }
 
 ProcessConfig = uTimerScript
@@ -60,7 +82,7 @@ ProcessConfig = iacomms_driver
 	CommsTick = 5
 
 	PortName = /dev/ttyUSB1
-	ID = 1
+	ID = 3
 }
 
 ProcessConfig = simple_gps
@@ -102,31 +124,6 @@ ProcessConfig = pNodeReporter
 
 	VESSEL_TYPE	= KAYAK		// Sets the icon in pMarineViewer
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
-	}
-
-ProcessConfig = pMOOSBridge
-	{
-	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
-	AppTick		= 5
-	CommsTick	= 5
-	
-	UDPListen = 9201
-
-	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
-
-	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
-	// Destination is shore station	terra@YOURIP:9000
-	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
-//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> terra@192.168.1.100:9000 [NODE_REPORT]
-	SHARE = [VIEW_POLYGON]		-> terra@192.168.1.100:9000 [VIEW_POLYGON]
-	SHARE = [VIEW_POINT]		-> terra@192.168.1.100:9000 [VIEW_POINT]
-	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
-	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
-	
-	//Search Relay Shares
-	SHARE = [END_STATUS] -> icarus@192.168.1.102:9002
-	SHARE = [TRANSMITTED_DATA] -> kassandra@192.168.1.101:9001 [TRANSMITTED_DATA]
 	}
 
 ProcessConfig = pMarinePID
@@ -193,7 +190,6 @@ ProcessConfig = pLogger
 	CommsTick		= 20
 
  	File          = LOG_NOSTROMO
-  	PATH          = ./logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
