@@ -16,7 +16,12 @@ using namespace lib_acomms_messages;
 #define COLOR_YELLOW "\33[33m"
 #define COLOR_RED "\33[31m"
 #define COLOR_CYAN "\33[36m"
+#define COLOR_MAGENTA "\33[35m"
+#define COLOR_GREEN "\33[32m"
 #define COLOR_RESET "\33[0m"
+
+int DIRE_WARNINGS = 0;
+int ERRORS = 0;
 
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 }
@@ -56,6 +61,47 @@ bool transmission_sort ( ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT t1, ACOMMS_ALOG_
 }
 bool reception_sort ( ACOMMS_ALOG_PARSER::RECEPTION_EVENT r1, ACOMMS_ALOG_PARSER::RECEPTION_EVENT r2 ) {
 	return r1.receive_time < r2.receive_time;
+}
+
+double ACOMMS_ALOG_PARSER::computeMatching(
+		ACOMMS_ALOG_PARSER::RECEPTION_EVENT * r_event,
+		ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT * t_event ) {
+
+	// check time
+	if ( r_event->receive_start_time - t_event->transmission_time > 10 ||
+			t_event->transmission_time - r_event->receive_start_time > 2 ) {
+		return -1;
+	}
+
+	double matching_score = 0;
+
+	// more accurate timing
+	double distance = sqrt( pow(r_event->gps_x - t_event->gps_x, 2.0) +
+			pow(r_event->gps_y - t_event->gps_y, 2.0) );
+	double expected_transit_time = distance/343.0;
+	double time_error = r_event->receive_start_time - t_event->transmission_time - expected_transit_time;
+	matching_score += (10 - time_error);
+
+//	// get the modem transmission and receive statistics
+//	goby::acomms::protobuf::ModemTransmission trans = r_event->data_msg;
+//	micromodem::protobuf::ReceiveStatistics stat;
+//	int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
+//
+//	if( num_stats == 1 ) { // psk or mini packet transmission
+//		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+//		if ( stat.psk_error_code() == 2 ) { // bad data header
+//
+//		} else {
+//			if ( stat.rate)
+//		}
+//
+//	} else if ( num_stats == 2 ) { // fsk transmission
+//		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+//	} else {
+//		cout << COLOR_RED << "ERROR: protobuf has " << num_stats
+//				<< " receive statistics." << COLOR_RESET << endl;
+//		return -1;
+//	}
 }
 
 void ACOMMS_ALOG_PARSER::runParser() {
@@ -109,11 +155,25 @@ void ACOMMS_ALOG_PARSER::runParser() {
 	cout << all_receptions.size() << " total receptions" << endl;
 	cout << all_transmissions.size() << " total transmissions" << endl;
 
-	cout << endl << COLOR_CYAN <<
+	if ( ERRORS > 0 || DIRE_WARNINGS > 0 ) {
+		cout << COLOR_RED << DIRE_WARNINGS << " dire warnings and " << ERRORS <<
+				" errors require attention." << COLOR_RESET << endl;
+	}
+	cout << COLOR_CYAN <<
 			"File reading complete.  Press enter to begin matching."
 			<< COLOR_RESET << endl;
 	cin.get();
 	cout << endl;
+
+	vector<RECEPTION_EVENT> remaining_receptions = all_receptions;
+	while ( !remaining_receptions.empty() ) {
+		RECEPTION_EVENT r_event = remaining_receptions.back();
+		vector<double> matching_scores;
+		for ( int j=0; j<all_transmissions.size(); j++ ) {
+			TRANSMISSION_EVENT t_event = all_transmissions[j];
+			matching_scores.push_back( computeMatching( &r_event, &t_event ) );
+		}
+	}
 
 	vector<RECEPTION_EVENT> unmatched_receptions;
 	for ( int i=0; i<all_receptions.size(); i++ ) {
@@ -122,7 +182,8 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		bool matched = false;
 		for ( int j=0; j<all_transmissions.size(); j++ ) {
 			TRANSMISSION_EVENT * t_event = &all_transmissions[j];
-			if ( r_event.receive_start_time - t_event->transmission_time < 5 ) {
+			if ( r_event.receive_start_time - t_event->transmission_time < 7 &&
+					t_event->transmission_time - r_event.receive_start_time < 2 ) {
 				if ( t_event->receptions_map.find(r_event.vehicle_name) ==
 						t_event->receptions_map.end() && t_event->transmitter_name !=
 								r_event.vehicle_name ) {
@@ -139,15 +200,15 @@ void ACOMMS_ALOG_PARSER::runParser() {
 			unmatched_receptions.push_back( r_event );
 	}
 
-	for ( int i=0; i<all_transmissions.size(); i++ ) {
-		if ( all_transmissions[i].receptions_vector.size() > 1 ) {
-			cout << "warning transmissions with " << all_transmissions[i].receptions_vector.size() << " receptions" << endl;
-			for ( int j=0; j<all_transmissions[i].receptions_vector.size(); j++ ) {
-				cout << all_transmissions[i].receptions_vector[j].vehicle_name << " ";
-			}
-			cout << endl;
-		}
-	}
+//	for ( int i=0; i<all_transmissions.size(); i++ ) {
+//		if ( all_transmissions[i].receptions_vector.size() > 1 ) {
+//			cout << "warning transmissions with " << all_transmissions[i].receptions_vector.size() << " receptions" << endl;
+//			for ( int j=0; j<all_transmissions[i].receptions_vector.size(); j++ ) {
+//				cout << all_transmissions[i].receptions_vector[j].vehicle_name << " ";
+//			}
+//			cout << endl;
+//		}
+//	}
 
 	int sync_losses =0;
 	for ( int i=0; i<all_transmissions.size(); i++ ) {
@@ -235,7 +296,9 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::processFile() {
 
 	// determine the time offset of this file
 	if ( !offsetViaGPS() ) {
-		cout << "Failed to offset using gps, using system time from header." << endl;
+		cout << COLOR_YELLOW <<
+				"WARNING: Failed to offset using gps, using system time from header."
+				<< COLOR_RESET << endl;
 		offsetViaHeader();
 	}
 
@@ -314,6 +377,36 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 		entry = getNextEntry();
 	}
 
+	// check for partial receives and merge
+	if ( receptions.size() > 1 ) {
+		if ( receptions[0].second.missing_stats ) {
+			tryCombine(0, 1);
+		} else if ( receptions[receptions.size()-1].second.missing_stats ) {
+			tryCombine(receptions.size()-1, receptions.size()-2);
+		}
+	} else if ( receptions.size() > 2 ) {
+		for ( int i=1; i<receptions.size()-1; i++ ) {
+			if ( receptions[i].second.missing_stats ) {
+				if ( !tryCombine(i,i+1) ) tryCombine(i,i-1);
+			}
+		}
+	}
+
+	// clean up any partial receives
+	for ( int i=0; i<receptions.size(); i++ ) {
+		if ( receptions[i].second.missing_frames ) {
+			cout << COLOR_YELLOW << "WARNING at line " << receptions[i].second.source_line <<
+					": failed to find frames for these statistics, deleting." <<
+					COLOR_RESET << endl;
+			receptions.erase(receptions.begin()+=i);
+		} else if ( receptions[i].second.missing_stats ) {
+			cout << COLOR_YELLOW << "WARNING at line " << receptions[i].second.source_line <<
+					": failed to find statistics for these frames, deleting." <<
+					COLOR_RESET << endl;
+			receptions.erase(receptions.begin()+=i);
+		}
+	}
+
 	// finish constructing receptions
 	// check for no receive hex data in log file
 	if ( acomms_received_data_hex.empty() && !receptions.empty() ) {
@@ -366,6 +459,34 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 	}
 }
 
+bool ACOMMS_ALOG_PARSER::FILE_INFO::tryCombine( int frame_index, int stats_index ) {
+	if ( receptions[stats_index].second.missing_frames ) {
+		fillStats( &receptions[frame_index].second, receptions[stats_index].second );
+		cout << COLOR_GREEN << "Merged receive statistics at line " <<
+				receptions[stats_index].second.source_line << " with frames at line " <<
+				receptions[frame_index].second.source_line << ".  New protobuf: " << endl;
+		cout << receptions[frame_index].second.data_msg.DebugString()
+				<< COLOR_RESET << endl;
+		receptions.erase(receptions.begin()+=stats_index);
+		receptions[frame_index].second.missing_stats = false;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+// use receive statistics from stats_event to fill frame_event
+void ACOMMS_ALOG_PARSER::FILE_INFO::fillStats(
+		ACOMMS_ALOG_PARSER::RECEPTION_EVENT * frame_event,
+		ACOMMS_ALOG_PARSER::RECEPTION_EVENT stats_event ) {
+	for ( int i=0; i<stats_event.data_msg.ExtensionSize(
+			micromodem::protobuf::receive_stat); i++ ) {
+	    micromodem::protobuf::ReceiveStatistics* cst =
+	    		frame_event->data_msg.AddExtension(micromodem::protobuf::receive_stat);
+	    cst->CopyFrom( stats_event.data_msg.GetExtension( micromodem::protobuf::receive_stat, i ) );
+	}
+}
+
 // construct a reception event from a ACOMMS_RECEIVED_ALL log entry
 ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructReception( double msg_time, int line_number, string msg_val ) {
 //	cout << msg_time << endl;
@@ -411,6 +532,7 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 		cout << COLOR_RED << "ERROR parsing protobuf at line " << line_number
 				<< " when attempting to parse: " << COLOR_RESET << endl;
 		cout << COLOR_RED << msg_val << COLOR_RESET << endl;
+		ERRORS++;
 		// protobuf should show details of error on previous line
 	}
 
@@ -422,20 +544,123 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	}
 
 	// backwards search from receive time to find beginning of receipt
+	r_event.receive_start_time = -10;
 	for ( int i=acomms_driver_status.size()-1; i>=0; i-- ) {
 		if ( acomms_driver_status[i].second == "receiving" ) {
 			r_event.receive_start_time = acomms_driver_status[i].first;
 			break;
 		}
 	}
-	if ( msg_time - r_event.receive_start_time > 7 ) {
-		cout << COLOR_YELLOW << "WARNING at line " << line_number <<
+	// check if receive time is reasonable
+	if ( msg_time - r_event.receive_start_time > 6 ) {
+		cout << COLOR_MAGENTA << "DIRE WARNING at line " << line_number <<
 			": receive start time " << msg_time-r_event.receive_start_time <<
 			" seconds before receive complete time." << COLOR_RESET << endl;
+		DIRE_WARNINGS++;
 	}
+
+	// get the modem transmission and receive statistics
+	goby::acomms::protobuf::ModemTransmission trans = r_event.data_msg;
+	micromodem::protobuf::ReceiveStatistics stat;
+	int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
+
+	// find the relevant receive statistics
+	if( num_stats == 1 ) { // psk or mini packet transmission
+		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+	} else if ( num_stats == 2 ) { // fsk transmission
+		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+	} else if ( num_stats > 2 ) {
+		cout << COLOR_RED << "ERROR at line " << line_number <<
+				": protobuf has " << num_stats
+				<< " receive statistics." << COLOR_RESET << endl;
+		ERRORS++;
+		return r_event;
+	} else if ( num_stats == 0 ) {
+		cout << COLOR_YELLOW << "WARNING at line " << line_number <<
+				": protobuf has no receive statistics, will look later.  Statistics processing postponed"
+				<< COLOR_RESET << endl;
+		r_event.missing_stats = true;
+		return r_event;
+	}
+
+	int num_bad_frames;
+	if ( stat.psk_error_code() == micromodem::protobuf::BAD_CRC_DATA_HEADER ||
+			stat.psk_error_code() == micromodem::protobuf::BAD_MODULATION_HEADER ||
+			stat.psk_error_code() == micromodem::protobuf::MISSED_START_OF_PSK_PACKET   ) {
+		num_bad_frames = stat.number_frames();
+	} else {
+		num_bad_frames = stat.number_bad_frames();
+	}
+	if ( stat.number_frames() - num_bad_frames > 0 && trans.frame_size() == 0 ) {
+		// missing frames - isolated receive statistics
+		cout << COLOR_YELLOW << "WARNING at line " << line_number <<
+				": receive statistics missing frames, will look later.  Statistics processing postponed."
+				<< COLOR_RESET << endl;
+		r_event.missing_frames = true;
+		return r_event;
+	}
+
+	processStatistics( &r_event, stat, line_number );
 
 //	cout << "parsed okay" << endl;
 	return r_event;
+}
+
+void ACOMMS_ALOG_PARSER::FILE_INFO::processStatistics( ACOMMS_ALOG_PARSER::RECEPTION_EVENT * r_event,
+		micromodem::protobuf::ReceiveStatistics stat, int line_number ) {
+
+	goby::acomms::protobuf::ModemTransmission trans = r_event->data_msg;
+
+	// number of frames an source id
+	r_event->num_frames = stat.number_frames();
+	r_event->source_id = stat.source();
+
+	// check for mini packets and determine rate
+	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
+		if ( trans.HasExtension( micromodem::protobuf::type ) ) {
+			micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
+			if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA )
+				r_event->rate = 100;
+			else {
+				cout << COLOR_RED << "ERROR at line " << line_number <<
+						": unrecognized transmission type " << type <<
+						COLOR_RESET << endl;
+				ERRORS++;
+				r_event->rate = -1;
+			}
+		} else {
+			cout << COLOR_RED << "ERROR at line " << line_number <<
+					": missing driver specific transmission type extension" <<
+					COLOR_RESET << endl;
+			ERRORS++;
+			r_event->rate = -1;
+		}
+	} else {
+		r_event->rate = stat.rate();
+	}
+
+	if ( trans.frame_size() == 0 ) {
+		for ( int i=0; i<r_event->num_frames; i++ ) {
+			r_event->frame_status.push_back(2);
+		}
+	} else {
+		for ( int i=0; i<r_event->num_frames; i++ ) {
+			r_event->frame_status.push_back(1);
+		}
+		int bad_frames = trans.ExtensionSize( micromodem::protobuf::frame_with_bad_crc );
+		for ( int i=0; i<bad_frames; i++ ) {
+			int bad_index = trans.GetExtension( micromodem::protobuf::frame_with_bad_crc, i );
+			if ( bad_index >= r_event->frame_status.size() || bad_index < 0 ) {
+				cout << COLOR_RED << "ERROR at line " << line_number <<
+						": bad frame reported at position " << bad_index <<
+						" but only " << r_event->num_frames << " total." <<
+						COLOR_RESET << endl;
+				ERRORS++;
+			} else {
+				r_event->frame_status[bad_index] = 2;
+			}
+		}
+	}
 }
 
 ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructTransmission( double msg_time, int line_number, string msg_val ) {
@@ -484,6 +709,7 @@ ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructT
 	SIMPLIFIED_TRANSMIT_INFO ats( msg_val );
 	t_event.rate = ats.rate;
 	t_event.destination_id = ats.dest;
+	t_event.num_frames = ats.num_frames;
 
 //	cout << "parsed okay" << endl;
 
