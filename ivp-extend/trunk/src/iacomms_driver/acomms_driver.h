@@ -5,11 +5,13 @@
 /*    DATE:                                                 */
 /************************************************************/
 
+
 #ifndef acomms_driver_HEADER
 #define acomms_driver_HEADER
 
 #include "MOOSLib.h"
 #include "goby/acomms/modem_driver.h"
+#include "goby/acomms/protobuf/mm_driver.pb.h"
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
 #include "goby/acomms/connect.h"

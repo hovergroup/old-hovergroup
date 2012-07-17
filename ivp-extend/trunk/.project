@@ -3,6 +3,9 @@
 	<name>trunk</name>
 	<comment></comment>
 	<projects>
+		<project>goby</project>
+		<project>MOOS</project>
+		<project>moos-ivp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
