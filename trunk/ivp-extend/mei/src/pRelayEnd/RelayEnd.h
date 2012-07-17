@@ -31,6 +31,7 @@ protected:
 	double end_x,end_y,myx,myy;
 	double fudge_factor,now,last,update_time;
 	bool driver_ready;
+	double voltage;
 };
 
 #endif 

@@ -34,7 +34,7 @@ public:
 	int Decision();
 	void GetWaypoints();
 	unsigned int closest_vertex(double, double);
-	void ComputeSuccessRates(bool);
+	void ComputeSuccessRates(int);
 
 protected:
 
@@ -51,10 +51,9 @@ protected:
 
 	void Confess(RelayStat stats);
 
-	//relay
-	string mode;
+	string mode, mail;
 	int discount,min_obs,total_points,num_lookback, rate;
-	map<double, std::vector<double> > data;
+	map<double, vector<double> > data;
 	vector<double> mean, stdev,indices;
 	vector<double> normal_indices;
 	vector<double> wpx, wpy;
@@ -62,8 +61,12 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool waiting, relaying;
+	bool relaying;
+	bool heard_one, paused;
+	double wait_time, start_time;
 	int connected;
+	double mythrust;
+	string heard_what;
 
 };
 

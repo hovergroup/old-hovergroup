@@ -13,8 +13,9 @@
 RelayEnd::RelayEnd()
 {
 	driver_ready = false;
-	fudge_factor = 5; //m
-	update_time = 5; //s
+	fudge_factor = 10; //m
+	update_time = 7; //s
+	voltage = 0.0;
 }
 
 //---------------------------------------------------------
@@ -44,14 +45,12 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		else if(key=="ACOMMS_RECEIVED_SIMPLE"){
 			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
-			cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
-
-			if(receive_info.source==relay_id && receive_info.num_good_frames==receive_info.num_frames){
-				m_Comms.Notify("ACOMMS_BRIDGE","1");
-			}
-
-			else{
-				m_Comms.Notify("ACOMMS_BRIDGE","0");
+			if(receive_info.source==relay_id){
+				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
+				cout << "Sending mini ack" << endl << endl;
+				if(receive_info.num_good_frames==receive_info.num_frames){
+					m_Comms.Notify("ACOMMS_TRANSMIT_DATA","a");
+				}
 			}
 		}
 
@@ -62,6 +61,9 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			else{
 				driver_ready = false;
 			}
+		}
+		else if(key=="VOLTAGE"){
+			voltage = msg.GetDouble();
 		}
 
 	}
@@ -82,11 +84,13 @@ bool RelayEnd::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("RelayID",relay_id);
 	m_MissionReader.GetConfigurationParam("Endx", end_x);
 	m_MissionReader.GetConfigurationParam("Endy", end_y);
+	m_MissionReader.GetConfigurationParam("Radius",fudge_factor);
 
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
+	m_Comms.Register("VOLTAGE",0);
 
 	stringstream ss;
 	ss<<"points="<<end_x<<","<<end_y;
@@ -112,7 +116,7 @@ bool RelayEnd::Iterate()
 {
 	now = MOOSTime();
 	if(now - last >= update_time){
-		// happens AppTick times per second
+		cout << "Voltage: " << voltage << endl;
 		if(fabs(myx-end_x)<=fudge_factor && fabs(myy-end_y)<=fudge_factor){
 			cout << "In Position"<<endl;
 			if(driver_ready){
@@ -121,12 +125,12 @@ bool RelayEnd::Iterate()
 			}
 			else{
 				cout << "Driver not Ready" << endl;
-				m_Comms.Notify("END_STATUS","MODEM NOT READY");
+				m_Comms.Notify("END_STATUS","END STATUS: Modem not ready");
 			}
 		}
 		else{
 			cout << "Not in Position" << endl;
-			m_Comms.Notify("END_STATUS","NOT IN PLACE");
+			m_Comms.Notify("END_STATUS","END STATUS: Not in place");
 		}
 		last = MOOSTime();
 	}
