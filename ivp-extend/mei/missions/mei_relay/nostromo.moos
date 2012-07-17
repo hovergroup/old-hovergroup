@@ -37,6 +37,19 @@ ProcessConfig = pRelayEnd
 	Endy = -300
 }
 
+ProcessConfig = pSearchRelay
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	Mode = normal
+	Discount = 1
+	MinObs = 10		//at least 2x Lookback
+	FudgeFactor = 10  //m
+	Lookback = 1    //observations per result
+	Epsilon = 5		//percent
+}
+
 ProcessConfig = pMOOSBridge
 	{
 	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
