@@ -5,44 +5,91 @@
  *      Author: josh
  */
 
+//#include <iostream>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <fstream>
+//#include <sstream>
+////#include <acomms_messages.h>
+//#include <boost/date_time/posix_time/posix_time.hpp>
+////#include <gsl/gsl_statistics_double.h>
+////#include <gsl/gsl_matrix.h>
+////#include <gsl/gsl_blas.h>
+////#include <gsl/gsl_permutation.h>
+////#include <gsl/gsl_linalg.h>
+//#include <vector>
+////#include "XYSegList.h"
+//
+//using namespace std;
+//using namespace boost::posix_time;
+////using namespace lib_acomms_messages;
+//
+//string string_chomp( string s, char c ) {
+//	for ( int i=0; i<s.size()-1; i++ ) {
+//		if ( s[i]==c ) return s.substr(i+1, s.size()-i+1);
+//	}
+//	return s;
+//}
+
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
-#include <sstream>
-//#include <acomms_messages.h>
-#include <boost/date_time/posix_time/posix_time.hpp>
-//#include <gsl/gsl_statistics_double.h>
-//#include <gsl/gsl_matrix.h>
-//#include <gsl/gsl_blas.h>
-//#include <gsl/gsl_permutation.h>
-//#include <gsl/gsl_linalg.h>
+#include <string.h>
 #include <vector>
-//#include "XYSegList.h"
+#include <math.h>
+#include <string>
 
 using namespace std;
-using namespace boost::posix_time;
-//using namespace lib_acomms_messages;
 
-string string_chomp( string s, char c ) {
-	for ( int i=0; i<s.size()-1; i++ ) {
-		if ( s[i]==c ) return s.substr(i+1, s.size()-i+1);
-	}
-	return s;
-}
+// our structure for sending data
+struct MY_DATA {
+	unsigned char packet_id;
+	int latitude;
+	int longitude;
+	unsigned short heading;
+};
 
 int main() {
 
-	unsigned char data[] = {0x01, 0x10};
+string hello = "hello";
+hello.erase( --hello.end() );
+cout << hello << endl;
+}
 
-	// method 1 - bitwise operations
-	unsigned short result1 = (data[0]<<8) + data[1];
-	cout << result1 << endl;
+//	// fill a struct with data
+//	MY_DATA data_to_send;
+//	data_to_send.packet_id = 0x01;
+//	data_to_send.latitude = (int) (42.358456 * pow(10,7));
+//	data_to_send.longitude = (int) (-71.087589 * pow(10,7));
+//	data_to_send.heading = 185;
+//
+//	// construct our array/vector and fill it with data
+//	vector<unsigned char> packet (sizeof(data_to_send), 0);
+//	memcpy(&packet[0], &data_to_send.packet_id, sizeof(data_to_send));
+//
+//	// to get our data out, do the reverse
+//	MY_DATA data_received;
+//	memcpy(&data_received.packet_id, &packet[0], sizeof(data_to_send));
+//
+//	// print out the data
+//	cout << "packet id: 0x" << hex << (int) data_received.packet_id << dec << endl;
+//	cout << "lat: " << data_received.latitude / pow(10,7) << endl;
+//	cout << "lon: " << data_received.longitude / pow(10,7) << endl;
+//	cout << "heading: " << data_received.heading << endl;
+//
+//	string s( (char*) &packet[0], packet.size() );
+//
+//	return 0;
 
-	// method 2 - memcpy
-	unsigned short result2;
-	memcpy(&result2, &data[0],2);
-	cout << result2 << endl;
+//
+//	unsigned char data[] = {0x01, 0x10};
+//
+//	// method 1 - bitwise operations
+//	unsigned short result1 = (data[0]<<8) + data[1];
+//	cout << result1 << endl;
+//
+//	// method 2 - memcpy
+//	unsigned short result2;
+//	memcpy(&result2, &data[0],2);
+//	cout << result2 << endl;
 
 //
 //	fstream filestr;
@@ -147,5 +194,5 @@ int main() {
 	//	gsl_matrix_free(transitions);
 	//	gsl_matrix_free(C);
 
-	return 0;
-}
+//	return 0;
+//}

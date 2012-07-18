@@ -27,6 +27,11 @@
 
 #define UTC_TIME_OFFSET -4
 
+#define PSK2_RECEIVE_DURATION 4
+#define PSK1_RECEIVE_DURATION 4
+#define FSK0_RECEIVE_DURATION 6.5
+#define MINI_RECEIVE_DURATION .8
+
 class ACOMMS_ALOG_PARSER {
 
 public:
@@ -121,7 +126,7 @@ public:
 		std::vector<RECEPTION_EVENT> receptions_vector;
 
 		// used when performing matching
-		std::vector<std::pair<int, RECEPTION_EVENT> > reception_matches;
+		std::vector<std::pair<double, RECEPTION_EVENT> > reception_matches;
 	};
 
 private:
@@ -132,6 +137,16 @@ private:
 	std::vector<RECEPTION_EVENT> all_receptions;
 	std::map<std::string, std::vector<TRANSMISSION_EVENT> > vehicle_transmissions;
 	std::map<std::string, std::vector<RECEPTION_EVENT> > vehicle_receptions;
+	std::vector<RECEPTION_EVENT> unmatched_receptions;
+
+	// variable histories for each vehicle, sorted by time
+	std::map<std::string, std::vector<std::pair<double, double> > >
+		gps_x, gps_y, desired_thrust, voltage;
+	std::map<std::string, std::vector<std::pair<double, std::string> > >
+		acomms_driver_status, acomms_transmit_data, acomms_transmitted_data_hex,
+		acomms_received_data_hex;
+	std::map<std::string, std::vector<std::pair<double, boost::posix_time::ptime> > >
+		gps_time;
 
 // --------------------------------------------------------------------------------
 // Don't look past here or you will go blind ~ Josh
@@ -156,6 +171,7 @@ public:
 		}
 
 		void processFile();
+		void applyTimeOffset(double offset);
 
 		double getMOOSTimeOffset() {
 			return moos_time_offset;
@@ -169,6 +185,14 @@ public:
 
 		std::vector<std::pair<double, RECEPTION_EVENT> > receptions;
 		std::vector<std::pair<double, TRANSMISSION_EVENT> > transmissions;
+
+		// indexed by time
+		std::vector<std::pair<double, double> > gps_x, gps_y, desired_thrust,
+				voltage;
+		std::vector<std::pair<double, std::string> > acomms_driver_status,
+				acomms_transmit_data, acomms_transmitted_data_hex,
+				acomms_received_data_hex;
+		std::vector<std::pair<double, boost::posix_time::ptime> > gps_time;
 
 	private:
 		void parseHeaderLines();
@@ -200,27 +224,19 @@ public:
 		std::vector<std::string> header_lines;
 		boost::posix_time::ptime creation_time;
 
-		// indexed by time
-		std::vector<std::pair<double, double> > gps_x, gps_y, desired_thrust,
-				voltage;
-		std::vector<std::pair<double, std::string> > acomms_driver_status,
-				acomms_transmit_data, acomms_transmitted_data_hex,
-				acomms_received_data_hex;
-		std::vector<std::pair<double, boost::posix_time::ptime> > gps_time;
-
 		void processStatistics( RECEPTION_EVENT * r_event,
 				micromodem::protobuf::ReceiveStatistics stat, int line_number );
 		bool tryCombine( int frame_index, int stats_index );
 		void fillStats( RECEPTION_EVENT * frame_event, RECEPTION_EVENT stats_event );
 	};
 
-	class VEHICLE_HISTORY {
-	public:
-		std::vector<FILE_INFO> vehicle_logs;
-
-		ALogEntry getNextEntry();
-
-	};
+//	class VEHICLE_HISTORY {
+//	public:
+//		std::vector<FILE_INFO> vehicle_logs;
+//
+//		ALogEntry getNextEntry();
+//
+//	};
 
 private:
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings =
@@ -229,6 +245,8 @@ private:
 
 	double computeMatching(RECEPTION_EVENT * r_event,
 			TRANSMISSION_EVENT * t_event);
+
+	void publishSummary();
 
 	std::vector<FILE_INFO> alog_files;
 };
