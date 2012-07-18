@@ -22,6 +22,7 @@ using namespace lib_acomms_messages;
 
 int DIRE_WARNINGS = 0;
 int ERRORS = 0;
+bool use_hex = false;
 
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 }
@@ -55,6 +56,25 @@ pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_tim
 	return pair<int,double>(index,min_diff);
 }
 
+template <class T>
+void applyOffset( vector<pair<double,T> > * item_list, double offset ) {
+	for ( int i=0; i<item_list->size(); i++ ) {
+		item_list->at(i).first += offset;
+	}
+}
+
+template <class T>
+bool general_sort( pair<double,T> obj1, pair<double,T> obj2 ) {
+	return obj1.first < obj2.first;
+}
+
+template <class T>
+void appendVector( vector<T> * append_to, vector<T> * append_from ) {
+	for ( int i=0; i<append_from->size(); i++ ) {
+		append_to->push_back( append_from->at(i) );
+	}
+}
+
 // functions for sorting by time
 bool transmission_sort ( ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT t1, ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT t2 ) {
 	return t1.transmission_time < t2.transmission_time;
@@ -73,35 +93,51 @@ double ACOMMS_ALOG_PARSER::computeMatching(
 		return -1;
 	}
 
-	double matching_score = 0;
+	double matching_score = 5;
 
 	// more accurate timing
 	double distance = sqrt( pow(r_event->gps_x - t_event->gps_x, 2.0) +
 			pow(r_event->gps_y - t_event->gps_y, 2.0) );
-	double expected_transit_time = distance/343.0;
-	double time_error = r_event->receive_start_time - t_event->transmission_time - expected_transit_time;
+	double expected_transit_time = distance/1500.0;
+	double time_error = fabs(r_event->receive_start_time - t_event->transmission_time - expected_transit_time);
 	matching_score += (10 - time_error);
 
-//	// get the modem transmission and receive statistics
-//	goby::acomms::protobuf::ModemTransmission trans = r_event->data_msg;
-//	micromodem::protobuf::ReceiveStatistics stat;
-//	int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
-//
-//	if( num_stats == 1 ) { // psk or mini packet transmission
-//		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
-//		if ( stat.psk_error_code() == 2 ) { // bad data header
-//
-//		} else {
-//			if ( stat.rate)
-//		}
-//
-//	} else if ( num_stats == 2 ) { // fsk transmission
-//		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
-//	} else {
-//		cout << COLOR_RED << "ERROR: protobuf has " << num_stats
-//				<< " receive statistics." << COLOR_RESET << endl;
-//		return -1;
-//	}
+	if ( use_hex ) {
+		// compare frames
+		if ( r_event->frame_status.size()==1 && r_event->frame_status[0]==1 ) {
+			// for single frame packets we can just check
+			if ( r_event->received_data_hex == t_event->transmitted_data_hex )
+				matching_score+=2;
+			else
+				matching_score-=2;
+		} else {
+	//		vector<string> transmitted_frames;
+	//		int total_size = t_event->transmitted_data_hex.
+	//		while
+		}
+	}
+}
+
+// apply time offset to all saved variables and receptions/transmissions
+void ACOMMS_ALOG_PARSER::FILE_INFO::applyTimeOffset( double offset ) {
+	applyOffset( &gps_x, offset );
+	applyOffset( &gps_y, offset );
+	applyOffset( &desired_thrust, offset );
+	applyOffset( &voltage, offset );
+	applyOffset( &acomms_driver_status, offset );
+	applyOffset( &acomms_transmit_data, offset );
+	applyOffset( &acomms_transmitted_data_hex, offset );
+	applyOffset( &acomms_received_data_hex, offset );
+	applyOffset( &gps_time, offset );
+	applyOffset( &receptions, offset );
+	applyOffset( &transmissions, offset );
+	for ( int i=0; i<receptions.size(); i++ ) {
+		receptions[i].second.receive_start_time += offset;
+		receptions[i].second.receive_time += offset;
+	}
+	for ( int i=0; i<transmissions.size(); i++ ) {
+		transmissions[i].second.transmission_time += offset;
+	}
 }
 
 void ACOMMS_ALOG_PARSER::runParser() {
@@ -110,14 +146,13 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		// gets header lines, vehicle name, acomms ID, time offset, data, etc.
 		alog_files[i].processFile();
 
-		// get time offset of our log file
+		// get time offset of our log file and apply
 		double time_offset = alog_files[i].getMOOSTimeOffset();
+		alog_files[i].applyTimeOffset( time_offset );
 
 		// add receipts to our list of receptions for this vehicle, now with absolute time
 		for ( int j=0; j<alog_files[i].receptions.size(); j++ ) {
 			RECEPTION_EVENT r_event = alog_files[i].receptions[j].second;
-			r_event.receive_time += time_offset;
-			r_event.receive_start_time += time_offset;
 			vehicle_receptions[alog_files[i].getVehicleName()].push_back( r_event );
 			all_receptions.push_back( r_event );
 		}
@@ -125,7 +160,6 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		// add transmissions to our list of all recptions, now with absolute time
 		for ( int j=0; j<alog_files[i].transmissions.size(); j++ ) {
 			TRANSMISSION_EVENT t_event = alog_files[i].transmissions[j].second;
-			t_event.transmission_time += time_offset;
 			vehicle_transmissions[alog_files[i].getVehicleName()].push_back(t_event);
 			all_transmissions.push_back( t_event );
 		}
@@ -134,16 +168,41 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		if ( find( vehicle_names.begin(), vehicle_names.end(), alog_files[i].getVehicleName() ) == vehicle_names.end() ) {
 			vehicle_names.push_back( alog_files[i].getVehicleName() );
 		}
+
+		// add individual data sets to full time history for that vehicle
+		appendVector( &gps_x[alog_files[i].getVehicleName()], &alog_files[i].gps_x );
+		appendVector( &gps_y[alog_files[i].getVehicleName()], &alog_files[i].gps_y );
+		appendVector( &desired_thrust[alog_files[i].getVehicleName()], &alog_files[i].desired_thrust );
+		appendVector( &voltage[alog_files[i].getVehicleName()], &alog_files[i].voltage );
+		appendVector( &acomms_driver_status[alog_files[i].getVehicleName()], &alog_files[i].acomms_driver_status );
+		appendVector( &acomms_transmit_data[alog_files[i].getVehicleName()], &alog_files[i].acomms_transmit_data );
+		appendVector( &acomms_transmitted_data_hex[alog_files[i].getVehicleName()], &alog_files[i].acomms_transmitted_data_hex );
+		appendVector( &acomms_received_data_hex[alog_files[i].getVehicleName()], &alog_files[i].acomms_received_data_hex );
+		appendVector( &gps_time[alog_files[i].getVehicleName()], &alog_files[i].gps_time );
 	}
 
-	// for each vehicle, sort receptions by time
+	// for each vehicle, sort data by time
 	for ( int i=0; i<vehicle_names.size(); i++ ) {
-		sort( vehicle_receptions[vehicle_names[i]].begin(),
-				vehicle_receptions[vehicle_names[i]].end(), reception_sort );
+		string name = vehicle_names[i];
+		sort( vehicle_receptions[name].begin(),
+				vehicle_receptions[name].end(), reception_sort );
+		sort( vehicle_transmissions[name].begin(),
+				vehicle_transmissions[name].end(), transmission_sort );
+
+		sort( gps_x[name].begin(), gps_x[name].end(), general_sort<double> );
+		sort( gps_y[name].begin(), gps_y[name].end(), general_sort<double> );
+		sort( desired_thrust[name].begin(), desired_thrust[name].end(), general_sort<double> );
+		sort( voltage[name].begin(), voltage[name].end(), general_sort<double> );
+		sort( acomms_driver_status[name].begin(), acomms_driver_status[name].end(), general_sort<string> );
+		sort( acomms_transmit_data[name].begin(), acomms_transmit_data[name].end(), general_sort<string> );
+		sort( acomms_transmitted_data_hex[name].begin(), acomms_transmitted_data_hex[name].end(), general_sort<string> );
+		sort( acomms_received_data_hex[name].begin(), acomms_received_data_hex[name].end(), general_sort<string> );
+		sort( gps_time[name].begin(), gps_time[name].end(), general_sort<boost::posix_time::ptime> );
 	}
 
-	// sort all transmissions by time
+	// sort all transmissions and receptions by time
 	sort( all_transmissions.begin(), all_transmissions.end(), transmission_sort );
+	sort( all_receptions.begin(), all_receptions.end(), reception_sort );
 
 	// per vehicle
 	for ( int i=0; i<vehicle_names.size(); i++ ) {
@@ -155,6 +214,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 	cout << all_receptions.size() << " total receptions" << endl;
 	cout << all_transmissions.size() << " total transmissions" << endl;
 
+	// summary of errors and dire warnings, if any
 	if ( ERRORS > 0 || DIRE_WARNINGS > 0 ) {
 		cout << COLOR_RED << DIRE_WARNINGS << " dire warnings and " << ERRORS <<
 				" errors require attention." << COLOR_RESET << endl;
@@ -167,48 +227,67 @@ void ACOMMS_ALOG_PARSER::runParser() {
 
 	vector<RECEPTION_EVENT> remaining_receptions = all_receptions;
 	while ( !remaining_receptions.empty() ) {
+		// fetch a reception
 		RECEPTION_EVENT r_event = remaining_receptions.back();
-		vector<double> matching_scores;
+		remaining_receptions.pop_back();
+		string reception_name = r_event.vehicle_name;
+
+		// compute matching scores with all transmissions
+		vector<pair<double,int> > matching_scores;
+		int best_index = -1;
 		for ( int j=0; j<all_transmissions.size(); j++ ) {
 			TRANSMISSION_EVENT t_event = all_transmissions[j];
-			matching_scores.push_back( computeMatching( &r_event, &t_event ) );
+			double this_score = computeMatching( &r_event, &t_event );
+			matching_scores.push_back( pair<double,int>(this_score,j) );
 		}
-	}
 
-	vector<RECEPTION_EVENT> unmatched_receptions;
-	for ( int i=0; i<all_receptions.size(); i++ ) {
-		RECEPTION_EVENT r_event = all_receptions[i];
+		// sort matching scores low to high
+		sort(matching_scores.begin(), matching_scores.end(), general_sort<int>);
 
-		bool matched = false;
-		for ( int j=0; j<all_transmissions.size(); j++ ) {
-			TRANSMISSION_EVENT * t_event = &all_transmissions[j];
-			if ( r_event.receive_start_time - t_event->transmission_time < 7 &&
-					t_event->transmission_time - r_event.receive_start_time < 2 ) {
-				if ( t_event->receptions_map.find(r_event.vehicle_name) ==
-						t_event->receptions_map.end() && t_event->transmitter_name !=
-								r_event.vehicle_name ) {
-					t_event->receptions_map[r_event.vehicle_name] = r_event;
-					t_event->receptions_vector.push_back( r_event );
-					matched = true;
+		// work backwards through list to find best
+		for ( int j=matching_scores.size()-1; j>-1; j-- ) {
+			if ( matching_scores[j].first < 0 ) {
+				unmatched_receptions.push_back( r_event );
+				break;
+			}
+			TRANSMISSION_EVENT * t_event = &all_transmissions[ matching_scores[j].second ];
+
+			// check if transmission already has a reception on our vehicle
+			int score_index = -1;
+			for ( int k=0; k<t_event->reception_matches.size(); k++ ) {
+				if ( t_event->reception_matches[k].second.vehicle_name == reception_name ) {
+					score_index = k;
 					break;
-				} else {
-					cout << "Matching conflict" << endl;
 				}
 			}
+
+			if ( score_index != -1 ) {
+				// already has, check if we're better
+				if ( matching_scores[j].first > t_event->reception_matches[score_index].first ) {
+					remaining_receptions.push_back( t_event->reception_matches[score_index].second );
+					t_event->reception_matches.erase( t_event->reception_matches.begin()+=score_index );
+					t_event->reception_matches.push_back( pair<double,RECEPTION_EVENT>
+						( matching_scores[j].first, r_event ) );
+					break;
+				}
+			} else {
+				// doesn't have, add ourselves
+				t_event->reception_matches.push_back( pair<double,RECEPTION_EVENT>
+					( matching_scores[j].first, r_event ) );
+				break;
+			}
 		}
-		if ( !matched )
-			unmatched_receptions.push_back( r_event );
 	}
 
-//	for ( int i=0; i<all_transmissions.size(); i++ ) {
-//		if ( all_transmissions[i].receptions_vector.size() > 1 ) {
-//			cout << "warning transmissions with " << all_transmissions[i].receptions_vector.size() << " receptions" << endl;
-//			for ( int j=0; j<all_transmissions[i].receptions_vector.size(); j++ ) {
-//				cout << all_transmissions[i].receptions_vector[j].vehicle_name << " ";
-//			}
-//			cout << endl;
-//		}
-//	}
+	// populate receptions_vector and receptions_map
+	for ( int i=0; i<all_transmissions.size(); i++ ) {
+		TRANSMISSION_EVENT * t_event = &all_transmissions[i];
+		for ( int j=0; j<t_event->reception_matches.size(); j++ ) {
+			RECEPTION_EVENT r_event = t_event->reception_matches[j].second;
+			t_event->receptions_vector.push_back( r_event );
+			t_event->receptions_map[r_event.vehicle_name] = r_event;
+		}
+	}
 
 	int sync_losses =0;
 	for ( int i=0; i<all_transmissions.size(); i++ ) {
@@ -224,52 +303,96 @@ void ACOMMS_ALOG_PARSER::runParser() {
 	cout << all_transmissions.size() << " transmissions" << endl;
 	cout << sync_losses << " sync losses" << endl;
 	cout << unmatched_receptions.size() << " unmatched receptions" << endl;
-//
-//	int sync_losses = 0;
-//	for ( int i=0; i<all_transmissions.size(); i++ ) {
-//		TRANSMISSION_EVENT t_event = all_transmissions[i];
-////		cout << "transmission at time " << t_event.transmission_time << endl;
-//		for ( int j=0; j<vehicle_names.size(); j++ ) {
-//			string name = vehicle_names[j];
-//			bool reception_found = false;
-//			for ( int k=0; k<vehicle_receptions[name].size(); k++ ) {
-//				RECEPTION_EVENT r_event = vehicle_receptions[name][k];
-////				cout << "reception at time " << r_event.receive_time << endl;
-//				double time_diff = r_event.receive_time - t_event.transmission_time;
-//				if ( time_diff < 7 && time_diff > 0 ) {
-//					t_event.receptions_map[name] = r_event;
-//					t_event.receptions_vector.push_back( r_event );
-//					reception_found = true;
-//					vehicle_receptions[name].erase( vehicle_receptions[name].begin()+=k );
-//					break;
-//				}
-//			}
-//			if ( !reception_found ) {
-//				RECEPTION_EVENT r_event;
-//				r_event.vehicle_name = name;
-//				r_event.receive_status = 2;
-//				if ( name != t_event.transmitter_name ) {
-//					sync_losses++;
-////					cout << "sync loss #" << sync_losses << ": " << t_event.transmitter_name << " to " <<
-////							name << endl;
-//				}
-//				t_event.receptions_map[name] = r_event;
-//				t_event.receptions_vector.push_back( r_event );
-//			}
-//		}
-//		all_transmissions[i] = t_event;
-//
-//	}
-//
-//	cout << all_transmissions.size() << " transmissions" << endl;
-//	cout << sync_losses << " sync losses" << endl;
-//	int sum= 0;
-//	for ( int i=0; i<vehicle_names.size(); i++ ) {
-//		sum+=vehicle_receptions[vehicle_names[i]].size();
-//	}
-//	cout << sum << " unsynced receptions" << endl;
 
-	outputResults();
+	publishSummary();
+
+//	outputResults();
+}
+
+string toNiceString( double secondstime ) {
+	long secs = (long) secondstime;
+	long millis = (long) (secondstime*1000) - secs*1000;
+	time_duration td = seconds(secs) + milliseconds(millis);
+	return to_simple_string(td);
+}
+
+void ACOMMS_ALOG_PARSER::publishSummary() {
+	ofstream summary;
+	summary.open("summary.txt", ios::out);
+
+	for ( int i=0; i<all_transmissions.size(); i++ ) {
+		TRANSMISSION_EVENT t_event = all_transmissions[i];
+
+		summary << "Transmit time: " << toNiceString( t_event.transmission_time ) << endl;
+		summary << "Vehicle: " << t_event.transmitter_name << endl;
+		summary << "Rate: " << t_event.rate << endl;
+		summary << "Source id: " << t_event.source_id << endl;
+		summary << "Data: " << t_event.data << endl;
+		summary << "Hex data: " << t_event.transmitted_data_hex << endl;
+		summary << "Number of receptions: " << t_event.receptions_vector.size() << endl;
+		summary << endl;
+
+		for ( int j=0; j<t_event.reception_matches.size(); j++ ) {
+			RECEPTION_EVENT r_event = t_event.reception_matches[j].second;
+			summary << "Vehicle: " << r_event.vehicle_name << endl;
+			summary << "Receive start: " << toNiceString( r_event.receive_start_time ) << endl;
+			summary << "Receive complete: " << toNiceString( r_event.receive_time ) << endl;
+			double dist = sqrt( pow(r_event.gps_x-t_event.gps_x,2) +
+					pow(r_event.gps_y-t_event.gps_y,2) );
+			summary << "Distance from transmitter: " << dist << endl;
+			summary << "Matching score: " << t_event.reception_matches[j].first << endl;
+			summary << "Rate: " << r_event.rate << endl;
+			summary << "Source id: " << r_event.source_id << endl;
+			summary << "Num frames: " << r_event.num_frames << endl;
+			summary << "Frame status: ";
+			for ( int k=0; k<r_event.frame_status.size(); k++ ) {
+				summary << r_event.frame_status[k] << " ";
+			} summary << endl;
+			string data;
+			for ( int k=0; k<r_event.data_msg.frame_size(); k++ ) {
+				data += r_event.data_msg.frame(k);
+			}
+			summary << "Data: " << data << endl;
+			summary << "Hex data: " << r_event.received_data_hex << endl;
+			summary << endl;
+		}
+
+		summary << endl
+				<< "-----------------------------------------------------------------------"
+				<< endl << endl;
+	}
+
+	summary << endl << endl
+			<< "-----------------------------------------------------------------------" << endl
+			<< "------------------------UNMATCHED RECEPTIONS---------------------------" << endl
+			<< "-----------------------------------------------------------------------" << endl
+			<< endl << endl;
+
+	for ( int i=0; i<unmatched_receptions.size(); i++ ) {
+		RECEPTION_EVENT r_event = unmatched_receptions[i];
+		summary << "Vehicle: " << r_event.vehicle_name << endl;
+		summary << "Receive start: " << toNiceString( r_event.receive_start_time ) << endl;
+		summary << "Receive complete: " << toNiceString( r_event.receive_time ) << endl;
+		summary << "Rate: " << r_event.rate << endl;
+		summary << "Source id: " << r_event.source_id << endl;
+		summary << "Num frames: " << r_event.num_frames << endl;
+		summary << "Frame status: ";
+		for ( int k=0; k<r_event.frame_status.size(); k++ ) {
+			summary << r_event.frame_status[k] << " ";
+		} summary << endl;
+		string data;
+		for ( int k=0; k<r_event.data_msg.frame_size(); k++ ) {
+			data += r_event.data_msg.frame(k);
+		}
+		summary << "Data: " << data << endl;
+		summary << "Hex data: " << r_event.received_data_hex << endl;
+
+		summary << endl
+				<< "-----------------------------------------------------------------------"
+				<< endl << endl;
+	}
+
+	summary.close();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -415,19 +538,58 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 				<< COLOR_RESET << endl;
 	} else {
 		for ( int i=0; i<receptions.size(); i++ ) {
+			// check if receive time is reasonable
+			RECEPTION_EVENT * r_event = &receptions[i].second;
+			double receive_length = r_event->receive_time -r_event->receive_start_time;
+			// negative is bad
+			if ( receive_length < 0 ) {
+				cout << COLOR_RED << "ERROR at line " << r_event->source_line <<
+						": receive length is " << receive_length << "." << COLOR_RESET << endl;
+			} else if ( receive_length > 7 ) {
+				// manually set too big of times based on rate
+				bool success = true;
+				switch ( r_event->rate ) {
+				case 0:
+					r_event->receive_start_time = r_event->receive_time - FSK0_RECEIVE_DURATION;
+					break;
+				case 1:
+					r_event->receive_start_time = r_event->receive_time - PSK1_RECEIVE_DURATION;
+					break;
+				case 2:
+					r_event->receive_start_time = r_event->receive_time - PSK2_RECEIVE_DURATION;
+					break;
+				case 100:
+					r_event->receive_start_time = r_event->receive_time - MINI_RECEIVE_DURATION;
+					break;
+				default:
+					success = false;
+					break;
+				}
+				if ( success ) {
+					cout << COLOR_GREEN << "Manually set receive start time at line " <<
+							r_event->source_line << " to " << r_event->receive_start_time
+							<< "." << COLOR_RESET << endl;
+				} else {
+					cout << COLOR_RED << "ERROR manually setting receive start time at line " <<
+							r_event->source_line << ": unhandled rate " << r_event->rate << "." <<
+							COLOR_RESET << endl;
+					ERRORS++;
+				}
+			}
+
 			// if there are frames, look for hex posting
-			if ( receptions[i].second.data_msg.frame_size() > 0 ) {
+			if ( r_event->data_msg.frame_size() > 0 ) {
 				// find the hex data nearest to our time
 				pair<int,double> hex_index = findNearest( acomms_received_data_hex, receptions[i].first );
 				if ( hex_index.first == -1 ) { // failed to find
-					cout << COLOR_YELLOW << "WARNING at line " << receptions[i].second.source_line
+					cout << COLOR_YELLOW << "WARNING at line " << r_event->source_line
 							<< ": failed to find hex data for reception." << COLOR_RESET << endl;
 				} else if ( hex_index.second > 1 ) { // time not very close
-						cout << COLOR_YELLOW << "WARNING at line " << receptions[i].second.source_line
+						cout << COLOR_YELLOW << "WARNING at line " << r_event->source_line
 								<< ": found receive hex data " << hex_index.second
 								<< " seconds away - not setting." << COLOR_RESET << endl;
 				} else { // all good
-					receptions[i].second.received_data_hex =
+					r_event->received_data_hex =
 							acomms_received_data_hex[hex_index.first].second;
 				}
 			}
@@ -469,6 +631,29 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::tryCombine( int frame_index, int stats_index
 				<< COLOR_RESET << endl;
 		receptions.erase(receptions.begin()+=stats_index);
 		receptions[frame_index].second.missing_stats = false;
+
+		goby::acomms::protobuf::ModemTransmission trans =
+				receptions[frame_index].second.data_msg;
+		micromodem::protobuf::ReceiveStatistics stat;
+		int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
+
+		// find the relevant receive statistics
+		if( num_stats == 1 ) { // psk or mini packet transmission
+			stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+		} else if ( num_stats == 2 ) { // fsk transmission
+			stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+		} else {
+			cout << COLOR_RED << "ERROR combining frames at " <<
+					receptions[frame_index].second.source_line << " with stats at " <<
+					receptions[stats_index].second.source_line << ": " <<
+					num_stats << " resulting receive statistics." << COLOR_RESET << endl;
+			return false;
+		}
+
+		// do delayed stats processing
+		processStatistics( &receptions[frame_index].second, stat,
+			receptions[frame_index].second.source_line );
+
 		return true;
 	} else {
 		return false;
@@ -507,7 +692,7 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	// reconstruct the protobuf
 	// check for bad time in receive stats
 	if ( msg_val.find("time: \"") != string::npos ) {
-		cout << COLOR_YELLOW << "WARNING at line " << line_number <<
+		cout << COLOR_GREEN << "FIXING at line " << line_number <<
 				": bad time in received_all - attempting to correct" << COLOR_RESET << endl;
 		// position of bad time in receive statistics
 		int bad_time_index = msg_val.find("time: \"");
@@ -551,13 +736,6 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 			break;
 		}
 	}
-	// check if receive time is reasonable
-	if ( msg_time - r_event.receive_start_time > 6 ) {
-		cout << COLOR_MAGENTA << "DIRE WARNING at line " << line_number <<
-			": receive start time " << msg_time-r_event.receive_start_time <<
-			" seconds before receive complete time." << COLOR_RESET << endl;
-		DIRE_WARNINGS++;
-	}
 
 	// get the modem transmission and receive statistics
 	goby::acomms::protobuf::ModemTransmission trans = r_event.data_msg;
@@ -583,6 +761,7 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 		return r_event;
 	}
 
+	// check for missing frames
 	int num_bad_frames;
 	if ( stat.psk_error_code() == micromodem::protobuf::BAD_CRC_DATA_HEADER ||
 			stat.psk_error_code() == micromodem::protobuf::BAD_MODULATION_HEADER ||
@@ -787,25 +966,33 @@ bool ACOMMS_ALOG_PARSER::FILE_INFO::offsetViaGPS() {
 	if ( gps_time.size() < 2 ) {
 		return false;
 	} else {
-		// parse ptime and apply time zone correction
-		ptime first_gps_ptime = gps_time[1].second;
-		time_duration utc_correction = hours(UTC_TIME_OFFSET);
-		first_gps_ptime += utc_correction;
+		double sum = 0;
+		int iterations = 0;
 
-		// time at which that gps time was received, seconds and milliseconds
-		int first_gps_moos_time_seconds = floor( gps_time[1].first );
-		int first_gps_moos_time_milliseconds = floor( gps_time[1].first*1000.0) - first_gps_moos_time_seconds*1000;
-		// convert to time duration
-		time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
-				milliseconds( first_gps_moos_time_milliseconds );
+		for ( int i=1; i<gps_time.size(); i+=5 ) {
+			iterations++;
+			// parse ptime and apply time zone correction
+			ptime first_gps_ptime = gps_time[1].second;
+			time_duration utc_correction = hours(UTC_TIME_OFFSET);
+			first_gps_ptime += utc_correction;
 
-//		cout << "first gps time " << first_gps_td << endl;
-//		cout << "ptime " << first_gps_ptime << endl;
+			// time at which that gps time was received, seconds and milliseconds
+			int first_gps_moos_time_seconds = floor( gps_time[1].first );
+			int first_gps_moos_time_milliseconds = floor( gps_time[1].first*1000.0) - first_gps_moos_time_seconds*1000;
+			// convert to time duration
+			time_duration first_gps_td = seconds ( first_gps_moos_time_seconds ) +
+					milliseconds( first_gps_moos_time_milliseconds );
 
-		// time 0 in log file = this gps time - time since 0
-		creation_time = first_gps_ptime - first_gps_td;// - first_moos_time_td;
-		// convert to seconds - time since 12am that day
-		moos_time_offset = creation_time.time_of_day().total_milliseconds()/1000.0;// -first_moos_time;
+	//		cout << "first gps time " << first_gps_td << endl;
+	//		cout << "ptime " << first_gps_ptime << endl;
+
+			// time 0 in log file = this gps time - time since 0
+			creation_time = first_gps_ptime - first_gps_td;// - first_moos_time_td;
+			// convert to seconds - time since 12am that day
+			sum += creation_time.time_of_day().total_milliseconds()/1000.0;// -first_moos_time;
+		}
+		moos_time_offset = sum/((double) iterations);
+
 		return true;
 	}
 }

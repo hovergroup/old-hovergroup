@@ -258,9 +258,13 @@ void acomms_driver::transmit_data() {
     // publish transmitted data in hexadecimal format
     stringstream ss;
     for ( int i=0; i<transmitted_data.size(); i++ ) {
-    	ss << hex << (int) transmitted_data[i];
+    	ss << hex << (int) transmitted_data[i] << ":";
     }
-    m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", ss.str() );
+	// take off the trailing colon
+    string to_publish = ss.str();
+    if ( to_publish.size() > 0 )
+    	to_publish.erase( --to_publish.end() );
+    m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", to_publish );
 
     postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
 }
@@ -370,9 +374,13 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		memcpy( &received_data[0], frame_string.data(), frame_string.size() );
 		stringstream ss;
 		for ( int i=0; i<received_data.size(); i++ ) {
-			ss << hex << (int) received_data[i];
+			ss << hex << (int) received_data[i] << ":";
 		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
+		// take off the trailing colon
+	    string to_publish = ss.str();
+	    if ( to_publish.size() > 0 )
+	    	to_publish.erase( --to_publish.end() );
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", to_publish);
 
 		m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
@@ -442,9 +450,13 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 			memcpy( &received_data[0], frame_string.data(), frame_string.size() );
 			stringstream ss;
 			for ( int i=0; i<received_data.size(); i++ ) {
-				ss << hex << (int) received_data[i];
+				ss << hex << (int) received_data[i] << ":";
 			}
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
+			// take off the trailing colon
+		    string to_publish = ss.str();
+		    if ( to_publish.size() > 0 )
+		    	to_publish.erase( --to_publish.end() );
+			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", to_publish );
 		}
 
 		// create a range pulse
