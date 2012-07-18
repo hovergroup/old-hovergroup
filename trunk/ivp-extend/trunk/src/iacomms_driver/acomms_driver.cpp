@@ -88,7 +88,6 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_RATE", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
-	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
     m_Comms.Register( "LOGGER_DIRECTORY", 1 );
     m_Comms.Register( "NAV_X", 1 );
     m_Comms.Register( "NAV_Y", 1 );

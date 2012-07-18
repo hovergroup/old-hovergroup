@@ -33,23 +33,16 @@ string string_chomp( string s, char c ) {
 
 int main() {
 
-	string s = "00";
-	for ( int i=0; i<s.size(); i++ ) {
-		cout << hex << (int) s[i] << " ";
-	}
-	cout << endl;
+	unsigned char data[] = {0x01, 0x10};
 
-	unsigned short data;
-	memcpy( &data, s.data(), 2 );
-	data =data&0xff1f;
+	// method 1 - bitwise operations
+	unsigned short result1 = (data[0]<<8) + data[1];
+	cout << result1 << endl;
 
-	vector<unsigned char> v (2, 0);
-	memcpy( &v[0], &data, 2 );
-
-	for ( int i=0; i<v.size(); i++ ) {
-		cout << hex << (int) v[i] << " ";
-	}
-	cout << endl;
+	// method 2 - memcpy
+	unsigned short result2;
+	memcpy(&result2, &data[0],2);
+	cout << result2 << endl;
 
 //
 //	fstream filestr;
