@@ -32,6 +32,18 @@
 #define FSK0_RECEIVE_DURATION 6.5
 #define MINI_RECEIVE_DURATION .8
 
+// functions that might be useful
+
+// find the nearest entry by time, returns index and time diff
+template <class T>
+std::pair<int,double> findNearest(
+		std::vector< std::pair<double,T> > item_list, double msg_time );
+
+// get a range of values specified by time
+template <class T>
+std::vector< std::pair<double,T> > getRange(
+		std::vector< std::pair<double,T> > item_list, double t_start, double t_end );
+
 class ACOMMS_ALOG_PARSER {
 
 public:
@@ -41,7 +53,7 @@ public:
 	class RECEPTION_EVENT {
 	public:
 		RECEPTION_EVENT() {
-			receive_status = -1;
+			receive_status = not_set;
 			receive_start_time = -1;
 			missing_stats = false;
 			missing_frames = false;
@@ -54,11 +66,21 @@ public:
 		std::string vehicle_name;
 		int vehicle_id;
 
-		// only sync loss implemented
-		int receive_status;
+		enum RECEIVE_STATUS {
+			not_set,
+			received_fully,
+			bad_crcs,
+			sync_loss,
+			driver_inactive
+		};
+		RECEIVE_STATUS receive_status;
 		// 0 = received fully
 		// 1 = sync ok, bad crc(s)
 		// 2 = sync loss, no detection
+		// 3 = driver not running
+
+		// usually related to the receive status
+		std::string debugInfo;
 
 		// parsed out
 		int rate, num_frames, source_id;
@@ -81,7 +103,7 @@ public:
 
 		std::string received_data_hex;
 
-		// used during initial parsing
+		// DO NOT USE
 		bool missing_stats;
 		bool missing_frames;
 	};
@@ -125,8 +147,9 @@ public:
 		std::map<std::string, RECEPTION_EVENT> receptions_map;
 		std::vector<RECEPTION_EVENT> receptions_vector;
 
-		// used when performing matching
+		// DO NOT USE
 		std::vector<std::pair<double, RECEPTION_EVENT> > reception_matches;
+		int hasVehicleMatch( std::string vehicle_name );
 	};
 
 private:
@@ -230,14 +253,6 @@ public:
 		void fillStats( RECEPTION_EVENT * frame_event, RECEPTION_EVENT stats_event );
 	};
 
-//	class VEHICLE_HISTORY {
-//	public:
-//		std::vector<FILE_INFO> vehicle_logs;
-//
-//		ALogEntry getNextEntry();
-//
-//	};
-
 private:
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings =
 			false);
@@ -247,6 +262,7 @@ private:
 			TRANSMISSION_EVENT * t_event);
 
 	void publishSummary();
+	void populateReceiveEvent( RECEPTION_EVENT * r_event, std::string name, double time );
 
 	std::vector<FILE_INFO> alog_files;
 };
