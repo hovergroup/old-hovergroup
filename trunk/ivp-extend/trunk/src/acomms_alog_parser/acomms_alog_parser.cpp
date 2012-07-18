@@ -24,7 +24,14 @@ int DIRE_WARNINGS = 0;
 int ERRORS = 0;
 bool use_hex = false;
 
+map<ACOMMS_ALOG_PARSER::RECEPTION_EVENT::RECEIVE_STATUS,string> RECEIVE_STATUS_STRINGS;
+
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::not_set] = "not set";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::received_fully] = "received fully";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::bad_crcs] = "bad crcs";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::sync_loss] = "sync loss";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::driver_inactive] = "driver inactive";
 }
 
 // find the nearest entry by time, returns index and time diff
@@ -56,6 +63,29 @@ pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_tim
 	return pair<int,double>(index,min_diff);
 }
 
+// get a range of values specified by time
+template <class T>
+vector< pair<double,T> > getRange(
+		vector< pair<double,T> > item_list, double t_start, double t_end ) {
+
+	vector< pair<double,T> > result;
+	for ( int i=0; i<item_list.size(); i++ ) {
+		if ( item_list[i].first > t_start && item_list[i].first < t_end ) {
+			result.push_back( item_list[i] );
+		}
+	}
+	return result;
+}
+
+template <class T>
+int findValue ( vector<pair<double,T> > item_list, T value ) {
+	for ( int i=0; i<item_list.size(); i++ ) {
+		if ( item_list[i].second == value )
+			return i;
+	}
+	return -1;
+}
+
 template <class T>
 void applyOffset( vector<pair<double,T> > * item_list, double offset ) {
 	for ( int i=0; i<item_list->size(); i++ ) {
@@ -73,6 +103,13 @@ void appendVector( vector<T> * append_to, vector<T> * append_from ) {
 	for ( int i=0; i<append_from->size(); i++ ) {
 		append_to->push_back( append_from->at(i) );
 	}
+}
+
+string toNiceString( double secondstime ) {
+	long secs = (long) secondstime;
+	long millis = (long) (secondstime*1000) - secs*1000;
+	time_duration td = seconds(secs) + milliseconds(millis);
+	return to_simple_string(td);
 }
 
 // functions for sorting by time
@@ -138,6 +175,17 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::applyTimeOffset( double offset ) {
 	for ( int i=0; i<transmissions.size(); i++ ) {
 		transmissions[i].second.transmission_time += offset;
 	}
+}
+
+void ACOMMS_ALOG_PARSER::populateReceiveEvent( RECEPTION_EVENT * r_event, string name, double time ) {
+	r_event->vehicle_name = name;
+	r_event->source_filename = "artificial";
+
+	pair<int,double> gps_x_pair = findNearest( gps_x[name], time );
+	r_event->gps_x = gps_x[name][gps_x_pair.first].second;
+	pair<int,double> gps_y_pair = findNearest( gps_y[name], time );
+	r_event->gps_y = gps_y[name][gps_y_pair.first].second;
+	r_event->gps_age = max(gps_x_pair.second, gps_y_pair.second);
 }
 
 void ACOMMS_ALOG_PARSER::runParser() {
@@ -253,13 +301,7 @@ void ACOMMS_ALOG_PARSER::runParser() {
 			TRANSMISSION_EVENT * t_event = &all_transmissions[ matching_scores[j].second ];
 
 			// check if transmission already has a reception on our vehicle
-			int score_index = -1;
-			for ( int k=0; k<t_event->reception_matches.size(); k++ ) {
-				if ( t_event->reception_matches[k].second.vehicle_name == reception_name ) {
-					score_index = k;
-					break;
-				}
-			}
+			int score_index = t_event->hasVehicleMatch( reception_name );
 
 			if ( score_index != -1 ) {
 				// already has, check if we're better
@@ -279,6 +321,52 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		}
 	}
 
+	int sync_losses =0;
+	int num_vehicles = vehicle_names.size();
+	for ( int i=0; i<all_transmissions.size(); i++ ) {
+		TRANSMISSION_EVENT * t_event = &all_transmissions[i];
+		for ( int j=0; j<vehicle_names.size(); j++ ) {
+			string receiver_name = vehicle_names[j];
+			if ( vehicle_names[j] != t_event->transmitter_name &&
+					t_event->hasVehicleMatch( receiver_name ) == -1 ) {
+				// no reception on a vehicle that isn't the transmitter
+
+				// get driver status messages near time of transmission
+				vector< pair<double,string> > statuses = getRange<string>(
+						acomms_driver_status[receiver_name],
+						t_event->transmission_time-5,
+						t_event->transmission_time+5 );
+
+				RECEPTION_EVENT r_event;
+				populateReceiveEvent( &r_event, receiver_name, t_event->transmission_time );
+				if ( statuses.empty() ) {
+					// driver was not running
+					r_event.receive_status = RECEPTION_EVENT::driver_inactive;
+					r_event.debugInfo = "No status reports within 5 seconds.";
+				} else if ( findValue<string>( statuses, "ready" ) == -1 ) {
+					// driver was not ready
+					r_event.receive_status = RECEPTION_EVENT::driver_inactive;
+					stringstream ss;
+					ss << "Driver was not ready: ";
+					for ( int k=0; k<statuses.size(); k++ ) {
+						ss << statuses[k].first << " @ " <<
+								toNiceString( statuses[k].first );
+						if ( k!=statuses.size()-1)
+							ss << ", ";
+					}
+					r_event.debugInfo = ss.str();
+				} else {
+					// sync loss
+					r_event.receive_status = RECEPTION_EVENT::sync_loss;
+					sync_losses++;
+				}
+
+				t_event->reception_matches.push_back(
+						pair<int,RECEPTION_EVENT> (-1, r_event) );
+			}
+		}
+	}
+
 	// populate receptions_vector and receptions_map
 	for ( int i=0; i<all_transmissions.size(); i++ ) {
 		TRANSMISSION_EVENT * t_event = &all_transmissions[i];
@@ -286,17 +374,6 @@ void ACOMMS_ALOG_PARSER::runParser() {
 			RECEPTION_EVENT r_event = t_event->reception_matches[j].second;
 			t_event->receptions_vector.push_back( r_event );
 			t_event->receptions_map[r_event.vehicle_name] = r_event;
-		}
-	}
-
-	int sync_losses =0;
-	for ( int i=0; i<all_transmissions.size(); i++ ) {
-		for ( int j=0; j<vehicle_names.size(); j++ ) {
-			if ( all_transmissions[i].receptions_map.find(vehicle_names[j]) ==
-					all_transmissions[i].receptions_map.end() && vehicle_names[j] !=
-							all_transmissions[i].transmitter_name ) {
-				sync_losses++;
-			}
 		}
 	}
 
@@ -309,11 +386,16 @@ void ACOMMS_ALOG_PARSER::runParser() {
 //	outputResults();
 }
 
-string toNiceString( double secondstime ) {
-	long secs = (long) secondstime;
-	long millis = (long) (secondstime*1000) - secs*1000;
-	time_duration td = seconds(secs) + milliseconds(millis);
-	return to_simple_string(td);
+// returns index of a vehicle in reception_matches if it exists, -1 otherwise
+int ACOMMS_ALOG_PARSER::TRANSMISSION_EVENT::hasVehicleMatch( string vehicle_name ) {
+	int rc = -1;
+	for ( int k=0; k<reception_matches.size(); k++ ) {
+		if ( reception_matches[k].second.vehicle_name == vehicle_name ) {
+			rc = k;
+			break;
+		}
+	}
+	return rc;
 }
 
 void ACOMMS_ALOG_PARSER::publishSummary() {
@@ -335,11 +417,15 @@ void ACOMMS_ALOG_PARSER::publishSummary() {
 		for ( int j=0; j<t_event.reception_matches.size(); j++ ) {
 			RECEPTION_EVENT r_event = t_event.reception_matches[j].second;
 			summary << "Vehicle: " << r_event.vehicle_name << endl;
+			summary << "Receive status: " << RECEIVE_STATUS_STRINGS[ r_event.receive_status ] << endl;
+			if ( !r_event.debugInfo.empty() )
+				summary << "Debug info: " << r_event.debugInfo << endl;
 			summary << "Receive start: " << toNiceString( r_event.receive_start_time ) << endl;
 			summary << "Receive complete: " << toNiceString( r_event.receive_time ) << endl;
 			double dist = sqrt( pow(r_event.gps_x-t_event.gps_x,2) +
 					pow(r_event.gps_y-t_event.gps_y,2) );
-			summary << "Distance from transmitter: " << dist << endl;
+			summary << "Distance from transmitter: " << dist;
+			summary << "  age " << r_event.gps_age << endl;
 			summary << "Matching score: " << t_event.reception_matches[j].first << endl;
 			summary << "Rate: " << r_event.rate << endl;
 			summary << "Source id: " << r_event.source_id << endl;
@@ -371,6 +457,9 @@ void ACOMMS_ALOG_PARSER::publishSummary() {
 	for ( int i=0; i<unmatched_receptions.size(); i++ ) {
 		RECEPTION_EVENT r_event = unmatched_receptions[i];
 		summary << "Vehicle: " << r_event.vehicle_name << endl;
+		summary << "Receive status: " << RECEIVE_STATUS_STRINGS[ r_event.receive_status ] << endl;
+		if ( !r_event.debugInfo.empty() )
+			summary << "Debug info: " << r_event.debugInfo << endl;
 		summary << "Receive start: " << toNiceString( r_event.receive_start_time ) << endl;
 		summary << "Receive complete: " << toNiceString( r_event.receive_time ) << endl;
 		summary << "Rate: " << r_event.rate << endl;
