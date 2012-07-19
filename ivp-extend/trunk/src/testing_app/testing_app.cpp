@@ -50,8 +50,10 @@ struct MY_DATA {
 int main() {
 
 string hello = "hello";
-hello.erase( --hello.end() );
-cout << hello << endl;
+
+char to_insert = 0x61;
+hello.insert(0, &to_insert, 1);
+cout<<hello << endl;
 }
 
 //	// fill a struct with data

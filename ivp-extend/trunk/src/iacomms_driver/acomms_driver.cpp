@@ -223,7 +223,8 @@ void acomms_driver::transmit_data() {
 		// if mini packet, just take up to the first two bytes
 		// truncating done in goby
 		if ( transmission_data.size() == 1 ) {
-			transmission_data.insert(0,0x00);
+			char filler = 0x00;
+			transmission_data.insert(0,&filler, 1);
 			publishWarning("Only passed one byte for minipacket, packing with 0x00.");
 		}
 		transmit_message.add_frame( transmission_data.data(), 2 );
