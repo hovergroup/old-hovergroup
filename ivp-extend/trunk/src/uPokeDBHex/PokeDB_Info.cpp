@@ -19,6 +19,8 @@
 /* Software Foundation, Inc., 59 Temple Place - Suite 330,       */
 /* Boston, MA 02111-1307, USA.                                   */
 /*****************************************************************/
+
+// File modified July 19 2012 by Josh Leighton
  
 #include <cstdlib>
 #include <iostream>
@@ -74,9 +76,7 @@ void showHelpAndExit()
   blk("      looks like a double.                                      ");
   blk("                                                                ");
   blk("Examples:                                                       ");
-  blk("     $ uPokeDB alpha.moos DEPLOY=true RETURN_SPEED=2.0          ");
-  blk("     $ uPokeDB DEPLOY=true  host=localhost port=9000            ");
-  blk("     $ uPokeDB STRING_SPEED:=2.3 alpha.moos                     ");
+  blk("     $ uPokeDB ACOMMS_TRANSMIT_DATA:=a5:61:bc alpha.moos        ");
   exit(0);
 }
 
