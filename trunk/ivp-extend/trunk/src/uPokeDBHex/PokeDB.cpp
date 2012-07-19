@@ -20,6 +20,8 @@
 /* Boston, MA 02111-1307, USA.                                   */
 /*****************************************************************/
 
+// File modified July 19 2012 by Josh Leighton
+
 #include "PokeDB.h"
 #include "MBUtils.h"
 
