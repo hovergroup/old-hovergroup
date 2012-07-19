@@ -169,7 +169,7 @@ bool PokeDB::Iterate() {
 			} else {
 				vector<unsigned char> binary = hexStringToBinary( varval );
 				if ( binary.empty() ) return false;
-				m_Comms.Notify(m_varname[i], &binary[0], binary.size(), MOOSTime());
+				m_Comms.Notify(m_varname[i], string( (char*) &binary[0], binary.size() ), MOOSTime());
 			}
 		}
 	}
