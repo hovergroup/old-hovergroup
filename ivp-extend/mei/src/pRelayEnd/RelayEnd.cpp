@@ -49,7 +49,7 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
 				if(receive_info.num_good_frames==receive_info.num_frames){
 					cout << "Sending mini ack" << endl << endl;
-					m_Comms.Notify("ACOMMS_TRANSMIT_DATA","a");
+					m_Comms.Notify("ACOMMS_TRANSMIT_DATA","aa");
 				}
 			}
 		}
