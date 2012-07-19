@@ -63,6 +63,9 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
     	  transmission_data = msg.GetString();
     	  new_transmit = true;
+      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
+    	  transmission_data = msg.GetString();
+    	  new_transmit = true;
 //    	  transmit_data( false );
 //      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
 //    	  transmission_data = msg.GetString();
@@ -88,6 +91,7 @@ void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_RATE", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
+	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
     m_Comms.Register( "LOGGER_DIRECTORY", 1 );
     m_Comms.Register( "NAV_X", 1 );
     m_Comms.Register( "NAV_Y", 1 );
@@ -105,6 +109,11 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetValue("Community", my_name);
    m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
    // m_Comms.Register("VARNAME", is_float(int));
+
+   unsigned char c = 0x00;
+   m_Comms.Notify("ACOMMS_TRANSMIT_DATA", "");
+   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1);
+   m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1);
 
    RegisterVariables();
 
@@ -366,7 +375,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 				receive_info.num_good_frames++;
 			}
 		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string);
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string.data(), frame_string.size());
 
 		// notify data received in hex format
 		vector<unsigned char> received_data (frame_string.size(), 0);
