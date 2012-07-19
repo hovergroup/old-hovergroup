@@ -129,7 +129,13 @@ vector<unsigned char> PokeDB::hexStringToBinary( string hex_data ) {
 			case 'c': val += 12*(16-15*j); break;
 			case 'd': val += 13*(16-15*j); break;
 			case 'e': val += 14*(16-15*j); break;
-			case 'f': val += 14*(16-15*j); break;
+			case 'f': val += 15*(16-15*j); break;
+			case 'A': val += 10*(16-15*j); break;
+			case 'B': val += 11*(16-15*j); break;
+			case 'C': val += 12*(16-15*j); break;
+			case 'D': val += 13*(16-15*j); break;
+			case 'E': val += 14*(16-15*j); break;
+			case 'F': val += 15*(16-15*j); break;
 			default:
 				cout << "Invalid hex value: " << this_sub[j] << endl;
 				output.clear();
@@ -137,7 +143,7 @@ vector<unsigned char> PokeDB::hexStringToBinary( string hex_data ) {
 			}
 		}
 		output.push_back(val);
-//		cout << "parsed " << this_sub << " into " << hex << (int) val << endl;
+		cout << "parsed " << this_sub << " into " << hex << (int) val << endl;
 	}
 }
 
@@ -169,7 +175,7 @@ bool PokeDB::Iterate() {
 			} else {
 				vector<unsigned char> binary = hexStringToBinary( varval );
 				if ( binary.empty() ) return false;
-				m_Comms.Notify(m_varname[i], string( (char*) &binary[0], binary.size() ), MOOSTime());
+				m_Comms.Notify(m_varname[i], &binary[0], binary.size(), MOOSTime());
 			}
 		}
 	}
@@ -298,7 +304,7 @@ void PokeDB::updateVariable(CMOOSMsg &msg) {
 	m_source_read[ix] = msg.GetSource();
 	m_wrtime_read[ix] = vtime_str;
 
-	if (msg.IsDataType(MOOS_STRING) || msg.IsDataType( MOOS_BINARY_STRING ) ){
+	if (msg.IsDataType(MOOS_STRING) || msg.IsDataType(MOOS_BINARY_STRING) ){
 		vector<unsigned char> data ( msg.GetString().size(), 0 );
 		memcpy( &data[0], msg.GetString().data(), data.size() );
 		stringstream ss;
