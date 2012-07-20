@@ -279,8 +279,15 @@ vector<string> kayak_driver::tokenizeString( string message, string tokens ) {
 void kayak_driver::parseSensors( string msg ) {
 //	cout << msg << endl;
 	vector<string> subs = tokenizeString( msg, ",=" );
+	if ( subs.size() < 6 ) {
+		cout << "WARNING: insufficient data: " << msg << endl;
+	}
 	double voltage = atoi(subs[1].c_str())/1000.0;
+	double pwm = atoi(subs[3].c_str());
+	double angle = atoi(subs[5].c_str());
 	m_Comms.Notify("VOLTAGE", voltage);
+	m_Comms.Notify("ARDUINO_THRUST", pwm);
+	m_Comms.Notify("ARDUINO_ANGLE", angle);
 //	cout << heading << " " << voltage << endl;
 }
 
