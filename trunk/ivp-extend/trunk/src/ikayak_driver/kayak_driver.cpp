@@ -252,7 +252,7 @@ void kayak_driver::parseSensors( string msg ) {
 	double angle = atoi(subs[5].c_str());
 	m_Comms.Notify("VOLTAGE", voltage);
 	m_Comms.Notify("ARDUINO_THRUST", pwm);
-	m_Comms.Notify("ARDUINO_ANGLE", angle);
+	m_Comms.Notify("ARDUINO_RUDDER", angle);
 //	cout << heading << " " << voltage << endl;
 }
 
