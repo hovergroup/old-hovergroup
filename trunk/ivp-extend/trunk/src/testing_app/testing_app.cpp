@@ -49,11 +49,13 @@ struct MY_DATA {
 
 int main() {
 
-string hello = "hello";
+string hello;
+hello.push_back(0x61);
+hello.push_back(0x00);
+hello.push_back(0x62);
 
-char to_insert = 0x61;
-hello.insert(0, &to_insert, 1);
-cout<<hello << endl;
+cout << hello.size() << endl;
+cout << hello << endl;
 }
 
 //	// fill a struct with data
