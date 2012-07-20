@@ -163,6 +163,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::applyTimeOffset( double offset ) {
 	applyOffset( &voltage, offset );
 	applyOffset( &acomms_driver_status, offset );
 	applyOffset( &acomms_transmit_data, offset );
+	applyOffset( &acomms_transmit_data_binary, offset );
 	applyOffset( &acomms_transmitted_data_hex, offset );
 	applyOffset( &acomms_received_data_hex, offset );
 	applyOffset( &gps_time, offset );

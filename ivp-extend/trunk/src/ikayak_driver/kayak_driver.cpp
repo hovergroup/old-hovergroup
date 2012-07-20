@@ -88,41 +88,6 @@ bool kayak_driver::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam( "INVERT_RUDDER", INVERT_RUDDER );
 	m_MissionReader.GetConfigurationParam( "RUDDER_OFFSET", RUDDER_OFFSET );
 
-	// I prefer to read my config file here, so I can be sure I finish reading it before doing anything else
-//	STRING_LIST sParams;
-//	m_MissionReader.EnableVerbatimQuoting(false);
-//	m_MissionReader.GetConfiguration(GetAppName(), sParams);
-//
-//	STRING_LIST::iterator p;
-//	for (p=sParams.begin(); p!=sParams.end(); p++) {
-//		string sLine = *p;
-//		string sVarName = MOOSChomp(sLine, "=");
-//		sLine = stripBlankEnds(sLine);
-//
-//		// this is the variable name we found
-//		cout << sVarName << endl;
-//
-//		// match names to what you expect, and parse the values
-//		if (MOOSStrCmp(sVarName, "BAUD_RATE")) {
-//			if(!strContains(sLine, " "))
-//				my_baud_rate = boost::lexical_cast<int>(stripBlankEnds(sLine));
-//		} else if (MOOSStrCmp(sVarName, "PORT_NAME")) {
-//			if(!strContains(sLine, " "))
-//				my_port_name = stripBlankEnds(sLine);
-//		}else if ( sVarName == "INVERT_RUDDER" ) {
-//			if(!strContains(sLine, " ")) {
-//				int tmp = atoi(stripBlankEnds(sLine).c_str());
-//				if ( tmp==0 )
-//					INVERT_RUDDER = false;
-//				else if ( tmp==1 )
-//					INVERT_RUDDER = true;
-//			}
-//		} else if ( sVarName == "RUDDER_OFFSET" ) {
-//			if(!strContains(sLine, " "))
-//				RUDDER_OFFSET = atoi(stripBlankEnds(sLine).c_str());
-//		}
-//	}
-
 	RegisterVariables();
 
 	open_port( my_port_name, my_baud_rate );

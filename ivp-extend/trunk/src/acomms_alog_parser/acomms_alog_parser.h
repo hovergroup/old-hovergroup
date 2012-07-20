@@ -163,6 +163,7 @@ private:
 	std::vector<RECEPTION_EVENT> unmatched_receptions;
 
 	// variable histories for each vehicle, sorted by time
+	std::map<std::string, std::map< std::string, std::vector< std::pair<double, double> > > > all_data;
 	std::map<std::string, std::vector<std::pair<double, double> > >
 		gps_x, gps_y, desired_thrust, voltage;
 	std::map<std::string, std::vector<std::pair<double, std::string> > >
@@ -214,7 +215,7 @@ public:
 				voltage;
 		std::vector<std::pair<double, std::string> > acomms_driver_status,
 				acomms_transmit_data, acomms_transmitted_data_hex,
-				acomms_received_data_hex;
+				acomms_received_data_hex, acomms_transmit_data_binary;
 		std::vector<std::pair<double, boost::posix_time::ptime> > gps_time;
 
 	private:
