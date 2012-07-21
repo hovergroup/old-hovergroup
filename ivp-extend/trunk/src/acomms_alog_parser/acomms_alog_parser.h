@@ -162,15 +162,21 @@ private:
 	std::map<std::string, std::vector<RECEPTION_EVENT> > vehicle_receptions;
 	std::vector<RECEPTION_EVENT> unmatched_receptions;
 
-	// variable histories for each vehicle, sorted by time
-	std::map<std::string, std::map< std::string, std::vector< std::pair<double, double> > > > all_data;
+	// double variable data histories by request
+	std::map<std::string, std::map< std::string, std::vector< std::pair<double, double> > > > double_data;
+	// string variable data histories by request
+	std::map<std::string, std::map< std::string, std::vector< std::pair<double, std::string> > > > string_data;
+	// keying is [vehicle_name][variable_name] --> vector<pair<time,val>>
+
+	// default variable histories for each vehicle, sorted by time
 	std::map<std::string, std::vector<std::pair<double, double> > >
-		gps_x, gps_y, desired_thrust, voltage;
+		gps_x, gps_y; //, desired_thrust, voltage;
 	std::map<std::string, std::vector<std::pair<double, std::string> > >
 		acomms_driver_status, acomms_transmit_data, acomms_transmitted_data_hex,
 		acomms_received_data_hex;
 	std::map<std::string, std::vector<std::pair<double, boost::posix_time::ptime> > >
 		gps_time;
+	// keying is [vehicle_name] --> vector<pair<time,val>>
 
 // --------------------------------------------------------------------------------
 // Don't look past here or you will go blind ~ Josh
@@ -211,8 +217,8 @@ public:
 		std::vector<std::pair<double, TRANSMISSION_EVENT> > transmissions;
 
 		// indexed by time
-		std::vector<std::pair<double, double> > gps_x, gps_y, desired_thrust,
-				voltage;
+		std::vector<std::pair<double, double> > gps_x, gps_y;
+		//, desired_thrust, voltage;
 		std::vector<std::pair<double, std::string> > acomms_driver_status,
 				acomms_transmit_data, acomms_transmitted_data_hex,
 				acomms_received_data_hex, acomms_transmit_data_binary;

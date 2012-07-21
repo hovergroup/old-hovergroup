@@ -159,8 +159,8 @@ double ACOMMS_ALOG_PARSER::computeMatching(
 void ACOMMS_ALOG_PARSER::FILE_INFO::applyTimeOffset( double offset ) {
 	applyOffset( &gps_x, offset );
 	applyOffset( &gps_y, offset );
-	applyOffset( &desired_thrust, offset );
-	applyOffset( &voltage, offset );
+//	applyOffset( &desired_thrust, offset );
+//	applyOffset( &voltage, offset );
 	applyOffset( &acomms_driver_status, offset );
 	applyOffset( &acomms_transmit_data, offset );
 	applyOffset( &acomms_transmit_data_binary, offset );
@@ -221,8 +221,8 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		// add individual data sets to full time history for that vehicle
 		appendVector( &gps_x[alog_files[i].getVehicleName()], &alog_files[i].gps_x );
 		appendVector( &gps_y[alog_files[i].getVehicleName()], &alog_files[i].gps_y );
-		appendVector( &desired_thrust[alog_files[i].getVehicleName()], &alog_files[i].desired_thrust );
-		appendVector( &voltage[alog_files[i].getVehicleName()], &alog_files[i].voltage );
+//		appendVector( &desired_thrust[alog_files[i].getVehicleName()], &alog_files[i].desired_thrust );
+//		appendVector( &voltage[alog_files[i].getVehicleName()], &alog_files[i].voltage );
 		appendVector( &acomms_driver_status[alog_files[i].getVehicleName()], &alog_files[i].acomms_driver_status );
 		appendVector( &acomms_transmit_data[alog_files[i].getVehicleName()], &alog_files[i].acomms_transmit_data );
 		appendVector( &acomms_transmitted_data_hex[alog_files[i].getVehicleName()], &alog_files[i].acomms_transmitted_data_hex );
@@ -240,8 +240,8 @@ void ACOMMS_ALOG_PARSER::runParser() {
 
 		sort( gps_x[name].begin(), gps_x[name].end(), general_sort<double> );
 		sort( gps_y[name].begin(), gps_y[name].end(), general_sort<double> );
-		sort( desired_thrust[name].begin(), desired_thrust[name].end(), general_sort<double> );
-		sort( voltage[name].begin(), voltage[name].end(), general_sort<double> );
+//		sort( desired_thrust[name].begin(), desired_thrust[name].end(), general_sort<double> );
+//		sort( voltage[name].begin(), voltage[name].end(), general_sort<double> );
 		sort( acomms_driver_status[name].begin(), acomms_driver_status[name].end(), general_sort<string> );
 		sort( acomms_transmit_data[name].begin(), acomms_transmit_data[name].end(), general_sort<string> );
 		sort( acomms_transmitted_data_hex[name].begin(), acomms_transmitted_data_hex[name].end(), general_sort<string> );
@@ -561,8 +561,8 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 				} catch ( exception & e ) {
 //					cout << "failed to parse gps_ptime: " << entry.getStringVal() << endl;
 				}
-			} else if ( key == "DESIRED_THRUST" ) {
-				desired_thrust.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
+//			} else if ( key == "DESIRED_THRUST" ) {
+//				desired_thrust.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
 			} else if ( key == "ACOMMS_DRIVER_STATUS" ) {
 				acomms_driver_status.push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
 			} else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
@@ -576,8 +576,8 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 //				unprocessed_transmissions.push_back( pair<double,string>( line_num, entry.getStringVal() ) );
 				transmissions.push_back( pair<double, TRANSMISSION_EVENT>( msg_time,
 						constructTransmission( msg_time, line_num, entry.getStringVal() ) ) );
-			} else if ( key == "VOLTAGE" ) {
-				voltage.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
+//			} else if ( key == "VOLTAGE" ) {
+//				voltage.push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
 			} else if ( key == "ACOMMS_TRANSMITTED_DATA_HEX" ) {
 				acomms_transmitted_data_hex.push_back( pair<double,string>( msg_time,
 						fixToString( entry, line_num ) ) );
