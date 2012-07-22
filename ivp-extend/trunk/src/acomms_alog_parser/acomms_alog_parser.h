@@ -184,9 +184,14 @@ private:
 
 public:
 	ACOMMS_ALOG_PARSER();
-	~ACOMMS_ALOG_PARSER() {
+	~ACOMMS_ALOG_PARSER() {}
+
+	void addStringVar( std::string varname ) {
+		string_vars.push_back( varname );
 	}
-	;
+	void addDoubleVar( std::string varname ) {
+		double_vars.push_back( varname );
+	}
 
 	void addAlogFile(std::string filename);
 	void addAlogFile(boost::filesystem::path filepath);
@@ -223,6 +228,10 @@ public:
 				acomms_transmit_data, acomms_transmitted_data_hex,
 				acomms_received_data_hex, acomms_transmit_data_binary;
 		std::vector<std::pair<double, boost::posix_time::ptime> > gps_time;
+
+		std::map< std::string, std::vector<std::pair<double,double> > > double_series;
+		std::map< std::string, std::vector<std::pair<double,std::string> > > string_series;
+		std::vector<std::string> double_vars, string_vars;
 
 	private:
 		void parseHeaderLines();
@@ -261,6 +270,8 @@ public:
 	};
 
 private:
+	std::vector<std::string> double_vars, string_vars;
+
 	static ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings =
 			false);
 	static std::string getNextRawLine_josh(FILE *fileptr);

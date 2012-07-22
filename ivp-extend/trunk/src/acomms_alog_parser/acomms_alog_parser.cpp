@@ -176,6 +176,14 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::applyTimeOffset( double offset ) {
 	for ( int i=0; i<transmissions.size(); i++ ) {
 		transmissions[i].second.transmission_time += offset;
 	}
+	map<string,vector<pair<double,double> > >::iterator double_iter;
+	for ( double_iter=double_series.begin(); double_iter!=double_series.end(); ++double_iter ) {
+		applyOffset( &(double_series[double_iter->first]), offset );
+	}
+	map<string,vector<pair<double,string> > >::iterator string_iter;
+	for ( string_iter=string_series.begin(); string_iter!=string_series.end(); ++string_iter ) {
+		applyOffset( &(string_series[string_iter->first]), offset );
+	}
 }
 
 void ACOMMS_ALOG_PARSER::populateReceiveEvent( RECEPTION_EVENT * r_event, string name, double time ) {
@@ -191,6 +199,10 @@ void ACOMMS_ALOG_PARSER::populateReceiveEvent( RECEPTION_EVENT * r_event, string
 
 void ACOMMS_ALOG_PARSER::runParser() {
 	for ( int i=0; i<alog_files.size(); i++ ) {
+		// pass in custom variables
+		alog_files[i].double_vars = double_vars;
+		alog_files[i].string_vars = string_vars;
+
 		// perform initial processing
 		// gets header lines, vehicle name, acomms ID, time offset, data, etc.
 		alog_files[i].processFile();
@@ -228,6 +240,21 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		appendVector( &acomms_transmitted_data_hex[alog_files[i].getVehicleName()], &alog_files[i].acomms_transmitted_data_hex );
 		appendVector( &acomms_received_data_hex[alog_files[i].getVehicleName()], &alog_files[i].acomms_received_data_hex );
 		appendVector( &gps_time[alog_files[i].getVehicleName()], &alog_files[i].gps_time );
+
+		map<string,vector<pair<double,double> > >::iterator double_iter;
+		for ( 	double_iter=alog_files[i].double_series.begin();
+				double_iter!=alog_files[i].double_series.end();
+				++double_iter ) {
+			appendVector( 	&(double_data[alog_files[i].getVehicleName()][double_iter->first]),
+							&(alog_files[i].double_series[double_iter->first]) );
+		}
+		map<string,vector<pair<double,string> > >::iterator string_iter;
+		for ( 	string_iter=alog_files[i].string_series.begin();
+				string_iter!=alog_files[i].string_series.end();
+				++string_iter ) {
+			appendVector( 	&(string_data[alog_files[i].getVehicleName()][string_iter->first]),
+							&(alog_files[i].string_series[string_iter->first]) );
+		}
 	}
 
 	// for each vehicle, sort data by time
@@ -247,6 +274,30 @@ void ACOMMS_ALOG_PARSER::runParser() {
 		sort( acomms_transmitted_data_hex[name].begin(), acomms_transmitted_data_hex[name].end(), general_sort<string> );
 		sort( acomms_received_data_hex[name].begin(), acomms_received_data_hex[name].end(), general_sort<string> );
 		sort( gps_time[name].begin(), gps_time[name].end(), general_sort<boost::posix_time::ptime> );
+	}
+
+	// sort customizable data series separate because may be missing for certain vehicles
+	map<string,map<string,vector<pair<double,double> > > >::iterator vditer;
+	for( vditer=double_data.begin(); vditer!=double_data.end(); ++vditer ) {
+		string name = vditer->first;
+		map<string,vector<pair<double,double> > >::iterator diter;
+		for ( diter=double_data[name].begin(); diter!=double_data[name].end(); ++diter ){
+			string varname = diter->first;
+			sort( 	double_data[name][varname].begin(),
+					double_data[name][varname].end(),
+					general_sort<double> );
+		}
+	}
+	map<string,map<string,vector<pair<double,string> > > >::iterator vsiter;
+	for ( vsiter=string_data.begin(); vsiter!=string_data.end(); ++vsiter ) {
+		string name = vsiter->first;
+		map<string,vector<pair<double,string> > >::iterator siter;
+		for ( siter=string_data[name].begin(); siter!=string_data[name].end(); ++siter ) {
+			string varname = siter->first;
+			sort( 	string_data[name][varname].begin(),
+					string_data[name][varname].end(),
+					general_sort<string> );
+		}
 	}
 
 	// sort all transmissions and receptions by time
@@ -583,6 +634,11 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::collectData() {
 						fixToString( entry, line_num ) ) );
 			} else if ( key == "ACOMMS_RECEIVED_DATA_HEX" ) {
 				acomms_received_data_hex.push_back( pair<double,string>( msg_time,
+						fixToString( entry, line_num ) ) );
+			} else if ( find(double_vars.begin(), double_vars.end(), key) != double_vars.end() ) {
+				double_series[key].push_back( pair<double,double>( msg_time, entry.getDoubleVal() ) );
+			} else if ( find(string_vars.begin(), string_vars.end(), key) != string_vars.end() ) {
+				string_series[key].push_back( pair<double,string>( msg_time,
 						fixToString( entry, line_num ) ) );
 			}
 		}
