@@ -40,6 +40,7 @@ bool promptYesNo( bool defaultValue ) {
 }
 
 int main(int argc, char *argv[]) {
+	ACOMMS_ALOG_PARSER parser;
 	CONFIG my_config;
 
 	// look for config file in our current directory
@@ -52,12 +53,13 @@ int main(int argc, char *argv[]) {
 	} else {
 		my_config = readConfigFromFile( config_file );
 		fclose( config_file );
-//		for ( int i=0; i<my_config.double_variables.size(); i++ ) {
-//			cout << "double: " << my_config.double_variables[i] << endl;
-//		}
-//		for ( int i=0; i<my_config.string_variables.size(); i++ ) {
-//			cout << "string: " << my_config.string_variables[i] << endl;
-//		}
+		// pass parser variable names
+		for ( int i=0; i<my_config.double_variables.size(); i++ ) {
+			parser.addDoubleVar( my_config.double_variables[i] );
+		}
+		for ( int i=0; i<my_config.string_variables.size(); i++ ) {
+			parser.addStringVar( my_config.string_variables[i] );
+		}
 	}
 
 	// define the path where we look for alog files
@@ -82,8 +84,7 @@ int main(int argc, char *argv[]) {
 	// look for alog files in the specified directory
 	searchDirectory ( full_path, 0 );
 
-	// construct our parser and pass it alog files
-	ACOMMS_ALOG_PARSER parser;
+	// pass parser alog files
 	cout << "Found " << alog_files.size() << " alog files." << endl;
 	for ( int i=0; i<alog_files.size(); i++ ) {
 //		cout << alog_files[i] << endl;
