@@ -435,7 +435,13 @@ void ACOMMS_ALOG_PARSER::runParser() {
 
 	publishSummary();
 
-//	outputResults();
+	cout << COLOR_CYAN <<
+			"Matching complete and summary published.  Press enter to run output."
+			<< COLOR_RESET << endl;
+	cin.get();
+	cout << endl;
+
+	outputResults();
 }
 
 // returns index of a vehicle in reception_matches if it exists, -1 otherwise
