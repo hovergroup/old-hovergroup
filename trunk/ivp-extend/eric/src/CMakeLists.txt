@@ -14,7 +14,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
-#ADD_SUBDIRECTORY(pSearchRelay)
+#ADD_SUBDIRECTORY(pDiscretePID)
 ADD_SUBDIRECTORY(pEric)
 ADD_SUBDIRECTORY(simple_acomms_parser)
 
