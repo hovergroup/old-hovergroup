@@ -44,6 +44,7 @@ double last_print_time = -100;
 double gps_x, gps_y, sensor_heading, current_heading, desired_heading;
 double nav_x, nav_y, desired_thrust;
 int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
+string caire;
 
 string log_number;
 
@@ -61,27 +62,29 @@ void printLine( double time_stamp ) {
 	output << spl << ",";
 	output << stddev_noise << ",";
 	output << mse_equalizer << endl;
+//	output << caire << endl;
 }
 
 void printHeader() {
 	output << "time_stamp"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"gps_x"
-			<< log_number << ", "
+			<< "_"<<log_number << ", "
 			"gps_y"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"desired_thrust"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"snr_in"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"snr_out"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"spl"
-			<< log_number << ", "
+			<< "_"<< log_number << ", "
 			"noise"
-			<< log_number << ", "
-			"mse"
-			<< log_number
+			<<"_"<< log_number << ", "
+			"m se"
+			//<<"caire"
+			<< "_"<< log_number
 			<< endl;
 }
 
@@ -108,7 +111,7 @@ int main(int argc, char *argv[]) {
 		log_number = ss.str();
 	}
 	else{
-		log_number = "1";
+		log_number = "";
 	}
 
 	// open output file and print header
@@ -138,6 +141,9 @@ int main(int argc, char *argv[]) {
 			desired_heading = entry.getDoubleVal();
 		} else if(key=="DESIRED_THRUST"){
 			desired_thrust = entry.getDoubleVal();
+		} else if(key=="ACOMMS_IMPULSE_RESPONSE"){
+			caire = entry.getStringVal();
+			//printLine( msg_time );
 		}
 
 		// parsing acomms statistics data

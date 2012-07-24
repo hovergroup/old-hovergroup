@@ -47,9 +47,6 @@ std::vector< std::pair<double,T> > getRange(
 class ACOMMS_ALOG_PARSER {
 
 public:
-
-	bool is_empty(std::ifstream&);
-
 	class RECEPTION_EVENT {
 	public:
 		RECEPTION_EVENT() {

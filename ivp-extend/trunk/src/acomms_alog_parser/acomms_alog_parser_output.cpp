@@ -33,88 +33,61 @@ using namespace std;
 void ACOMMS_ALOG_PARSER::outputResults() {
 	// YOUR CODE HERE
 
+	map<string,int> output_files;
+	char delim = ',';
+
 	//Data
 	for(int i=0;i<all_transmissions.size();i++){
 		TRANSMISSION_EVENT te = all_transmissions[i];
 		string my_node = te.transmitter_name;
-		//		cout<<"Transmitter: "<<my_node;
-
-		//		cout<<te.receptions_map.size();
-		//		cout<<te.receptions_vector.size();
 
 		for(int i=0;i<te.receptions_vector.size();i++){
 			string rv =  te.receptions_vector[i].vehicle_name;
 			RECEPTION_EVENT re = te.receptions_vector[i];
 
-			if(re.receive_status==2){}
-			else{
+			//if(re.receive_status==2){}
+			//	else{
 
 			stringstream ss;
-						ss<<my_node<<"_"<<rv<<"_logfile.txt";
-			//	cout<<ss.str()<<endl;
-			ifstream check_output;
-			check_output.open(ss.str().c_str());
+			ss<<my_node<<"_"<<rv<<"_logfile.txt";
+
+			output_files[ss.str()]++;
+
 			ofstream log_output;
+			log_output.open(ss.str().c_str(),ios::app);
 
-//			if(is_empty(check_output)){ //header
-//				log_output.open(ss.str().c_str());
-//				cout<<"here";
-//				log_output<<"Rate:"<<"Data:"
-//						<<"TGPS X:"<<"TGPS Y:" <<"TGPS Age:"<<"Transmission Time:"
-//						<<"RStatus:"<<"RTime:"<<"RStartTime:"<<"RGPS X:"<<"RGPS Y:"
-//						<<"RGPS Age:" <<"SNR In:" <<"SNR Out:" << "SPL" << endl;
-//
-//				log_output<<te.rate<<":"<<te.data<<":"<<te.gps_x<<":"
-//						<<te.gps_y<<":"<<te.gps_age<<":"<<te.transmission_time<<":";
-//
-//				log_output<<re.receive_status<<":"<<re.receive_time<<":"<<re.receive_start_time
-//						<<":"<<re.gps_x<<":"<<re.gps_y<<":"<<re.gps_age<<":";
-//
-//				int num_stats = re.data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
-//				micromodem::protobuf::ReceiveStatistics stat;
-//
-//				if ( num_stats == 1 ) {
-//					stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 0 );
-//				}
-//				else if ( num_stats == 2 ) {
-//					stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 1 );
-//
-//					log_output<<stat.snr_in()<<":"<<stat.snr_out()<<":"<<stat.spl()<<endl;
-//
-//					log_output.close();
-//					check_output.close();
-//				}
-//				else{
-					log_output.open(ss.str().c_str(),ios::app);
+			if(output_files[ss.str()]==1){
 
-					log_output<<te.rate<<":"<<te.data<<":"<<te.gps_x<<":"
-							<<te.gps_y<<":"<<te.gps_age<<":"<<te.transmission_time<<":";
+			log_output<<"Rate"<<delim
+					<<"TGPS_X"<<delim<<"TGPS_Y"<<delim <<"TGPS_Age"<<delim<<"Transmission_Time"<<delim
+					<<"RStatus"<<delim<<"RTime"<<delim<<"RStartTime"<<delim<<"RGPS_X"<<delim<<"RGPS_Y"<<delim
+					<<"RGPS_Age"<<delim <<"SNR_In"<<delim <<"SNR_Out"<<delim << "SPL" << delim
+					<<"MSE" << delim <<"Noise"
+					<<endl;
+			output_files[ss.str()]++;
 
-					log_output<<re.receive_status<<":"<<re.receive_time<<":"<<re.receive_start_time
-							<<":"<<re.gps_x<<":"<<re.gps_y<<":"<<re.gps_age<<":";
+			}
 
-					int num_stats = re.data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
-					micromodem::protobuf::ReceiveStatistics stat;
+			log_output<<te.rate<<delim<<te.gps_x<<delim<<te.gps_y<<delim<<te.gps_age<<delim<<te.transmission_time<<delim;
 
-					if ( num_stats == 1 ) {
-						stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 0 );
-					}
-					else if ( num_stats == 2 ) {
-						stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 1 );
-					}
-						log_output<<stat.snr_in()<<":"<<stat.snr_out()<<":"<<stat.spl()<<":"
-								<<stat.mse_equalizer()<<":"<<stat.stddev_noise()<<endl;
+			log_output<<re.receive_status<<delim<<re.receive_time<<delim<<re.receive_start_time<<delim<<re.gps_x<<delim<<re.gps_y<<delim<<re.gps_age<<delim;
 
-						log_output.close();
-						check_output.close();
-//					}
-				}
+			int num_stats = re.data_msg.ExtensionSize( micromodem::protobuf::receive_stat );
+			micromodem::protobuf::ReceiveStatistics stat;
+
+			if ( num_stats == 1 ) {
+				stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 0 );
+			}
+			else if ( num_stats == 2 ) {
+				stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 1 );
+			}
+			log_output<<stat.snr_in()<<delim<<stat.snr_out()<<delim<<stat.spl()<<delim
+					<<stat.mse_equalizer()<<delim<<stat.stddev_noise()<<endl;
+
+			log_output.close();
+
+			//		}
 
 		}
 	}
 }
-
-	bool ACOMMS_ALOG_PARSER::is_empty(std::ifstream& pFile)
-	{
-		return pFile.peek() == std::ifstream::traits_type::eof();
-	}
