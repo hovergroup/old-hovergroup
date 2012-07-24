@@ -91,6 +91,7 @@ bool DiscretePID::Iterate()
 {
    // happens AppTick times per second
 	double rudder = getRudder();
+	cout << rudder << endl;
 	m_Comms.Notify("DESIRED_RUDDER",rudder);
 
 	command_history[1] = command_history[0];
