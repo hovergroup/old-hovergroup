@@ -50,6 +50,7 @@ bool DiscretePID::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		if(key=="DESIRED_HEADING_ERIC"){
 			desired_heading = msg.GetDouble();
+			desired_heading = angle180(desired_heading);
 		}
 		else if(key=="COMPASS_HEADING_FILTERED"){
 			current_compass = msg.GetDouble();
@@ -106,6 +107,7 @@ bool DiscretePID::Iterate()
 	error_history[2] = error_history[1];
 	error_history[1] = error_history[0];
 	error_history[0] = current_compass - desired_heading;
+	error_history[0] = angle180(error_history[0]);
 
 	return(true);
 }
@@ -122,17 +124,11 @@ bool DiscretePID::OnStartUp()
 
 double DiscretePID::getRudder()
 {
+
 	double rudder = (1/epsilon) * (alpha*error_history[2] + beta*error_history[1] + tau*error_history[0] - gamma*command_history[1] - delta*command_history[0]);
 
-	if(rudder >=180){
-		if(rudder>=45){
-			rudder = 45;}
-	}
-	else{
-		rudder = rudder-360;
-		if(rudder <= -45){
-			rudder = -45;}
-	}
+	if(rudder >= 45){rudder = 45;}
+	if(rudder <= -45){rudder = -45;}
 
 	return rudder;
 }
