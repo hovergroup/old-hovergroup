@@ -16,7 +16,7 @@ ProcessConfig = ANTLER
   Run = pLogger @ NewConsole = false
   Run = pNodeReporter	@ NewConsole = false
   Run = iacomms_driver @ NewConsole = false
-  Run = simple_gps @ NewConsole = false
+  Run = iGPS_Hover @ NewConsole = false
   Run = pEchoVar		@ NewConsole = false
 }
 
@@ -29,7 +29,7 @@ ProcessConfig = pSearchRelay
 
 }
 
-ProcessConfig = simple_gps
+ProcessConfig = iGPS_Hover
 {
 	AppTick = 2
 	CommsTick = 2
