@@ -71,12 +71,12 @@ bool DiscretePID::OnConnectToServer()
 	
 	m_Comms.Notify("DESIRED_HEADING_ERIC",0.0);
 
-	m_MissionReader.getConfigurationParam("Alpha", alpha);
-	m_MissionReader.getConfigurationParam("Beta", beta);
-	m_MissionReader.getConfigurationParam("Gamma", gamma);
-	m_MissionReader.getConfigurationParam("Delta", delta);
-	m_MissionReader.getConfigurationParam("Epsilon", epsilon);
-	m_MissionReader.getConfigurationParam("Tau",tau);
+	m_MissionReader.GetConfigurationParam("Alpha", alpha);
+	m_MissionReader.GetConfigurationParam("Beta", beta);
+	m_MissionReader.GetConfigurationParam("Gamma", gamma);
+	m_MissionReader.GetConfigurationParam("Delta", delta);
+	m_MissionReader.GetConfigurationParam("Epsilon", epsilon);
+	m_MissionReader.GetConfigurationParam("Tau",tau);
 
 	m_Comms.Register("DESIRED_HEADING_ERIC",0);
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
