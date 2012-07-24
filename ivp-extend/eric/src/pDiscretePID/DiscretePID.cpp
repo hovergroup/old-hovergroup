@@ -22,6 +22,8 @@ DiscretePID::DiscretePID()
 	desired_heading = 0;
 	current_compass = 0;
 
+	rudder_offset = 0;
+
 	error_history.push_back(0);
 	error_history.push_back(0);
 	error_history.push_back(0);
@@ -79,6 +81,7 @@ bool DiscretePID::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Epsilon", epsilon);
 	m_MissionReader.GetConfigurationParam("Tau",tau);
 	m_MissionReader.GetConfigurationParam("IHeading",desired_heading);
+	m_MissionReader.GetConfigurationParam("Offset",rudder_offset);
 
 	m_Comms.Notify("DESIRED_HEADING_ERIC",desired_heading);
 	m_Comms.Register("DESIRED_HEADING_ERIC",0);
@@ -103,6 +106,9 @@ bool DiscretePID::Iterate()
 	command_history[1] = command_history[0];
 	command_history[0] = rudder;
 
+	if(rudder >= 45){rudder = 45;}
+	if(rudder <= -45){rudder = -45;}
+	rudder += rudder_offset;
 	rudder *= -1;
 	cout << rudder << endl;
 	m_Comms.Notify("DESIRED_RUDDER",rudder);
@@ -129,9 +135,6 @@ double DiscretePID::getRudder()
 {
 
 	double rudder = (1/epsilon) * (alpha*error_history[2] + beta*error_history[1] + tau*error_history[0] - gamma*command_history[1] - delta*command_history[0]);
-
-	if(rudder >= 45){rudder = 45;}
-	if(rudder <= -45){rudder = -45;}
 
 	return rudder;
 }
