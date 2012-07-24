@@ -108,8 +108,10 @@ bool DiscretePID::Iterate()
 
 	if(rudder >= 45){rudder = 45;}
 	if(rudder <= -45){rudder = -45;}
-	rudder += rudder_offset;
+
 	rudder *= -1;
+	rudder += rudder_offset;
+
 	cout << rudder << endl;
 	m_Comms.Notify("DESIRED_RUDDER",rudder);
 
