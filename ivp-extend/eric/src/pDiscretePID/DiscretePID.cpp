@@ -69,7 +69,7 @@ bool DiscretePID::OnConnectToServer()
    // m_MissionReader.GetConfigurationParam("Name", <string>);
    // m_Comms.Register("VARNAME", is_float(int));
 	
-	m_Comms.Notify("DESIRED_HEADING_ERIC",0.0);
+	m_Comms.Notify("DESIRED_HEADING_ERIC",0);
 
 	m_MissionReader.GetConfigurationParam("Alpha", alpha);
 	m_MissionReader.GetConfigurationParam("Beta", beta);
@@ -89,6 +89,12 @@ bool DiscretePID::OnConnectToServer()
 
 bool DiscretePID::Iterate()
 {
+	cout << endl;
+	cout << "Command History: " << command_history[1] << "," << command_history[0] << endl;
+
+	cout << endl;
+	cout << "Error History: " << error_history[2] << "," << error_history[1]<< "," << error_history[0] << endl;
+
    // happens AppTick times per second
 	double rudder = getRudder();
 	cout << rudder << endl;
