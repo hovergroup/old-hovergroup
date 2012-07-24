@@ -26,28 +26,17 @@ ProcessConfig = ANTLER
 	Run = iacomms_driver @ NewConsole = false
 }
 
-ProcessConfig = pRelayEnd
+ProcessConfig = pDiscretePID
 {
-	AppTick = 5
-	CommsTick = 5
+	AppTick = 1
+	CommsTick = 2
 	
-	RelayID = 1	
-	Radius = 10 //m
-	Endx = 700
-	Endy = -300
-}
-
-ProcessConfig = pSearchRelay
-{
-	AppTick = 5
-	CommsTick = 5
-	
-	Mode = normal
-	Discount = 1
-	MinObs = 10		//at least 2x Lookback
-	FudgeFactor = 10  //m
-	Lookback = 1    //observations per result
-	Epsilon = 5		//percent
+	Alpha = 0.0005693
+	Beta = -0.3433
+	Tau = 0.4023
+	Gamma = -1
+	Delta = 0
+	Epsilon = 1
 }
 
 ProcessConfig = pMOOSBridge
