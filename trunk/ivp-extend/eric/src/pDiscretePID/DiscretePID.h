@@ -33,6 +33,7 @@ protected:
 	double alpha,beta,gamma,delta,epsilon, tau;
 	double desired_heading;
 	double current_compass;
+	double rudder_offset;
 	vector<double> error_history, command_history;
 
 };
