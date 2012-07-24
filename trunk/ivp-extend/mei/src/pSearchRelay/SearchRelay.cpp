@@ -88,7 +88,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
-			if(msg.GetString() != "reset"){
+			if(msg.GetString() != 99){
 				int targind = (int) msg.GetDouble();
 				targetx = wpx[targind];
 				targety = wpy[targind];
@@ -130,7 +130,7 @@ bool SearchRelay::OnConnectToServer()
 	// m_Comms.Register("VARNAME", is_float(int));
 
 	m_Comms.Notify("ACOMMS_RECEIVED_DATA","reset");
-	m_Comms.Notify("SEARCH_RELAY_GOTO_POINT","reset");
+	m_Comms.Notify("SEARCH_RELAY_GOTO_POINT",99);
 	m_Comms.Notify("RELAY_PAUSE","reset");
 
 	m_MissionReader.GetConfigurationParam("Mode",mode);
@@ -205,52 +205,57 @@ bool SearchRelay::Iterate()
 		if(mythrust != 0){
 			cout << "Turning thruster off" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+			relaying = false;
 		}
 	}
 	else if(closest_dist >= fudge_factor){
 		if(mythrust == 0){
 			cout << "Turning thruster on" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+			relaying = false;
 		}
 	}
 
 	//Acoustics
 	if(!paused){
-		if(heard_one){
+			if(heard_one){
 
-			time_elapsed = MOOSTime() - start_time;
+				time_elapsed = MOOSTime() - start_time;
 
-			if(time_elapsed >= (1.2*wait_time)){
-				cout << "Missed sync with start" << endl;
-				ComputeSuccessRates(0);
-				start_time = MOOSTime() - 0.2*wait_time;
-				relaying = false;
-			}
-			else{
-				if(heard_what == "start"){
-					if(relaying){
-						cout << "Missed sync with end" << endl;
-						ComputeSuccessRates(0);
-					}
-
-					m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
-					relaying = true;
-					heard_what = "nothing";
-					start_time = MOOSTime();
+				if(time_elapsed >= (1.2*wait_time)){
+					cout << "Missed sync with start" << endl;
+				if(my_thrust==0){ComputeSuccessRates(0);}
+				else{cout << "Thruster on" << endl;}
+					start_time = MOOSTime() - 0.2*wait_time;
+					relaying = false;
 				}
-				else if(heard_what == "end"){
-					if(relaying){
-						cout << "Successful Relay" << endl;
-						ComputeSuccessRates(1);
-						relaying = false;
+				else{
+					if(heard_what == "start"){
+						if(relaying){
+							cout << "Missed sync with end" << endl;
+							ComputeSuccessRates(0);
+						}
+
+						if(my_thrust==0){m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);}
+						else{cout << "Thruster on" << endl;}
+
+						relaying = true;
 						heard_what = "nothing";
+						start_time = MOOSTime();
 					}
-					else{
-						cout << "End out of sync" << endl;
+					else if(heard_what == "end"){
+						if(relaying){
+							cout << "Successful Relay" << endl;
+							ComputeSuccessRates(1);
+							relaying = false;
+							heard_what = "nothing";
+						}
+						else{
+							cout << "End out of sync" << endl;
+							heard_what = "nothing";
+						}
 					}
 				}
-			}
-
 		} else{cout <<  "Waiting to initialize" << endl;}
 	} else{cout << "Experiment Paused" << endl;}
 
@@ -284,7 +289,6 @@ bool SearchRelay::OnStartUp()
 
 void SearchRelay::ComputeSuccessRates(int packet_got){
 
-	if(mythrust == 0){
 		int closest_ind = closest_vertex(myx,myy);
 		double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
 
@@ -359,9 +363,6 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 				}
 			}
 		}
-	}
-	else{
-		cout << "Thruster is on!" << endl;
 	}
 }
 

@@ -43,7 +43,7 @@ ProcessConfig = pSearchRelay
 	
 	Mode = normal
 	Discount = 1
-	MinObs = 5		//at least 2x Lookback
+	MinObs = 10		//at least 2x Lookback
 	FudgeFactor = 10  //m
 	Lookback = 1    //observations per result
 	Epsilon = 5		//percent
