@@ -10,6 +10,7 @@
 
 #include "MOOSLib.h"
 #include <vector>
+#include "AngleUtils.h"
 
 using namespace std;
 

@@ -11,5 +11,6 @@ TARGET_LINK_LIBRARIES(pDiscretePID
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   geometry)
 
