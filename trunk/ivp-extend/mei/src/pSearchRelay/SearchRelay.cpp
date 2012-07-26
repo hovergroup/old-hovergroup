@@ -19,7 +19,7 @@ SearchRelay::SearchRelay()
 	min_obs = 10;
 	discount = 5;
 	num_lookback = 1;
-	wait_time = 8; //s
+	wait_time = 15; //s
 
 	action = "paused";
 	relay_mode = "default";
