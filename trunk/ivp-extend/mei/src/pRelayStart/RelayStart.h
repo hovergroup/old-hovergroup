@@ -26,11 +26,8 @@ public:
 	string getRandomString(int);
 
 protected:
-		double last, wait_time;
 		int rate,mail_counter,length;
-		string relay_status,end_status, driver_status, pause;
-
-		bool relay_sync;
+		string driver_status;
 };
 
 #endif 

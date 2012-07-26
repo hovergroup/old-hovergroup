@@ -41,12 +41,12 @@ protected:
 	class RelayStat{
 	public:
 			string debug_string;
-			double x,y,next_x,next_y;
-			double stat_mean,stat_std, index;
+			int point_index;
+			double stat_mean,stat_std, gittins_index;
 			double successful_packets;
 
-			RelayStat(): debug_string("Default"), x(0), y(0), next_x(0), next_y(0),
-					stat_mean(-1), stat_std(-1), index(-1), successful_packets(-1) {}
+			RelayStat(): debug_string("Default"), point_index(-1),
+					stat_mean(-1), stat_std(-1), gittins_index(-1), successful_packets(-1) {}
 		};
 
 	void Confess(RelayStat stats);
@@ -61,12 +61,13 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	bool relaying, heard_one, paused;
 	double wait_time, start_time, time_elapsed, update_time, last_update;
 	int connected;
 	double mythrust, voltage;
-	string heard_what;
 	stringstream print_me;
+	string end_status, relay_mode;
+
+	string action;
 
 };
 

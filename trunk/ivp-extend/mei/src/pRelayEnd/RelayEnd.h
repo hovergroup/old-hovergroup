@@ -29,9 +29,9 @@ public:
 protected:
 	int relay_id;
 	double end_x,end_y,myx,myy;
-	double fudge_factor,now,last,update_time;
-	bool driver_ready;
-	double voltage;
+	double fudge_factor, station_factor,now,last,update_time;
+	string driver_status;
+	double voltage, mythrust;
 };
 
 #endif 

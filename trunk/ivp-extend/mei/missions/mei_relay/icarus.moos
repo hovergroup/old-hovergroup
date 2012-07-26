@@ -26,7 +26,6 @@ ProcessConfig = pRelayStart
 	CommsTick = 5
 	
 	Rate = 2
-	WaitTime = 15
 }
 
 ProcessConfig = pMOOSBridge
@@ -46,9 +45,8 @@ ProcessConfig = pMOOSBridge
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
 	//Relay Shares
-	SHARE = [SEARCH_RELAY_WAIT_TIME] -> kassandra@192.168.1.101:9001
+	SHARE = [START_TRANSMITTED] -> kassandra@192.168.1.101:9001
 	SHARE = [ACOMMS_TRANSMIT_RATE] -> kassandra@192.168.1.101:9001
-	SHARE = [RELAY_PAUSE] -> kassandra@192.168.1.101:9001
 	}
 
 ProcessConfig = simple_gps
