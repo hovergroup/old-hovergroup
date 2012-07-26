@@ -19,7 +19,7 @@ SearchRelay::SearchRelay()
 	min_obs = 10;
 	discount = 5;
 	num_lookback = 1;
-	wait_time = 7; //s
+	wait_time = 8; //s
 
 	action = "default";
 	relay_mode = "default";
@@ -267,6 +267,7 @@ bool SearchRelay::Iterate()
 		if(end_status=="ready"){
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 		action = "ticking";
+		start_time = MOOSTime();
 		}
 		else{
 			cout << "Waiting for end" << endl;
@@ -274,9 +275,11 @@ bool SearchRelay::Iterate()
 	}
 	else if(action == "compute_success"){
 		if(relay_mode=="KEEP"){ComputeSuccessRates(1);}
+		action = "start_transmit_now";
 	}
 	else if(action == "compute_failure"){
 		if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
+		action = "start_transmit_now";
 	}
 
 	//Update me!
