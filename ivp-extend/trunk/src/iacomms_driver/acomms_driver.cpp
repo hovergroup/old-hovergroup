@@ -375,7 +375,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 				receive_info.num_good_frames++;
 			}
 		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string.data(), frame_string.size());
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size());
 
 		// notify data received in hex format
 		vector<unsigned char> received_data (frame_string.size(), 0);
@@ -449,7 +449,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 			for ( int i=1; i<trans.frame_size(); i++ ) {
 				frame_string += trans.frame(i);
 			}
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", frame_string.data(), frame_string.size() );
+			m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size() );
 
 			// notify data received in hex format
 			vector<unsigned char> received_data (frame_string.size(), 0);
