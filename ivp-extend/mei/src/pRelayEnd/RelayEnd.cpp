@@ -116,28 +116,27 @@ bool RelayEnd::OnConnectToServer()
 
 bool RelayEnd::Iterate()
 {
+	double offset = sqrt(pow((myx-end_x),2) + pow((myy-end_y),2));
+
+	if(offset < station_factor){
+		if(mythrust != 0){
+			cout << "Turning thruster off" << endl;
+			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+		}
+	}
+	else if(offset > fudge_factor){
+		if(mythrust == 0){
+			cout << "Turning thruster on" << endl;
+			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+		}
+	}
+
 	now = MOOSTime();
 	if(now - last >= update_time){
-
-		double offset = sqrt(pow((myx-end_x),2) + pow((myy-end_y),2));
-
 		cout << "Voltage: " << voltage << endl;
 		cout << "Driver: " << driver_status << endl;
 		cout << "Thrust: " << mythrust << endl;
 		cout << "Offset: " << offset << endl;
-
-		if(offset < station_factor){
-			if(mythrust != 0){
-				cout << "Turning thruster off" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
-			}
-		}
-		else if(offset > fudge_factor){
-			if(mythrust == 0){
-				cout << "Turning thruster on" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
-			}
-		}
 
 		last = MOOSTime();
 		cout << endl;

@@ -61,10 +61,9 @@ protected:
 	XYSegList seglist;
 	double myx,myy;
 	double targetx,targety;
-	double wait_time, time_elapsed, update_time, last_update;
+	double wait_time, start_time, update_time, last_update;
 	int connected;
 	double mythrust, voltage;
-	stringstream print_me;
 	string end_status, relay_mode;
 
 	string action;
