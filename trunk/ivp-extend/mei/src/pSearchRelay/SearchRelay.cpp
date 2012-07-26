@@ -64,7 +64,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
-				if(action == "sync_with_start"){
+				if(action == "ticking"){
 					mail = msg.GetString();
 					action = "relay";
 				}
