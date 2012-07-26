@@ -12,10 +12,10 @@
 
 RelayEnd::RelayEnd()
 {
-	driver_ready = false;
-	fudge_factor = 10; //m
+	station_factor = 3; //m
+	fudge_factor = 15; //m
 	update_time = 7; //s
-	voltage = 0.0;
+	voltage = 0;
 }
 
 //---------------------------------------------------------
@@ -48,24 +48,24 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			if(receive_info.source==relay_id){
 				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
 				if(receive_info.num_good_frames==receive_info.num_frames){
-					cout << "Sending mini ack" << endl << endl;
-					m_Comms.Notify("ACOMMS_TRANSMIT_DATA","aa");
+					m_Comms.Notify("RELAY_SUCCESS","true");
+				}
+				else{
+					m_Comms.Notify("RELAY_SUCCESS","false");
 				}
 			}
 		}
 
 		else if(key=="ACOMMS_DRIVER_STATUS"){
-			if(msg.GetString()=="ready"){
-				driver_ready = true;
-			}
-			else{
-				driver_ready = false;
-			}
+			driver_status = msg.GetString();
+			m_Comms.Notify("END_STATUS",driver_status);
 		}
 		else if(key=="VOLTAGE"){
 			voltage = msg.GetDouble();
 		}
-
+		else if(key=="DESIRED_THRUST"){
+			mythrust = msg.GetDouble();
+		}
 	}
 
 	return(true);
@@ -84,13 +84,15 @@ bool RelayEnd::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("RelayID",relay_id);
 	m_MissionReader.GetConfigurationParam("Endx", end_x);
 	m_MissionReader.GetConfigurationParam("Endy", end_y);
-	m_MissionReader.GetConfigurationParam("Radius",fudge_factor);
+	m_MissionReader.GetConfigurationParam("OuterRadius",fudge_factor);
+	m_MissionReader.GetConfigurationParam("InnerRadius",station_factor);
 
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 	m_Comms.Register("VOLTAGE",0);
+	m_Comms.Register("DESIRED_THRUST",0);
 
 	stringstream ss;
 	ss<<"points="<<end_x<<","<<end_y;
@@ -116,21 +118,27 @@ bool RelayEnd::Iterate()
 {
 	now = MOOSTime();
 	if(now - last >= update_time){
-		cout << "Voltage: " << voltage << endl;
-		if(fabs(myx-end_x)<=fudge_factor && fabs(myy-end_y)<=fudge_factor){
-			cout << "In Position"<<endl;
-			if(driver_ready){
-				cout << "Driver Ready" << endl;
-			}
-			else{
-				cout << "Driver not Ready" << endl;
-			}
 
-			cout << endl;
+		double offset = sqrt(pow((myx-end_x),2) + pow((myy-end_y),2));
+
+		cout << "Voltage: " << voltage << endl;
+		cout << "Driver: " << driver_status << endl;
+		cout << "Thrust: " << mythrust << endl;
+		cout << "Offset: " << offset << endl;
+
+		if(offset < station_factor){
+			if(mythrust != 0){
+				cout << "Turning thruster off" << endl;
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+			}
 		}
-		else{
-			cout << "Not in Position" << endl;
+		else if(offset > fudge_factor){
+			if(mythrust == 0){
+				cout << "Turning thruster on" << endl;
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+			}
 		}
+
 		last = MOOSTime();
 		cout << endl;
 	}

@@ -32,22 +32,10 @@ ProcessConfig = pRelayEnd
 	CommsTick = 5
 	
 	RelayID = 1	
-	Radius = 10 //m
+	OuterRadius = 15 //m
+	InnerRadius = 3 //m
 	Endx = 700
 	Endy = -300
-}
-
-ProcessConfig = pSearchRelay
-{
-	AppTick = 5
-	CommsTick = 5
-	
-	Mode = normal
-	Discount = 1
-	MinObs = 10		//at least 2x Lookback
-	FudgeFactor = 10  //m
-	Lookback = 1    //observations per result
-	Epsilon = 5		//percent
 }
 
 ProcessConfig = pMOOSBridge
@@ -72,6 +60,8 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000	
 	
 	//Search Relay Shares
+	SHARE = [RELAY_SUCCESS] -> kassandra@192.168.1.101:9001
+	SHARE = [END_STATUS] -> kassandra@192.168.1.101:9001
 }
 
 ProcessConfig = uTimerScript

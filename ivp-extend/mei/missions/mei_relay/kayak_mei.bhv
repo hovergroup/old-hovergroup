@@ -97,10 +97,10 @@ Behavior = BHV_StationKeep
   condition		= MISSION_MODE = STATION-KEEP
   center_activate	= true
   station_pt            = 0,-10
-  inner_radius	= 5
-  outer_radius	= 10
-  outer_speed	= 1.0
-  swing_time	= 3
+  inner_radius	= 3
+  outer_radius	= 15
+  outer_speed	= 2.0
+  swing_time	= 0
 }
 
 //-- Relay -------------------------------------------------------------
@@ -127,7 +127,7 @@ Behavior = BHV_Waypoint
   visual_hints = vertex_size=2, edge_size=1
 }
 
-Behavior=BHV_StationKeep
+Behavior = BHV_StationKeep
 {
   name		= Relay_Stationkeep
   priority		= 100

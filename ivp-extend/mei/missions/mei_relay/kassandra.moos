@@ -25,24 +25,13 @@ ProcessConfig = ANTLER
 	Run = iacomms_driver @ NewConsole = false
 }
 
-ProcessConfig = pRelayEnd
-{
-	AppTick = 5
-	CommsTick = 5
-	
-	RelayID = 3	
-	Radius = 10 //m
-	Endx = 600
-	Endy = -300
-}
-
 ProcessConfig = pSearchRelay
 {
 	AppTick = 5
 	CommsTick = 5
 	
 	Mode = normal
-	Discount = 1
+	Discount = 5
 	MinObs = 10		//at least 2x Lookback
 	FudgeFactor = 10  //m
 	Lookback = 1    //observations per result
@@ -70,6 +59,7 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000	
 	
 	//Search Relay Shares
+	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
 	}
 
 ProcessConfig = uXMS
