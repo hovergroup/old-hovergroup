@@ -83,7 +83,7 @@ yy = linspace(y(3),y(4),n);
 for i=1:n
     xpts{i} = linspace(rx(i),yx(n+1-i),n);
     ypts{i} = linspace(ry(i),yy(n+1-i),n);
- %   scatter(xpts{i},ypts{i},50);
+    scatter(xpts{i},ypts{i},50);
 end
 
 hold on
