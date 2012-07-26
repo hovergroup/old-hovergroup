@@ -252,6 +252,7 @@ bool SearchRelay::Iterate()
 		time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
 			if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
+			cout << "Missed sync" << endl;
 			action = "start_transmit_now";
 		}
 	}
