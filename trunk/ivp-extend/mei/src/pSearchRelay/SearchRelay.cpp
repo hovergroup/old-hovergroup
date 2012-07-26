@@ -21,11 +21,10 @@ SearchRelay::SearchRelay()
 	num_lookback = 1;
 	wait_time = 8; //s
 
-	action = "default";
+	action = "paused";
 	relay_mode = "default";
 
 	connected = 0;
-	time_elapsed = 0;
 
 	//Update variables
 	update_time = 7;
@@ -65,11 +64,15 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
-				mail = msg.GetString();
-				action = "relay";
+				if(action == "sync_with_start"){
+					mail = msg.GetString();
+					action = "relay";
+				}
+				else{
+					cout << "Heard erroneous message: " << msg.GetString() << endl;
+				}
 			}
 		}
-
 		else if(key=="START_TRANSMITTED"){
 			if(msg.GetString()!="reset"){
 				if(msg.GetString() == "false"){
@@ -82,9 +85,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 
 		else if(key=="END_STATUS"){
-			if(msg.GetString()!="reset"){
-				end_status = msg.GetString();
-			}
+			end_status = msg.GetString();
 		}
 
 		else if(key=="RELAY_SUCCESS"){
@@ -118,11 +119,13 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 
 		else if(key=="RELAY_PAUSE"){
-			if(msg.GetString() == "false"){
-				action = "start_transmit_now";
-			}
-			else{
-				action = "paused";
+			if(msg.GetString() != "reset"){
+				if(msg.GetString() == "false"){
+					action = "start_transmit_now";
+				}
+				else{
+					action = "paused";
+				}
 			}
 		}
 		else if(key=="VOLTAGE")	{
@@ -148,7 +151,6 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Notify("SEARCH_RELAY_GOTO_POINT",99);
 	m_Comms.Notify("RELAY_PAUSE","reset");
 	m_Comms.Notify("START_TRANSMITTED","reset");
-	m_Comms.Notify("END_STATUS","reset");
 	m_Comms.Notify("RELAY_SUCCESS","reset");
 
 	m_MissionReader.GetConfigurationParam("Mode",mode);
@@ -242,14 +244,12 @@ bool SearchRelay::Iterate()
 				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 			}
 		}
-
 	}
 
 	//Acoustics
-	cout << "Action: " << action << endl;
 
 	if(action == "ticking"){
-		time_elapsed = MOOSTime() - start_time;
+		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
 			if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
 			cout << "Missed sync" << endl;
@@ -266,9 +266,9 @@ bool SearchRelay::Iterate()
 	}
 	else if(action == "relay"){
 		if(end_status=="ready"){
-		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
-		action = "ticking";
-		start_time = MOOSTime();
+			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+			action = "ticking";
+			start_time = MOOSTime();
 		}
 		else{
 			cout << "Waiting for end" << endl;
@@ -285,14 +285,14 @@ bool SearchRelay::Iterate()
 
 	//Update me!
 	if(MOOSTime() - last_update >= update_time){
-		print_me << "Distance: " << closest_dist << "m" << endl;
+		stringstream print_me;
+		print_me << "Action: " << action << endl;
+		print_me << "Distance: " << closest_dist << endl;
 		print_me << "Thrust: " << mythrust << endl;
-		print_me << "Time elapsed: " << time_elapsed << endl;
 		print_me << "Voltage: " << voltage << endl;
 		cout << print_me.str() << endl;
 		cout << endl;
 		last_update = MOOSTime();
-		print_me.str("");
 	}
 
 	return(true);
@@ -452,7 +452,7 @@ int SearchRelay::Decision(){
 			}
 
 			if(i<indices.size()-1){
-				ss << ",";
+				ss << "<|>";
 			}
 		}
 
@@ -488,16 +488,16 @@ int SearchRelay::Decision(){
 
 	return target;
 }
-void SearchRelay::Confess(RelayStat stats){
+void SearchRelay::Confess(RelayStat stat){
 	stringstream ss;
-	ss 		<< "TYPE: " << stats.debug_string <<"<|>"
-			<< "POINT: " << stats.point_index << "<|>"
-			<< "MEAN: " << stats.stat_mean << "<|>"
-			<< "STDEV: " << stats.stat_std << "<|>"
-			<< "INDEX: "<< stats.gittins_index << "<|>"
-			<< "SUCCESSES: "<<stats.successful_packets << endl;
+	ss 		<< stat.debug_string <<"<|>"
+			<< stat.point_index << "<|>"
+			<< stat.stat_mean << "<|>"
+			<< stat.stat_std << "<|>"
+			<< stat.gittins_index << "<|>"
+			<< stat.successful_packets << endl;
 
-	m_Comms.Notify("SEARCH_RELAY_STATS",ss.str());
+	m_Comms.Notify("SEARCH_RELAY_STAT",ss.str());
 }
 
 void SearchRelay::GetWaypoints(){ //Waypoints Ordered
