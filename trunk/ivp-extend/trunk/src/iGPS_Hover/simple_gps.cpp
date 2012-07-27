@@ -27,17 +27,6 @@ SIMPLE_GPS::SIMPLE_GPS() : port(io), timeout(io) {
 
 bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail)
 {
-	MOOSMSG_LIST::iterator p;
-	for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-		CMOOSMsg &msg = *p;
-		string key  = msg.GetKey();
-
-		if (key == "LISTEN_VARIABLE") {
-			cout << msg.GetString() << endl;
-			// for doubles, msg.GetDouble()
-		}
-	}
-
 	return(true);
 }
 
@@ -46,11 +35,11 @@ bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool SIMPLE_GPS::OnConnectToServer()
 {
-	// I prefer to read my config file here, so I can be sure I finish reading it before doing anything else
 	STRING_LIST sParams;
 	m_MissionReader.EnableVerbatimQuoting(false);
 	m_MissionReader.GetConfiguration(GetAppName(), sParams);
 
+	// get lat and long origin from moos file
 	bool ok1, ok2;
 	double * ptr = &m_lat_origin;
 	ok1 = m_MissionReader.GetValue("LatOrigin", *ptr);
@@ -61,24 +50,9 @@ bool SIMPLE_GPS::OnConnectToServer()
 		return false;
 	}
 
-	STRING_LIST::iterator p;
-	for (p=sParams.begin(); p!=sParams.end(); p++) {
-		string sLine = *p;
-		string sVarName = MOOSChomp(sLine, "=");
-		sLine = stripBlankEnds(sLine);
-
-		// this is the variable name we found
-		cout << sVarName << endl;
-
-		// match names to what you expect, and parse the values
-		if (MOOSStrCmp(sVarName, "BAUD_RATE")) {
-			if(!strContains(sLine, " "))
-				my_baud_rate = boost::lexical_cast<int>(stripBlankEnds(sLine));
-		} else if (MOOSStrCmp(sVarName, "PORT_NAME")) {
-			if(!strContains(sLine, " "))
-				my_port_name = stripBlankEnds(sLine);
-		}
-	}
+	// port name and baud rate
+	m_MissionReader.GetConfigurationParam("BAUD_RATE", my_baud_rate);
+	m_MissionReader.GetConfigurationParam("PORT_NAME", my_port_name);
 
 	RegisterVariables();
 
