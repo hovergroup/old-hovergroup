@@ -159,36 +159,42 @@ bool acomms_driver::OnStartUp()
    return(true);
 }
 
+// pack data into frames
 vector<unsigned char> acomms_driver::packMessage( int max_frames, int frame_size,
 		goby::acomms::protobuf::ModemTransmission * msg ) {
 	vector<unsigned char> packed_data;
 
+	// something's wrong
 	if ( transmission_data.size()==0 || max_frames<=0 || frame_size<=0 ) {
 		publishWarning("Fatal error in call to packMessage.");
 		exit(1);
 		return packed_data;
 	}
 
+	// just a single frame
 	if ( transmission_data.size() <= frame_size ) {
 		msg->add_frame( transmission_data.data(), transmission_data.size() );
 		packed_data = vector<unsigned char> (transmission_data.size(), 0);
 		memcpy( &packed_data[0], transmission_data.data(), transmission_data.size() );
-	} else {
+	} else { // multiple frames
 		int filled_size = 0;
+		// pack in full frames
 		while ( transmission_data.size() > frame_size && msg->frame_size()<max_frames ) {
 			msg->add_frame( transmission_data.data(), frame_size );
 			transmission_data = transmission_data.substr( frame_size,
 					transmission_data.size()-frame_size );
 			filled_size+=frame_size;
 		}
+		// fill up last frame or use remaining data
 		if ( transmission_data.size()>0 && msg->frame_size()<max_frames ) {
 			int leftover = min( frame_size, (int) transmission_data.size() );
 			msg->add_frame( transmission_data.data(), leftover );
 			filled_size+=leftover;
 		}
+		// copy out what made it in
 		packed_data = vector<unsigned char> (filled_size, 0);
 		for ( int i=0; i<msg->frame_size(); i++ ) {
-			memcpy( &packed_data[i*frame_size], msg->frame(0).data(), msg->frame(0).size() );
+			memcpy( &packed_data[i*frame_size], msg->frame(i).data(), msg->frame(i).size() );
 		}
 	}
 	transmission_data == "";
