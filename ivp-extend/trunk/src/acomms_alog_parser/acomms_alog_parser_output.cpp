@@ -32,6 +32,8 @@ using namespace std;
 
 void ACOMMS_ALOG_PARSER::outputResults() {
 
+
+
 	vector<string> vars;
 	map<string,int> output_files;
 	char delim = ',';
@@ -53,11 +55,9 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 	vars.push_back("mse");
 	vars.push_back("noise");
 
-	//Other
-	//vars.push_back("relay_update");
-	//vars.push_back("relay_update_age");
-	//vars.push_back("relay_index_list");
-	//vars.push_back("relay_index_list_age");
+	//Config Stats
+	vars.push_back("sender_thrust");
+	vars.push_back("receiver_thrust");
 
 	for(int i=0;i<all_transmissions.size();i++){
 		TRANSMISSION_EVENT te = all_transmissions[i];
@@ -65,7 +65,8 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 
 		for(int i=0;i<te.receptions_vector.size();i++){
 			string rv =  te.receptions_vector[i].vehicle_name;
-			string dstr = '_' + rv;
+			stringstream dstr;
+			dstr << '_' << my_node[0] << '2' << rv[0];
 			RECEPTION_EVENT re = te.receptions_vector[i];
 
 			stringstream ss;
@@ -79,7 +80,7 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 			if(output_files[ss.str()]==1){
 
 				for(int i=0;i<vars.size();i++){
-					log_output << vars[i] << dstr;
+					log_output << vars[i] << dstr.str();
 					if(i < vars.size()-1) {
 						log_output << delim;
 					}
@@ -103,28 +104,30 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 			log_output<<stat.snr_in()<<delim<<stat.snr_out()<<delim<<stat.spl()<<delim
 					<<stat.mse_equalizer()<<delim<<stat.stddev_noise();
 
-			if(rv == "false"){
-				cout << "Trying to find relay stats" << endl;
-				vector< pair<double,string> > relay_stats, relay_index;
-				relay_stats = string_data[rv]["SEARCH_RELAY_STATS"];
-				relay_index = string_data[rv]["SEARCH_RELAY_INDEX_LIST"];
+			//Report Thrust
+			vector< pair<double,double> > sender_thrust;
+			vector< pair<double,double> > receiver_thrust;
+			sender_thrust = double_data[my_node]["DESIRED_THRUST"];
+			receiver_thrust = double_data[rv]["DESIRED_THRUST"];
 
-				log_output << delim;
-				pair<int,double> temp = findNearest(relay_stats,re.receive_time);
-				cout << temp.first << endl;
+			log_output << delim;
+			pair<int,double> temp = findNearest(sender_thrust,te.transmission_time);
+			if(temp.first>=0){
+				log_output << sender_thrust[temp.first].second;}
+			else{
+				log_output << -1;
+			}
 
-				if(temp.first>=0){
-				log_output << relay_stats[temp.first].second << delim;
-				log_output << temp.second << delim;
-				temp = findNearest(relay_index,re.receive_time);
-				log_output << relay_index[temp.first].second << delim;
-				log_output << temp.second;
-				}
+			log_output << delim;
+			temp = findNearest(receiver_thrust,re.receive_time);
+			if(temp.first>=0){
+				log_output << receiver_thrust[temp.first].second;}
+			else{
+				log_output << -1;
 			}
 
 			log_output << endl;
 			log_output.close();
-
 		}
 	}
 }
