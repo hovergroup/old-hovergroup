@@ -21,9 +21,8 @@
 #define MAX_LINE_LENGTH 10000
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
 std::string readCommandArg( std::string sarg );
-std::string fixToString( ALogEntry entry, int line_num );
 
-// functions copied from moos-ivp to support separate compilation
+// functions copied from moos-ivp to support independent compilation
 std::string biteString(std::string& str, char separator);
 std::string stripBlankEnds(const std::string& str);
 bool isNumber(const std::string& str, bool blanks_allowed=true);
@@ -34,19 +33,44 @@ using namespace std;
 
 map<string,vector<pair<double,string> > > values;
 vector<string> variables;
-
-string sync_variable;
-bool use_sync_variable = false;
-double sync_period = 0;
+ofstream output;
 
 void printHelp() {
-
+    cout << "Usage: " << endl;
+    cout << "  alogParse in.alog --sync_variable=[SYNC_VAR] [VAR] [OPTIONS]   " << endl;
+    cout << "  alogParse in.alog --sync_period=[period] [VAR] [OPTIONS]       " << endl;
+    cout << "                                                                 " << endl;
+    cout << "Synopsis:                                                        " << endl;
+    cout << "  Creates a comma delimited synchronous log file from an alog    " << endl;
+    cout << "  file for importing into Matlab, Excel, or similar.  Age of each" << endl;
+    cout << "  variable is also reported (may be negative).                   " << endl;
+    cout << "                                                                 " << endl;
+    cout << "Standard Arguments:                                              " << endl;
+    cout << "  in.alog  - The input logfile.                                  " << endl;
+    cout << "  VAR      - The name of a MOOS variable                         " << endl;
+    cout << "                                                                 " << endl;
+    cout << "Synchronization Options:                                         " << endl;
+    cout << "  Sync by variable  - a line will be printed everytime the       " << endl;
+    cout << "                      variable [SYNC_VAR] is posted to.          " << endl;
+    cout << "  Sync periodically - a line will be printed every [period]      " << endl;
+    cout << "                      seconds.                                   " << endl;
+    cout << "                                                                 " << endl;
+    cout << "Options:                                                         " << endl;
+    cout << "  -h,--help        Displays this help message                    " << endl;
+    cout << "  -b,--backsearch  When printing a line, look only backards for  " << endl;
+    cout << "                   the latest posting of each variable. (Age will" << endl;
+    cout << "                   always be positive).                          " << endl;
+    cout << "                                                                 " << endl;
+    cout << "Further Notes:                                                   " << endl;
+    cout << "  (1) The output file will have the same filename as the input,  " << endl;
+    cout << "      but with a .txt extension.                                 " << endl;
+    cout << endl;
 }
 
 // find the nearest entry by time, returns index and time diff
-template <class T>
-pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_time ) {
-	if ( item_list.empty() ) return pair<int,double>(-1,-1);
+pair<int,double> findNearest( vector< pair<double,string> > item_list, double msg_time ) {
+	if ( item_list.empty() )
+		return pair<int,double>(-1,-1);
 	double min_diff = 10000;
 	int index = -1;
 	for ( int i=0; i<item_list.size(); i++ ) {
@@ -59,21 +83,39 @@ pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_tim
 	return pair<int,double>(index,age);
 }
 
-ofstream output;
+// find the latest entry by time, returns index and time diff
+pair<int,double> findLatest( vector< pair<double,string> > item_list, double msg_time ) {
+	if ( item_list.empty() || item_list.front().first > msg_time )
+		return pair<int,double>(-1,-1);
+
+	int index = 0;
+	while ( item_list[index].first <= msg_time && index < item_list.size() ) {
+		index++;
+	}
+	if ( index==0 )
+		index++;
+	double age = msg_time-item_list[index-1].first;
+	return pair<int,double>(index-1,age);
+}
 
 void printHeader() {
 	output << "time";
 	for ( int i=0; i<variables.size(); i++ ) {
-		output << "," << variables[i] << "," << "age";
+		output << "," << variables[i] << "," << variables[i] << "_age";
 	}
 	output << endl;
 }
 
-void printTime( double msg_time ) {
+// print a line of data for a certain time
+void printTime( double msg_time, bool backsearch_only ) {
 	output << msg_time;
 	for ( int i=0; i<variables.size(); i++ ) {
 		string var = variables[i];
-		pair<int,double> result = findNearest<string>(values[var], msg_time);
+		pair<int,double> result;
+		if ( !backsearch_only )
+			result = findNearest(values[var], msg_time);
+		else
+			result = findLatest(values[var], msg_time);
 		if ( result.first == -1 )
 			output << ",-1,-1";
 		else
@@ -83,11 +125,17 @@ void printTime( double msg_time ) {
 }
 
 int main (	int argc, char *argv[] ) {
+	string sync_variable;
+	bool use_sync_variable = false;
+	double sync_period = 0;
+	bool restrict_to_backsearch = false;
+
 	if( scanArgs(argc, argv, "-h", "--help" ) ) {
 		printHelp();
 		return 0;
 	}
 
+	// read command line arguments
 	string alogfile_in;
 	for (int i = 1; i < argc; i++) {
 		string sarg = argv[i];
@@ -99,6 +147,8 @@ int main (	int argc, char *argv[] ) {
 			sync_variable = readCommandArg( string(sarg) );
 		} else if ( strContains(sarg, "--sync_period=" ) ) {
 			sync_period = atof( readCommandArg(string(sarg)).c_str() );
+		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
+			restrict_to_backsearch = true;
 		} else {
 			variables.push_back( string(sarg) );
 		}
@@ -123,20 +173,9 @@ int main (	int argc, char *argv[] ) {
 		exit(0);
 	}
 
-
-//	if ( use_sync_variable )
-//		cout << "syncing on " << sync_variable << endl;
-//	else
-//		cout << "syncing every " << sync_period << endl;
-//	cout << "looking for: ";
-//	for ( int i=0; i<variables.size(); i++ ) {
-//		cout << variables[i] << " ";
-//	}
-//	cout << endl;
-
-
 	double start_time = -100;
 	double stop_time = -100;
+	// read through alog file, picking out variables we care about
 	int line_num = 1;
 	ALogEntry entry = getNextRawALogEntry_josh( logfile );
 	while( entry.getStatus() != "eof" ) {
@@ -148,6 +187,7 @@ int main (	int argc, char *argv[] ) {
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ||
 					key == sync_variable ) {
 				values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
+				// these start and stop times will be used for period synchronization
 				if ( start_time == -100 )
 					start_time = msg_time;
 				if ( msg_time > stop_time )
@@ -157,21 +197,22 @@ int main (	int argc, char *argv[] ) {
 		entry = getNextRawALogEntry_josh( logfile );
 	}
 
-//	cout << "read done" << endl;
-
+	// open output file and print header
 	string file_out = alogfile_in;
 	file_out.replace( file_out.size()-4, 4, "txt");
 	output.open(file_out.c_str());
 	printHeader();
 
 	if ( use_sync_variable ) {
+		// print a line everytime sync variable is posted to
 		for ( int i=0; i<values[sync_variable].size(); i++ ) {
-			printTime( values[sync_variable][i].first );
+			printTime( values[sync_variable][i].first, restrict_to_backsearch );
 		}
 	} else {
+		// print a line every sync_period seconds
 		double current_time = start_time;
 		while ( current_time <= stop_time ) {
-			printTime( current_time );
+			printTime( current_time, restrict_to_backsearch );
 			current_time += sync_period;
 		}
 	}
@@ -179,19 +220,6 @@ int main (	int argc, char *argv[] ) {
 	output.close();
 
 	return 0;
-}
-
-// force an alog entry to be a string
-string fixToString( ALogEntry entry, int line_num ) {
-	if ( entry.isNumerical() ) {
-		cout << "WARNING at line " << line_num <<
-				": " << entry.getVarName() << " was numerical, will convert." << endl;
-		stringstream ss;
-		ss << entry.getDoubleVal();
-		return ss.str();
-	} else {
-		return entry.getStringVal();
-	}
 }
 
 string readCommandArg( string sarg ) {
@@ -203,6 +231,8 @@ string readCommandArg( string sarg ) {
 	}
 }
 
+// slightly modified version of that found in lib_logutils
+// always returns a string variables and allows for spaces in variable value
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 {
 	ALogEntry entry;
@@ -301,6 +331,10 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 
 	return (entry);
 }
+
+
+
+// everything past here is identical to the moos-ivp libraries
 
 string biteString(string& str, char separator)
 {
