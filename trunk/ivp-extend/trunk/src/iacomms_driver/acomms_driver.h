@@ -43,6 +43,8 @@ protected:
 	goby::acomms::ModemDriverBase* driver;
 	goby::acomms::protobuf::DriverConfig cfg;
 
+	std::vector<unsigned char> packMessage( int max_frames, int frame_size,
+			goby::acomms::protobuf::ModemTransmission * msg );
 	void transmit_data();
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
 	void publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index );
