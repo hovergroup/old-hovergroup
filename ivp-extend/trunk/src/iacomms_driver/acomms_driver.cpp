@@ -7,6 +7,7 @@
 
 #include <iterator>
 #include <sstream>
+#include <algorithm>
 #include "acomms_driver.h"
 #include "acomms_messages.h"
 
@@ -158,6 +159,42 @@ bool acomms_driver::OnStartUp()
    return(true);
 }
 
+vector<unsigned char> acomms_driver::packMessage( int max_frames, int frame_size,
+		goby::acomms::protobuf::ModemTransmission * msg ) {
+	vector<unsigned char> packed_data;
+
+	if ( transmission_data.size()==0 || max_frames<=0 || frame_size<=0 ) {
+		publishWarning("Fatal error in call to packMessage.");
+		exit(1);
+		return packed_data;
+	}
+
+	if ( transmission_data.size() <= frame_size ) {
+		msg->add_frame( transmission_data.data(), transmission_data.size() );
+		packed_data = vector<unsigned char> (transmission_data.size(), 0);
+		memcpy( &packed_data[0], transmission_data.data(), transmission_data.size() );
+	} else {
+		int filled_size = 0;
+		while ( transmission_data.size() > frame_size && msg->frame_size()<max_frames ) {
+			msg->add_frame( transmission_data.data(), frame_size );
+			transmission_data = transmission_data.substr( frame_size,
+					transmission_data.size()-frame_size );
+			filled_size+=frame_size;
+		}
+		if ( transmission_data.size()>0 && msg->frame_size()<max_frames ) {
+			int leftover = min( frame_size, (int) transmission_data.size() );
+			msg->add_frame( transmission_data.data(), leftover );
+			filled_size+=leftover;
+		}
+		packed_data = vector<unsigned char> (filled_size, 0);
+		for ( int i=0; i<msg->frame_size(); i++ ) {
+			memcpy( &packed_data[i*frame_size], msg->frame(0).data(), msg->frame(0).size() );
+		}
+	}
+	transmission_data == "";
+	return packed_data;
+}
+
 void acomms_driver::transmit_data() {
 	if ( !driver_ready ) {
 		publishWarning("Driver not ready");
@@ -190,57 +227,36 @@ void acomms_driver::transmit_data() {
 		transmit_message.set_dest( transmission_dest );
 
 	vector<unsigned char> transmitted_data;
-	if ( transmission_rate == 0 ) {
-		// if using fsk, take up to 32 bytes by truncating if necessary
-		int data_size = transmission_data.size();
-		if ( data_size > 32 )
-			data_size = 32;
-		transmit_message.add_frame( transmission_data.data(), data_size );
+	switch ( transmission_rate ) {
+	case 0:
+		transmitted_data = packMessage(1, 32, &transmit_message);
+		break;
 
-		// save transmitted data
-		transmitted_data = vector<unsigned char> (data_size, 0);
-		memcpy( &transmitted_data[0], transmission_data.data(), data_size);
+	case 1:
+		transmitted_data = packMessage(3, 64, &transmit_message);
+		break;
 
-		// clear transmission data
-		transmission_data = "";
+	case 2:
+		transmitted_data = packMessage(3, 64, &transmit_message);
+		break;
 
-	} else if ( transmission_rate == 2 || transmission_rate == 1) {
-		// if psk, take up to 192 bytes in 64 byte frames
-		int total_size = transmission_data.size();
-		if ( total_size > 192 ) // max size across 3 frames
-			total_size = 192;
-		transmitted_data = vector<unsigned char> (total_size, 0);
+	case 3:
+		transmitted_data = packMessage(2, 256, &transmit_message);
+		break;
 
-		// while more than 64 bytes left, add another 64 byte frame
-		while ( total_size-64 > 0 ) {
-			transmit_message.add_frame( transmission_data.data(), 64 );
-			int index = (transmit_message.frame_size()-1)*64;
-			// save transmitted data
-			memcpy( &transmitted_data[index], transmission_data.data(), 64 );
-			transmission_data = transmission_data.substr( 64, transmission_data.size()-64 );
-			total_size-=64;
-		}
-		// when 64 bytes or less left, copy remaining data
-		transmit_message.add_frame( transmission_data.data(), total_size );
-		int index = (transmit_message.frame_size()-1)*64;
-		memcpy( &transmitted_data[index], transmission_data.data(), total_size );
+	case 4:
+		transmitted_data = packMessage(2, 256, &transmit_message);
+		break;
 
-		// clear transmission data
-		transmission_data = "";
+	case 5:
+		transmitted_data = packMessage(8, 256, &transmit_message);
+		break;
 
-	} else if ( transmission_rate == 100 ) {
-		// if mini packet, just take up to the first two bytes
-		// truncating done in goby
-		if ( transmission_data.size() == 1 ) {
-			char filler = 0x00;
-			transmission_data.insert(0,&filler, 1);
-			publishWarning("Only passed one byte for minipacket, packing with 0x00.");
-		}
-		transmit_message.add_frame( transmission_data.data(), 2 );
-		transmit_message.mutable_frame(0)->at(0) &= 0x1f;
-		transmitted_data = vector<unsigned char> (2,0);
-		memcpy( &transmitted_data[0], transmit_message.frame(0).data(), 2 );
-	} else {
+	case 6:
+		transmitted_data = packMessage(6, 32, &transmit_message);
+		break;
+
+	default:
 		stringstream ss;
 		ss << "Requested rate " << transmission_rate << " is not supported.";
 		publishWarning(ss.str());
