@@ -29,6 +29,7 @@ ADD_SUBDIRECTORY(simple_acomms_parser)
 ADD_SUBDIRECTORY(iacomms_driver_sim)
 ADD_SUBDIRECTORY(ikayak_driver)
 ADD_SUBDIRECTORY(uPokeDBHex)
+ADD_SUBDIRECTORY(alogParse)
 
 ##############################################################################
 #                           END of CMakeLists.txt
