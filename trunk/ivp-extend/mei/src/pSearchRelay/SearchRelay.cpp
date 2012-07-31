@@ -229,6 +229,7 @@ bool SearchRelay::Iterate()
 		if(mythrust != 0){
 			cout << "Turning thruster off" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+			m_Comms.Notify("RELAY_MODE","KEEP");
 		}
 	}
 	else if(closest_dist > fudge_factor){
