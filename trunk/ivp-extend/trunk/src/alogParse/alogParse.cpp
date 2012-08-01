@@ -21,6 +21,7 @@
 #define MAX_LINE_LENGTH 10000
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
 std::string readCommandArg( std::string sarg );
+bool wildCardMatch( std::string wild, std::string key );
 
 // functions copied from moos-ivp to support independent compilation
 std::string biteString(std::string& str, char separator);
@@ -32,7 +33,7 @@ bool strContains(const std::string& str, const std::string& qstr);
 using namespace std;
 
 map<string,vector<pair<double,string> > > values;
-vector<string> variables;
+vector<string> variables, wilds;
 ofstream output;
 
 void printHelp() {
@@ -149,8 +150,10 @@ int main (	int argc, char *argv[] ) {
 			sync_period = atof( readCommandArg(string(sarg)).c_str() );
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
+		} else if ( sarg.find("*")!=string::npos ) {
+			wilds.push_back( sarg );
 		} else {
-			variables.push_back( string(sarg) );
+			variables.push_back( sarg );
 		}
 	}
 
@@ -192,6 +195,19 @@ int main (	int argc, char *argv[] ) {
 					start_time = msg_time;
 				if ( msg_time > stop_time )
 					stop_time = msg_time;
+			} else {
+				for ( int i=0; i<wilds.size(); i++ ) {
+					if ( wildCardMatch(wilds[i], key) ) {
+						variables.push_back(key);
+						values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
+						// these start and stop times will be used for period synchronization
+						if ( start_time == -100 )
+							start_time = msg_time;
+						if ( msg_time > stop_time )
+							stop_time = msg_time;
+						break;
+					}
+				}
 			}
 		}
 		entry = getNextRawALogEntry_josh( logfile );
@@ -332,7 +348,34 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 	return (entry);
 }
 
+bool wildCardMatch( string wild, string key ) {
+	if ( wild == key ) return true;
+	if ( wild.empty() || key.empty() ) return false;
+	if ( wild.find("*") == string::npos ) return false;
 
+	int wild_position = wild.find("*");
+	if ( wild_position == 0 ) {
+		string post_wild = wild.substr(1, wild.size()-1);
+		if ( key.size() < post_wild.size() ) return false;
+		string key_end = key.substr( key.size()-post_wild.size(), post_wild.size() );
+		if ( post_wild == key_end ) return true;
+		else return false;
+	} else if ( wild_position == wild.size()-1 ) {
+		string pre_wild = wild.substr(0,wild_position);
+		if ( key.size() < pre_wild.size() ) return false;
+		string key_start = key.substr( 0, pre_wild.size() );
+		if ( pre_wild == key_start ) return true;
+		else return false;
+	} else {
+		string pre_wild = wild.substr(0,wild_position);
+		string post_wild = wild.substr(wild_position+1, wild.size()-wild_position-1);
+		if ( key.size() < pre_wild.size() + post_wild.size() ) return false;
+		string key_begin = key.substr( 0, pre_wild.size() );
+		string key_end = key.substr( key.size()-post_wild.size(), post_wild.size() );
+		if ( key_begin==pre_wild && key_end==post_wild ) return true;
+		else return false;
+	}
+}
 
 // everything past here is identical to the moos-ivp libraries
 
