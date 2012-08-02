@@ -45,7 +45,6 @@ ProcessConfig = pMOOSBridge
 	
 	//Relay Shares
 	SHARE = [START_TRANSMITTED] -> kassandra@192.168.1.101:9001
-	SHARE = [ACOMMS_TRANSMIT_RATE] -> kassandra@192.168.1.101:9001
 	}
 
 ProcessConfig = simple_gps
