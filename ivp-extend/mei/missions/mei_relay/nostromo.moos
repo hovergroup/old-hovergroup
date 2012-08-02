@@ -62,6 +62,7 @@ ProcessConfig = pMOOSBridge
 	//Search Relay Shares
 	SHARE = [RELAY_SUCCESS] -> kassandra@192.168.1.101:9001
 	SHARE = [END_STATUS] -> kassandra@192.168.1.101:9001
+	SHARE = [END_THRUST] -> kassandra@192.168.1.101:9001
 }
 
 ProcessConfig = uTimerScript
@@ -144,7 +145,7 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 30
+	SPEED_FACTOR	= 15
 	// 25-30 for no modem
 	// 40 with modem
 

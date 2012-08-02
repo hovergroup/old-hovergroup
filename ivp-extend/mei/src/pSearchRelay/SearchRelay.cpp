@@ -25,6 +25,7 @@ SearchRelay::SearchRelay()
 	relay_mode = "default";
 
 	connected = 0;
+	end_thrust = 0;
 
 	//Update variables
 	update_time = 7;
@@ -64,9 +65,24 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
+				bool first_success = false;
+				lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
+				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
+				if(receive_info.num_good_frames==receive_info.num_frames){
+					first_success = true;
+				}
+				else{
+					first_success = false;
+				}
+
 				if(action == "ticking"){
-					mail = msg.GetString();
-					action = "relay";
+					if(first_success){
+						mail = msg.GetString();
+						action = "relay";
+					}
+					else{
+						action = "compute_failure";
+					}
 				}
 				else{
 					cout << "Heard erroneous message: " << msg.GetString() << endl;
@@ -86,6 +102,10 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		else if(key=="END_STATUS"){
 			end_status = msg.GetString();
+		}
+
+		else if(key=="END_THRUST"){
+			end_thrust = msg.GetDouble();
 		}
 
 		else if(key=="RELAY_SUCCESS"){
@@ -172,6 +192,7 @@ bool SearchRelay::OnConnectToServer()
 
 	m_Comms.Register("START_TRANSMITTED",0);
 	m_Comms.Register("END_STATUS",0);
+	m_Comms.Register("END_THRUST",0);
 	m_Comms.Register("RELAY_SUCCESS",0);
 
 	if(mode=="normal"){
@@ -248,12 +269,11 @@ bool SearchRelay::Iterate()
 	}
 
 	//Acoustics
-
 	if(action == "ticking"){
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
 			if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
-			cout << "Missed sync" << endl;
+			cout << "Missed sync" << endl << endl;
 			action = "start_transmit_now";
 		}
 	}
@@ -266,13 +286,18 @@ bool SearchRelay::Iterate()
 		action = "ticking";
 	}
 	else if(action == "relay"){
-		if(end_status=="ready"){
-			m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
-			action = "ticking";
-			start_time = MOOSTime();
+		if(end_thrust == 0){
+			if(end_status=="ready"){
+				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
+				action = "ticking";
+				start_time = MOOSTime();
+			}
+			else{
+				cout << "Waiting for end driver" << endl;
+			}
 		}
 		else{
-			cout << "Waiting for end" << endl;
+			cout << "Waiting for end to stop moving" << endl;
 		}
 	}
 	else if(action == "compute_success"){
@@ -317,31 +342,31 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 	int closest_ind = closest_vertex(myx,myy);
 	double closest_dist = sqrt(pow((seglist.get_vx(closest_ind)-myx),2) + pow((seglist.get_vy(closest_ind)-myy),2));
 
-	std::cout<<"--->Updating data"<<std::endl;
-	std::cout<<" Closest distance was: "<<closest_dist<<std::endl;
-	std::cout<<" Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
+	cout<<" Closest distance was: "<< closest_dist << endl;
+	cout<<" Closest point was: "<< seglist.get_vx(closest_ind) << " , " << seglist.get_vy(closest_ind)<<std::endl;
 
 	if(closest_dist<=fudge_factor){
-		data[closest_ind].push_back(packet_got);
 
+		data[closest_ind].push_back(packet_got);
 		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
 		stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
 
-		std::cout<<"  Updating MEAN and STDev for Point #"<<closest_ind<<std::endl;
-		std::cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-		std::cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
+		cout<<"--->Updating data for Point #"<<closest_ind<<std::endl;
+		cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
+		cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
 
+		//NORMAL INDICES
 		if(mode == "normal"){
+			cout << "Transmissions sent: " << data[closest_ind].size() << endl;
+			cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
+
 			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
 				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 			}
 			else{
 				ComputeIndex(closest_ind);
-
+				cout<<"--->Making a Decision"<<endl;
 				int target = Decision();
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
-				std::cout<<"--->Making a Decision"<<std::endl;
 				targetx = wpx[target];
 				targety = wpy[target];
 				std::stringstream ss;
@@ -354,6 +379,8 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 			}
 		}
+
+		//EPSILON GREEDY
 		else if(mode == "greedy"){
 			if(data[closest_ind].size()<min_obs){
 				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
@@ -392,7 +419,6 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 void SearchRelay::ComputeIndex(int closest_ind){
 	cout << "--->Computing Index" << endl;
 	int num_obs = data[closest_ind].size()/num_lookback;
-	std::cout<<"  Num Obs: "<<num_obs<<std::endl;
 
 	if(num_obs==100){
 		std::cout<<"  Exceeded maximum observations. Switching Modes."<<std::endl;
@@ -415,6 +441,7 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	}
 
 	indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
+	cout << endl;
 	std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
 
 	RelayStat my_stat = RelayStat();
@@ -422,6 +449,8 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	my_stat.point_index = closest_ind;
 	my_stat.stat_mean = mean[closest_ind]; my_stat.stat_std=stdev[closest_ind];
 	my_stat.gittins_index = indices[closest_ind];
+	my_stat.stat_x = myx;
+	my_stat.stat_y = myy;
 
 	double temp_successes=0;
 	for(int i=0;i<data[closest_ind].size();i++){
@@ -435,21 +464,30 @@ void SearchRelay::ComputeIndex(int closest_ind){
 
 int SearchRelay::Decision(){
 	int target=0;
-	std::stringstream ss;
+	stringstream ss;
 
 	if(mode == "normal"){
 		//Find largest index
 
 		for(int i=0;i<indices.size();i++){
-			std::cout<<"Point: "<<i<<" Index: "<<indices[i]<<std::endl;
+			cout<<"Point: "<<i<<" Index: "<<indices[i]<<endl;
 			ss<<indices[i];
 
-			if(indices[i]<0){
+			if(indices[i]<0){	 // first round
 				target = i;
 				break;
 			}
 			else if(indices[i]>indices[target]){
 				target = i;
+			}
+			else if(indices[i]==indices[target]){ //tiebreak
+
+				double new_dist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
+				double old_dist = sqrt(pow((seglist.get_vx(target)-myx),2) + pow((seglist.get_vy(target)-myy),2));
+
+				if(new_dist < old_dist){
+					target = i;
+				}
 			}
 
 			if(i<indices.size()-1){
@@ -460,10 +498,12 @@ int SearchRelay::Decision(){
 		std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
 
 		RelayStat my_stat = RelayStat();
-		my_stat.debug_string = "Target";
+		my_stat.debug_string = "Decision";
 		my_stat.point_index = target;
 		my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
 		my_stat.gittins_index = indices[target];
+		my_stat.stat_x = myx;
+		my_stat.stat_y = myy;
 
 		Confess(my_stat);
 		m_Comms.Notify("SEARCH_RELAY_INDEX_LIST",ss.str());
@@ -492,6 +532,8 @@ int SearchRelay::Decision(){
 void SearchRelay::Confess(RelayStat stat){
 	stringstream ss;
 	ss 		<< stat.debug_string <<"<|>"
+			<< stat.stat_x << "<|>"
+			<< stat.stat_y << "<|>"
 			<< stat.point_index << "<|>"
 			<< stat.stat_mean << "<|>"
 			<< stat.stat_std << "<|>"

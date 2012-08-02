@@ -122,12 +122,14 @@ bool RelayEnd::Iterate()
 		if(mythrust != 0){
 			cout << "Turning thruster off" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+			m_Comms.Notify("END_THRUST",0);
 		}
 	}
 	else if(offset > fudge_factor){
 		if(mythrust == 0){
 			cout << "Turning thruster on" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
+			m_Comms.Notify("END_THRUST",30);
 		}
 	}
 
