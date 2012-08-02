@@ -65,6 +65,8 @@ void printHelp() {
     cout << "Further Notes:                                                   " << endl;
     cout << "  (1) The output file will have the same filename as the input,  " << endl;
     cout << "      but with a .txt extension.                                 " << endl;
+    cout << "  (2) Use * for wildcard logging (e.g. VAR* matches any MOOS     " << endl;
+    cout << "      variable starting with VAR)                                " << endl;
     cout << endl;
 }
 
