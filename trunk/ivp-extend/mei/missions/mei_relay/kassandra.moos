@@ -18,8 +18,6 @@ ProcessConfig = ANTLER
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
 	
-//	Run = pSearchRelay		@ NewConsole = true
-	
 	Run = iOS5000_filtered		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iacomms_driver @ NewConsole = false
@@ -36,6 +34,7 @@ ProcessConfig = pSearchRelay
 	FudgeFactor = 10  //m
 	Lookback = 1    //observations per result
 	Epsilon = 5		//percent
+	Rate = 2
 }
 
 ProcessConfig = pMOOSBridge
@@ -60,6 +59,7 @@ ProcessConfig = pMOOSBridge
 	
 	//Search Relay Shares
 	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
+	SHARE = [ACOMMS_TRANSMIT_RATE] -> icarus@192.168.1.102:9002
 	}
 
 ProcessConfig = uXMS

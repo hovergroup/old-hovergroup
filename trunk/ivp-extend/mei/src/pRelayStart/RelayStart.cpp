@@ -13,6 +13,7 @@
 RelayStart::RelayStart()
 {
 	rate = 2;
+	length = 192;
 	mail_counter = 0;
 	srand((unsigned) time(NULL));
 }
@@ -58,6 +59,32 @@ bool RelayStart::OnNewMail(MOOSMSG_LIST &NewMail)
 				}
 			}
 		}
+
+		else if(key=="ACOMMS_TRANSMIT_RATE"){
+			switch((int)msg.GetDouble()){
+			case 0:
+				length = 32;
+				break;
+			case 1:
+				length = 192;
+				break;
+			case 2:
+				length = 192;
+				break;
+			case 3:
+				length = 512;
+				break;
+			case 4:
+				length = 512;
+				break;
+			case 5:
+				length = 2048;
+				break;
+			case 6:
+				length = 192;
+				break;
+			}
+		}
 	}
 
 	return(true);
@@ -73,13 +100,7 @@ bool RelayStart::OnConnectToServer()
 
 	m_Comms.Notify("START_TRANSMIT_NOW","reset");
 
-	m_MissionReader.GetConfigurationParam("Rate",rate);
-
-	if(rate==0){length = 32;}
-	else if(rate==2){length = 192;}
-
-	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
-
+	m_Comms.Register("ACOMMS_TRANSMIT_RATE",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 	m_Comms.Register("START_TRANSMIT_NOW",0);
 

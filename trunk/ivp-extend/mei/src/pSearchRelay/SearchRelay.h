@@ -16,6 +16,7 @@
 #include "XYSegList.h"
 #include <string.h>
 #include <math.h>
+#include <acomms_messages.h>
 
 using namespace std;
 
@@ -43,10 +44,12 @@ protected:
 			string debug_string;
 			int point_index;
 			double stat_mean,stat_std, gittins_index;
+			double stat_x,stat_y;
 			double successful_packets;
 
 			RelayStat(): debug_string("Default"), point_index(-1),
-					stat_mean(-1), stat_std(-1), gittins_index(-1), successful_packets(-1) {}
+					stat_mean(-1), stat_std(-1), gittins_index(-1), stat_x(-1), stat_y(-1),
+					successful_packets(-1) {}
 		};
 
 	void Confess(RelayStat stats);
@@ -63,7 +66,7 @@ protected:
 	double targetx,targety;
 	double wait_time, start_time, update_time, last_update;
 	int connected;
-	double mythrust, voltage;
+	double mythrust, voltage, end_thrust;
 	string end_status, relay_mode;
 
 	string action;

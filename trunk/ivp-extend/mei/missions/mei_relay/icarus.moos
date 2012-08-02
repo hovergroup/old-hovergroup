@@ -25,7 +25,6 @@ ProcessConfig = pRelayStart
 	AppTick = 5
 	CommsTick = 5
 	
-	Rate = 2
 }
 
 ProcessConfig = pMOOSBridge
