@@ -15,6 +15,7 @@ acomms_timer::acomms_timer()
 	duty_cycle = 15;
 	last_time = 0;
 	rate = 0;
+	pong_rate = 0;
 	paused = true;
 	driver_ready = false;
 	counter = 0;
