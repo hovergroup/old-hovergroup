@@ -434,7 +434,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 			stringstream ss;
 			ss << "calculated " << receive_info.num_good_frames << " good frames and "
 					<< receive_info.num_frames << " total, but found " <<
-					stat.number_frames();
+					trans.frame_size();
 			publishWarning( ss.str() );
 		}
 
