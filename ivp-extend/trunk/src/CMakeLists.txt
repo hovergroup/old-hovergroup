@@ -30,6 +30,7 @@ ADD_SUBDIRECTORY(iacomms_driver_sim)
 ADD_SUBDIRECTORY(ikayak_driver)
 ADD_SUBDIRECTORY(uPokeDBHex)
 ADD_SUBDIRECTORY(alogParse)
+ADD_SUBDIRECTORY(iAltimeter)
 
 ##############################################################################
 #                           END of CMakeLists.txt
