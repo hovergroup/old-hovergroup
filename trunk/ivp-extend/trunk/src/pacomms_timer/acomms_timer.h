@@ -33,7 +33,7 @@ protected:
 	bool driver_ready;
 	std::string mode;
 	std::string data_out;
-	int rate,counter,size;
+	int rate,counter,size, pong_rate;
 };
 
 #endif 
