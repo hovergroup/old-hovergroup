@@ -463,7 +463,9 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		// see outside ACOMMS_RECEIVED_ALL
 		m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
 		m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
-		m_Comms.Notify("ACOMMS_DQR",stat.data_quality_factor());
+		m_Comms.Notify("ACOMMS_DQF",stat.data_quality_factor());
+		m_Comms.Notify("ACOMMS_STDDEV_NOISE", stat.stddev_noise());
+		m_Comms.Notify("ACOMMS_MSE", stat.mse_equalizer());
 
 		if ( trans.frame_size() > 0 ) {
 			// notify data received in ascii format
