@@ -22,7 +22,7 @@
 
 #include <string>
 #include "MBUtils.h"
-#include "simple_gps.h"
+#include "iAltimeter.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   }
 
   string sMissionFile = "Mission.moos";
-  string sMOOSName    = "simple_gps";
+  string sMOOSName    = "ALTIMETER";
 
   switch(argc) {
   case 3:
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
   cout << sMOOSName << "  " << sMissionFile << endl;
 
-  SIMPLE_GPS mine;
+  ALTIMETER mine;
 
   mine.Run(sMOOSName.c_str(), sMissionFile.c_str());
 
