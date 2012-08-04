@@ -35,6 +35,7 @@ using namespace std;
 map<string,vector<pair<double,string> > > values;
 vector<string> variables, wilds;
 ofstream output;
+vector<int> startIndices;
 
 void printHelp() {
     cout << "Usage: " << endl;
@@ -70,28 +71,40 @@ void printHelp() {
     cout << endl;
 }
 
+
+bool general_sort( pair<double,string> obj1, pair<double,string> obj2 ) {
+	return obj1.first < obj2.first;
+}
+
 // find the nearest entry by time, returns index and time diff
-pair<int,double> findNearest( vector< pair<double,string> > item_list, double msg_time ) {
+pair<int,double> findNearest( vector< pair<double,string> > item_list, double msg_time,
+		int startindex ) {
+	if ( startindex < 0 ) startindex = 0;
 	if ( item_list.empty() )
 		return pair<int,double>(-1,-1);
 	double min_diff = 10000;
 	int index = -1;
-	for ( int i=0; i<item_list.size(); i++ ) {
+	for ( int i=startindex; i<item_list.size(); i++ ) {
 		if ( fabs(item_list[i].first-msg_time) < min_diff ) {
 			min_diff = fabs(item_list[i].first-msg_time);
 			index = i;
 		}
+		if ( item_list[i].first > msg_time )
+			break;
 	}
+//	cout << index-startindex << "  searched from " << startindex << " to " << index << endl;
 	double age = msg_time - item_list[index].first;
 	return pair<int,double>(index,age);
 }
 
 // find the latest entry by time, returns index and time diff
-pair<int,double> findLatest( vector< pair<double,string> > item_list, double msg_time ) {
+pair<int,double> findLatest( vector< pair<double,string> > item_list, double msg_time,
+		int startindex ) {
+	if ( startindex < 0 ) startindex = 0;
 	if ( item_list.empty() || item_list.front().first > msg_time )
 		return pair<int,double>(-1,-1);
 
-	int index = 0;
+	int index = startindex;
 	while ( item_list[index].first <= msg_time && index < item_list.size() ) {
 		index++;
 	}
@@ -116,13 +129,14 @@ void printTime( double msg_time, bool backsearch_only ) {
 		string var = variables[i];
 		pair<int,double> result;
 		if ( !backsearch_only )
-			result = findNearest(values[var], msg_time);
+			result = findNearest(values[var], msg_time, startIndices[i]);
 		else
-			result = findLatest(values[var], msg_time);
+			result = findLatest(values[var], msg_time, startIndices[i]);
 		if ( result.first == -1 )
 			output << ",-1,-1";
 		else
 			output << "," << values[var][result.first].second << "," << result.second;
+		startIndices[i] = result.first;
 	}
 	output << endl;
 }
@@ -156,6 +170,16 @@ int main (	int argc, char *argv[] ) {
 			wilds.push_back( sarg );
 		} else {
 			variables.push_back( sarg );
+		}
+	}
+
+	// check if sync variable matches a wildcard
+	if ( use_sync_variable && !wilds.empty()) {
+		for (int i=0; i<wilds.size(); i++ ) {
+			if ( wildCardMatch(wilds[i],sync_variable) ) {
+				variables.push_back(sync_variable);
+				break;
+			}
 		}
 	}
 
@@ -215,12 +239,19 @@ int main (	int argc, char *argv[] ) {
 		entry = getNextRawALogEntry_josh( logfile );
 	}
 
+	cout << "Read " << line_num << " lines from log file." << endl;
+
+	for ( int i=0; i<variables.size(); i++ ) {
+		sort( values[variables[i]].begin(), values[variables[i]].end(), general_sort);
+	}
+
 	// open output file and print header
 	string file_out = alogfile_in;
 	file_out.replace( file_out.size()-4, 4, "txt");
 	output.open(file_out.c_str());
 	printHeader();
 
+	startIndices = vector<int>(variables.size(), -1);
 	if ( use_sync_variable ) {
 		// print a line everytime sync variable is posted to
 		for ( int i=0; i<values[sync_variable].size(); i++ ) {
