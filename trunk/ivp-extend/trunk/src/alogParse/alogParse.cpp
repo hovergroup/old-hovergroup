@@ -72,71 +72,14 @@ void printHelp() {
 }
 
 
-bool general_sort( pair<double,string> obj1, pair<double,string> obj2 ) {
-	return obj1.first < obj2.first;
-}
-
-// find the nearest entry by time, returns index and time diff
-pair<int,double> findNearest( vector< pair<double,string> > item_list, double msg_time,
-		int startindex ) {
-	if ( startindex < 0 ) startindex = 0;
-	if ( item_list.empty() )
-		return pair<int,double>(-1,-1);
-	double min_diff = 10000;
-	int index = -1;
-	for ( int i=startindex; i<item_list.size(); i++ ) {
-		if ( fabs(item_list[i].first-msg_time) < min_diff ) {
-			min_diff = fabs(item_list[i].first-msg_time);
-			index = i;
-		}
-		if ( item_list[i].first > msg_time )
-			break;
-	}
-//	cout << index-startindex << "  searched from " << startindex << " to " << index << endl;
-	double age = msg_time - item_list[index].first;
-	return pair<int,double>(index,age);
-}
-
-// find the latest entry by time, returns index and time diff
-pair<int,double> findLatest( vector< pair<double,string> > item_list, double msg_time,
-		int startindex ) {
-	if ( startindex < 0 ) startindex = 0;
-	if ( item_list.empty() || item_list.front().first > msg_time )
-		return pair<int,double>(-1,-1);
-
-	int index = startindex;
-	while ( item_list[index].first <= msg_time && index < item_list.size() ) {
-		index++;
-	}
-	if ( index==0 )
-		index++;
-	double age = msg_time-item_list[index-1].first;
-	return pair<int,double>(index-1,age);
+bool entry_sort( ALogEntry e1, ALogEntry e2 ) {
+	return e1.getTimeStamp() < e2.getTimeStamp();
 }
 
 void printHeader() {
 	output << "time";
 	for ( int i=0; i<variables.size(); i++ ) {
 		output << "," << variables[i] << "," << variables[i] << "_age";
-	}
-	output << endl;
-}
-
-// print a line of data for a certain time
-void printTime( double msg_time, bool backsearch_only ) {
-	output << msg_time;
-	for ( int i=0; i<variables.size(); i++ ) {
-		string var = variables[i];
-		pair<int,double> result;
-		if ( !backsearch_only )
-			result = findNearest(values[var], msg_time, startIndices[i]);
-		else
-			result = findLatest(values[var], msg_time, startIndices[i]);
-		if ( result.first == -1 )
-			output << ",-1,-1";
-		else
-			output << "," << values[var][result.first].second << "," << result.second;
-		startIndices[i] = result.first;
 	}
 	output << endl;
 }
@@ -202,6 +145,8 @@ int main (	int argc, char *argv[] ) {
 		exit(0);
 	}
 
+	vector<ALogEntry> entries;
+
 	double start_time = -100;
 	double stop_time = -100;
 	// read through alog file, picking out variables we care about
@@ -212,25 +157,27 @@ int main (	int argc, char *argv[] ) {
 		if ( entry.getStatus() == "okay" ) {
 //			cout << entry.getVarName() << endl;
 			string key = entry.getVarName();
-			double msg_time = entry.getTimeStamp();
+//			double msg_time = entry.getTimeStamp();
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ||
 					key == sync_variable ) {
-				values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
+				entries.push_back( entry );
+//				values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
 				// these start and stop times will be used for period synchronization
-				if ( start_time == -100 )
-					start_time = msg_time;
-				if ( msg_time > stop_time )
-					stop_time = msg_time;
+//				if ( start_time == -100 )
+//					start_time = msg_time;
+//				if ( msg_time > stop_time )
+//					stop_time = msg_time;
 			} else {
 				for ( int i=0; i<wilds.size(); i++ ) {
 					if ( wildCardMatch(wilds[i], key) ) {
 						variables.push_back(key);
-						values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
-						// these start and stop times will be used for period synchronization
-						if ( start_time == -100 )
-							start_time = msg_time;
-						if ( msg_time > stop_time )
-							stop_time = msg_time;
+						entries.push_back(entry);
+//						values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
+//						// these start and stop times will be used for period synchronization
+//						if ( start_time == -100 )
+//							start_time = msg_time;
+//						if ( msg_time > stop_time )
+//							stop_time = msg_time;
 						break;
 					}
 				}
@@ -238,12 +185,11 @@ int main (	int argc, char *argv[] ) {
 		}
 		entry = getNextRawALogEntry_josh( logfile );
 	}
-
 	cout << "Read " << line_num << " lines from log file." << endl;
 
-	for ( int i=0; i<variables.size(); i++ ) {
-		sort( values[variables[i]].begin(), values[variables[i]].end(), general_sort);
-	}
+	sort( entries.begin(), entries.end(), entry_sort );
+
+	cout << "Sorted " << entries.size() << " entries." << endl;
 
 	// open output file and print header
 	string file_out = alogfile_in;
@@ -251,18 +197,53 @@ int main (	int argc, char *argv[] ) {
 	output.open(file_out.c_str());
 	printHeader();
 
-	startIndices = vector<int>(variables.size(), -1);
 	if ( use_sync_variable ) {
-		// print a line everytime sync variable is posted to
-		for ( int i=0; i<values[sync_variable].size(); i++ ) {
-			printTime( values[sync_variable][i].first, restrict_to_backsearch );
+		map<string,string> current_value;
+		map<string,double> current_times;
+		for ( int i=0; i<variables.size(); i++ ) {
+			current_value[variables[i]] = "-1";
+			current_times[variables[i]] = -100000000;
+		}
+		for ( int i=0; i<entries.size(); i++ ) {
+			ALogEntry entry = entries[i];
+			string key = entry.getVarName();
+			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+				current_value[key] = entry.getStringVal();
+				current_times[key] = entry.getTimeStamp();
+			}
+			if ( key == sync_variable ) {
+				output << entry.getTimeStamp();
+				for ( int j=0; j<variables.size(); j++ ) {
+					output << "," << current_value[variables[j]];
+					output << "," << entry.getTimeStamp()-current_times[variables[j]];
+				}
+				output << endl;
+			}
 		}
 	} else {
-		// print a line every sync_period seconds
-		double current_time = start_time;
-		while ( current_time <= stop_time ) {
-			printTime( current_time, restrict_to_backsearch );
-			current_time += sync_period;
+		map<string,string> current_value;
+		map<string,double> current_times;
+		double last_post_time = entries[0].getTimeStamp();
+		for ( int i=0; i<variables.size(); i++ ) {
+			current_value[variables[i]] = "-1";
+			current_times[variables[i]] = -100000000;
+		}
+		for ( int i=0; i<entries.size(); i++ ) {
+			ALogEntry entry = entries[i];
+			string key = entry.getVarName();
+			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+				current_value[key] = entry.getStringVal();
+				current_times[key] = entry.getTimeStamp();
+			}
+			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
+				last_post_time+=sync_period;
+				output << last_post_time;
+				for ( int j=0; j<variables.size(); j++ ) {
+					output << "," << current_value[variables[j]];
+					output << "," << entry.getTimeStamp()-current_times[variables[j]];
+				}
+				output << endl;
+			}
 		}
 	}
 
