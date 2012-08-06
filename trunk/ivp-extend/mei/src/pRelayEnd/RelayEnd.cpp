@@ -16,6 +16,7 @@ RelayEnd::RelayEnd()
 	fudge_factor = 15; //m
 	update_time = 7; //s
 	voltage = 0;
+	mythrust = 0;
 }
 
 //---------------------------------------------------------
