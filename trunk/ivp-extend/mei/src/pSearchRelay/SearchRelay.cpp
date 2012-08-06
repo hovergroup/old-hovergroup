@@ -21,6 +21,8 @@ SearchRelay::SearchRelay()
 	num_lookback = 1;
 	wait_time = 15; //s
 
+	length = 0;
+
 	action = "paused";
 	relay_mode = "default";
 
@@ -65,23 +67,15 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
-				bool first_success = false;
-				lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
-				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
-				if(receive_info.num_good_frames==receive_info.num_frames){
-					first_success = true;
-				}
-				else{
-					first_success = false;
-				}
 
 				if(action == "ticking"){
-					if(first_success){
-						mail = msg.GetString();
-						action = "relay";
+					mail = msg.GetString();
+
+					if(mail.size()!=length){
+						action = "compute_failure";
 					}
 					else{
-						action = "compute_failure";
+						action = "relay";
 					}
 				}
 				else{
@@ -179,6 +173,30 @@ bool SearchRelay::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("FudgeFactor",fudge_factor);
 	m_MissionReader.GetConfigurationParam("Lookback",num_lookback);
 	m_MissionReader.GetConfigurationParam("Rate",rate);
+
+	switch(rate){
+	case 0:
+		length = 32;
+		break;
+	case 1:
+		length = 192;
+		break;
+	case 2:
+		length = 192;
+		break;
+	case 3:
+		length = 512;
+		break;
+	case 4:
+		length = 512;
+		break;
+	case 5:
+		length = 2048;
+		break;
+	case 6:
+		length = 192;
+		break;
+	}
 
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
