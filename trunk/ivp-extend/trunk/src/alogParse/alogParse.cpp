@@ -17,6 +17,7 @@
 #include <sstream>
 #include <fstream>
 #include <math.h>
+#include <deque>
 
 #define MAX_LINE_LENGTH 10000
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
@@ -32,10 +33,8 @@ bool strContains(const std::string& str, const std::string& qstr);
 
 using namespace std;
 
-map<string,vector<pair<double,string> > > values;
 vector<string> variables, wilds;
 ofstream output;
-vector<int> startIndices;
 
 void printHelp() {
     cout << "Usage: " << endl;
@@ -197,7 +196,7 @@ int main (	int argc, char *argv[] ) {
 	output.open(file_out.c_str());
 	printHeader();
 
-	if ( use_sync_variable ) {
+	if ( use_sync_variable && restrict_to_backsearch ) {
 		map<string,string> current_value;
 		map<string,double> current_times;
 		for ( int i=0; i<variables.size(); i++ ) {
@@ -220,7 +219,41 @@ int main (	int argc, char *argv[] ) {
 				output << endl;
 			}
 		}
-	} else {
+	} else if ( use_sync_variable && !restrict_to_backsearch ) {
+		map<string,string> current_value;
+		map<string,double> current_times;
+		deque<PartialEntry> partials;
+		for ( int i=0; i<variables.size(); i++ ) {
+			current_value[variables[i]] = "-1";
+			current_times[variables[i]] = -100000000;
+		}
+		for ( int i=0; i<entries.size(); i++ ) {
+			ALogEntry entry = entries[i];
+			string key = entry.getVarName();
+			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+				current_value[key] = entry.getStringVal();
+				current_times[key] = entry.getTimeStamp();
+			}
+			if ( key == sync_variable ) {
+				partials.push_back( PartialEntry(
+						variables, current_value, current_times, entry.getTimeStamp() ) );
+			}
+			for ( int j=0; j<partials.size(); j++ ) {
+				partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+			}
+			if ( !partials.empty() ) {
+				while ( partials.front().checkComplete() ) {
+					output << partials.front().serialize() << endl;
+					partials.pop_front();
+					if ( partials.empty() ) break;
+				}
+			}
+		}
+		while ( !partials.empty() ) {
+			output << partials.front().serialize() << endl;
+			partials.pop_front();
+		}
+	} else if ( !use_sync_variable && restrict_to_backsearch ) {
 		map<string,string> current_value;
 		map<string,double> current_times;
 		double last_post_time = entries[0].getTimeStamp();
@@ -245,6 +278,42 @@ int main (	int argc, char *argv[] ) {
 				output << endl;
 			}
 		}
+	} else {
+		map<string,string> current_value;
+		map<string,double> current_times;
+		deque<PartialEntry> partials;
+		double last_post_time = entries[0].getTimeStamp();
+		for ( int i=0; i<variables.size(); i++ ) {
+			current_value[variables[i]] = "-1";
+			current_times[variables[i]] = -100000000;
+		}
+		for ( int i=0; i<entries.size(); i++ ) {
+			ALogEntry entry = entries[i];
+			string key = entry.getVarName();
+			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+				current_value[key] = entry.getStringVal();
+				current_times[key] = entry.getTimeStamp();
+			}
+			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
+				last_post_time+=sync_period;
+				partials.push_back( PartialEntry(
+						variables, current_value, current_times, last_post_time ) );
+			}
+			for ( int j=0; j<partials.size(); j++ ) {
+				partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+			}
+			if ( !partials.empty() ) {
+				while ( partials.front().checkComplete() ) {
+					output << partials.front().serialize() << endl;
+					partials.pop_front();
+					if ( partials.empty() ) break;
+				}
+			}
+		}
+		while ( !partials.empty() ) {
+			output << partials.front().serialize() << endl;
+			partials.pop_front();
+		}
 	}
 
 	output.close();
@@ -260,6 +329,45 @@ string readCommandArg( string sarg ) {
 		return sarg.substr( pos+1, sarg.size()-pos+1 );
 	}
 }
+
+PartialEntry::PartialEntry ( vector<string> vars,
+		map<string,string> vals,
+		map<string,double> times,
+		double time ) {
+	m_variables = vars;
+	m_values = vals;
+	m_times = times;
+	m_time = time;
+	for ( int i=0; i<vars.size(); i++ ) {
+		m_verified[vars[i]]=false;
+	}
+}
+
+bool PartialEntry::checkComplete() {
+	for ( int i=0; i<m_variables.size(); i++ ) {
+		if ( !m_verified[m_variables[i]] ) return false;
+	}
+	return true;
+}
+
+void PartialEntry::process( string var, string val, double time ) {
+	if ( fabs(time-m_time) < m_times[var] ) {
+		m_values[var]=val;
+		m_times[var]=time;
+	}
+	m_verified[var]=true;
+}
+
+string PartialEntry::serialize() {
+	stringstream ss;
+	ss << m_time;
+	for ( int i=0; i<m_variables.size(); i++ ) {
+		ss << "," << m_values[m_variables[i]];
+		ss << "," << m_time-m_times[m_variables[i]];
+	}
+	return ss.str();
+}
+
 
 // slightly modified version of that found in lib_logutils
 // always returns a string variables and allows for spaces in variable value
