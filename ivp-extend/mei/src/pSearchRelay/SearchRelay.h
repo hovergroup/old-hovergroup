@@ -68,6 +68,7 @@ protected:
 	int connected;
 	double mythrust, voltage, end_thrust;
 	string end_status, relay_mode;
+	double length;
 
 	string action;
 
