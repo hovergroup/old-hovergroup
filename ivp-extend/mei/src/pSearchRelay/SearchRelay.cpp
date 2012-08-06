@@ -382,20 +382,23 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 
 		//EPSILON GREEDY
 		else if(mode == "greedy"){
-			if(data[closest_ind].size()<min_obs){
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()<<std::endl;
+
+			cout << "Transmissions sent: " << data[closest_ind].size() << endl;
+			cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
+
+			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
 				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 			}
+
 			else{
-				std::cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<std::endl;
 				std::cout<<"--->Making a Decision"<<std::endl;
 
 				double temp = rand() % 100;
-				std::cout<<"Dice Rolled: "<<temp<<std::endl;
+				cout<<"Dice Rolled: "<<temp<<endl;
 				int target;
 				if(temp <= epsilon){
-					target = rand()%(total_points-1);
-					std::cout<< "Random point: " << target << std::endl;
+					target = (int) rand()%(total_points-1);
+					std::cout<< "Random point was: " << target << std::endl;
 				}
 				else{
 					target = Decision();
@@ -512,6 +515,7 @@ int SearchRelay::Decision(){
 	else if(mode == "greedy"){
 		for(int i=0;i<mean.size();i++){
 			std::cout<<"Point: "<<i<<" Mean: "<<mean[i]<<std::endl;
+			ss<<mean[i];
 
 			if(mean[i]<0){
 				target = i;
@@ -521,7 +525,20 @@ int SearchRelay::Decision(){
 			else if(mean[i]>mean[target]){
 				target = i;
 			}
-			ss<<mean[i]<<",";
+
+			else if(mean[i]==mean[target]){ //tiebreak
+
+				double new_dist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
+				double old_dist = sqrt(pow((seglist.get_vx(target)-myx),2) + pow((seglist.get_vy(target)-myy),2));
+
+				if(new_dist < old_dist){
+					target = i;
+				}
+			}
+
+			if(i<mean.size()-1){
+				ss << "<|>";
+			}
 		}
 		std::cout<<"Decided on Point #"<<target<<" with Mean: "<<mean[target]<<std::endl;
 		m_Comms.Notify("SEARCH_RELAY_MEAN_LIST",ss.str());
