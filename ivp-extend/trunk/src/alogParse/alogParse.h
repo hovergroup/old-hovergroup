@@ -14,6 +14,7 @@
 #include <vector>
 #include <map>
 
+// a class for storing entries when doing full searches
 class PartialEntry {
 public:
 	PartialEntry( 	std::vector<std::string> vars,

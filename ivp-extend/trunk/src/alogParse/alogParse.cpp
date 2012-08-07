@@ -154,29 +154,17 @@ int main (	int argc, char *argv[] ) {
 	while( entry.getStatus() != "eof" ) {
 		line_num++;
 		if ( entry.getStatus() == "okay" ) {
-//			cout << entry.getVarName() << endl;
 			string key = entry.getVarName();
-//			double msg_time = entry.getTimeStamp();
+			// save if its in list of variables
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ||
 					key == sync_variable ) {
 				entries.push_back( entry );
-//				values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
-				// these start and stop times will be used for period synchronization
-//				if ( start_time == -100 )
-//					start_time = msg_time;
-//				if ( msg_time > stop_time )
-//					stop_time = msg_time;
 			} else {
+				// if matches a wildcard, add to our variable list
 				for ( int i=0; i<wilds.size(); i++ ) {
 					if ( wildCardMatch(wilds[i], key) ) {
 						variables.push_back(key);
 						entries.push_back(entry);
-//						values[key].push_back( pair<double,string>( msg_time, entry.getStringVal() ) );
-//						// these start and stop times will be used for period synchronization
-//						if ( start_time == -100 )
-//							start_time = msg_time;
-//						if ( msg_time > stop_time )
-//							stop_time = msg_time;
 						break;
 					}
 				}
@@ -186,8 +174,8 @@ int main (	int argc, char *argv[] ) {
 	}
 	cout << "Read " << line_num << " lines from log file." << endl;
 
+	// make sure entries are sorted by time
 	sort( entries.begin(), entries.end(), entry_sort );
-
 	cout << "Sorted " << entries.size() << " entries." << endl;
 
 	// open output file and print header
@@ -197,6 +185,8 @@ int main (	int argc, char *argv[] ) {
 	printHeader();
 
 	if ( use_sync_variable && restrict_to_backsearch ) {
+		// backsearching with sync variable
+		// latest version of variables and their times
 		map<string,string> current_value;
 		map<string,double> current_times;
 		for ( int i=0; i<variables.size(); i++ ) {
@@ -206,10 +196,12 @@ int main (	int argc, char *argv[] ) {
 		for ( int i=0; i<entries.size(); i++ ) {
 			ALogEntry entry = entries[i];
 			string key = entry.getVarName();
+			// update current values
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
 				current_value[key] = entry.getStringVal();
 				current_times[key] = entry.getTimeStamp();
 			}
+			// output when key is found
 			if ( key == sync_variable ) {
 				output << entry.getTimeStamp();
 				for ( int j=0; j<variables.size(); j++ ) {
@@ -220,6 +212,8 @@ int main (	int argc, char *argv[] ) {
 			}
 		}
 	} else if ( use_sync_variable && !restrict_to_backsearch ) {
+		// full search with sync variable
+		// latest version of variables and their times
 		map<string,string> current_value;
 		map<string,double> current_times;
 		deque<PartialEntry> partials;
@@ -230,17 +224,21 @@ int main (	int argc, char *argv[] ) {
 		for ( int i=0; i<entries.size(); i++ ) {
 			ALogEntry entry = entries[i];
 			string key = entry.getVarName();
+			// update current values
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
 				current_value[key] = entry.getStringVal();
 				current_times[key] = entry.getTimeStamp();
 			}
+			// start a partial on sync variable
 			if ( key == sync_variable ) {
 				partials.push_back( PartialEntry(
 						variables, current_value, current_times, entry.getTimeStamp() ) );
 			}
+			// process current enry for all partials
 			for ( int j=0; j<partials.size(); j++ ) {
 				partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
 			}
+			// output complete partials
 			if ( !partials.empty() ) {
 				while ( partials.front().checkComplete() ) {
 					output << partials.front().serialize() << endl;
@@ -249,11 +247,14 @@ int main (	int argc, char *argv[] ) {
 				}
 			}
 		}
+		// clear leftover partials
 		while ( !partials.empty() ) {
 			output << partials.front().serialize() << endl;
 			partials.pop_front();
 		}
 	} else if ( !use_sync_variable && restrict_to_backsearch ) {
+		// sync period and backsearch
+		// latest version of variables and their times
 		map<string,string> current_value;
 		map<string,double> current_times;
 		double last_post_time = entries[0].getTimeStamp();
@@ -279,6 +280,8 @@ int main (	int argc, char *argv[] ) {
 			}
 		}
 	} else {
+		// sync period and full search
+		// latest version of variables and their times
 		map<string,string> current_value;
 		map<string,double> current_times;
 		deque<PartialEntry> partials;
@@ -330,6 +333,7 @@ string readCommandArg( string sarg ) {
 	}
 }
 
+// construct partial entry
 PartialEntry::PartialEntry ( vector<string> vars,
 		map<string,string> vals,
 		map<string,double> times,
@@ -343,6 +347,7 @@ PartialEntry::PartialEntry ( vector<string> vars,
 	}
 }
 
+// check if all variable verified
 bool PartialEntry::checkComplete() {
 	for ( int i=0; i<m_variables.size(); i++ ) {
 		if ( !m_verified[m_variables[i]] ) return false;
@@ -350,15 +355,19 @@ bool PartialEntry::checkComplete() {
 	return true;
 }
 
+// process a new entry
 void PartialEntry::process( string var, string val, double time ) {
+	// replace our value if this one is closer
 	if ( fabs(time-m_time) < m_times[var] ) {
 		m_values[var]=val;
 		m_times[var]=time;
 	}
+	// mark as verrified
 	m_verified[var]=true;
 }
 
 string PartialEntry::serialize() {
+	// output to file
 	stringstream ss;
 	ss << m_time;
 	for ( int i=0; i<m_variables.size(); i++ ) {
