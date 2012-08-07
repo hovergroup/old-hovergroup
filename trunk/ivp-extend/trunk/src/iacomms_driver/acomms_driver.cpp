@@ -61,7 +61,8 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  transmission_rate = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
     	  transmission_dest = (int) msg.GetDouble();
-      } else if ( key == "ACOMMS_TRANSMIT_DATA" ) {
+      } else if ( key == "ACOMMS_TRANSMIT_DATA" &&
+    		  msg.GetSource() != GetAppName() ) {
     	  transmission_data = msg.GetString();
     	  new_transmit = true;
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
