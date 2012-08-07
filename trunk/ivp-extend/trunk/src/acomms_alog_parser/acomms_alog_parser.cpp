@@ -571,6 +571,7 @@ void ACOMMS_ALOG_PARSER::FILE_INFO::processFile() {
 				<< COLOR_RESET << endl;
 		offsetViaHeader();
 	}
+	cout << "MOOSTime offset is: " << moos_time_offset << " (seconds from 12am)" << endl;
 
 	// print some basic info about this log file
 	cout << "vehicle: " << vehicle_name << "  transmissions: "
