@@ -92,6 +92,7 @@ bool SIMPLE_GPS::OnStartUp()
 }
 
 void SIMPLE_GPS::open_port( string port_name, int baudRate ) {
+	if ( port.is_open() ) return;
 	// open the serial port
 	cout << "Opening " << port_name << endl;
 	port.open(port_name);
