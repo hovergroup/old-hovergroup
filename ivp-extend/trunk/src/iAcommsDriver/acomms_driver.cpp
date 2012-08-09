@@ -434,11 +434,10 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		}
 		// for debugging, not sure if this is ever a problem
 		if( receive_info.num_good_frames > 0 && trans.frame_size() != stat.number_frames() ) {
-			stringstream ss;
-			ss << "calculated " << receive_info.num_good_frames << " good frames and "
-					<< receive_info.num_frames << " total, but found " <<
-					trans.frame_size();
-			publishWarning( ss.str() );
+//			stat.set_number_frames(stat.number_frames()-1);
+			receive_info.num_frames--;
+			receive_info.num_good_frames--;
+			publishWarning( "Statistics found an extra frame - decrementing." );
 		}
 
 		receive_info.vehicle_name = my_name;
