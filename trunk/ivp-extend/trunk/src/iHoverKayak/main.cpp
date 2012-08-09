@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	}
 
 	string sMissionFile = "Mission.moos";
-	string sMOOSName = "kayak_driver";
+	string sMOOSName = "iHoverKayak";
 
 	switch (argc) {
 	case 3:

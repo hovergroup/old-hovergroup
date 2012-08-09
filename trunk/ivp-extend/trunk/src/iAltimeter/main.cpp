@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   }
 
   string sMissionFile = "Mission.moos";
-  string sMOOSName    = "ALTIMETER";
+  string sMOOSName    = "iAltimeter";
 
   switch(argc) {
   case 3:

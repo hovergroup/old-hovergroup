@@ -13,6 +13,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT( IVP_EXTEND )
 
+SET(BUILD_SHORE_APPS TRUE CACHE BOOL "Build shore apps")
+
 #=============================================================================
 # Find the "moos-ivp-anrp" base directory
 #=============================================================================
