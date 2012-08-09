@@ -20,6 +20,7 @@ acomms_driver::acomms_driver()
 {
 	driver_ready = false;
     driver_initialized = false;
+    connect_complete = false;
     port_name = "/dev/ttyUSB0";
     my_name = "default_name";
 
@@ -30,12 +31,6 @@ acomms_driver::acomms_driver()
 	status_set_time = 0;
 
 	use_psk_for_minipackets = false;
-
-	transmission_pulse_range = 50;
-	transmission_pulse_duration = 5;
-
-	receive_pulse_range = 20;
-	receive_pulse_duration = 3;
 }
 
 //---------------------------------------------------------
@@ -58,23 +53,23 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       string key = msg.GetKey();
 
       if ( key == "ACOMMS_TRANSMIT_RATE" ) {
+    	  // set transmission rate
     	  transmission_rate = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
+    	  // set transmission destination
     	  transmission_dest = (int) msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT_DATA" &&
     		  msg.GetSource() != GetAppName() ) {
+    	  // transmission data, excluding our own
     	  transmission_data = msg.GetString();
     	  new_transmit = true;
-      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
+      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" &&
+    		  msg.GetSource() != GetAppName() ) {
+    	  // transmission data, excluding our own
     	  transmission_data = msg.GetString();
     	  new_transmit = true;
-//    	  transmit_data( false );
-//      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" ) {
-//    	  transmission_data = msg.GetString();
-//    	  transmit_code = 2;
-////    	  transmit_data( true );
-      } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
-//          my_name = msg.GetCommunity();
+      } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized && connect_complete ) {
+    	  // get log directory from plogger that we will also use
           startDriver( msg.GetString() );
       } else if ( key == "NAV_X" ) {
     	  m_navx = msg.GetDouble();
@@ -83,6 +78,7 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       }
    }
 
+   // send transmission after reading all variables
    if ( new_transmit )
 	   transmit_data();
 	
@@ -104,22 +100,23 @@ void acomms_driver::RegisterVariables() {
 
 bool acomms_driver::OnConnectToServer()
 {
-   // register for variables here
-   // possibly look at the mission file?
    m_MissionReader.GetConfigurationParam("PortName", port_name);
    m_MissionReader.GetConfigurationParam("ID", my_id);
    m_MissionReader.GetValue("Community", my_name);
    m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
-   // m_Comms.Register("VARNAME", is_float(int));
 
+   // post these to make sure they are the correct type
    unsigned char c = 0x00;
-   m_Comms.Notify("ACOMMS_TRANSMIT_DATA", "");
-   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1);
-   m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1);
+   m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
+   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
+   m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
 
    RegisterVariables();
 
+   // driver not started yet
    publishStatus("not running");
+
+   connect_complete = true;
 
    return(true);
 }
@@ -129,25 +126,29 @@ bool acomms_driver::OnConnectToServer()
 
 bool acomms_driver::Iterate()
 {
+	// run the driver
 	driver->do_work();
+
+	// receive status timeout
 	if ( status=="receiving" && MOOSTime()-receive_set_time > 8 ) {
 		publishWarning("Timed out in receiving state.");
 		driver_ready = true;
 		publishStatus("ready");
 	}
+
+	// transmit status timeout
 	if ( status=="transmitting" && MOOSTime()-transmit_set_time > 8 ) {
 		publishWarning("Timed out in transmitting state.");
 		driver_ready = true;
 		publishStatus("ready");
 	}
 
+	// status gets updated every 5 seconds
 	if ( MOOSTime()-status_set_time > 5 ) {
 		publishStatus( status );
 	}
 
-   // happens AppTick times per second
-	
-   return(true);
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -155,9 +156,7 @@ bool acomms_driver::Iterate()
 
 bool acomms_driver::OnStartUp()
 {
-   // happens before connection is open
-	
-   return(true);
+	return(true);
 }
 
 // pack data into frames
@@ -202,18 +201,24 @@ vector<unsigned char> acomms_driver::packMessage( int max_frames, int frame_size
 	return packed_data;
 }
 
+// new data transmission
 void acomms_driver::transmit_data() {
+	// check driver status
 	if ( !driver_ready ) {
 		publishWarning("Driver not ready");
 		return;
 	}
 
+	// check that we have transmission data
 	if ( transmission_data.size() == 0 ) {
 		publishWarning("No transmission data");
 		return;
 	}
 
+	// construct new goby modem transmission
 	goby::acomms::protobuf::ModemTransmission transmit_message;
+
+	// set transmission type
 	if ( transmission_rate == 100 ) {
 		// send mini data transmission
 		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
@@ -233,6 +238,8 @@ void acomms_driver::transmit_data() {
 	else
 		transmit_message.set_dest( transmission_dest );
 
+	// pack in data based on transmission type
+	// transmitted_data = packMessage(num_frames, frame_size, ModemTransmission)
 	vector<unsigned char> transmitted_data;
 	switch ( transmission_rate ) {
 	case 0:
@@ -271,10 +278,12 @@ void acomms_driver::transmit_data() {
 		return;
 	}
 
+	// set status to transmitting
 	publishStatus("transmitting");
 	transmit_set_time = MOOSTime();
 	driver_ready = false;
 
+	// ack not requested
 	transmit_message.set_ack_requested(false);
 
 	// send transmission to modem
@@ -297,9 +306,11 @@ void acomms_driver::transmit_data() {
     }
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", ss.str() );
 
+    // post transmission range pulse
     postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
 }
 
+// post range pulse for pMarineViewer
 void acomms_driver::postRangePulse( string label, double range, double duration, string color ) {
 	XYRangePulse pulse;
 	pulse.set_x(m_navx);
@@ -350,37 +361,28 @@ void acomms_driver::handle_data_receive(
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
 	string descriptor = msg.raw().substr(3,3);
 	if ( descriptor == "TXF") {
-//		cout << "transmission finished" << endl;
+		// end of transmission, change status back to ready
 		driver_ready = true;
 		publishStatus("ready");
 	} else if ( descriptor == "RXP" ) {
+		// receive start, set status and flags
 		driver_ready = false;
 		CST_received = false;
 		RXD_received = false;
 		publishStatus("receiving");
 		receive_set_time = MOOSTime();
 	} else if ( descriptor == "IRE" ) {
+		// impulse response, post to moosdb
 		m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
 	}
-//	} else if ( descriptor == "CST" ) {
-//		CST_received = true;
-//	} else if ( descriptor == "RXD" ) {
-//		RXD_received = true;
-//	}
-////	} else {
-////		cout << "unhandled raw msg with descriptor " << descriptor << endl;
-////	}
-//	if ( !driver_ready && CST_received && RXD_received ) {
-//		CST_received = false;
-//		RXD_received = false;
-//		driver_ready = true;
-//		publishStatus("ready");
-//	}
 }
 
 // publish the info we want on received statistics
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
 	if ( index == -1 ) {
+		// wrong number of receive statistics
+
+		// construct simple receive info
 		lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
 		receive_info.num_frames = trans.frame_size();
 		receive_info.num_bad_frames = receive_info.num_frames;
@@ -445,9 +447,10 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
 			if ( trans.HasExtension( micromodem::protobuf::type ) ) {
 				micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
-				if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA )
+				if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA ) {
+					// mini packet - set rate manually
 					receive_info.rate = 100;
-				else {
+				} else {
 					publishWarning( "unrecognized transmission type" );
 					receive_info.rate = -1;
 				}
@@ -499,16 +502,20 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 	}
 }
 
+
+// publish warning
 void acomms_driver::publishWarning( std::string message ) {
 	m_Comms.Notify("ACOMMS_DRIVER_WARNING", message );
 }
 
+// publish status and update locally
 void acomms_driver::publishStatus( std::string status_update ) {
 	status = status_update;
 	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update );
 	status_set_time = MOOSTime();
 }
 
+// check if a file exists
 bool acomms_driver::file_exists( std::string filename ) {
 	ifstream my_file(filename.c_str());
 	if ( my_file.good() ) {
@@ -521,10 +528,12 @@ bool acomms_driver::file_exists( std::string filename ) {
 }
 
 void acomms_driver::startDriver( std::string logDirectory ) {
+	// open goby log file
 	cout << "opening goby log file..." << endl;
 	int file_index = 0;
 	string filename = logDirectory + "/goby_log_" +
 		boost::lexical_cast<string>( file_index ) + ".txt";
+	// increase filename index if file exists
 	while ( file_exists( filename ) ) {
 		cout << filename << " already exists." << endl;
 		file_index++;
@@ -534,18 +543,19 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	verbose_log.open(filename.c_str());
 	cout << "Goby logging to " << filename << endl;
 
+	// start goby log
+	goby::glog.set_name( "iacomms_driver" );
+//	goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
+	goby::glog.add_stream( goby::common::logger::DEBUG3, &verbose_log );
+
+	// set serial port
 	cfg.set_serial_port( port_name );
 	cfg.set_modem_id( my_id );
 
-	goby::glog.set_name( "iacomms_driver" );
-	goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
-	goby::glog.add_stream( goby::common::logger::DEBUG3, &verbose_log );
-
 	std::cout << "Starting WHOI Micro-Modem MMDriver" << std::endl;
 	driver = new goby::acomms::MMDriver;
-//	driver = new MMDriver_extended;
-	// turn data quality factor message on
-	// (example of setting NVRAM configuration)
+
+	// set configuration variables
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DQF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MFD,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SHF,1");
@@ -556,6 +566,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	else
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,0");
 
+	// connect receive and raw signals to our functions
 	goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );
 	goby::acomms::connect( &driver->signal_raw_incoming, boost::bind(&acomms_driver::handle_raw_incoming, this, _1) );
 
