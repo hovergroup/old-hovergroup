@@ -8,11 +8,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-class SIMPLE_GPS : public CMOOSApp
+class iOS5000_Hover : public CMOOSApp
 {
 public:
-	SIMPLE_GPS();
-	virtual ~SIMPLE_GPS() {};
+	iOS5000_Hover();
+	virtual ~iOS5000_Hover() {};
 
 	bool OnNewMail(MOOSMSG_LIST &NewMail);
 	bool Iterate();
@@ -30,7 +30,7 @@ private:
 	boost::asio::io_service io;
 	boost::asio::serial_port port;
 
-	double m_lat, m_lon, m_speed, m_course, m_lat_origin, m_lon_origin;
+	double current_x_estimate, current_y_estimate, update_fraction, prerotation;
 
 	boost::thread serial_thread;
 	bool stop_requested;
@@ -54,9 +54,9 @@ private:
 	boost::mutex writeBufferMutex;
 	int bytesToWrite;
 
-	void parseGPRMC( std::string msg );
-	std::vector<std::string> tokenizeString( std::string message, std::string tokens );
+	void parseCompassLine( std::string msg );
 	void parseLine( std::string msg );
+	void processLine( double heading, double pitch, double roll, double temp );
 
 	// the background loop responsible for interacting with the serial port
 	void serialLoop();
