@@ -36,6 +36,10 @@
 #include <vector>
 #include <math.h>
 #include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sstream>
+#include <boost/tokenizer.hpp>
 
 using namespace std;
 
@@ -49,13 +53,19 @@ struct MY_DATA {
 
 int main() {
 
-string hello;
-hello.push_back(0x61);
-hello.push_back(0x00);
-hello.push_back(0x62);
+	string message = "$C83.2R483";
 
-cout << hello.size() << endl;
-cout << hello << endl;
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	vector<string> subs;
+
+	boost::char_separator<char> sep("$CR");
+	tokenizer tok(message, sep);
+	for ( tokenizer::iterator beg=tok.begin();
+			beg!=tok.end(); ++beg ) {
+		subs.push_back(*beg);
+	}
+	cout << atof(subs[0].c_str()) << endl;
+	cout << subs[1] << endl;
 }
 
 //	// fill a struct with data
