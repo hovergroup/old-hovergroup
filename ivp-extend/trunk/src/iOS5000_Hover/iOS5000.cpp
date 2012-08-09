@@ -16,10 +16,15 @@ iOS5000_Hover::iOS5000_Hover() : port(io), timeout(io) {
 	data_available = false;
 	stop_requested = false;
 
-	my_baud_rate = 38400;
+	my_baud_rate = 115200;
 	my_port_name = "/dev/ttyUSB0";
 
 	string_buffer = "";
+
+	current_x_estimate = 0;
+	current_y_estimate = 0;
+	update_fraction = 1;
+	prerotation = 0;
 }
 
 //---------------------------------------------------------
