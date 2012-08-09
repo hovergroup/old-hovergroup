@@ -14,23 +14,33 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
+# libraries
 ADD_SUBDIRECTORY(lib_acomms_messages)
-#ADD_SUBDIRECTORY(lib_behaviors-test)
-#ADD_SUBDIRECTORY(pXRelayTest)
-ADD_SUBDIRECTORY(iGPS_Hover)
-ADD_SUBDIRECTORY(kayak_interface)
-ADD_SUBDIRECTORY(iOS5000_filtered)
-ADD_SUBDIRECTORY(iAcommsDriver)
-ADD_SUBDIRECTORY(testing_app)
+
+# programs?
 ADD_SUBDIRECTORY(plossRate)
 ADD_SUBDIRECTORY(pacomms_timer)
-ADD_SUBDIRECTORY(acomms_alog_parser)
-ADD_SUBDIRECTORY(simple_acomms_parser)
-ADD_SUBDIRECTORY(iacomms_driver_sim)
-ADD_SUBDIRECTORY(iHoverKayak)
+
+# utilities
 ADD_SUBDIRECTORY(uPokeDBHex)
-ADD_SUBDIRECTORY(alogParse)
+
+# interfaces
 ADD_SUBDIRECTORY(iAltimeter)
+ADD_SUBDIRECTORY(iOS5000_Hover)
+ADD_SUBDIRECTORY(iGPS_Hover)
+ADD_SUBDIRECTORY(iOS5000_filtered)
+ADD_SUBDIRECTORY(iAcommsDriver)
+ADD_SUBDIRECTORY(iHoverKayak)
+ADD_SUBDIRECTORY(kayak_interface)
+
+# not needed on vehicles
+IF(BUILD_SHORE_APPS)
+	ADD_SUBDIRECTORY(acomms_alog_parser)
+	ADD_SUBDIRECTORY(simple_acomms_parser)
+	ADD_SUBDIRECTORY(alogParse)
+	ADD_SUBDIRECTORY(iacomms_driver_sim)
+	ADD_SUBDIRECTORY(testing_app)
+ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
 #                           END of CMakeLists.txt

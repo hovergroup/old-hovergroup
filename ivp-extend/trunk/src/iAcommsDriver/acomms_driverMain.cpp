@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
   string sMissionFile = "acomms_driver.moos";
         
   //under what name shoud the application register with the MOOSDB?
-  string sMOOSName = "iacomms_driver";
+  string sMOOSName = "iAcommsDriver";
   
   switch(argc)
     {

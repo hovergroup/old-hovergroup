@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   }
 
   string sMissionFile = "Mission.moos";
-  string sMOOSName    = "simple_gps";
+  string sMOOSName    = "iGPS_Hover";
 
   switch(argc) {
   case 3:
