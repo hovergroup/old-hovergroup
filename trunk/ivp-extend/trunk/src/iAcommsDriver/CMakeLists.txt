@@ -5,9 +5,9 @@
 
 FILE(GLOB SRC *.cpp)
 
-ADD_EXECUTABLE(iacomms_driver ${SRC})
+ADD_EXECUTABLE(iAcommsDriver ${SRC})
 
-TARGET_LINK_LIBRARIES(iacomms_driver
+TARGET_LINK_LIBRARIES(iAcommsDriver
 	goby_common
 	goby_acomms
 	boost_system
