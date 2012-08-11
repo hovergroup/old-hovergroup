@@ -55,6 +55,7 @@ protected:
 
 	// on incoming receptions
 	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
+	void publishReceivedData( goby::acomms::protobuf::ModemTransmission & trans );
 	void publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index );
 
 	// handle raw modem messages
