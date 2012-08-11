@@ -377,6 +377,47 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 	}
 }
 
+void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmission & trans ) {
+	if ( trans.frame_size() > 0 ) {
+		// notify data received in ascii format
+		string frame_string = trans.frame(0);
+		for ( int i=1; i<trans.frame_size(); i++ ) {
+			frame_string += trans.frame(i);
+		}
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size() );
+
+		// notify data received in hex format
+		vector<unsigned char> received_data (frame_string.size(), 0);
+		memcpy( &received_data[0], frame_string.data(), frame_string.size() );
+		stringstream ss;
+		for ( int i=0; i<received_data.size(); i++ ) {
+			ss << hex << (int) received_data[i];
+			if ( i < received_data.size()-1 )
+				ss << ":";
+		}
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
+
+		if ( trans.HasExtension(micromodem::protobuf::frame_with_bad_crc) ) {
+			int num_bad = trans.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
+			if ( num_bad == 0 ) {
+				m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
+				publishWarning("had frame_with_bad_crc extension, size 0");
+			} else {
+				stringstream ss;
+				for ( int i=0; i<num_bad; i++ ) {
+					ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc, i);
+					if ( i<num_bad-1 )
+						ss << ",";
+				}
+				m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str() );
+			}
+		} else {
+			m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
+			publishWarning("did not have frame_with_bad_crc extension");
+		}
+	}
+}
+
 // publish the info we want on received statistics
 void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
 	if ( index == -1 ) {
@@ -391,7 +432,6 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		receive_info.source = trans.src();
 		receive_info.vehicle_name = my_name;
 
-		// notify data received in ascii format
 		string frame_string = trans.frame(0);
 		for ( int i=1; i<trans.frame_size(); i++ ) {
 			frame_string += trans.frame(i);
@@ -400,21 +440,10 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 				receive_info.num_good_frames++;
 			}
 		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size());
-
-		// notify data received in hex format
-		vector<unsigned char> received_data (frame_string.size(), 0);
-		memcpy( &received_data[0], frame_string.data(), frame_string.size() );
-		stringstream ss;
-		for ( int i=0; i<received_data.size(); i++ ) {
-			ss << hex << (int) received_data[i];
-			if ( i < received_data.size()-1 )
-				ss << ":";
-		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str());
 
 		m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
 
+		publishReceivedData( trans );
 	} else {
 		// get statistics out of the transmission
 		micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
@@ -470,25 +499,7 @@ void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmissi
 		m_Comms.Notify("ACOMMS_STDDEV_NOISE", stat.stddev_noise());
 		m_Comms.Notify("ACOMMS_MSE", stat.mse_equalizer());
 
-		if ( trans.frame_size() > 0 ) {
-			// notify data received in ascii format
-			string frame_string = trans.frame(0);
-			for ( int i=1; i<trans.frame_size(); i++ ) {
-				frame_string += trans.frame(i);
-			}
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size() );
-
-			// notify data received in hex format
-			vector<unsigned char> received_data (frame_string.size(), 0);
-			memcpy( &received_data[0], frame_string.data(), frame_string.size() );
-			stringstream ss;
-			for ( int i=0; i<received_data.size(); i++ ) {
-				ss << hex << (int) received_data[i];
-				if ( i < received_data.size()-1 )
-					ss << ":";
-			}
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
-		}
+		publishReceivedData( trans );
 
 		// create a range pulse
 		if ( receive_info.num_frames > 0 && receive_info.num_bad_frames == 0 ) {
