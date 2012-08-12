@@ -198,6 +198,8 @@ bool SearchRelay::OnConnectToServer()
 		break;
 	}
 
+	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
+
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
@@ -366,12 +368,6 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 	if(closest_dist<=fudge_factor){
 
 		data[closest_ind].push_back(packet_got);
-		mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
-		stdev[closest_ind] = gsl_stats_sd(&(data[closest_ind][0]),1,data[closest_ind].size());
-
-		cout<<"--->Updating data for Point #"<<closest_ind<<std::endl;
-		cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-		cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl;
 
 		//NORMAL INDICES
 		if(mode == "normal"){
@@ -382,6 +378,26 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 			}
 			else{
+				cout<<"--->Computing Standard Deviation"<<endl;
+				int num_obs = data[closest_ind].size()/num_lookback;
+				vector<double> means_of_observations (num_obs,-1);
+				int sd_counting_index = data[closest_ind].size();
+
+				for(int i=0;i<num_obs;i++){
+					double one_mean;
+					one_mean = gsl_stats_mean(&(data[closest_ind][sd_counting_index-num_lookback]),1,num_lookback);
+					means_of_observations[i] = one_mean;
+					cout << "One mean: " << one_mean << endl;
+					sd_counting_index = sd_counting_index - num_lookback;
+				}
+
+				stdev[closest_ind] = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
+				mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
+
+				cout<<"--->Updating data for Point #"<<closest_ind<<std::endl;
+				cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
+				cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl << endl;
+
 				ComputeIndex(closest_ind);
 				cout<<"--->Making a Decision"<<endl;
 				int target = Decision();
@@ -405,7 +421,7 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 			cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
 
 			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
-				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
+				cout<<"--->Holding Station"<<endl<<endl;
 			}
 
 			else{
@@ -472,6 +488,7 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	my_stat.gittins_index = indices[closest_ind];
 	my_stat.stat_x = myx;
 	my_stat.stat_y = myy;
+	my_stat.num_obs = num_obs;
 
 	double temp_successes=0;
 	for(int i=0;i<data[closest_ind].size();i++){
@@ -525,6 +542,7 @@ int SearchRelay::Decision(){
 		my_stat.gittins_index = indices[target];
 		my_stat.stat_x = myx;
 		my_stat.stat_y = myy;
+		my_stat.num_obs = data[target].size()/num_lookback;
 
 		Confess(my_stat);
 		m_Comms.Notify("SEARCH_RELAY_INDEX_LIST",ss.str());
@@ -572,6 +590,7 @@ void SearchRelay::Confess(RelayStat stat){
 			<< stat.point_index << "<|>"
 			<< stat.stat_mean << "<|>"
 			<< stat.stat_std << "<|>"
+			<< stat.num_obs << "<|>"
 			<< stat.gittins_index << "<|>"
 			<< stat.successful_packets << endl;
 

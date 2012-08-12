@@ -20,10 +20,10 @@ ProcessConfig = ANTLER
 	Run = pHelmIvP		@ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false
 	Run = iOS5000_filtered		@ NewConsole = false
-	Run = simple_gps	@ NewConsole = false
+	Run = iGPS_Hover	@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	Run = iacomms_driver @ NewConsole = false
+	Run = iAcommsDriver @ NewConsole = false
 }
 
 ProcessConfig = pRelayEnd
@@ -81,7 +81,7 @@ ProcessConfig = uXMS
 	DISPLAY_TIME = true
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
 	CommsTick = 5
@@ -90,7 +90,7 @@ ProcessConfig = iacomms_driver
 	ID = 3
 }
 
-ProcessConfig = simple_gps
+ProcessConfig = iGPS_Hover
 {
 	AppTick = 2
 	CommsTick = 2
