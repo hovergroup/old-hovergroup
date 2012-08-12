@@ -46,10 +46,11 @@ protected:
 			double stat_mean,stat_std, gittins_index;
 			double stat_x,stat_y;
 			double successful_packets;
+			double num_obs;
 
 			RelayStat(): debug_string("Default"), point_index(-1),
 					stat_mean(-1), stat_std(-1), gittins_index(-1), stat_x(-1), stat_y(-1),
-					successful_packets(-1) {}
+					successful_packets(-1), num_obs(0) {}
 		};
 
 	void Confess(RelayStat stats);

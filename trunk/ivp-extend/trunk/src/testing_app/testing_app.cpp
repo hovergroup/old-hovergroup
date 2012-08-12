@@ -5,32 +5,18 @@
  *      Author: josh
  */
 
-//#include <iostream>
-//#include <stdio.h>
-//#include <stdlib.h>
 //#include <fstream>
 //#include <sstream>
 ////#include <acomms_messages.h>
 //#include <boost/date_time/posix_time/posix_time.hpp>
-////#include <gsl/gsl_statistics_double.h>
+#include <gsl/gsl_statistics_double.h>
 ////#include <gsl/gsl_matrix.h>
 ////#include <gsl/gsl_blas.h>
 ////#include <gsl/gsl_permutation.h>
 ////#include <gsl/gsl_linalg.h>
-//#include <vector>
+#include <vector>
+#include <map>
 ////#include "XYSegList.h"
-//
-//using namespace std;
-//using namespace boost::posix_time;
-////using namespace lib_acomms_messages;
-//
-//string string_chomp( string s, char c ) {
-//	for ( int i=0; i<s.size()-1; i++ ) {
-//		if ( s[i]==c ) return s.substr(i+1, s.size()-i+1);
-//	}
-//	return s;
-//}
-
 #include <iostream>
 #include <string.h>
 #include <vector>
@@ -42,6 +28,15 @@
 #include <boost/tokenizer.hpp>
 
 using namespace std;
+//using namespace boost::posix_time;
+////using namespace lib_acomms_messages;
+//
+//string string_chomp( string s, char c ) {
+//	for ( int i=0; i<s.size()-1; i++ ) {
+//		if ( s[i]==c ) return s.substr(i+1, s.size()-i+1);
+//	}
+//	return s;
+//}
 
 // our structure for sending data
 struct MY_DATA {
@@ -53,19 +48,51 @@ struct MY_DATA {
 
 int main() {
 
-	string message = "$C83.2R483";
+	map<double, vector<double> > data;
+	double stdev;
+	double myints[] = {1,1,1,0,0,1,1,1,0,1,0,0,1,1,0};
+	vector<double> fifth (myints, myints + sizeof(myints) / sizeof(double) );
+	data[0] = fifth;
+	cout << "got data " << data[0].size() << endl;
+	int closest_ind = 0;
+	int num_lookback = 5;
 
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	vector<string> subs;
+	//Get my standard deviation
+	int num_obs = data[closest_ind].size()/num_lookback;
+	cout << "num obs " << num_obs << endl;
+	vector<double> means_of_observations (num_obs,-1);
+	cout << "got data " << means_of_observations.size() << endl;
+		int sd_counting_index = data[closest_ind].size();
+	cout << "count start " << sd_counting_index << endl;
 
-	boost::char_separator<char> sep("$CR");
-	tokenizer tok(message, sep);
-	for ( tokenizer::iterator beg=tok.begin();
-			beg!=tok.end(); ++beg ) {
-		subs.push_back(*beg);
+	for(int i=0;i<num_obs;i++){
+		double one_mean;
+		int my_start = sd_counting_index - num_lookback;
+		cout << "start " << my_start << endl;
+		one_mean = gsl_stats_mean(&(data[closest_ind][my_start]),1,num_lookback);
+		means_of_observations[i] = one_mean;
+		cout << "one mean " << one_mean << endl;
+		sd_counting_index = sd_counting_index - num_lookback;
 	}
-	cout << atof(subs[0].c_str()) << endl;
-	cout << subs[1] << endl;
+
+	stdev = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
+	cout << "Difference in sd:" << endl;
+	cout << stdev << endl;
+	cout << gsl_stats_sd(&(data[0][0]),1,data[0].size()) << endl;
+
+//	string message = "$C83.2R483";
+//
+//	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+//	vector<string> subs;
+//
+//	boost::char_separator<char> sep("$CR");
+//	tokenizer tok(message, sep);
+//	for ( tokenizer::iterator beg=tok.begin();
+//			beg!=tok.end(); ++beg ) {
+//		subs.push_back(*beg);
+//	}
+//	cout << atof(subs[0].c_str()) << endl;
+//	cout << subs[1] << endl;
 }
 
 //	// fill a struct with data

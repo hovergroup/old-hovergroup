@@ -20,7 +20,7 @@ ProcessConfig = ANTLER
 	
 	Run = iOS5000_filtered		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	Run = iacomms_driver @ NewConsole = false
+	Run = iAcommsDriver @ NewConsole = false
 	Run = iAltimeter	@ NewConsole = false
 }
 
@@ -33,7 +33,7 @@ ProcessConfig = pSearchRelay
 	Discount = 5
 	MinObs = 10		//at least 2x Lookback
 	FudgeFactor = 10  //m
-	Lookback = 1    //observations per result
+	Lookback = 5    //observations per result
 	Epsilon = 5		//percent
 	Rate = 2
 }
@@ -81,7 +81,7 @@ ProcessConfig = uXMS
 	VAR = NAV_X, NAV_Y, SEARCH_RELAY_TARGET_WAYPOINT, SEARCH_RELAY_STATS
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
 	AppTick =5
 	CommsTick = 5
@@ -95,7 +95,6 @@ ProcessConfig = iacomms_driver_sim
 	AppTick = 5
 	CommsTick = 5
 
-//	PortName = /dev/ttyUSB0
 	ID = 1
 }
 
