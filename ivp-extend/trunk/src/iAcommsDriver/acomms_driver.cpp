@@ -555,7 +555,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	// start goby log
 	goby::glog.set_name( "iacomms_driver" );
-//	goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
+	goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
 	goby::glog.add_stream( goby::common::logger::DEBUG3, &verbose_log );
 
 	// set serial port
