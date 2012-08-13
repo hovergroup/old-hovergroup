@@ -10,7 +10,7 @@
 ////#include <acomms_messages.h>
 //#include <boost/date_time/posix_time/posix_time.hpp>
 #include <gsl/gsl_statistics_double.h>
-////#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_matrix.h>
 ////#include <gsl/gsl_blas.h>
 ////#include <gsl/gsl_permutation.h>
 ////#include <gsl/gsl_linalg.h>
@@ -48,37 +48,51 @@ struct MY_DATA {
 
 int main() {
 
-	map<double, vector<double> > data;
-	double stdev;
-	double myints[] = {1,1,1,0,0,1,1,1,0,1,0,0,1,1,0};
-	vector<double> fifth (myints, myints + sizeof(myints) / sizeof(double) );
-	data[0] = fifth;
-	cout << "got data " << data[0].size() << endl;
-	int closest_ind = 0;
-	int num_lookback = 5;
+	gsl_matrix * mm,*m2;
+	mm = gsl_matrix_alloc(4,3);
+	m2 = gsl_matrix_alloc(4,3);
+	FILE* f=fopen("test.txt","r");
+	cout << "file" << endl;
+	gsl_matrix_fscanf(f,mm);
+	gsl_matrix_fscanf(f,m2);
+	fclose(f);
+cout << "read" << endl;
+	  /* print matrix the easy way */
+	  printf("Matrix mm\n");
+	  gsl_matrix_fprintf(stdout,mm,"%f");
+	  gsl_matrix_fprintf(stdout,m2,"%f");
 
-	//Get my standard deviation
-	int num_obs = data[closest_ind].size()/num_lookback;
-	cout << "num obs " << num_obs << endl;
-	vector<double> means_of_observations (num_obs,-1);
-	cout << "got data " << means_of_observations.size() << endl;
-		int sd_counting_index = data[closest_ind].size();
-	cout << "count start " << sd_counting_index << endl;
-
-	for(int i=0;i<num_obs;i++){
-		double one_mean;
-		int my_start = sd_counting_index - num_lookback;
-		cout << "start " << my_start << endl;
-		one_mean = gsl_stats_mean(&(data[closest_ind][my_start]),1,num_lookback);
-		means_of_observations[i] = one_mean;
-		cout << "one mean " << one_mean << endl;
-		sd_counting_index = sd_counting_index - num_lookback;
-	}
-
-	stdev = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
-	cout << "Difference in sd:" << endl;
-	cout << stdev << endl;
-	cout << gsl_stats_sd(&(data[0][0]),1,data[0].size()) << endl;
+//	map<double, vector<double> > data;
+//	double stdev;
+//	double myints[] = {1,1,1,0,0,1,1,1,0,1,0,0,1,1,0};
+//	vector<double> fifth (myints, myints + sizeof(myints) / sizeof(double) );
+//	data[0] = fifth;
+//	cout << "got data " << data[0].size() << endl;
+//	int closest_ind = 0;
+//	int num_lookback = 5;
+//
+//	//Get my standard deviation
+//	int num_obs = data[closest_ind].size()/num_lookback;
+//	cout << "num obs " << num_obs << endl;
+//	vector<double> means_of_observations (num_obs,-1);
+//	cout << "got data " << means_of_observations.size() << endl;
+//		int sd_counting_index = data[closest_ind].size();
+//	cout << "count start " << sd_counting_index << endl;
+//
+//	for(int i=0;i<num_obs;i++){
+//		double one_mean;
+//		int my_start = sd_counting_index - num_lookback;
+//		cout << "start " << my_start << endl;
+//		one_mean = gsl_stats_mean(&(data[closest_ind][my_start]),1,num_lookback);
+//		means_of_observations[i] = one_mean;
+//		cout << "one mean " << one_mean << endl;
+//		sd_counting_index = sd_counting_index - num_lookback;
+//	}
+//
+//	stdev = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
+//	cout << "Difference in sd:" << endl;
+//	cout << stdev << endl;
+//	cout << gsl_stats_sd(&(data[0][0]),1,data[0].size()) << endl;
 
 //	string message = "$C83.2R483";
 //

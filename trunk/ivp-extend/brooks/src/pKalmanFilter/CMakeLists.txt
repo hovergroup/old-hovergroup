@@ -11,5 +11,7 @@ TARGET_LINK_LIBRARIES(pKalmanFilter
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   gsl
+   gslcblas)
 
