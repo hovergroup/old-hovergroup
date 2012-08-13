@@ -396,7 +396,7 @@ void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmissi
 				ss << ":";
 		}
 		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
-
+/*
 		if ( trans.HasExtension(micromodem::protobuf::frame_with_bad_crc) ) {
 			int num_bad = trans.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
 			if ( num_bad == 0 ) {
@@ -414,7 +414,7 @@ void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmissi
 		} else {
 			m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
 			publishWarning("did not have frame_with_bad_crc extension");
-		}
+		}*/
 	}
 }
 
