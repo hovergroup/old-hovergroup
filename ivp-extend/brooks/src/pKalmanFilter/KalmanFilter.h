@@ -10,6 +10,11 @@
 
 #include "MOOSLib.h"
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_linalg.h>
+#include <math.h>
+
+#define PI 3.14159265
 
 using namespace std;
 
@@ -26,21 +31,27 @@ public:
 
 	void GetWaypoints();
 	void GetMatrices(string);
-	void GetDesiredHeading();
-	void GetCrossTrackError();
+
+	void PublishStates();
+	void EstimateStates();
+	void UpdateSensorReadings();
+
+	double GetDesiredHeading();
+	double GetCrossTrackError();
+	double GetDistance(double,double,double,double);
 
 protected:
 	// insert local vars here
 	gsl_matrix *A,*B,*B_noise,*C,*Q,*R; //inputs
-	gsl_matrix *z,*x_pre,*P_pre; 		//predicted
-	gsl_matrix *K,*x_hat,*P; 			//computed
-	gsl_matrix *x_hist;					//history
-	double u_hist;						//command history
+	gsl_vector *z,*x_pre,*x_hat,*x_hist;
+	gsl_matrix *P_pre, *K, *P, *P_hist; 			//computed
+	double u,u_hist;						//command history
 
-	vector<double> wpx,wpy;
+	vector<double> wpx,wpy,time,headings;
 	double x1,y1,x2,y2;
+	double speed;
 	double myx,myy,myheading;
-	double start_time,segment_time;
+	double start_time,wp_id, wait, offset;
 	bool begin;
 };
 
