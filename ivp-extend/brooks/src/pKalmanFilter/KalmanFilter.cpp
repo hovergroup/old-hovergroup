@@ -124,7 +124,7 @@ bool KalmanFilter::Iterate()
 
 	if(!end){
 
-		if(timer_time > 0.5){
+		if(timer_time > 0.5 && !begin){
 			EstimateStates();
 			timer = MOOSTime();
 		}
