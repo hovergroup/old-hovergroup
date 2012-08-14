@@ -33,10 +33,12 @@ syss='crossTrack';
 %Nsec=60;
 
 tracklineType = 'pavilion_1turn';
-dt = 6;
+dt = 3;
 secPerLeg = 90;
 numLegs=2;
 Nsec = secPerLeg*numLegs;
+
+%dt = 0.5
 
 
 %time step for system discretization
@@ -60,7 +62,7 @@ N = ceil(Nsec/dt);  % total sim steps
 termPenalty=1;      % terminal penalty on (if 0, must end exactly at 0)
 mu=10;              % sparse control weight
 %T=ceil(N/2);        % horizon length 
-T=6;
+T=10;
 
 Qmpc = eye(n);         % state cost
 Rmpc = eye(m);         % control cost
