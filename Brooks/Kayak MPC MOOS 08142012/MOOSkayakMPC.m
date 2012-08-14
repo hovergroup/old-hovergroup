@@ -64,9 +64,10 @@ while((MPC_STOP || ~gotStartPos))
     pause(1)
 end
 mpcStart = tic;
+disp('Start - got initial state')
 
 % initial start position
-hDes = atan2((y0-y(1)),(x0-x(1)));
+hDes = atan2((y(1)-y0),(x(1)-x0));
 hDes = rad2deg(hDes);
 bearing = 90 - hDes;
 if(bearing<0)
@@ -78,6 +79,13 @@ end
 %eh0 = bearing-h0;
 xEst = [0;0;bearing;0];
 
+% start distance for 1st waypoint
+distStart = sqrt((y0-y(1))^2+(x0-x(1))^2);
+leg1Time = distStart/speed;
+leg1Steps = ceil(leg1Time/dt);
+fprintf('\n Leg 1 @ %f bearing, %i steps\n',bearing,leg1Steps)
+
+desBearing = [bearing*ones(1,leg1Steps) desBearing];
 
 loopIt=1;
 xEst=zeros(4,1);
@@ -153,10 +161,10 @@ while(~MPC_STOP)
     
     xDes = zeros(n,T+2);
     if((i+T+1)<N)
-        xDes(3,:) = desBearing(i:(i+T+1));
+        xDes(3,:) = desBearing(loopIt:(loopIt+T+1));
     else
-        pad = N-i;
-        xDes(3,:) = [desBearing(i:i+pad-1) desBearing(N-1)*ones(1,T+2-pad)];
+        pad = N-loopIt;
+        xDes(3,:) = [desBearing(loopIt:loopIt+pad-1) desBearing(N-1)*ones(1,T+2-pad)];
     end
     setPt=1;
     
@@ -205,10 +213,11 @@ while(~MPC_STOP)
 
     
     % check if at end
-    if(step>=(N-1))
+    if(loopIt>=(N-1+leg1Steps))
         MPC_STOP=1;
         disp('FINISHED TRACKLINE LIST')
     end
+    loopIt = loopIt+1;
     
     loopTime = toc(loopStart)
     
