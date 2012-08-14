@@ -36,6 +36,7 @@ KalmanFilter::KalmanFilter()
 	u_hist = 0;
 
 	begin = true;
+	end = false;
 	wait = 5;
 	offset = 0;
 	wp_id = 0;
@@ -49,6 +50,7 @@ KalmanFilter::~KalmanFilter()
 	gsl_matrix_free(A);
 	gsl_matrix_free(B);
 	gsl_matrix_free(B_noise);
+	gsl_matrix_free(B_in);
 	gsl_matrix_free(C);
 	gsl_matrix_free(Q);
 	gsl_matrix_free(R);
@@ -96,6 +98,7 @@ bool KalmanFilter::OnConnectToServer()
 	// m_Comms.Register("VARNAME", is_float(int));
 
 	m_MissionReader.GetConfigurationParam("Speed",speed);
+	m_MissionReader.GetConfigurationParam("Thrust",thrust);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
@@ -103,6 +106,7 @@ bool KalmanFilter::OnConnectToServer()
 	m_Comms.Register("DESIRED_RUDDER",0);
 
 	start_time = MOOSTime();
+	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 
 	return(true);
 }
@@ -116,36 +120,49 @@ bool KalmanFilter::Iterate()
 
 	double time_passed = MOOSTime() - start_time;
 
-	if(time_passed >= wait){
-		if(begin){	//---------Initialize
-			x1 = myx;
-			y1 = myy;
-			x2 = wpx[wp_id];
-			y2 = wpy[wp_id];
+	if(!end){
+		if(time_passed >= wait){
+			if(begin){	//---------Initialize
 
-			wait = GetDistance(x1,y1,x2,y2)/speed;
-			offset = wait;
-			start_time = MOOSTime();
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+				m_Comms.Notify("DESIRED_THRUST",thrust);
 
-			m_Comms.Notify("MPC_STOP","GO");
-			begin = false;
+				x1 = myx;
+				y1 = myy;
+				x2 = wpx[wp_id];
+				y2 = wpy[wp_id];
+
+				wait = GetDistance(x1,y1,x2,y2)/speed;
+				offset = wait;
+				start_time = MOOSTime();
+
+				m_Comms.Notify("MPC_STOP","GO");
+				begin = false;
+			}
+			else if(wp_id==wpx.size()-1){ //-------------End
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+				end = true;
+			}
+			else{
+				wp_id++;
+				wait = time[wp_id] + offset;
+				x1 = x2;
+				y1 = y2;
+				x2 = wpx[wp_id];
+				y2 = wpy[wp_id];
+			}
+
+			cout << "Going to: " << wpx[wp_id] << " , " << wpy[wp_id] << endl;
+			cout << "Expected time to reach: " << wait << endl;
 		}
-		else{
-			wp_id++;
-			wait = time[wp_id] + offset;
-			x1 = x2;
-			y1 = y2;
-			x2 = wpx[wp_id];
-			y2 = wpy[wp_id];
-		}
 
-		cout << "Going to: " << wpx[wp_id] << " , " << wpy[wp_id] << endl;
-		cout << "Expected time to reach: " << wait << endl;
+		cout << "Time left: " << (wait-time_passed) << endl;
+		cout << "Distance left: " << GetDistance(myx,myy,x2,y2) << endl;
 	}
 
-	cout << "Time left: " << (wait-time_passed) << endl;
-	cout << "Distance left: " << GetDistance(myx,myy,x2,y2) << endl;
-
+	else{
+		cout << "Mission End" << endl;
+	}
 	return(true);
 }
 
@@ -178,19 +195,19 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
 	cout << "Got x_pre: " << endl;
-	gsl_vector_fprintf(stdout,x_pre,"%f");
-	cout << endl;
+	//gsl_vector_fprintf(stdout,x_pre,"%f");
+	//cout << endl;
 
 	temp_matrix = gsl_matrix_calloc(4,4);
 	temp_matrix_2 = gsl_matrix_calloc(4,4);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_hist,A,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,A,temp_matrix,0.0,P_pre);
-	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,Q,B,0.0,temp_matrix);
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,B,temp_matrix,0.0,temp_matrix_2);
+	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,Q,B_noise,0.0,temp_matrix);
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,B_noise,temp_matrix,0.0,temp_matrix_2);
 	gsl_matrix_add(P_pre,temp_matrix_2);
 	cout << "Got P_pre: " << endl;
-	gsl_matrix_fprintf(stdout,P_pre,"%f");
-	cout << endl;
+	//gsl_matrix_fprintf(stdout,P_pre,"%f");
+	//cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
 
@@ -206,8 +223,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1.0,C,K,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,P_pre,temp_matrix,0.0,K);
 	cout << "Got K: " << endl;
-	gsl_matrix_fprintf(stdout,K,"%f");
-	cout << endl;
+	//gsl_matrix_fprintf(stdout,K,"%f");
+	//cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_permutation_free(p);
 
@@ -217,8 +234,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_sub(temp_vector,x_hat);
 	gsl_vector_add(x_hat,x_pre);
 	cout << "Got X_hat: " << endl;
-	gsl_vector_fprintf(stdout,x_hat,"%f");
-	cout << endl;
+	//gsl_vector_fprintf(stdout,x_hat,"%f");
+	//cout << endl;
 	gsl_vector_free(temp_vector);
 
 	temp_matrix = gsl_matrix_alloc(4,4);
@@ -228,8 +245,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_sub(temp_matrix,temp_matrix_2);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,temp_matrix,P_pre,0.0,P);
 	cout << "Got P: " << endl;
-	gsl_matrix_fprintf(stdout,P,"%f");
-	cout << endl;
+	//gsl_matrix_fprintf(stdout,P,"%f");
+	//cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
 
@@ -287,6 +304,7 @@ void KalmanFilter::GetMatrices(string txtfile){
 	A = gsl_matrix_alloc(4,4);
 	B = gsl_matrix_alloc(4,1);
 	B_noise = gsl_matrix_alloc(4,4);
+	B_in = gsl_matrix_alloc(4,4);
 	C = gsl_matrix_alloc(2,4);
 	Q = gsl_matrix_alloc(4,4);
 	R = gsl_matrix_alloc(2,2);
@@ -297,6 +315,8 @@ void KalmanFilter::GetMatrices(string txtfile){
 	cout << "B, ";
 	gsl_matrix_fscanf(f,B_noise);
 	cout << "B_noise, ";
+	gsl_matrix_fscanf(f,B_in);
+	cout << "B_in, ";
 	gsl_matrix_fscanf(f,C);
 	cout << "C, ";
 	gsl_matrix_fscanf(f,Q);

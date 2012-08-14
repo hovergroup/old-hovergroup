@@ -48,19 +48,41 @@ struct MY_DATA {
 
 int main() {
 
-	gsl_matrix * mm,*m2;
-	mm = gsl_matrix_alloc(4,3);
-	m2 = gsl_matrix_alloc(4,3);
-	FILE* f=fopen("test.txt","r");
-	cout << "file" << endl;
-	gsl_matrix_fscanf(f,mm);
-	gsl_matrix_fscanf(f,m2);
+	FILE* f=fopen("sysMatrices_2Hz_forMOOSKF.txt","r");
+	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
+
+	A = gsl_matrix_alloc(4,4);
+	B = gsl_matrix_alloc(4,1);
+	B_noise = gsl_matrix_alloc(4,4);
+	B_in = gsl_matrix_alloc(4,4);
+	C = gsl_matrix_alloc(2,4);
+	Q = gsl_matrix_alloc(4,4);
+	R = gsl_matrix_alloc(2,2);
+
+	gsl_matrix_fscanf(f,A);
+	cout << "Read A, ";
+	  gsl_matrix_fprintf(stdout,A,"%f");
+	gsl_matrix_fscanf(f,B);
+	cout << "B, ";
+	  gsl_matrix_fprintf(stdout,B,"%f");
+	gsl_matrix_fscanf(f,B_noise);
+	cout << "B_noise, ";
+	  gsl_matrix_fprintf(stdout,B_noise,"%f");
+	gsl_matrix_fscanf(f,B_in);
+	cout << "B_in, ";
+	  gsl_matrix_fprintf(stdout,B_in,"%f");
+	gsl_matrix_fscanf(f,C);
+	cout << "C, ";
+	  gsl_matrix_fprintf(stdout,C,"%f");
+	gsl_matrix_fscanf(f,Q);
+	cout << "Q, ";
+	  gsl_matrix_fprintf(stdout,Q,"%f");
+	gsl_matrix_fscanf(f,R);
+	cout << "R --> ";
+			  gsl_matrix_fprintf(stdout,R,"%f");
+	cout << "End Reading"<< endl;
+
 	fclose(f);
-cout << "read" << endl;
-	  /* print matrix the easy way */
-	  printf("Matrix mm\n");
-	  gsl_matrix_fprintf(stdout,mm,"%f");
-	  gsl_matrix_fprintf(stdout,m2,"%f");
 
 //	map<double, vector<double> > data;
 //	double stdev;
