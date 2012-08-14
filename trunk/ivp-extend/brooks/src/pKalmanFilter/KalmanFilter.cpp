@@ -28,7 +28,7 @@ KalmanFilter::KalmanFilter()
 	K = gsl_matrix_alloc(4,2);
 	x_hat = gsl_vector_calloc(4);	//allocated all 0s
 	P = gsl_matrix_calloc(4,4);	//allocated all 0s
-	gsl_matrix_set_identity(P);		//initialized to identity
+	//gsl_matrix_set_identity(P);		//initialized to identity
 
 	//History
 	x_hist = gsl_vector_calloc(4);	//allocated all 0s
