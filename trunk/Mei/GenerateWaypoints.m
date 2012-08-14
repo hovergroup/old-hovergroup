@@ -29,7 +29,7 @@ hold on
 scalex1 = 1000*deg2km(scalelon1-pavlon)/xmperpix+pavx;
 scalex2 = 1000*deg2km(scalelon2-pavlon)/xmperpix+pavx;
 scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
-line([scalex1 scalex2],[scaley scaley]);
+%line([scalex1 scalex2],[scaley scaley]);
 
 %endx = 1000*deg2km(endlon-pavlon)/xmperpix;
 %endy = 1000*deg2km(endlat-pavlat)/ymperpix;
@@ -97,7 +97,6 @@ for j=1:n
         mylon = (myx(j)-pavx)*xmperpix
         mylat = (myy(j)-pavy)*ymperpix
        % scatter(myx(j),myy(j));
-
         fprintf(fileID,'%g,%g\n',mylon,mylat);
 end
 

@@ -16,7 +16,7 @@ pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
 %moosDB = 'iMatlab.moos';
 %pathName = '/home/mei/moos-ivp/MOOS/Tools/Matlab/iMatlab/';
 
-cd(pathName)
+old = cd(pathName)
 iMatlab('init','CONFIG_FILE',moosDB);
 
 
@@ -30,14 +30,14 @@ iMatlab('init','CONFIG_FILE',moosDB);
 %iMatlab('MOOS_PAUSE',0,3);
 pause(3)
 
-for i = 1:10
+for i = 1:3
 
    
     
     
-%     %Extract message content
-%     mail=iMatlab('MOOS_MAIL_RX');
-%     messages=length(mail);
+    %Extract message content
+    mail{i}=iMatlab('MOOS_MAIL_RX');
+    messages=length(mail{i});
 % 
 %     if messages==0
 %         continue;
@@ -69,8 +69,10 @@ for i = 1:10
     iMatlab('MOOS_MAIL_TX',sendVar,sendVal)
     fprintf('\nSending: %s = %i \n',sendVar,sendVal)
     
-    pause(3)
+    pause(2)
     
     %iMatlab('MOOS_PAUSE',0,5)
     
 end
+
+cd(old)

@@ -21,20 +21,20 @@ KFdelay=0;          % meas available immediately or with delay
 uDelay=1;
 
 ifQuiet=0;          % if cvx is run in quiet mode
-ifSave=1;           % save .mat and .txt of command window
+ifSave=0;           % save .mat and .txt of command window
 unique='mu10_udelay';   % unique name to append to filename
 
 % run configuration script for parameters and system
 configureKayakMPC
 
-%% save filename
-% NOTE - this setup for Tvec = length 1
-saveFilename = sprintf('%s_kayakmpcsim_dt%s_T%d_mu_%s_%s',dateString('DHMS'),...
-    printNumFile(dt,2),T,printNumFile(mu,2),unique);
-
-if(ifSave)
-    diary([saveFilename '_log.txt'])
-end
+% %% save filename
+% % NOTE - this setup for Tvec = length 1
+% saveFilename = sprintf('%s_kayakmpcsim_dt%s_T%d_mu_%s_%s','date',...
+%     'dt'T,printNumFile(mu,2),unique);
+% 
+% if(ifSave)
+%     diary([saveFilename '_log.txt'])
+% end
 
 %% PLOT STEP RESPONSES
 if(plotStep)
@@ -358,8 +358,8 @@ title('All control plans, actual is on top')
 xlabel(sprintf('Time steps (each is %0.2f sec)',dt))
 
 
-%%
-if(ifSave)
-    save(saveFilename)
-    diary off
-end
+% %%
+% if(ifSave)
+%     save(saveFilename)
+%     diary off
+% end
