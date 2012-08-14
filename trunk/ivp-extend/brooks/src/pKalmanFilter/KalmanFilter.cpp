@@ -14,10 +14,11 @@ KalmanFilter::KalmanFilter()
 {
 	//Inputs
 	GetMatrices("matrices.txt");
-	GetWaypoints();
+	GetWaypoints("waypoints.txt");
 
 	//Sensor
 	z = gsl_vector_alloc(2);
+	x_des = gsl_vector_calloc(4);		//allocated all 0s
 
 	//Predicted
 	x_pre = gsl_vector_alloc(4);
@@ -124,8 +125,10 @@ bool KalmanFilter::Iterate()
 		if(time_passed >= wait){
 			if(begin){	//---------Initialize
 
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+				cout << "Initializing" << endl;
 				m_Comms.Notify("DESIRED_THRUST",thrust);
+				m_Comms.Notify("DESIRED_RUDDER",0);
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 
 				x1 = myx;
 				y1 = myy;
@@ -136,14 +139,19 @@ bool KalmanFilter::Iterate()
 				offset = wait;
 				start_time = MOOSTime();
 
+				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
 				begin = false;
 			}
 			else if(wp_id==wpx.size()-1){ //-------------End
+				cout << "Ending Mission" << endl;
 				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+				m_Comms.Notify("DESIRED_THRUST",0);
+				m_Comms.Notify("DESIRED_RUDDER",0);
 				end = true;
 			}
 			else{
+				cout << "Reached Turn" << endl;
 				wp_id++;
 				wait = time[wp_id] + offset;
 				x1 = x2;
@@ -161,7 +169,7 @@ bool KalmanFilter::Iterate()
 	}
 
 	else{
-		cout << "Mission End" << endl;
+		cout << "Mission Ended" << endl;
 	}
 	return(true);
 }
@@ -179,6 +187,7 @@ bool KalmanFilter::OnStartUp()
 void KalmanFilter::EstimateStates(){
 	UpdateSensorReadings();
 
+	gsl_vector_set(x_des,3,headings[wp_id]);
 	gsl_vector_memcpy(x_hist,x_hat);
 	gsl_matrix_memcpy(P_hist,P);
 
@@ -191,6 +200,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_memcpy(temp_matrix,B);
 	gsl_matrix_scale(temp_matrix, u_hist);
 	gsl_matrix_get_col(temp_vector,temp_matrix,1);
+	gsl_vector_add(x_pre,temp_vector);
+	gsl_blas_dgemv(CblasNoTrans,1.0, B_in, x_des,0.0, temp_vector);
 	gsl_vector_add(x_pre,temp_vector);
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
@@ -257,7 +268,7 @@ void KalmanFilter::UpdateSensorReadings(){
 	cout << "Updating Sensor Readings" << endl;
 	gsl_vector_set(z,1,GetCrossTrackError());
 	gsl_vector_set(z,2,myheading);
-	cout << "Updated heading: " << myheading << endl;
+	gsl_vector_fprintf(stdout,z,"%f");
 }
 
 double KalmanFilter::GetCrossTrackError(){
@@ -327,10 +338,9 @@ void KalmanFilter::GetMatrices(string txtfile){
 	fclose(f);
 }
 
-void KalmanFilter::GetWaypoints(){ //Waypoints Ordered
-	string filename = "hexagonPts.txt";
+void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 	string one_point;
-	ifstream waypointsfile("hexagonPts.txt",ifstream::in);
+	ifstream waypointsfile(txtfile.c_str(),ifstream::in);
 	int total_points = 0;
 
 	cout<<"Reading Points"<<endl;

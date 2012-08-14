@@ -32,8 +32,6 @@ using namespace std;
 
 void ACOMMS_ALOG_PARSER::outputResults() {
 
-
-
 	vector<string> vars;
 	map<string,int> output_files;
 	char delim = ',';
@@ -51,6 +49,7 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 	vars.push_back("rgps_age");
 	vars.push_back("snr_in");
 	vars.push_back("snr_out");
+	vars.push_back("dqf");
 	vars.push_back("spl");
 	vars.push_back("mse");
 	vars.push_back("noise");
@@ -101,7 +100,7 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 			else if ( num_stats == 2 ) {
 				stat = re.data_msg.GetExtension( micromodem::protobuf::receive_stat, 1 );
 			}
-			log_output<<stat.snr_in()<<delim<<stat.snr_out()<<delim<<stat.spl()<<delim
+			log_output<<stat.snr_in()<<delim<<stat.snr_out()<<delim<<stat.data_quality_factor()<<delim<<stat.spl()<<delim
 					<<stat.mse_equalizer()<<delim<<stat.stddev_noise();
 
 			//Report Thrust

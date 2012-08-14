@@ -42,7 +42,7 @@ double last_print_time = -100;
 
 // define the variables you want to keep track of here
 double gps_x, gps_y, sensor_heading, current_heading, desired_heading;
-double nav_x, nav_y, desired_thrust;
+double nav_x, nav_y, desired_thrust, depth;
 int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
 string caire;
 
@@ -52,16 +52,17 @@ void printLine( double time_stamp ) {
 	output << time_stamp << ",";
 	output << gps_x << ",";
 	output << gps_y << ",";
+	output << depth << endl;
 	//	output << sensor_heading << ",";
 	//	output << current_heading << ",";
-	output << desired_thrust << ",";
+	//output << desired_thrust << ",";
 	//	output << nav_x <<",";
 	//	output << nav_y<<endl;
-	output << snr_in << ",";
-	output << snr_out << ",";
-	output << spl << ",";
-	output << stddev_noise << ",";
-	output << mse_equalizer << endl;
+	//output << snr_in << ",";
+	//output << snr_out << ",";
+	//output << spl << ",";
+	//output << stddev_noise << ",";
+	//output << mse_equalizer << endl;
 //	output << caire << endl;
 }
 
@@ -71,18 +72,20 @@ void printHeader() {
 			"gps_x"
 			<< "_"<<log_number << ", "
 			"gps_y"
-			<< "_"<< log_number << ", "
-			"desired_thrust"
-			<< "_"<< log_number << ", "
-			"snr_in"
-			<< "_"<< log_number << ", "
-			"snr_out"
-			<< "_"<< log_number << ", "
-			"spl"
-			<< "_"<< log_number << ", "
-			"noise"
-			<<"_"<< log_number << ", "
-			"m se"
+			<< "_"<<log_number << ", "
+			"altimeter_depth"
+//			<< "_"<< log_number << ", "
+//			"desired_thrust"
+//			<< "_"<< log_number << ", "
+//			"snr_in"
+//			<< "_"<< log_number << ", "
+//			"snr_out"
+//			<< "_"<< log_number << ", "
+//			"spl"
+			//<< "_"<< log_number << ", "
+			//"noise"
+			//<<"_"<< log_number << ", "
+			//"mse"
 			//<<"caire"
 			<< "_"<< log_number
 			<< endl;
@@ -144,6 +147,9 @@ int main(int argc, char *argv[]) {
 		} else if(key=="ACOMMS_IMPULSE_RESPONSE"){
 			caire = entry.getStringVal();
 			//printLine( msg_time );
+		} else if(key=="ALTIMETER_DEPTH"){
+			depth = entry.getDoubleVal();
+			printLine( msg_time );
 		}
 
 		// parsing acomms statistics data
@@ -173,7 +179,7 @@ int main(int argc, char *argv[]) {
 					mse_equalizer = stat.mse_equalizer();
 
 					//here we print a line whenever we get an acomms reception
-					printLine( msg_time );
+					//printLine( msg_time );
 				}
 			}
 		}

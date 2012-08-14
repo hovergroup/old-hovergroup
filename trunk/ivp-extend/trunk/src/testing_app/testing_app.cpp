@@ -5,7 +5,7 @@
  *      Author: josh
  */
 
-//#include <fstream>
+#include <fstream>
 //#include <sstream>
 ////#include <acomms_messages.h>
 //#include <boost/date_time/posix_time/posix_time.hpp>
@@ -84,37 +84,51 @@ int main() {
 
 	fclose(f);
 
-//	map<double, vector<double> > data;
-//	double stdev;
-//	double myints[] = {1,1,1,0,0,1,1,1,0,1,0,0,1,1,0};
-//	vector<double> fifth (myints, myints + sizeof(myints) / sizeof(double) );
-//	data[0] = fifth;
-//	cout << "got data " << data[0].size() << endl;
-//	int closest_ind = 0;
-//	int num_lookback = 5;
-//
-//	//Get my standard deviation
-//	int num_obs = data[closest_ind].size()/num_lookback;
-//	cout << "num obs " << num_obs << endl;
-//	vector<double> means_of_observations (num_obs,-1);
-//	cout << "got data " << means_of_observations.size() << endl;
-//		int sd_counting_index = data[closest_ind].size();
-//	cout << "count start " << sd_counting_index << endl;
-//
-//	for(int i=0;i<num_obs;i++){
-//		double one_mean;
-//		int my_start = sd_counting_index - num_lookback;
-//		cout << "start " << my_start << endl;
-//		one_mean = gsl_stats_mean(&(data[closest_ind][my_start]),1,num_lookback);
-//		means_of_observations[i] = one_mean;
-//		cout << "one mean " << one_mean << endl;
-//		sd_counting_index = sd_counting_index - num_lookback;
-//	}
-//
-//	stdev = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
-//	cout << "Difference in sd:" << endl;
-//	cout << stdev << endl;
-//	cout << gsl_stats_sd(&(data[0][0]),1,data[0].size()) << endl;
+		cout<<"Reading Points"<<endl;
+		//time, desired heading,x1,y1,x2,y2
+		vector<double> wpx,wpy,time,headings;
+
+		while(waypointsfile.good()){
+			getline(waypointsfile,one_point);
+			int pos = one_point.find(',');
+
+			if(pos>0){
+
+				stringstream ss;
+				char discard;
+				double param;
+
+				ss.str(one_point);
+				ss >> param; time.push_back(param); ss >> discard;
+				ss >> param; headings.push_back(param); ss >> discard;
+				ss >> param; wpx.push_back(param); ss >> discard;
+				ss >> param; wpy.push_back(param); ss >> discard;
+
+				ss.str("");
+				ss<<"type=gateway,x="<<wpx[total_points]<<
+						",y="<<wpx[total_points]<<",SCALE=4.3,label="<<total_points<<",COLOR=red,width=4.5";
+				//m_Comms.Notify("VIEW_MARKER",ss.str());
+				cout << ss.str() << endl;
+				total_points++;
+			}
+		}
+
+		cout<<"Read "<<total_points<<" points."<<std::endl;
+
+//	gsl_matrix * mm,*m2;
+//	mm = gsl_matrix_alloc(4,3);
+//	m2 = gsl_matrix_alloc(4,3);
+//	FILE* f=fopen("test.txt","r");
+//	cout << "file" << endl;
+//	gsl_matrix_fscanf(f,mm);
+//	gsl_matrix_fscanf(f,m2);
+//	fclose(f);
+//cout << "read" << endl;
+//	  /* print matrix the easy way */
+//	  printf("Matrix mm\n");
+//	  gsl_matrix_fprintf(stdout,mm,"%f");
+//	  gsl_matrix_fprintf(stdout,m2,"%f");
+
 
 //	string message = "$C83.2R483";
 //
@@ -191,58 +205,6 @@ int main() {
 ////	}
 //
 //	filestr.close();
-	//	int x, y;
-	//	string lat, lon;
-	//	string s = "lat,102:lon,-5";
-	//	s = string_chomp( s, ',' );
-	//	stringstream ss(s);
-	//	ss >> x;
-	//	s = string_chomp( s, ',' );
-	//	ss.str(s);
-	//	ss >> y;
-	//	cout << x << " " << y << endl;
-	//	double normal_indices[18] = {10.141,1.1656,0.6193,0.4478,0.359,0.3035,0.2645,
-	//			0.2353,0.2123,0.1109,0.0761,0.0582,0.0472,0.0397,0.0343,0.0302,0.0269,0.0244};
-	//	double gindex;
-	//	for(int num_obs=1;num_obs<100;num_obs++){
-	//		if(num_obs<=10){
-	//			gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
-	//			std::cout<<num_obs<<": "<<gindex<<std::endl;
-	//		}
-	//		else{	//interpolate
-	//			int base = 7+(num_obs/10);
-	//			int offset = num_obs%10;
-	//			double difference = (normal_indices[base+1]-normal_indices[base])/10;
-	//			gindex = normal_indices[base] + offset*difference;
-	//			//std::cout<<"Base: "<<normal_indices[base]<<endl;
-	//			std::cout<<num_obs<<": "<<gindex<<std::endl;
-	//		}
-	//	}
-	//	string time_string = "2012-06-11T20:16:24.800000";
-	//	string time_string = "2002-Jan-01 10:00:01.123456789";
-	//	ptime p = time_from_string(time_string);
-	//	cout << to_simple_string(p) << endl;
-
-	//	XYSegList seglist;
-	//
-	//	std::string filename = "relay_waypoints.txt";
-	//	std::string one_point;
-	//	std::ifstream waypointsfile("relay_waypoints.txt",std::ifstream::in);
-	//
-	//	while(waypointsfile.good()){
-	//				getline(waypointsfile,one_point);
-	//				int pos = one_point.find(',');
-	//	if(pos>=0){
-	//				std::string subx = one_point.substr(0,pos-1);
-	//				std::string suby = one_point.substr(pos+1);
-	//				seglist.add_vertex(atof(subx.c_str()),atof(suby.c_str()));
-	//			}
-	//	}
-	//
-	//	for (unsigned i=0; i<seglist.size() ; i++){
-	//	    cout << seglist.get_vx(i)<<",";
-	//	    cout << seglist.get_vy(i)<<endl;
-	//	}
 
 	//DO NOT DELETE
 	//	int num_states = 10;

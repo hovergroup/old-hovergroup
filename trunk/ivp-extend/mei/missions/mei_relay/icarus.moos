@@ -104,3 +104,23 @@ ProcessConfig = pEchoVar
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
 }
+
+
+//
+ProcessConfig = iMatlab
+{
+
+	AppTick		= 10
+	CommsTick	= 10
+	Port		= COM6
+	BaudRate	= 4800
+	Verbose		= false
+	Streaming 	= false
+	MOOSComms = true
+	SerialComms = false
+	SERIAL_TIMEOUT = 10.0
+	SUBSCRIBE = DB_TIME @ 0.0
+	SUBSCRIBE = ACOMMS_TRANSMIT_DATA @ 0.0
+}
+
+
