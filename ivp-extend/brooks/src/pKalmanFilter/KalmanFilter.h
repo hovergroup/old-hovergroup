@@ -27,7 +27,7 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 
-	void GetWaypoints();
+	void GetWaypoints(string);
 	void GetMatrices(string);
 
 	void PublishStates();
@@ -41,7 +41,7 @@ public:
 protected:
 	// insert local vars here
 	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
-	gsl_vector *z,*x_pre,*x_hat,*x_hist;			//vectors
+	gsl_vector *z,*x_pre,*x_hat,*x_hist,*x_des;			//vectors
 	gsl_matrix *P_pre, *K, *P, *P_hist; 			//computed
 	double u,u_hist;								//command history
 
