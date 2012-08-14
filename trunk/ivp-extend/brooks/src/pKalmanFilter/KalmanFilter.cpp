@@ -77,8 +77,6 @@ bool KalmanFilter::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="GPS_Y"){
 			myy = msg.GetDouble();
-			if(begin){}
-			else{EstimateStates();}
 		}
 		else if(key=="DESIRED_RUDDER"){
 			u_hist = u;
@@ -108,6 +106,7 @@ bool KalmanFilter::OnConnectToServer()
 	m_Comms.Register("DESIRED_RUDDER",0);
 
 	start_time = MOOSTime();
+	timer = MOOSTime();
 	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 
 	return(true);
@@ -121,8 +120,15 @@ bool KalmanFilter::Iterate()
 	// happens AppTick times per second
 
 	double time_passed = MOOSTime() - start_time;
+	double timer_time = MOOSTime() - timer;
 
 	if(!end){
+
+		if(timer_time > 0.5){
+			EstimateStates();
+			timer = MOOSTime();
+		}
+
 		if(time_passed >= wait){
 			if(begin){	//---------Initialize
 
