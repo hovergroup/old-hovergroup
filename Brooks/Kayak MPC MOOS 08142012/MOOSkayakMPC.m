@@ -14,7 +14,7 @@ configureKayakMPC;
 
 % init
 xDes = zeros(n,T+2);xDes(3,:)=desBearing(1:T+2);
-
+uPlan = zeros(1,T);
 
 % configure MOOS/iMatlab parameters
 
@@ -83,7 +83,7 @@ loopIt=1;
 xEst=zeros(4,1);
 % start loop  (breaks when MPC_STOP==1)
 while(~MPC_STOP)
-    
+    loopStart = tic;
     if(loopIt>1)
         % read in KF estimate
         gotState=0;
@@ -136,7 +136,7 @@ while(~MPC_STOP)
                 end
                 
             end
-            
+
             % check timeout on reading state
             if(toc(stateReadStart)>stateReadTimeout)
                 disp('TIMEOUT READING IN STATES - USING OLD STATE')
@@ -158,7 +158,6 @@ while(~MPC_STOP)
         pad = N-i;
         xDes(3,:) = [desBearing(i:i+pad-1) desBearing(N-1)*ones(1,T+2-pad)];
     end
-    xDes
     setPt=1;
     
 %     % map heading from [0,360] to [-180,+180]
@@ -173,25 +172,44 @@ while(~MPC_STOP)
     % replace state 3 with heading error
 %    xEst(3) = errorHeading;
     
+    xEst
+    xDes
+    
     % solve MPC - xEst and previous control are inputs
     [uPlan tMPC] = solveKayakMPC(sys,xEst,MPCparams,uDelay,uPlan(:,1),setPt,xDes);
+    uPlan
     
     % outputs plan of desired rudder
     
     % (encode, quantize plan)
+    
+    while(toc(loopStart)<dt)
+        pause(0.01)
+    end
+    
     
     % send plan (just control to start)
     send = uPlan(:,1);
     iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
     fprintf('Sending rudder = %f \n',send);
     
-    % send a big string of a bunch of other stuff:
+    % string to log
+    MPC_STR = 'uPlan';
+    for k = 1:T
+        MPC_STR = [MPC_STR ',' num2str(uPlan(k))];
+    end
+    MPC_STR = [MPC_STR sprintf(',tMPC,%0.3f',tMPC)];
     
+    % send a big string of a bunch of other stuff:
+    iMatlab('MOOS_MAIL_TX','MPC_STR',MPC_STR)
+
     
     % check if at end
     if(step>=(N-1))
         MPC_STOP=1;
         disp('FINISHED TRACKLINE LIST')
     end
+    
+    loopTime = toc(loopStart)
     
 end
