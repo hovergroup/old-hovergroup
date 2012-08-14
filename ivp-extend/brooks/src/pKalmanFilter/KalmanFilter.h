@@ -50,6 +50,7 @@ protected:
 	double speed,thrust;
 	double myx,myy,myheading;
 	double start_time,wp_id, wait, offset;
+	double timer;
 	bool begin,end;
 };
 
