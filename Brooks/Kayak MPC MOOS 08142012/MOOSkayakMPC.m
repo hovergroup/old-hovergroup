@@ -19,7 +19,7 @@ xDes = zeros(n,T+2);xDes(3,:)=desBearing(1:T+2);
 % configure MOOS/iMatlab parameters
 
 moosDB = 'terra.moos';
-pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
 cd(pathName)
 iMatlab('init','CONFIG_FILE',moosDB);
 % note -
