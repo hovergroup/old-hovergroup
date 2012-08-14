@@ -192,7 +192,11 @@ bool KalmanFilter::OnStartUp()
 void KalmanFilter::EstimateStates(){
 	UpdateSensorReadings();
 
-	gsl_vector_set(x_des,2,headings[wp_id]);
+	if(wp_id>0){
+		gsl_vector_set(x_des,2,headings[wp_id]);}
+	else{
+		gsl_vector_set(x_des,2,GetDesiredHeading());}
+
 	gsl_vector_memcpy(x_hist,x_hat);
 	gsl_matrix_memcpy(P_hist,P);
 
@@ -297,7 +301,7 @@ double KalmanFilter::GetCrossTrackError(){
 	else{
 		double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
 		double d = a*cos_a;
-	//	cout << d << endl;
+		//	cout << d << endl;
 		ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
 		cout << "Calculated Cross Track Error: " << ct_error << endl;
 		return ct_error;
@@ -310,8 +314,13 @@ double KalmanFilter::GetDesiredHeading(){
 
 	double desired_heading = atan (a/b) * 180 / PI;
 
-	if(a>=0){desired_heading = 90-desired_heading;}
-	else{desired_heading = 270-desired_heading;}
+	desired_heading = 90-desired_heading;
+	if(desired_heading>360){
+		desired_heading = desired_heading - 360;
+	}
+	else if(desired_heading<0){
+		desired_heading = desired_heading+360;
+	}
 
 	cout << "Calculated Desired Heading: " << desired_heading << endl;
 	m_Comms.Notify("DESIRED_HEADING",desired_heading);
