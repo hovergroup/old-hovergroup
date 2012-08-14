@@ -201,7 +201,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
 	gsl_matrix_memcpy(temp_matrix,B);
 	gsl_matrix_scale(temp_matrix, u_hist);
-	gsl_matrix_get_col(temp_vector,temp_matrix,1);
+	gsl_matrix_get_col(temp_vector,temp_matrix,0);
 	gsl_vector_add(x_pre,temp_vector);
 	gsl_blas_dgemv(CblasNoTrans,1.0, B_in, x_des,0.0, temp_vector);
 	gsl_vector_add(x_pre,temp_vector);
@@ -314,10 +314,10 @@ void KalmanFilter::PublishStates(){
 	cout << "Publishing states" << endl;
 	string delim = "<|>";
 	stringstream ss;
+	ss << gsl_vector_get(x_hat,0) << delim;
 	ss << gsl_vector_get(x_hat,1) << delim;
 	ss << gsl_vector_get(x_hat,2) << delim;
-	ss << gsl_vector_get(x_hat,3) << delim;
-	ss << gsl_vector_get(x_hat,4);
+	ss << gsl_vector_get(x_hat,3);
 	m_Comms.Notify("MPC_XEST",ss.str());
 }
 
