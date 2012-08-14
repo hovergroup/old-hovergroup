@@ -28,7 +28,7 @@ KalmanFilter::KalmanFilter()
 	K = gsl_matrix_alloc(4,2);
 	x_hat = gsl_vector_calloc(4);	//allocated all 0s
 	P = gsl_matrix_calloc(4,4);	//allocated all 0s
-	//gsl_matrix_set_identity(P);		//initialized to identity
+	gsl_matrix_set_identity(P);		//initialized to identity
 
 	//History
 	x_hist = gsl_vector_calloc(4);	//allocated all 0s
@@ -206,10 +206,12 @@ void KalmanFilter::EstimateStates(){
 	temp_matrix = gsl_matrix_calloc(4,1);
 	temp_vector = gsl_vector_calloc(4);
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
+	gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_memcpy(temp_matrix,B);
 	gsl_matrix_scale(temp_matrix, u_hist);
 	gsl_matrix_get_col(temp_vector,temp_matrix,0);
 	gsl_vector_add(x_pre,temp_vector);
+	gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_blas_dgemv(CblasNoTrans,1.0, B_in, x_des,0.0, temp_vector);
 	gsl_vector_add(x_pre,temp_vector);
 	gsl_matrix_free(temp_matrix);
