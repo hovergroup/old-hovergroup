@@ -19,8 +19,8 @@ syss='crossTrack';
 % time step for system discretization
 %dt=.2;
 %dt=1;
-dt=0.5;
-%dt=6;
+%dt=0.5;
+dt=6;
 
 % number of 'continuous-time' samples in one time step
 nc=dt/(1e-1);
@@ -35,7 +35,7 @@ N = ceil(Nsec/dt);  % total sim steps
 termPenalty=1;      % terminal penalty on (if 0, must end exactly at 0)
 mu=10;              % sparse control weight
 %T=ceil(N/2);        % horizon length 
-T=4;
+T=6;
 
 Qmpc = eye(n);         % state cost
 Rmpc = eye(m);         % control cost
