@@ -1,0 +1,141 @@
+
+ServerHost = 192.168.1.100
+ServerPort = 9000
+ 
+Community  = terra
+
+// Datum for the MIT Sailing Pavilion
+LatOrigin	=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+
+
+//-------------------------------------------------------------
+// Antler configuration  block
+
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB			@ NewConsole = false
+  Run = pMOOSBridge     	@ NewConsole = false
+  Run = pMarineViewer		@ NewConsole = false
+  Run = pLogger @ NewConsole = false 
+}
+
+//------------------------------------------------------------------
+// pMOOSBridge config block
+
+ProcessConfig = pMOOSBridge
+{
+  AppTick   = 5
+  CommsTick = 5
+
+  // this is the port *this* bridge will be listening for incoming UDP packets 
+  // from other bridges in other communities.
+  UDPListen = 9200 
+
+  // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
+
+	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE] -> nostromo@192.168.1.103:9003
+	SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE] -> kassandra@192.168.1.101:9001
+
+	SHARE = [WPT_SURVEY_UPDATES_NOSTROMO, MISSION_MODE_NOSTROMO, MOOS_MANUAL_OVERRIDE_NOSTROMO] -> nostromo@192.168.1.103:9003 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
+	SHARE = [WPT_SURVEY_UPDATES_KASSANDRA, MISSION_MODE_KASSANDRA, MOOS_MANUAL_OVERRIDE_KASSANDRA] -> kassandra@192.168.1.101:9001 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
+}
+
+//----------------------------------------------
+// pMarineViewer configuration  block
+
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 5
+  CommsTick  = 5
+
+  TIFF_FILE     = ../data/pavilion.tif
+
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+  
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+  VEHICOLOR     = kassandra,dark_blue
+  VEHICOLOR     = nostromo,green
+  VEHICOLOR 	= icarus,pink 
+
+  scope  = NODE_REPORT
+  scope  = DEPLOY
+  scope  = RETURN
+  scope  = VIEW_POINT
+  scope  = VIEW_SEGLIST
+  scope  = VIEW_POLYGON
+  scope  = MVIEWER_LCLICK
+  scope  = MVIEWER_RCLICK
+  
+  ACTION = MENU_KEY=GO_COME # GOSTAY =false
+  ACTION+ = MENU_KEY=GO_STAY # GOSTAY=true
+  //ACTION = MENU_KEY=LINE_SURVEY # MISSION_MODE=LINE_SURVEY
+  
+  ACTION = MENU_KEY=STATION_NOSTROMO # MISSION_MODE_NOSTROMO = STATION-KEEP 
+  ACTION+ = MENU_KEY=STATION_NOSTROMO # MOOS_MANUAL_OVERRIDE_NOSTROMO=false
+  
+  ACTION = MENU_KEY=ALLSTOP_NOSTROMO # MISSION_MODE_NOSTROMO = INACTIVE
+  ACTION+ = MENU_KEY=ALLSTOP_NOSTROMO # MOOS_MANUAL_OVERRIDE_NOSTROMO=true
+  
+  ACTION = MENU_KEY=STATION_KASSANDRA # MISSION_MODE_KASSANDRA = STATION-KEEP
+  ACTION+ = MENU_KEY=STATION_KASSANDRA # MOOS_MANUAL_OVERRIDE_KASSANDRA=false
+  
+  ACTION = MENU_KEY=ALLSTOP_KASSANDRA # MISSION_MODE_KASSANDRA = INACTIVE
+  ACTION+ = MENU_KEY=ALLSTOP_KASSANDRA # MOOS_MANUAL_OVERRIDE_KASSANDRA=true
+  
+  right_context[nostromo] = WPT_SURVEY_UPDATES_NOSTROMO= points=$(XPOS),$(YPOS)
+  right_context[nostromo] = MISSION_MODE_NOSTROMO=GOTO
+  right_context[kassandra] = WPT_SURVEY_UPDATES_KASSANDRA= points=$(XPOS),$(YPOS)
+  right_context[kassandra] = MISSION_MODE_KASSANDRA=GOTO
+
+  BUTTON_ONE   = DEPLOY  # MISSION_MODE = GOTO # MOOS_MANUAL_OVERRIDE = false
+  BUTTON_TWO   = RETURN  # MISSION_MODE = RETURN # MOOS_MANUAL_OVERRIDE=false
+  BUTTON_THREE = STATION # MISSION_MODE = STATION-KEEP # MOOS_MANUAL_OVERRIDE=false
+  BUTTON_FOUR  = ALLSTOP # MISSION_MODE = INACTIVE # MOOS_MANUAL_OVERRIDE=true
+}
+
+//------------------------------------------------------------------
+// uXMS configuration block
+
+ProcessConfig = uXMS
+{
+  AppTick    = 5
+  CommsTick  = 5
+
+  DISPLAY_TIME = true
+
+}  
+
+ProcessConfig = pLogger
+{
+	AppTick			= 20
+	CommsTick		= 20
+	
+	File			= LOG_TERRA
+	AsyncLog		= true
+	FileTimeStamp		= true
+	WildCardLogging		= true
+}
+

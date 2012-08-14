@@ -40,17 +40,17 @@ public:
 
 protected:
 	// insert local vars here
-	gsl_matrix *A,*B,*B_noise,*C,*Q,*R; //inputs
-	gsl_vector *z,*x_pre,*x_hat,*x_hist;
+	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
+	gsl_vector *z,*x_pre,*x_hat,*x_hist;			//vectors
 	gsl_matrix *P_pre, *K, *P, *P_hist; 			//computed
-	double u,u_hist;						//command history
+	double u,u_hist;								//command history
 
 	vector<double> wpx,wpy,time,headings;
 	double x1,y1,x2,y2;
-	double speed;
+	double speed,thrust;
 	double myx,myy,myheading;
 	double start_time,wp_id, wait, offset;
-	bool begin;
+	bool begin,end;
 };
 
 #endif 
