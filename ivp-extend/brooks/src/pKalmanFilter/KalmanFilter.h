@@ -14,8 +14,6 @@
 #include <gsl/gsl_linalg.h>
 #include <math.h>
 
-#define PI 3.14159265
-
 using namespace std;
 
 class KalmanFilter : public CMOOSApp

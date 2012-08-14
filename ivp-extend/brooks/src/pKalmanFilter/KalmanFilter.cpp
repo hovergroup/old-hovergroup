@@ -95,7 +95,7 @@ bool KalmanFilter::OnConnectToServer()
 	// m_MissionReader.GetConfigurationParam("Name", <string>);
 	// m_Comms.Register("VARNAME", is_float(int));
 
-	m_MissionReader.GetConfigurationpParam("Speed",speed);
+	m_MissionReader.GetConfigurationParam("Speed",speed);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
