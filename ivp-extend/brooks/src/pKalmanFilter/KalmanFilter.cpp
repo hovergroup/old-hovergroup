@@ -167,6 +167,7 @@ bool KalmanFilter::Iterate()
 
 		cout << "Time left: " << (wait-time_passed) << endl;
 		cout << "Distance left: " << GetDistance(myx,myy,x2,y2) << endl;
+		cout << endl;
 	}
 
 	else{
@@ -188,7 +189,7 @@ bool KalmanFilter::OnStartUp()
 void KalmanFilter::EstimateStates(){
 	UpdateSensorReadings();
 
-	gsl_vector_set(x_des,3,headings[wp_id]);
+	gsl_vector_set(x_des,2,headings[wp_id]);
 	gsl_vector_memcpy(x_hist,x_hat);
 	gsl_matrix_memcpy(P_hist,P);
 
@@ -267,8 +268,8 @@ void KalmanFilter::EstimateStates(){
 
 void KalmanFilter::UpdateSensorReadings(){
 	cout << "Updating Sensor Readings" << endl;
-	gsl_vector_set(z,1,GetCrossTrackError());
-	gsl_vector_set(z,2,myheading);
+	gsl_vector_set(z,0,GetCrossTrackError());
+	gsl_vector_set(z,1,myheading);
 	gsl_vector_fprintf(stdout,z,"%f");
 }
 
@@ -282,7 +283,9 @@ double KalmanFilter::GetCrossTrackError(){
 	double c = GetDistance(x1,y1,x2,y2);
 	cout << c << endl;
 
-	if(a==0 || c==0 ){return 0;}
+	if(a==0 || c==0 ){
+		cout << "Calculated Cross Track Error: 0" << endl;
+		return 0;}
 	else{
 		double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
 		double d = a*cos_a;
