@@ -225,21 +225,23 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix_2);
 
 	temp_matrix = gsl_matrix_calloc(4,2);
+	temp_matrix_2 = gsl_matrix_calloc(2,2);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_pre,C,0.0,temp_matrix);
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,C,temp_matrix,0.0,K);
-	gsl_matrix_add(K,R);
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,C,temp_matrix,0.0,temp_matrix_2);
+	gsl_matrix_add(temp_matrix_2,R);
 	int s;
-	gsl_permutation * p = gsl_permutation_alloc (2);
-	gsl_matrix_memcpy(temp_matrix,K);
-	gsl_linalg_LU_decomp (temp_matrix, p, &s);
-	gsl_linalg_LU_invert(temp_matrix,p,K);
+	gsl_permutation *p = gsl_permutation_alloc (2);
+	gsl_linalg_LU_decomp (temp_matrix_2,p, &s);
+	cout << "Successfully Decomposed" << endl;
+	gsl_linalg_LU_invert(temp_matrix_2,p,temp_matrix_2);
 	cout << "Successfully Inverted" << endl;
-	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1.0,C,K,0.0,temp_matrix);
+	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1.0,C,temp_matrix_2,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,P_pre,temp_matrix,0.0,K);
 	cout << "Got K: " << endl;
 	gsl_matrix_fprintf(stdout,K,"%f");
 	cout << endl;
 	gsl_matrix_free(temp_matrix);
+	gsl_matrix_free(temp_matrix_2);
 	gsl_permutation_free(p);
 
 	temp_vector = gsl_vector_calloc(2);
