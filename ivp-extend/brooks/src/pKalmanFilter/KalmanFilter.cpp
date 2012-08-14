@@ -126,6 +126,7 @@ bool KalmanFilter::Iterate()
 			if(begin){	//---------Initialize
 
 				cout << "Initializing" << endl;
+
 				m_Comms.Notify("DESIRED_THRUST",thrust);
 				m_Comms.Notify("DESIRED_RUDDER",0);
 				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
@@ -275,10 +276,14 @@ double KalmanFilter::GetCrossTrackError(){
 	cout << "Getting Cross Track Error" << endl;
 	double ct_error;
 	double a = GetDistance(myx,myy,x1,y1);
+	cout << a << endl;
 	double b = GetDistance(myx,myy,x2,y2);
+	cout << b << endl;
 	double c = GetDistance(x1,y1,x2,y2);
+	cout << c << endl;
 	double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
 	double d = a*cos_a;
+	cout << d << endl;
 	ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
 	cout << "Calculated Cross Track Error: " << ct_error << endl;
 	return ct_error;
