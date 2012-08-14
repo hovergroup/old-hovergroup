@@ -281,12 +281,16 @@ double KalmanFilter::GetCrossTrackError(){
 	cout << b << endl;
 	double c = GetDistance(x1,y1,x2,y2);
 	cout << c << endl;
-	double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
-	double d = a*cos_a;
-	cout << d << endl;
-	ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
-	cout << "Calculated Cross Track Error: " << ct_error << endl;
-	return ct_error;
+
+	if(a==0 || c==0 ){return 0;}
+	else{
+		double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
+		double d = a*cos_a;
+	//	cout << d << endl;
+		ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
+		cout << "Calculated Cross Track Error: " << ct_error << endl;
+		return ct_error;
+	}
 }
 
 double KalmanFilter::GetDesiredHeading(){
