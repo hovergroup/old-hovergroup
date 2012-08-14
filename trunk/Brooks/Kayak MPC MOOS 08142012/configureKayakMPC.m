@@ -11,7 +11,7 @@
 %}
 
 ifQuiet=0;          % if cvx is run in quiet mode
-
+uDelay = 1;
 
 %% PARAMETERS
 
@@ -37,7 +37,6 @@ dt = 6;
 secPerLeg = 90;
 numLegs=2;
 Nsec = secPerLeg*numLegs;
-
 
 
 %time step for system discretization
@@ -76,7 +75,7 @@ x0c = [0;0;50;0];
 
 % max/mins (IN PHYSICAL UNITS)
 %xmax= [20 20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
-xmax = [50 50 50 30]'.*ones(n,1);xmin=-xmax;
+xmax = [100 100 180 100]'.*ones(n,1);xmin=-xmax;
 umax = 30*ones(m,1); umin = -umax;
 
 % System params
