@@ -28,6 +28,7 @@ KalmanFilter::KalmanFilter()
 	K = gsl_matrix_alloc(4,2);
 	x_hat = gsl_vector_calloc(4);	//allocated all 0s
 	P = gsl_matrix_calloc(4,4);	//allocated all 0s
+	gsl_matrix_set_identity(P);		//initialized to identity
 
 	//History
 	x_hist = gsl_vector_calloc(4);	//allocated all 0s
@@ -139,6 +140,8 @@ bool KalmanFilter::Iterate()
 				wait = GetDistance(x1,y1,x2,y2)/speed;
 				offset = wait;
 				start_time = MOOSTime();
+
+				gsl_vector_set(x_hat,2,myheading);
 
 				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
