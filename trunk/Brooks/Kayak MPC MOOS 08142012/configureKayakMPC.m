@@ -72,11 +72,11 @@ Pmpc = 10*eye(n);     % terminal state cost
 nc=dt/(1e-1);
 % sim initial state: (IN PHYSICAL UNITS)
 % [headingAccel(deg/s^2), headingRate(deg/s), heading(deg), crossTrack (m)]
-x0c = [0;0;30;0];
+x0c = [0;0;50;0];
 
 % max/mins (IN PHYSICAL UNITS)
 %xmax= [20 20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
-xmax = [50 50 30 30]'.*ones(n,1);xmin=-xmax;
+xmax = [50 50 50 30]'.*ones(n,1);xmin=-xmax;
 umax = 30*ones(m,1); umin = -umax;
 
 % System params
