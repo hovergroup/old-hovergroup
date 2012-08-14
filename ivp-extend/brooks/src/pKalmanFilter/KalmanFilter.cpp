@@ -208,8 +208,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
 	cout << "Got x_pre: " << endl;
-	//gsl_vector_fprintf(stdout,x_pre,"%f");
-	//cout << endl;
+	gsl_vector_fprintf(stdout,x_pre,"%f");
+	cout << endl;
 
 	temp_matrix = gsl_matrix_calloc(4,4);
 	temp_matrix_2 = gsl_matrix_calloc(4,4);
@@ -219,12 +219,12 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,B_noise,temp_matrix,0.0,temp_matrix_2);
 	gsl_matrix_add(P_pre,temp_matrix_2);
 	cout << "Got P_pre: " << endl;
-	//gsl_matrix_fprintf(stdout,P_pre,"%f");
-	//cout << endl;
+	gsl_matrix_fprintf(stdout,P_pre,"%f");
+	cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
 
-	temp_matrix = gsl_matrix_calloc(2,2);
+	temp_matrix = gsl_matrix_calloc(4,2);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_pre,C,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,C,temp_matrix,0.0,K);
 	gsl_matrix_add(K,R);
@@ -236,8 +236,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1.0,C,K,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,P_pre,temp_matrix,0.0,K);
 	cout << "Got K: " << endl;
-	//gsl_matrix_fprintf(stdout,K,"%f");
-	//cout << endl;
+	gsl_matrix_fprintf(stdout,K,"%f");
+	cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_permutation_free(p);
 
@@ -247,8 +247,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_sub(temp_vector,x_hat);
 	gsl_vector_add(x_hat,x_pre);
 	cout << "Got X_hat: " << endl;
-	//gsl_vector_fprintf(stdout,x_hat,"%f");
-	//cout << endl;
+	gsl_vector_fprintf(stdout,x_hat,"%f");
+	cout << endl;
 	gsl_vector_free(temp_vector);
 
 	temp_matrix = gsl_matrix_alloc(4,4);
