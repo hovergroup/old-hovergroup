@@ -8,6 +8,10 @@
 %{
 - 8/14/2012: added set point stuff (cut out heading error wrap for now)
 %}
+clear all
+close all
+clc
+format compact
 
 % configure MPC parameters
 configureKayakMPC;
@@ -34,16 +38,23 @@ iMatlab('init','CONFIG_FILE',moosDB);
 
 
 stateReadTimeout = 2;   % time to wait for reading state...
+iMatlab('MOOS_MAIL_TX','MPC_STOP','STOP')
+pause(1)
+garbageMail = iMatlab('MOOS_MAIL_RX');
 
 % wait for MOOS side to start, and get initial X, Y, H
 MPC_STOP=1;
 gotStartPos=0;
+gotX0=0;
+gotY0=0;
+gotH0=0;
 while((MPC_STOP || ~gotStartPos))
     mail = iMatlab('MOOS_MAIL_RX');
     messages = length(mail);
-    for i=1:messages
-        key = mail(m).KEY;
+    for m=1:messages
+        key = mail(m).KEY
         if(strcmp(key,'MPC_STOP'))
+            stopstr = mail(m).STR
             if(strcmp(mail(m).STR,'GO'))
                 MPC_STOP=0;
             end
@@ -57,7 +68,7 @@ while((MPC_STOP || ~gotStartPos))
             h0 = mail(m).DBL;
             gotH0 = 1;
         end
-        gotStartPos=min([gotX0,gotY0,gotH0]);
+        gotStartPos=min([gotX0,gotY0,gotH0])
         
     end
     disp('Waiting for MOOS')
@@ -77,7 +88,7 @@ if(bearing>360)
     bearing = bearing - 360;
 end
 %eh0 = bearing-h0;
-xEst = [0;0;bearing;0];
+xEst = [0;0;h0;0];
 
 % start distance for 1st waypoint
 distStart = sqrt((y0-y(1))^2+(x0-x(1))^2);
@@ -88,7 +99,7 @@ fprintf('\n Leg 1 @ %f bearing, %i steps\n',bearing,leg1Steps)
 desBearing = [bearing*ones(1,leg1Steps) desBearing];
 
 loopIt=1;
-xEst=zeros(4,1);
+%xEst=zeros(4,1);
 % start loop  (breaks when MPC_STOP==1)
 while(~MPC_STOP)
     loopStart = tic;
@@ -112,8 +123,8 @@ while(~MPC_STOP)
             key = cell(1,messages);
             val = cell(1,messages);
             str = cell(1,messages);
-            for m=1:messages
-                
+            while(~gotState)
+                m = 1;
                 %msg_tic = msg_tic+1
                 
                 key{m}=mail(m).KEY;
@@ -124,14 +135,17 @@ while(~MPC_STOP)
                     
                     case 'MPC_XEST'
                         
+                        xE = cell(1,4);
+                        xEst = zeros(4,1);
                         % parse state string
                         stateString = str{m};
                         try
-                            xEst = textscan(stateString,...
+                            xE = textscan(stateString,...
                                 '%f %*s %*s %f %*s %*s %f %*s %*s %f' ,...
                                 'Delimiter','<|>');
-                            fprintf('hddot: %f hdot: %f h: %f ex: %f \n',...
-                                xEst(1),xEst(2),xEst(3),xEst(4)/C(2,4))  
+                            xEst = [xE{1};xE{2};xE{3};xE{4}];
+                            fprintf('hddot: %f hdot: %f h: %f ex [m]: %f \n',...
+                                xEst(1),xEst(2),xEst(3),Cd(2,4)*xEst(4))
                             gotState = 1;
                         catch
                             disp('error parsing state string')
@@ -143,13 +157,22 @@ while(~MPC_STOP)
                         
                 end
                 
+                % if more messages to look through:
+                if(m<messages)
+                    m = m+1;
+                else
+                    continue
+                end
+                
             end
-
+            
             % check timeout on reading state
             if(toc(stateReadStart)>stateReadTimeout)
                 disp('TIMEOUT READING IN STATES - USING OLD STATE')
                 continue
             end
+            
+            
             
         end
     end
@@ -160,7 +183,7 @@ while(~MPC_STOP)
     
     
     xDes = zeros(n,T+2);
-    if((i+T+1)<N)
+    if((loopIt+T+1)<N)
         xDes(3,:) = desBearing(loopIt:(loopIt+T+1));
     else
         pad = N-loopIt;
@@ -168,17 +191,17 @@ while(~MPC_STOP)
     end
     setPt=1;
     
-%     % map heading from [0,360] to [-180,+180]
-%     errorHeading = desiredHeading - xEst(3);
-%     if(errorHeading>180)
-%         errorHeading = errorHeading - 360;
-%     end
-%     if(errorHeading<-180)
-%         errorHeading = errorHeading + 360;
-%     end
+    %     % map heading from [0,360] to [-180,+180]
+    %     errorHeading = desiredHeading - xEst(3);
+    %     if(errorHeading>180)
+    %         errorHeading = errorHeading - 360;
+    %     end
+    %     if(errorHeading<-180)
+    %         errorHeading = errorHeading + 360;
+    %     end
     
     % replace state 3 with heading error
-%    xEst(3) = errorHeading;
+    %    xEst(3) = errorHeading;
     
     xEst
     xDes
@@ -191,7 +214,7 @@ while(~MPC_STOP)
     
     % (encode, quantize plan)
     
-    while(toc(loopStart)<dt)
+    while(toc(loopStart)<(dt-0.5))
         pause(0.01)
     end
     
@@ -210,7 +233,7 @@ while(~MPC_STOP)
     
     % send a big string of a bunch of other stuff:
     iMatlab('MOOS_MAIL_TX','MPC_STR',MPC_STR)
-
+    
     
     % check if at end
     if(loopIt>=(N-1+leg1Steps))

@@ -42,7 +42,7 @@ switch tracklineType
         %numLegs = 2;
         %secPerLeg = 60
         len = 100;
-        ox = 0;
+        ox = 30;
         oy = -30;
         pavAng = deg2rad(37);
         
