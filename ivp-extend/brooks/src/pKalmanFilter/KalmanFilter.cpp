@@ -194,7 +194,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_memcpy(P_hist,P);
 
 	gsl_matrix *temp_matrix, *temp_matrix_2;
-	gsl_vector *temp_vector;
+	gsl_vector *temp_vector, *temp_vector_2;
 
 	temp_matrix = gsl_matrix_calloc(4,1);
 	temp_vector = gsl_vector_calloc(4);
@@ -245,9 +245,11 @@ void KalmanFilter::EstimateStates(){
 	gsl_permutation_free(p);
 
 	temp_vector = gsl_vector_calloc(2);
-	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_hist,0.0, x_hat);
-	gsl_vector_memcpy(temp_vector,z);
-	gsl_vector_sub(temp_vector,x_hat);
+	temp_vector_2 = gsl_vector_calloc(2);
+	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_hist,0.0, temp_vector);
+	gsl_vector_memcpy(temp_vector_2,z);
+	gsl_vector_sub(temp_vector_2,temp_vector);
+	gsl_blas_dgemv(CblasNoTrans,1.0,K,temp_vector_2,0.0,x_hat);
 	gsl_vector_add(x_hat,x_pre);
 	cout << "Got X_hat: " << endl;
 	gsl_vector_fprintf(stdout,x_hat,"%f");
