@@ -11,9 +11,9 @@
 //#include <boost/date_time/posix_time/posix_time.hpp>
 #include <gsl/gsl_statistics_double.h>
 #include <gsl/gsl_matrix.h>
-////#include <gsl/gsl_blas.h>
-////#include <gsl/gsl_permutation.h>
-////#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_linalg.h>
 #include <vector>
 #include <map>
 ////#include "XYSegList.h"
@@ -48,72 +48,87 @@ struct MY_DATA {
 
 int main() {
 
-	FILE* f=fopen("sysMatrices_2Hz_forMOOSKF.txt","r");
-	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
+	gsl_matrix *temp_matrix;
+	temp_matrix = gsl_matrix_calloc(2,2);
+	gsl_matrix *temp_matrix_2;
+	temp_matrix_2 = gsl_matrix_calloc(2,2);
+	gsl_matrix_set(temp_matrix_2,0,0,2);
+	gsl_matrix_set(temp_matrix_2,0,1,8);
+	gsl_matrix_set(temp_matrix_2,1,0,-4);
+	gsl_matrix_set(temp_matrix_2,1,1,9);
 
-	A = gsl_matrix_alloc(4,4);
-	B = gsl_matrix_alloc(4,1);
-	B_noise = gsl_matrix_alloc(4,4);
-	B_in = gsl_matrix_alloc(4,4);
-	C = gsl_matrix_alloc(2,4);
-	Q = gsl_matrix_alloc(4,4);
-	R = gsl_matrix_alloc(2,2);
+	int s;
+	gsl_permutation *p = gsl_permutation_alloc (2);
+	gsl_linalg_LU_decomp (temp_matrix_2,p, &s);
+	gsl_linalg_LU_invert(temp_matrix_2,p,temp_matrix);
+	gsl_matrix_fprintf(stdout, temp_matrix, "%f");
 
-	gsl_matrix_fscanf(f,A);
-	cout << "Read A, ";
-	  gsl_matrix_fprintf(stdout,A,"%f");
-	gsl_matrix_fscanf(f,B);
-	cout << "B, ";
-	  gsl_matrix_fprintf(stdout,B,"%f");
-	gsl_matrix_fscanf(f,B_noise);
-	cout << "B_noise, ";
-	  gsl_matrix_fprintf(stdout,B_noise,"%f");
-	gsl_matrix_fscanf(f,B_in);
-	cout << "B_in, ";
-	  gsl_matrix_fprintf(stdout,B_in,"%f");
-	gsl_matrix_fscanf(f,C);
-	cout << "C, ";
-	  gsl_matrix_fprintf(stdout,C,"%f");
-	gsl_matrix_fscanf(f,Q);
-	cout << "Q, ";
-	  gsl_matrix_fprintf(stdout,Q,"%f");
-	gsl_matrix_fscanf(f,R);
-	cout << "R --> ";
-			  gsl_matrix_fprintf(stdout,R,"%f");
-	cout << "End Reading"<< endl;
-
-	fclose(f);
-
-		cout<<"Reading Points"<<endl;
-		//time, desired heading,x1,y1,x2,y2
-		vector<double> wpx,wpy,time,headings;
-
-		while(waypointsfile.good()){
-			getline(waypointsfile,one_point);
-			int pos = one_point.find(',');
-
-			if(pos>0){
-
-				stringstream ss;
-				char discard;
-				double param;
-
-				ss.str(one_point);
-				ss >> param; time.push_back(param); ss >> discard;
-				ss >> param; headings.push_back(param); ss >> discard;
-				ss >> param; wpx.push_back(param); ss >> discard;
-				ss >> param; wpy.push_back(param); ss >> discard;
-
-				ss.str("");
-				ss<<"type=gateway,x="<<wpx[total_points]<<
-						",y="<<wpx[total_points]<<",SCALE=4.3,label="<<total_points<<",COLOR=red,width=4.5";
-				//m_Comms.Notify("VIEW_MARKER",ss.str());
-				cout << ss.str() << endl;
-				total_points++;
-			}
-		}
-
-		cout<<"Read "<<total_points<<" points."<<std::endl;
+//	FILE* f=fopen("sysMatrices_2Hz_forMOOSKF.txt","r");
+//	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
+//
+//	A = gsl_matrix_alloc(4,4);
+//	B = gsl_matrix_alloc(4,1);
+//	B_noise = gsl_matrix_alloc(4,4);
+//	B_in = gsl_matrix_alloc(4,4);
+//	C = gsl_matrix_alloc(2,4);
+//	Q = gsl_matrix_alloc(4,4);
+//	R = gsl_matrix_alloc(2,2);
+//
+//	gsl_matrix_fscanf(f,A);
+//	cout << "Read A, ";
+//	  gsl_matrix_fprintf(stdout,A,"%f");
+//	gsl_matrix_fscanf(f,B);
+//	cout << "B, ";
+//	  gsl_matrix_fprintf(stdout,B,"%f");
+//	gsl_matrix_fscanf(f,B_noise);
+//	cout << "B_noise, ";
+//	  gsl_matrix_fprintf(stdout,B_noise,"%f");
+//	gsl_matrix_fscanf(f,B_in);
+//	cout << "B_in, ";
+//	  gsl_matrix_fprintf(stdout,B_in,"%f");
+//	gsl_matrix_fscanf(f,C);
+//	cout << "C, ";
+//	  gsl_matrix_fprintf(stdout,C,"%f");
+//	gsl_matrix_fscanf(f,Q);
+//	cout << "Q, ";
+//	  gsl_matrix_fprintf(stdout,Q,"%f");
+//	gsl_matrix_fscanf(f,R);
+//	cout << "R --> ";
+//			  gsl_matrix_fprintf(stdout,R,"%f");
+//	cout << "End Reading"<< endl;
+//
+//	fclose(f);
+//
+//		cout<<"Reading Points"<<endl;
+//		//time, desired heading,x1,y1,x2,y2
+//		vector<double> wpx,wpy,time,headings;
+//
+//		while(waypointsfile.good()){
+//			getline(waypointsfile,one_point);
+//			int pos = one_point.find(',');
+//
+//			if(pos>0){
+//
+//				stringstream ss;
+//				char discard;
+//				double param;
+//
+//				ss.str(one_point);
+//				ss >> param; time.push_back(param); ss >> discard;
+//				ss >> param; headings.push_back(param); ss >> discard;
+//				ss >> param; wpx.push_back(param); ss >> discard;
+//				ss >> param; wpy.push_back(param); ss >> discard;
+//
+//				ss.str("");
+//				ss<<"type=gateway,x="<<wpx[total_points]<<
+//						",y="<<wpx[total_points]<<",SCALE=4.3,label="<<total_points<<",COLOR=red,width=4.5";
+//				//m_Comms.Notify("VIEW_MARKER",ss.str());
+//				cout << ss.str() << endl;
+//				total_points++;
+//			}
+//		}
+//
+//		cout<<"Read "<<total_points<<" points."<<std::endl;
 
 //	gsl_matrix * mm,*m2;
 //	mm = gsl_matrix_alloc(4,3);
