@@ -1,15 +1,23 @@
-function [xEst MPC_STOP] = parseMPC_XEST
+function [xEst mpc_stop] = parseMPC_XEST
 % function to find and parse MPC_XEST in MOOS mail
 
 % BR 8/15/2012
 
+% changes
+%{
+- 8/16/2012: changed mpc_stop to binary
+
+%}
+
 xEst = zeros(4,1);
-MPC_STOP=0;
+MPC_STOP='GO';
+mpc_stop=0;
 
 % read in KF estimate
 gotState=0;
 stateReadStart = tic;
-while(~gotState)
+stateReadTimeout = 3;
+while((~gotState))
     mail=iMatlab('MOOS_MAIL_RX');
     messages=length(mail);if messages==0;continue;end
     
@@ -49,8 +57,10 @@ while(~gotState)
                 
             case 'MPC_STOP'
                 
-                MPC_STOP=val{i};
-                
+                MPC_STOP=str{i};
+                if(strcmp(MPC_STOP,'STOP'))
+                    break;
+                end
         end
         
         % if more messages to look through:
@@ -65,8 +75,15 @@ while(~gotState)
     % check timeout on reading state
     if(toc(stateReadStart)>stateReadTimeout)
         disp('TIMEOUT READING IN STATES - USING OLD STATE')
-        continue
+        break;
+    elseif(strcmp(MPC_STOP,'STOP'))
+        break;
     end
     
 end
+
+if(strcmp(MPC_STOP,'STOP'))
+    mpc_stop=1;
+end
+
 end

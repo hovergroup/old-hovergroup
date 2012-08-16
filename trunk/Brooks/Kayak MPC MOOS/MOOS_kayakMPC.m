@@ -39,14 +39,18 @@ iMatlab('MOOS_MAIL_TX','MPC_STOP','STOP')
 pause(1)
 garbageMail = iMatlab('MOOS_MAIL_RX');
 
+send = 0+rOff;
+iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
+fprintf('Sending rudder = %f \n',send);
+
 % wait for MOOS side to start, and get initial X, Y, H
 stateReadTimeout = 2;   % time to wait for reading state...
-MPC_STOP=1;
+mpc_stop=1;
 gotStartPos=0;
 gotX0=0;
 gotY0=0;
 gotH0=0;
-while((MPC_STOP || ~gotStartPos))   
+while((mpc_stop || ~gotStartPos))   
     disp('Waiting for MOOS')
     mail = iMatlab('MOOS_MAIL_RX');
     messages = length(mail);
@@ -55,7 +59,7 @@ while((MPC_STOP || ~gotStartPos))
         if(strcmp(key,'MPC_STOP'))
             stopstr = mail(m).STR;
             if(strcmp(mail(m).STR,'GO'))
-                MPC_STOP=0;
+                mpc_stop=0;
                 fprintf('Received MPC GO\n')
             end
         elseif(strcmp(key,'GPS_X'))
@@ -73,11 +77,6 @@ while((MPC_STOP || ~gotStartPos))
     end
     pause(1)
 end
-
-
-
-
-
 
 
 % initial estimate of ERROR is all zero...(first trackline defined off
@@ -107,22 +106,22 @@ desBearing = [bearing*ones(1,leg1Steps) desBearing];
 
 loopIt=1;
 % start loop  (breaks when MPC_STOP==1)
-while(~MPC_STOP)
+while(~mpc_stop)
     loopStart = tic;
     step = floor(toc(mpcStart)/dt)+1;
-    fprintf('Step: %i, loopIt: %i',step,loopIt)
+    fprintf('Step: %i, loopIt: %i\n\n',step,loopIt)
     
     if(loopIt>1)
         % note - xEst is ERRORS
         % cross-track and heading error relative to desBearing(step)
-        [eEst MPC_STOP] = parseMPC_XEST;
+        [eEst mpc_stop] = parseMPC_XEST;
     end
     xHat = eEst + [0 0 desBearing(loopIt) 0]';
     fprintf('State estimate\n')
     fprintf('%s %f\n','ehddot', eEst(1), 'ehdot ', ...
         eEst(2), 'eh    ', eEst(3), 'ex    ', eEst(4))
     fprintf('actual est heading: %f [deg]\n',xHat(3))
-    fprintf('cross-track error: %f [m]\n',Cd(2,4)*eEst(4))
+    fprintf('cross-track error: %f [m]\n\n',Cd(2,4)*eEst(4))
     
     % compute xDes in MPC coord frame
     % first construct xDes vector in bearing coord frame
@@ -133,7 +132,7 @@ while(~MPC_STOP)
         pad = N-loopIt;
         xDes(3,:) = [desBearing(loopIt:loopIt+pad-1) desBearing(N-1)*ones(1,T+2-pad)];
     end
-    fprintf('Step %i, desired bearing = %f \n',step,desBearing(step))
+    fprintf('Step %i, desired bearing = %f \n\n',step,desBearing(step))
     
     % MPC coord frame is defined relative to desBearing(i)
     eDes(3,:) = xDes(3,:) - ones(size(xDes(3,:)))*desBearing(step);
@@ -147,7 +146,7 @@ while(~MPC_STOP)
             eDes(3,j) = eDes(3,j) + 360;
         end
     end
-    disp(eDes)
+    disp(eDes(3,:))
     
     uPrev = uPlan(:,1);    
     % solve MPC - xEst and previous control are inputs
@@ -164,7 +163,10 @@ while(~MPC_STOP)
     end
     
     % send plan (just control to start)
-    send = uPlan(:,1);
+    send = uPlan(:,1)+rOff;
+    
+    send = send/2;
+    
     iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
     fprintf('Sending rudder = %f \n',send);
     
@@ -180,7 +182,7 @@ while(~MPC_STOP)
     
     % check if at end
     if(loopIt>=(N-1+leg1Steps))
-        MPC_STOP=1;
+        mpc_stop=1;
         disp('FINISHED TRACKLINE LIST')
     end
     loopIt = loopIt+1;
