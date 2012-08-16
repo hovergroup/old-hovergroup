@@ -31,6 +31,7 @@ public:
 	void GetMatrices(string);
 
 	void PublishStates();
+	void PublishSegList();
 	void EstimateStates();
 	void UpdateSensorReadings();
 
@@ -40,10 +41,10 @@ public:
 
 protected:
 	// insert local vars here
-	gsl_matrix *A,*B,*B_noise, *B_in, *C,*Q,*R; 	//matrix inputs
-	gsl_vector *z,*x_pre,*x_hat,*x_hist,*x_des;			//vectors
-	gsl_matrix *P_pre, *K, *P, *P_hist; 			//computed
-	double u,u_hist;								//command history
+	gsl_matrix *A,*B,*B_noise,*C,*Q,*R; 	//matrix inputs
+	gsl_vector *z,*x_pre,*x_hat,*x_hist;	//vectors
+	gsl_matrix *P_pre, *K, *P, *P_hist; 	//computed
+	double u;								//command
 
 	vector<double> wpx,wpy,time,headings;
 	double x1,y1,x2,y2;

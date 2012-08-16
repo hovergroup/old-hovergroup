@@ -18,7 +18,6 @@ KalmanFilter::KalmanFilter()
 
 	//Sensor
 	z = gsl_vector_alloc(2);
-	x_des = gsl_vector_calloc(4);		//allocated all 0s
 
 	//Predicted
 	x_pre = gsl_vector_alloc(4);
@@ -26,8 +25,8 @@ KalmanFilter::KalmanFilter()
 
 	//Computed
 	K = gsl_matrix_alloc(4,2);
-	x_hat = gsl_vector_calloc(4);	//allocated all 0s
-	P = gsl_matrix_calloc(4,4);	//allocated all 0s
+	x_hat = gsl_vector_calloc(4);		//allocated all 0s
+	P = gsl_matrix_calloc(4,4);		//allocated all 0s
 	gsl_matrix_set_identity(P);		//initialized to identity
 
 	//History
@@ -35,13 +34,13 @@ KalmanFilter::KalmanFilter()
 	P_hist = gsl_matrix_calloc(4,4);	//allocated all 0s
 
 	u = 0;
-	u_hist = 0;
 
 	begin = true;
 	end = false;
-	wait = 5;
+	wait = 3;	//s
 	offset = 0;
 	wp_id = 0;
+
 }
 
 //---------------------------------------------------------
@@ -52,7 +51,6 @@ KalmanFilter::~KalmanFilter()
 	gsl_matrix_free(A);
 	gsl_matrix_free(B);
 	gsl_matrix_free(B_noise);
-	gsl_matrix_free(B_in);
 	gsl_matrix_free(C);
 	gsl_matrix_free(Q);
 	gsl_matrix_free(R);
@@ -79,7 +77,6 @@ bool KalmanFilter::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 		else if(key=="DESIRED_RUDDER"){
-			u_hist = u;
 			u = msg.GetDouble();
 		}
 	}
@@ -142,6 +139,7 @@ bool KalmanFilter::Iterate()
 				y1 = myy;
 				x2 = wpx[wp_id];
 				y2 = wpy[wp_id];
+				PublishSegList();
 
 				wait = GetDistance(x1,y1,x2,y2)/speed;
 				offset = wait;
@@ -155,7 +153,7 @@ bool KalmanFilter::Iterate()
 			}
 			else if(wp_id==wpx.size()-1){ //-------------End
 				cout << "Ending Mission" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+				m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true");
 				m_Comms.Notify("DESIRED_THRUST",0);
 				m_Comms.Notify("DESIRED_RUDDER",0);
 				end = true;
@@ -170,11 +168,11 @@ bool KalmanFilter::Iterate()
 				y2 = wpy[wp_id];
 			}
 
-			cout << "Going to: " << wpx[wp_id] << " , " << wpy[wp_id] << endl;
-			cout << "Expected time to reach: " << wait << endl;
+			cout << "Going to: " << x2 << " , " << y2 << endl;
+			cout << "Expected time to reach: " << wait << " seconds"<< endl;
 		}
 
-		cout << "Time left: " << (wait-time_passed) << endl;
+		cout << "Time left: " << (wait-time_passed) << " seconds"<< endl;
 		cout << "Distance left: " << GetDistance(myx,myy,x2,y2) << endl;
 		cout << endl;
 	}
@@ -198,34 +196,31 @@ bool KalmanFilter::OnStartUp()
 void KalmanFilter::EstimateStates(){
 	UpdateSensorReadings();
 
-	if(wp_id>0){
-		gsl_vector_set(x_des,2,headings[wp_id]);}
-	else{
-		gsl_vector_set(x_des,2,GetDesiredHeading());}
-
 	gsl_vector_memcpy(x_hist,x_hat);
 	gsl_matrix_memcpy(P_hist,P);
 
 	gsl_matrix *temp_matrix, *temp_matrix_2, *temp_matrix_3;
 	gsl_vector *temp_vector, *temp_vector_2;
 
+	// Get X Prediction
 	temp_matrix = gsl_matrix_calloc(4,1);
 	temp_vector = gsl_vector_calloc(4);
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
 	gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_memcpy(temp_matrix,B);
-	gsl_matrix_scale(temp_matrix, u_hist);
+	gsl_matrix_scale(temp_matrix, u);
 	gsl_matrix_get_col(temp_vector,temp_matrix,0);
 	gsl_vector_add(x_pre,temp_vector);
 	gsl_vector_fprintf(stdout,x_pre,"%f");
-	gsl_blas_dgemv(CblasNoTrans,1.0, B_in, x_des,0.0, temp_vector);
-	gsl_vector_add(x_pre,temp_vector);
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
 	cout << "Got x_pre: " << endl;
-	gsl_vector_fprintf(stdout,x_pre,"%f");
+	//gsl_vector_fprintf(stdout,x_pre,"%f");
+	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,2) << endl;
+	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3) << endl;
 	cout << endl;
 
+	//Get P Prediction
 	temp_matrix = gsl_matrix_calloc(4,4);
 	temp_matrix_2 = gsl_matrix_calloc(4,4);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_hist,A,0.0,temp_matrix);
@@ -239,6 +234,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
 
+	//Get K
 	temp_matrix = gsl_matrix_calloc(4,2);
 	temp_matrix_2 = gsl_matrix_calloc(2,2);
 	temp_matrix_3 = gsl_matrix_calloc(2,2);
@@ -261,6 +257,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix_3);
 	gsl_permutation_free(p);
 
+	//Get X_hat
 	temp_vector = gsl_vector_calloc(2);
 	temp_vector_2 = gsl_vector_calloc(2);
 	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_hist,0.0, temp_vector);
@@ -268,11 +265,23 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_sub(temp_vector_2,temp_vector);
 	gsl_blas_dgemv(CblasNoTrans,1.0,K,temp_vector_2,0.0,x_hat);
 	gsl_vector_add(x_hat,x_pre);
+
+	double x_wrap = gsl_vector_get(x_hat,2);
+	if(x_wrap > 180){x_wrap -= 360;
+	gsl_vector_set(x_hat,2,x_wrap);}
+	else if(x_wrap < 180){x_wrap +=360;
+	gsl_vector_set(x_hat,2,x_wrap);}
+
 	cout << "Got X_hat: " << endl;
-	gsl_vector_fprintf(stdout,x_hat,"%f");
+	//gsl_vector_fprintf(stdout,x_hat,"%f");
+	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
+	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3) << endl;
 	cout << endl;
 	gsl_vector_free(temp_vector);
 
+	PublishStates();
+
+	//Get P
 	temp_matrix = gsl_matrix_alloc(4,4);
 	temp_matrix_2 = gsl_matrix_alloc(4,4);
 	gsl_matrix_set_identity(temp_matrix);
@@ -280,30 +289,33 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_sub(temp_matrix,temp_matrix_2);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,temp_matrix,P_pre,0.0,P);
 	cout << "Got P: " << endl;
-	//gsl_matrix_fprintf(stdout,P,"%f");
-	//cout << endl;
+	gsl_matrix_fprintf(stdout,P,"%f");
+	cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
-
-	PublishStates();
 }
 
 void KalmanFilter::UpdateSensorReadings(){
-	cout << "Updating Sensor Readings" << endl;
+	cout << "Updating Sensor Readings: " << endl;
 	gsl_vector_set(z,0,GetCrossTrackError());
-	gsl_vector_set(z,1,myheading);
-	gsl_vector_fprintf(stdout,z,"%f");
+	double heading_error;
+	heading_error = myheading-GetDesiredHeading();
+
+	if(heading_error > 180){heading_error -= 360;}
+	else if(heading_error < -180){heading_error +=360;}
+
+	gsl_vector_set(z,1,heading_error);
+	cout << "Calculated Heading Error: " << heading_error << endl;
 }
 
 double KalmanFilter::GetCrossTrackError(){
 	cout << "Getting Cross Track Error" << endl;
-	double ct_error;
 	double a = GetDistance(myx,myy,x1,y1);
-	cout << a << endl;
+	cout << "A: "<<  a << ",";
 	double b = GetDistance(myx,myy,x2,y2);
-	cout << b << endl;
+	cout << "B: " << b << ",";
 	double c = GetDistance(x1,y1,x2,y2);
-	cout << c << endl;
+	cout << "C: " << c << endl;
 
 	if(a==0 || c==0 ){
 		cout << "Calculated Cross Track Error: 0" << endl;
@@ -311,8 +323,7 @@ double KalmanFilter::GetCrossTrackError(){
 	else{
 		double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
 		double d = a*cos_a;
-		//	cout << d << endl;
-		ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
+		double ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
 		cout << "Calculated Cross Track Error: " << ct_error << endl;
 		return ct_error;
 	}
@@ -321,31 +332,9 @@ double KalmanFilter::GetCrossTrackError(){
 double KalmanFilter::GetDesiredHeading(){
 	double a = x2-x1;
 	double b = y2-y1;
-
-	double desired_heading = atan (a/b) * 180 / PI;
-
-	desired_heading = 90-desired_heading;
-	if(desired_heading>360){
-		desired_heading = desired_heading - 360;
-	}
-	else if(desired_heading<0){
-		desired_heading = desired_heading+360;
-	}
-
+	double desired_heading = 180 + (atan2(a,b) * 180/3.14159265);
 	cout << "Calculated Desired Heading: " << desired_heading << endl;
-	m_Comms.Notify("DESIRED_HEADING",desired_heading);
 	return desired_heading;
-}
-
-void KalmanFilter::PublishStates(){
-	cout << "Publishing states" << endl;
-	string delim = "<|>";
-	stringstream ss;
-	ss << gsl_vector_get(x_hat,0) << delim;
-	ss << gsl_vector_get(x_hat,1) << delim;
-	ss << gsl_vector_get(x_hat,2) << delim;
-	ss << gsl_vector_get(x_hat,3);
-	m_Comms.Notify("MPC_XEST",ss.str());
 }
 
 void KalmanFilter::GetMatrices(string txtfile){
@@ -354,7 +343,6 @@ void KalmanFilter::GetMatrices(string txtfile){
 	A = gsl_matrix_alloc(4,4);
 	B = gsl_matrix_alloc(4,1);
 	B_noise = gsl_matrix_alloc(4,4);
-	B_in = gsl_matrix_alloc(4,4);
 	C = gsl_matrix_alloc(2,4);
 	Q = gsl_matrix_alloc(4,4);
 	R = gsl_matrix_alloc(2,2);
@@ -365,8 +353,6 @@ void KalmanFilter::GetMatrices(string txtfile){
 	cout << "B, ";
 	gsl_matrix_fscanf(f,B_noise);
 	cout << "B_noise, ";
-	gsl_matrix_fscanf(f,B_in);
-	cout << "B_in, ";
 	gsl_matrix_fscanf(f,C);
 	cout << "C, ";
 	gsl_matrix_fscanf(f,Q);
@@ -380,10 +366,8 @@ void KalmanFilter::GetMatrices(string txtfile){
 void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 	string one_point;
 	ifstream waypointsfile(txtfile.c_str(),ifstream::in);
-	int total_points = 0;
 
 	cout<<"Reading Points"<<endl;
-	//time, desired heading,x1,y1,x2,y2
 
 	while(waypointsfile.good()){
 		getline(waypointsfile,one_point);
@@ -395,25 +379,43 @@ void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 			char discard;
 			double param;
 
+			//Syntax: time, desired heading,x1,y1,x2,y2
 			ss.str(one_point);
 			ss >> param; time.push_back(param); ss >> discard;
 			ss >> param; headings.push_back(param); ss >> discard;
 			ss >> param; wpx.push_back(param); ss >> discard;
 			ss >> param; wpy.push_back(param); ss >> discard;
-
-			ss.str("");
-			ss<<"type=gateway,x="<<wpx[total_points]<<
-					",y="<<wpx[total_points]<<",SCALE=4.3,label="<<total_points<<",COLOR=red,width=4.5";
-			m_Comms.Notify("VIEW_MARKER",ss.str());
-
-			total_points++;
 		}
 	}
 
-	cout<<"Read "<<total_points<<" points."<<std::endl;
+	cout<<"Read "<<wpx.size()<<" points."<<endl;
 }
 
 
 double KalmanFilter::GetDistance(double xi1,double yi1,double xi2,double yi2){
 	return sqrt(pow((xi1-xi2),2.0) + pow((yi1-yi2),2.0));
+}
+
+//-----------PUBLISH--------------------
+
+void KalmanFilter::PublishStates(){
+	cout << "Publishing states" << endl;
+	string delim = "<|>";
+	stringstream ss;
+	ss << gsl_vector_get(x_hat,0) << delim;
+	ss << gsl_vector_get(x_hat,1) << delim;
+	ss << gsl_vector_get(x_hat,2) << delim;
+	ss << gsl_vector_get(x_hat,3);
+	m_Comms.Notify("MPC_XEST",ss.str());
+}
+
+void KalmanFilter::PublishSegList(){
+	stringstream ss;
+	ss<<"label,mpc:"<<myx<<","<<myy;
+
+	for ( int i=0;i< wpx.size(); i++ )
+	ss << ":" << wpx[i] << "," << wpy[i];
+
+	ss.flush();
+	m_Comms.Notify("VIEW_SEGLIST",ss.str());
 }
