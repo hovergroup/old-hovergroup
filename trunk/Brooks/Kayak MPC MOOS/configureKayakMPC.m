@@ -32,7 +32,7 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 3;
+dt = 4;
 %dt = 6;
 
 %tracklineType='straight';
