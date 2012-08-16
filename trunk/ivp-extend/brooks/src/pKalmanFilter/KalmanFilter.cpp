@@ -161,7 +161,7 @@ bool KalmanFilter::Iterate()
 			else{
 				cout << "Reached Turn" << endl;
 				double old_heading = GetDesiredHeading();
-				wp_id++;
+				wp_id+=2;
 				wait = time[wp_id] + offset;
 				x1 = x2;
 				y1 = y2;
@@ -401,7 +401,10 @@ void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 			//Syntax: time, desired heading,x1,y1,x2,y2
 			ss.str(one_point);
 			ss >> param; time.push_back(param); ss >> discard;
+			time.push_back(param); //pushing back twice to keep indices consistent
 			ss >> param; headings.push_back(param); ss >> discard;
+			ss >> param; wpx.push_back(param); ss >> discard;
+			ss >> param; wpy.push_back(param); ss >> discard;
 			ss >> param; wpx.push_back(param); ss >> discard;
 			ss >> param; wpy.push_back(param); ss >> discard;
 		}
