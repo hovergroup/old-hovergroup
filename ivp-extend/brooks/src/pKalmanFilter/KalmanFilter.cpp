@@ -151,7 +151,7 @@ bool KalmanFilter::Iterate()
 				m_Comms.Notify("MPC_STOP","GO");
 				begin = false;
 			}
-			else if(wp_id==wpx.size()-1){ //-------------End
+			else if(wp_id==wpx.size()-2){ //-------------End
 				cout << "Ending Mission" << endl;
 				m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true");
 				m_Comms.Notify("DESIRED_THRUST",0);
@@ -227,8 +227,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
 	cout << "Got x_pre: " << endl;
-	gsl_vector_fprintf(stdout,x_pre,"%f");
-	cout << endl;
+	//gsl_vector_fprintf(stdout,x_pre,"%f");
+	//cout << endl;
 
 	//Get P Prediction
 	temp_matrix = gsl_matrix_calloc(4,4);
@@ -284,8 +284,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_set(x_hat,2,x_wrap);}
 
 	cout << "Got X_hat: " << endl;
-	gsl_vector_fprintf(stdout,x_hat,"%f");
-	cout << endl;
+	//gsl_vector_fprintf(stdout,x_hat,"%f");
+	//cout << endl;
 	gsl_vector_free(temp_vector);
 
 	PublishStates();
