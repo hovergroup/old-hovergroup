@@ -351,7 +351,7 @@ double KalmanFilter::GetCrossTrackError(){
 double KalmanFilter::GetDesiredHeading(){
 	double a = x2-x1;
 	double b = y2-y1;
-	double desired_heading = 180 + (atan2(a,b) * 180/3.14159265);
+	double desired_heading = (atan2(a,b) * 180/3.14159265);
 	cout << "Calculated Desired Heading: " << desired_heading << endl;
 	return desired_heading;
 }
