@@ -24,6 +24,16 @@ ProcessConfig = ANTLER
 	Run = iAltimeter	@ NewConsole = false
 }
 
+ProcessConfig = pKalmanFilter
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	Speed = 2		//m/s
+	Thrust = 100		//percent
+	
+}
+
 ProcessConfig = pSearchRelay
 {
 	AppTick = 5
@@ -49,19 +59,22 @@ ProcessConfig = pMOOSBridge
 	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
 
 	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
-	// Destination is shore station	shoreside@YOURIP:9000
-
+	// Destination is shore station	terra@YOURIP:9000
 	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
+//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> terra@192.168.1.100:9000 [NODE_REPORT]
 	SHARE = [VIEW_POLYGON]		-> terra@192.168.1.100:9000 [VIEW_POLYGON]
 	SHARE = [VIEW_POINT]		-> terra@192.168.1.100:9000 [VIEW_POINT]
 	SHARE = [VIEW_SEGLIST]		-> terra@192.168.1.100:9000 [VIEW_SEGLIST]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000	
+
+	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000		
+	SHARE = [MPC_XEST] -> terra@192.168.1.100:9000
+	SHARE = [MPC_STOP] -> terra@192.168.1.100:9000
+	UDPSHARE = [GPS_X] -> terra@192.168.1.100:9200
+	UDPSHARE = [GPS_Y] -> terra@192.168.1.100:9200
+	UDPSHARE = [COMPASS_HEADING_FILTERED] -> terra@192.168.1.100:9200
 	
-	//Search Relay Shares
-	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
-	SHARE = [ACOMMS_TRANSMIT_RATE] -> icarus@192.168.1.102:9002
-	}
+}
 
 ProcessConfig = iAltimeter
 {
@@ -168,7 +181,7 @@ ProcessConfig = pHelmIvP
 	AppTick		= 2
 	CommsTick		= 2
 	VERBOSE		= false
-	Behaviors	= kayak_mei.bhv
+	Behaviors	= kayak_brooks.bhv
 	OK_SKEW		= ANY
 	Domain		= course,0:359:36
 	Domain		= speed,0:2.0:21

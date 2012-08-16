@@ -39,7 +39,7 @@ ProcessConfig = pMOOSBridge
 	AppTick		= 5
 	CommsTick	= 5
 	
-	UDPListen = 9201
+	UDPListen = 9203
 
 	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
 
