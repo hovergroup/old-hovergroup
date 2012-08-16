@@ -11,13 +11,16 @@ added Bin
 
 %}
 
-ifQuiet=0;          % if cvx is run in quiet mode
-
+ifQuiet = 1;          % if cvx is run in quiet mode
+uDelay = 1;
 
 %% PARAMETERS
 
 % System Params
 %n = 3, m=1;
+
+% KASSANDRA OFFSET (no modem, altimeter, 8/16/2012)
+rOff=-7;
 
 %syss='heading';
 n = 4;  % STATES
@@ -32,7 +35,7 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 4;
+dt = 2;
 %dt = 6;
 
 %tracklineType='straight';
@@ -68,7 +71,7 @@ mu=20;              % sparse control weight
 % (T set above)
 
 Qmpc = eye(n);         % state cost
-Qmpc(4,4) = 10;
+%Qmpc(4,4) = 10;
 Rmpc = eye(m);         % control cost
 % maybe scale by P from Ricatti??
 Pmpc = 10*eye(n);     % terminal state cost
@@ -82,9 +85,10 @@ x0c = [0;0;73;-10];
 
 % max/mins (IN PHYSICAL UNITS)
 %xmax= [20 20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
-xmax = [30 30 180 50]'.*ones(n,1);xmin=-xmax;
-umax = 30*ones(m,1); umin = -umax;
-
+xmax = [30 30 180 100]'.*ones(n,1);xmin=-xmax;
+umax = 20*ones(m,1); umin = -umax;
+ umax = umax+rOff;
+ umin = umin + rOff;
 % System params
 % kayak cross-track model
 Krate=1/1.56; % rudder in to heading rate out

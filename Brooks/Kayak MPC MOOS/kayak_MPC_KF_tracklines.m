@@ -38,9 +38,9 @@ configureKayakMPC
 
 %% save filename
 % NOTE - this setup for Tvec = length 1
-saveFilename = sprintf('%s_kayakmpcsim_dt%s_T%d_mu_%s_%s',dateString('DHMS'),...
-    printNumFile(dt,2),T,printNumFile(mu,2),unique);
-
+%saveFilename = sprintf('%s_kayakmpcsim_dt%s_T%d_mu_%s_%s',dateString('DHMS'),...
+%    printNumFile(dt,2),T,printNumFile(mu,2),unique);
+saveFilename = '';
 if(ifSave)
     diary([saveFilename '_log.txt'])
 end
