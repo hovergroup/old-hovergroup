@@ -145,7 +145,7 @@ bool KalmanFilter::Iterate()
 				offset = wait;
 				start_time = MOOSTime();
 
-				gsl_vector_set(x_hat,2,myheading);
+				gsl_vector_set(x_hat,2,(myheading-GetDesiredHeading()));
 
 				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
