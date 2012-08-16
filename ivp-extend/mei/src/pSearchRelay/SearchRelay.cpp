@@ -484,7 +484,8 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	RelayStat my_stat = RelayStat();
 	my_stat.debug_string = "Current";
 	my_stat.point_index = closest_ind;
-	my_stat.stat_mean = mean[closest_ind]; my_stat.stat_std=stdev[closest_ind];
+	my_stat.stat_mean = mean[closest_ind];
+	my_stat.stat_std=stdev[closest_ind];
 	my_stat.gittins_index = indices[closest_ind];
 	my_stat.stat_x = myx;
 	my_stat.stat_y = myy;

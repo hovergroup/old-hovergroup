@@ -160,12 +160,26 @@ bool KalmanFilter::Iterate()
 			}
 			else{
 				cout << "Reached Turn" << endl;
+				double old_heading = GetDesiredHeading();
 				wp_id++;
 				wait = time[wp_id] + offset;
 				x1 = x2;
 				y1 = y2;
 				x2 = wpx[wp_id];
 				y2 = wpy[wp_id];
+
+				//Transform kalman history
+				double heading_offset = GetDesiredHeading() - old_heading;
+				double transform = gsl_vector_get(x_hat,3);
+				double angle = (90-heading_offset) * 3.14159265/180;
+				transform = transform*sin(angle);
+				gsl_vector_set(x_hat,3,transform);
+
+				transform = gsl_vector_get(x_hat,2);
+				transform = transform - heading_offset;
+				if(transform > 180){transform-=360;}
+				else if(transform < -180){transform+=360;}
+				gsl_vector_set(x_hat,2,transform);
 			}
 
 			cout << "Going to: " << x2 << " , " << y2 << endl;
@@ -194,8 +208,6 @@ bool KalmanFilter::OnStartUp()
 }
 
 void KalmanFilter::EstimateStates(){
-	UpdateSensorReadings();
-
 	gsl_vector_memcpy(x_hist,x_hat);
 	gsl_matrix_memcpy(P_hist,P);
 
@@ -215,9 +227,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
 	cout << "Got x_pre: " << endl;
-	//gsl_vector_fprintf(stdout,x_pre,"%f");
-	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,2) << endl;
-	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3) << endl;
+	gsl_vector_fprintf(stdout,x_pre,"%f");
 	cout << endl;
 
 	//Get P Prediction
@@ -258,6 +268,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_permutation_free(p);
 
 	//Get X_hat
+	UpdateSensorReadings();
 	temp_vector = gsl_vector_calloc(2);
 	temp_vector_2 = gsl_vector_calloc(2);
 	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_hist,0.0, temp_vector);
@@ -269,13 +280,11 @@ void KalmanFilter::EstimateStates(){
 	double x_wrap = gsl_vector_get(x_hat,2);
 	if(x_wrap > 180){x_wrap -= 360;
 	gsl_vector_set(x_hat,2,x_wrap);}
-	else if(x_wrap < 180){x_wrap +=360;
+	else if(x_wrap < -180){x_wrap +=360;
 	gsl_vector_set(x_hat,2,x_wrap);}
 
 	cout << "Got X_hat: " << endl;
-	//gsl_vector_fprintf(stdout,x_hat,"%f");
-	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
-	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3) << endl;
+	gsl_vector_fprintf(stdout,x_hat,"%f");
 	cout << endl;
 	gsl_vector_free(temp_vector);
 
@@ -293,6 +302,16 @@ void KalmanFilter::EstimateStates(){
 	cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
+
+	cout << "Kalman Results: " << endl;
+	cout << "Measured Heading Error: " << gsl_vector_get(z,1) << endl;
+	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,2) << endl;
+	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
+
+	cout << "Measured Crosstrack Error: " << gsl_vector_get(z,0) << endl;
+	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3) << endl;
+	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3) << endl;
+	cout << endl;
 }
 
 void KalmanFilter::UpdateSensorReadings(){
@@ -414,7 +433,7 @@ void KalmanFilter::PublishSegList(){
 	ss<<"label,mpc:"<<myx<<","<<myy;
 
 	for ( int i=0;i< wpx.size(); i++ )
-	ss << ":" << wpx[i] << "," << wpy[i];
+		ss << ":" << wpx[i] << "," << wpy[i];
 
 	ss.flush();
 	m_Comms.Notify("VIEW_SEGLIST",ss.str());
