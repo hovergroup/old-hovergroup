@@ -74,6 +74,7 @@ bool KalmanFilter::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		if(key=="COMPASS_HEADING_FILTERED"){
 			myheading = msg.GetDouble();
+			myheading += compass_offset;
 		}
 		else if(key=="GPS_X"){
 			myx = msg.GetDouble();
@@ -101,6 +102,7 @@ bool KalmanFilter::OnConnectToServer()
 
 	m_MissionReader.GetConfigurationParam("Speed",speed);
 	m_MissionReader.GetConfigurationParam("Thrust",thrust);
+	m_MissionReader.GetConfigurationParam("CompassOffset", compass_offset);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
