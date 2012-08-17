@@ -57,7 +57,6 @@ KalmanFilter::~KalmanFilter()
 
 	m_Comms.Notify("DESIRED_THRUST",0);
 	m_Comms.Notify("DESIRED_RUDDER",0);
-	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 
 }
 
@@ -113,7 +112,6 @@ bool KalmanFilter::OnConnectToServer()
 
 	start_time = MOOSTime();
 	timer = MOOSTime();
-	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 
 	return(true);
 }
@@ -159,7 +157,7 @@ bool KalmanFilter::Iterate()
 				start_time = MOOSTime();
 			}
 
-			else if(wp_id==wpx1.size()-1){ //-------------End
+			else if(wp_id==wpx1.size()){ //-------------End
 				cout << "Ending Mission" << endl;
 				m_Comms.Notify("MISSION_MODE", "GOTO");
 				m_Comms.Notify("DESIRED_THRUST",0);
@@ -443,7 +441,7 @@ void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 		}
 	}
 
-	cout<<"Read "<<wpx1.size()<<" start points."<<endl;
+	cout<<"Read "<<wpx1.size()<<" segments"<<endl;
 }
 
 
