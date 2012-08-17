@@ -4,6 +4,16 @@ initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
 
+Behavior = BHV_ConstantHeading
+{
+  name = constant_heading
+  condition = MISSION_MODE = HEADING
+
+  duration = no-time-limit
+  
+  heading = 70
+}
+
 Behavior = BHV_HSLine
 {
   name      = hsline
