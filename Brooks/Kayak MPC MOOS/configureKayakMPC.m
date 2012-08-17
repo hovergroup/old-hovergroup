@@ -8,10 +8,12 @@
 - 8/14 changed system so that + rudder causes + heading (compass bearing),
 added Bin
 - 8/15/2012 - moved major settings here from generateTracklinesMPC
+- 8/17/2012 - added kayak models
+
 
 %}
 
-ifQuiet = 0;          % if cvx is run in quiet mode
+ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 
 %% PARAMETERS
@@ -19,7 +21,9 @@ uDelay = 1;
 % System Params
 %n = 3, m=1;
 % KASSANDRA OFFSET (no modem, altimeter, 8/16/2012)
-rOff=-7;
+%rOff=-7;
+rOff = 3;
+trueNorthAdjustment = -15;
 
 %syss='heading';
 n = 4;  % STATES
@@ -38,7 +42,7 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 2;
+dt = 4;
 %dt = 6;
 
 % for gen matrices for KF @ 2hz
@@ -77,10 +81,13 @@ mu=10;              % sparse control weight
 % (T set above)
 
 Qmpc = eye(n);         % state cost
-%Qmpc(4,4) = 10;
 Rmpc = eye(m);         % control cost
 % maybe scale by P from Ricatti??
 Pmpc = 10*eye(n);     % terminal state cost
+
+% (eventually scale this properly... with Cd)
+Qmpc(4,4) = .005;
+Pmpc(4,4) = .005;
 
 % number of 'continuous-time' samples in one time step
 nc=dt/(1e-1);
@@ -112,19 +119,19 @@ switch kayak
         Krate = 1.37/1.13;
         wn = sqrt(1.13);
         zeta = 0.5/(2*wn);
-        speed = 1.0;
+        speed = 0.8;        
         
     case 'kassandra_modem_30R'
         
         Krate = 1.19/1.13;
         wn = sqrt(1.13);
         zeta = 1.09/(2*wn);
-        speed = 1.0;
+        speed = 0.8;    % with 65% thrust...?
 
 end
 
 %slew rate
-slewRate=(30)*dt; % rad/s
+slewRate=(10)*dt; % rad/s
 
 % constrain perpendicular speed to be fraction of speed*dt
 % (half: max 30 deg heading diff) Taylor 1st order |error|=0.0236

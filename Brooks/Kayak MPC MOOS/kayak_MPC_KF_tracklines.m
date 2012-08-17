@@ -176,7 +176,7 @@ for i = 1:(N)
     % process noise:
     if(simNoise)
         w = sqrt(Qkfd)*randn(n,1);
-        wvec = sqrt(Qkfc)*randn(4,nc)/sqrt(dt/nc);
+        wvec = sqrt(Qkfc)*randn(n,nc)/sqrt(dt/nc);
     else
         w = zeros(n,1);
         wvec = zeros(4,nc);
