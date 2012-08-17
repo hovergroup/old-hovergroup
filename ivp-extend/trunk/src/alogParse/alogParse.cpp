@@ -35,6 +35,7 @@ using namespace std;
 
 vector<string> variables, wilds;
 ofstream output;
+string delimiter = ",";
 
 void printHelp() {
     cout << "Usage: " << endl;
@@ -61,6 +62,8 @@ void printHelp() {
     cout << "  -b,--backsearch  When printing a line, look only backards for  " << endl;
     cout << "                   the latest posting of each variable. (Age will" << endl;
     cout << "                   always be positive).                          " << endl;
+    cout << "  --delimiter=X    Set the delimiter string to X.  Default is ,  " << endl;
+    cout << "                                                                 " << endl;
     cout << "                                                                 " << endl;
     cout << "Further Notes:                                                   " << endl;
     cout << "  (1) The output file will have the same filename as the input,  " << endl;
@@ -78,7 +81,7 @@ bool entry_sort( ALogEntry e1, ALogEntry e2 ) {
 void printHeader() {
 	output << "time";
 	for ( int i=0; i<variables.size(); i++ ) {
-		output << "," << variables[i] << "," << variables[i] << "_age";
+		output << delimiter << variables[i] << delimiter << variables[i] << "_age";
 	}
 	output << endl;
 }
@@ -108,6 +111,8 @@ int main (	int argc, char *argv[] ) {
 			sync_period = atof( readCommandArg(string(sarg)).c_str() );
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
+		} else if ( strContains(sarg, "--delimiter=" ) ) {
+			delimiter = readCommandArg(string(sarg));
 		} else if ( sarg.find("*")!=string::npos ) {
 			wilds.push_back( sarg );
 		} else {
@@ -205,8 +210,8 @@ int main (	int argc, char *argv[] ) {
 			if ( key == sync_variable ) {
 				output << entry.getTimeStamp();
 				for ( int j=0; j<variables.size(); j++ ) {
-					output << "," << current_value[variables[j]];
-					output << "," << entry.getTimeStamp()-current_times[variables[j]];
+					output << delimiter << current_value[variables[j]];
+					output << delimiter << entry.getTimeStamp()-current_times[variables[j]];
 				}
 				output << endl;
 			}
@@ -265,18 +270,18 @@ int main (	int argc, char *argv[] ) {
 		for ( int i=0; i<entries.size(); i++ ) {
 			ALogEntry entry = entries[i];
 			string key = entry.getVarName();
-			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-				current_value[key] = entry.getStringVal();
-				current_times[key] = entry.getTimeStamp();
-			}
 			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
 				last_post_time+=sync_period;
 				output << last_post_time;
 				for ( int j=0; j<variables.size(); j++ ) {
-					output << "," << current_value[variables[j]];
-					output << "," << entry.getTimeStamp()-current_times[variables[j]];
+					output << delimiter << current_value[variables[j]];
+					output << delimiter << last_post_time-current_times[variables[j]];
 				}
 				output << endl;
+			}
+			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+				current_value[key] = entry.getStringVal();
+				current_times[key] = entry.getTimeStamp();
 			}
 		}
 	} else {
@@ -358,11 +363,11 @@ bool PartialEntry::checkComplete() {
 // process a new entry
 void PartialEntry::process( string var, string val, double time ) {
 	// replace our value if this one is closer
-	if ( fabs(time-m_time) < m_times[var] ) {
+	if ( fabs(time-m_time) < fabs(m_times[var]-m_time) ) {
 		m_values[var]=val;
 		m_times[var]=time;
 	}
-	// mark as verrified
+	// mark as verified
 	m_verified[var]=true;
 }
 
@@ -371,8 +376,8 @@ string PartialEntry::serialize() {
 	stringstream ss;
 	ss << m_time;
 	for ( int i=0; i<m_variables.size(); i++ ) {
-		ss << "," << m_values[m_variables[i]];
-		ss << "," << m_time-m_times[m_variables[i]];
+		ss << delimiter << m_values[m_variables[i]];
+		ss << delimiter << m_time-m_times[m_variables[i]];
 	}
 	return ss.str();
 }

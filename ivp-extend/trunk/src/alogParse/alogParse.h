@@ -26,10 +26,10 @@ public:
 	std::string serialize();
 
 private:
-	double m_time;
+	double m_time; // time stamp of the entry
 
-	std::map<std::string,std::string> m_values;
-	std::map<std::string,double> m_times;
+	std::map<std::string,std::string> m_values;	// values of each variable
+	std::map<std::string,double> m_times; // time stamp of each variable
 	std::map<std::string,bool> m_verified;
 	std::vector<std::string> m_variables;
 };
