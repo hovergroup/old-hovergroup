@@ -46,7 +46,7 @@ protected:
 	gsl_matrix *P_pre, *K, *P, *P_hist; 	//computed
 	double u;								//command
 
-	vector<double> wpx,wpy,time,headings;
+	vector<double> wpx1,wpy1,wpx2,wpy2,time,headings;
 	double x1,y1,x2,y2;
 	double speed,thrust;
 	double myx,myy,myheading;
