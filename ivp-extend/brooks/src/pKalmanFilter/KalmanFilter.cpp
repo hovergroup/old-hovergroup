@@ -83,7 +83,7 @@ bool KalmanFilter::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 		else if(key=="DESIRED_RUDDER"){
-			u = msg.GetDouble();
+			u = msg.GetDouble()-rudder_offset;
 		}
 	}
 
@@ -104,6 +104,7 @@ bool KalmanFilter::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Thrust",thrust);
 	m_MissionReader.GetConfigurationParam("CompassOffset", compass_offset);
 	m_MissionReader.GetConfigurationParam("Crosstrack",crosstrack);
+	m_MissionReader.GetConfigurationParam("RudderOffset",rudder_offset);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
