@@ -54,6 +54,11 @@ KalmanFilter::~KalmanFilter()
 	gsl_matrix_free(C);
 	gsl_matrix_free(Q);
 	gsl_matrix_free(R);
+
+	m_Comms.Notify("DESIRED_THRUST",0);
+	m_Comms.Notify("DESIRED_RUDDER",0);
+	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
+
 }
 
 //---------------------------------------------------------
@@ -137,36 +142,37 @@ bool KalmanFilter::Iterate()
 
 				x1 = myx;
 				y1 = myy;
-				x2 = wpx[wp_id];
-				y2 = wpy[wp_id];
+				x2 = wpx1[wp_id];
+				y2 = wpy1[wp_id];
 				PublishSegList();
 
 				wait = GetDistance(x1,y1,x2,y2)/speed;
 				offset = wait;
-				start_time = MOOSTime();
 
 				gsl_vector_set(x_hat,2,(myheading-GetDesiredHeading()));
 
 				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
 				begin = false;
+				start_time = MOOSTime();
 			}
-			else if(wp_id==wpx.size()-2){ //-------------End
+
+			else if(wp_id==wpx1.size()-1){ //-------------End
 				cout << "Ending Mission" << endl;
 				m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true");
 				m_Comms.Notify("DESIRED_THRUST",0);
 				m_Comms.Notify("DESIRED_RUDDER",0);
 				end = true;
 			}
+
 			else{
 				cout << "Reached Turn" << endl;
 				double old_heading = GetDesiredHeading();
-				wp_id+=2;
 				wait = time[wp_id] + offset;
-				x1 = x2;
-				y1 = y2;
-				x2 = wpx[wp_id];
-				y2 = wpy[wp_id];
+				x1 = wpx1[wp_id];
+				y1 = wpy1[wp_id];
+				x2 = wpx2[wp_id];
+				y2 = wpy2[wp_id];
 
 				//Transform kalman history
 				double heading_offset = GetDesiredHeading() - old_heading;
@@ -180,6 +186,9 @@ bool KalmanFilter::Iterate()
 				if(transform > 180){transform-=360;}
 				else if(transform < -180){transform+=360;}
 				gsl_vector_set(x_hat,2,transform);
+
+				//Increment Segment ID
+				wp_id++;
 			}
 
 			cout << "Going to: " << x2 << " , " << y2 << endl;
@@ -215,8 +224,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector *temp_vector, *temp_vector_2;
 
 	// Get X Prediction
-	temp_matrix = gsl_matrix_calloc(4,1);
-	temp_vector = gsl_vector_calloc(4);
+	temp_matrix = gsl_matrix_alloc(4,1);
+	temp_vector = gsl_vector_alloc(4);
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
 	gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_memcpy(temp_matrix,B);
@@ -231,8 +240,8 @@ void KalmanFilter::EstimateStates(){
 	//cout << endl;
 
 	//Get P Prediction
-	temp_matrix = gsl_matrix_calloc(4,4);
-	temp_matrix_2 = gsl_matrix_calloc(4,4);
+	temp_matrix = gsl_matrix_alloc(4,4);
+	temp_matrix_2 = gsl_matrix_alloc(4,4);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_hist,A,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,A,temp_matrix,0.0,P_pre);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,Q,B_noise,0.0,temp_matrix);
@@ -245,9 +254,9 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix_2);
 
 	//Get K
-	temp_matrix = gsl_matrix_calloc(4,2);
-	temp_matrix_2 = gsl_matrix_calloc(2,2);
-	temp_matrix_3 = gsl_matrix_calloc(2,2);
+	temp_matrix = gsl_matrix_alloc(4,2);
+	temp_matrix_2 = gsl_matrix_alloc(2,2);
+	temp_matrix_3 = gsl_matrix_alloc(2,2);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_pre,C,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,C,temp_matrix,0.0,temp_matrix_2);
 	gsl_matrix_add(temp_matrix_2,R);
@@ -269,8 +278,8 @@ void KalmanFilter::EstimateStates(){
 
 	//Get X_hat
 	UpdateSensorReadings();
-	temp_vector = gsl_vector_calloc(2);
-	temp_vector_2 = gsl_vector_calloc(2);
+	temp_vector = gsl_vector_alloc(2);
+	temp_vector_2 = gsl_vector_alloc(2);
 	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_hist,0.0, temp_vector);
 	gsl_vector_memcpy(temp_vector_2,z);
 	gsl_vector_sub(temp_vector_2,temp_vector);
@@ -287,8 +296,7 @@ void KalmanFilter::EstimateStates(){
 	//gsl_vector_fprintf(stdout,x_hat,"%f");
 	//cout << endl;
 	gsl_vector_free(temp_vector);
-
-	PublishStates();
+	gsl_vector_free(temp_vector_2);
 
 	//Get P
 	temp_matrix = gsl_matrix_alloc(4,4);
@@ -302,6 +310,8 @@ void KalmanFilter::EstimateStates(){
 	cout << endl;
 	gsl_matrix_free(temp_matrix);
 	gsl_matrix_free(temp_matrix_2);
+
+	PublishStates();
 
 	cout << "Kalman Results: " << endl;
 	cout << "Measured Heading Error: " << gsl_vector_get(z,1) << endl;
@@ -401,16 +411,15 @@ void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 			//Syntax: time, desired heading,x1,y1,x2,y2
 			ss.str(one_point);
 			ss >> param; time.push_back(param); ss >> discard;
-			time.push_back(param); //pushing back twice to keep indices consistent
 			ss >> param; headings.push_back(param); ss >> discard;
-			ss >> param; wpx.push_back(param); ss >> discard;
-			ss >> param; wpy.push_back(param); ss >> discard;
-			ss >> param; wpx.push_back(param); ss >> discard;
-			ss >> param; wpy.push_back(param); ss >> discard;
+			ss >> param; wpx1.push_back(param); ss >> discard;
+			ss >> param; wpy1.push_back(param); ss >> discard;
+			ss >> param; wpx2.push_back(param); ss >> discard;
+			ss >> param; wpy2.push_back(param); ss >> discard;
 		}
 	}
 
-	cout<<"Read "<<wpx.size()<<" points."<<endl;
+	cout<<"Read "<<wpx1.size()<<" start points."<<endl;
 }
 
 
@@ -435,8 +444,10 @@ void KalmanFilter::PublishSegList(){
 	stringstream ss;
 	ss<<"label,mpc:"<<myx<<","<<myy;
 
-	for ( int i=0;i< wpx.size(); i++ )
-		ss << ":" << wpx[i] << "," << wpy[i];
+	for ( int i=0;i< wpx1.size(); i++ ){
+		ss << ":" << wpx1[i] << "," << wpy1[i];
+		ss << ":" << wpx2[i] << "," << wpy2[i];
+	}
 
 	ss.flush();
 	m_Comms.Notify("VIEW_SEGLIST",ss.str());
