@@ -141,8 +141,6 @@ bool KalmanFilter::Iterate()
 				cout << "Initializing" << endl;
 
 				m_Comms.Notify("DESIRED_THRUST",thrust);
-			//	m_Comms.Notify("DESIRED_RUDDER",0);
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 
 				x1 = myx;
 				y1 = myy;
