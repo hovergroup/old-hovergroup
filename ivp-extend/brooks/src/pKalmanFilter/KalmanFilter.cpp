@@ -287,6 +287,7 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_pre,0.0, temp_vector);
 	gsl_vector_memcpy(temp_vector_2,z);
 	gsl_vector_sub(temp_vector_2,temp_vector);
+	gsl_vector_fprintf(stdout,temp_vector_2,"%f");
 	gsl_blas_dgemv(CblasNoTrans,1.0,K,temp_vector_2,0.0,x_hat);
 	gsl_vector_add(x_hat,x_pre);
 

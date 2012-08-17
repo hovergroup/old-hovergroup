@@ -32,7 +32,8 @@ ProcessConfig = pKalmanFilter
 	Speed = 1		//m/s
 	Thrust = 100		//percent
 	CompassOffset = 15 //degrees
-	
+	RudderOffset = 5
+	Crosstrack = 0.028	
 }
 
 ProcessConfig = pSearchRelay
