@@ -15,7 +15,8 @@ function [uPlan timeMPC] = solveKayakMPC(sys,x,params,uDelay,uPrev,xDes)
 -8/14/2012: added Bin, setpoints...
 -8/15 - removed setPt input (always in), got rid of hard terminal
 constraint option
-- 8/16/2012: changed xmin/xmax to not include X(:,2)-X(:,1)
+- 8/16/2012: changed xmin/xmax to not include X(:,2)-X(:,1) with uDelay
+
 %}
 
 
@@ -60,19 +61,24 @@ end
 
 if(uDelay)
     % delay on U by 1 step...
-
+    
     variables X(n,T+2) U(m,T)
     
     % max is defined in terms of ERROR????
     max((X-xDes)') <= xmax'; max(U') <= umax';
     min((X-xDes)') >= xmin'; min(U') >= umin';
-        
+    
     % first state is the actual state
     X(:,1) == x;
     % cross-track is defined wrt des bearing
     X(:,2) == A*(X(:,1)) + Bin*xDes(:,1) + B*uPrev;
     X(:,3:T+2) == A*(X(:,2:T+1)) + Bin*xDes(:,2:T+1) + B*U(:,1:T);
-   
+    
+    % could add -xDes, but equal to zero
+    % constrain perpendicular speed to be fraction of speed*dt
+    (X(4,3:T+1) - X(4,2:T))*C(4,4) <= speed*dt*angle2speed;
+    (X(4,3:T+1) - X(4,2:T))*C(4,4) >= -speed*dt*angle2speed;
+    
 else
     
     variables X(n,T+1) U(m,T)
@@ -81,12 +87,14 @@ else
     X(:,2:T+1) == A*X(:,1:T)+B*U;
     X(:,1) == x;
     
+    % could add -xDes, but equal to zero
+    % constrain perpendicular speed to be fraction of speed*dt
+    (X(4,2:T+1) - X(4,1:T))*C(4,4) <= speed*dt*angle2speed;
+    (X(4,2:T+1) - X(4,1:T))*C(4,4) >= -speed*dt*angle2speed;
+    
 end
 
-% could add -xDes, but equal to zero
-% constrain perpendicular speed to be fraction of speed*dt
-(X(4,3:T+1) - X(4,2:T))*C(4,4) <= speed*dt*angle2speed;
-(X(4,3:T+1) - X(4,2:T))*C(4,4) >= -speed*dt*angle2speed;
+
 
 % slew rate constraints
 if(T~=1)

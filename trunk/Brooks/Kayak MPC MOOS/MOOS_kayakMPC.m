@@ -8,7 +8,8 @@
 %{
 - 8/14/2012: added set point stuff (cut out heading error wrap for now)
 - 8/14/2012: some minor changes while testing
-
+- 8/17/2012: added increment to N, adjusted xDes increments (still a bit
+off though).  
 
 %}
 clear all
@@ -69,7 +70,7 @@ while((mpc_stop || ~gotStartPos))
             y0 = mail(m).DBL;
             gotY0 = 1;
         elseif(strcmp(key,'COMPASS_HEADING_FILTERED'))
-            h0 = mail(m).DBL;
+            h0 = mail(m).DBL+trueNorthAdjustment;
             gotH0 = 1;
         end
         gotStartPos=min([gotX0,gotY0,gotH0]);
@@ -99,9 +100,10 @@ end
 % start distance for 1st waypoint
 distStart = sqrt((y0-y(1))^2+(x0-x(1))^2);
 leg1Time = distStart/speed;
-leg1Steps = ceil(leg1Time/dt);
-fprintf('\n Leg 1 @ %f bearing, %i steps\n',bearing,leg1Steps)
+leg1Steps = floor(leg1Time/dt);
+fprintf('\n Leg 1 @ %f bearing, %f sec, %i steps\n',bearing,leg1Time,leg1Steps)
 
+N = N+leg1Steps;
 desBearing = [bearing*ones(1,leg1Steps) desBearing];
 
 loopIt=1;
@@ -111,7 +113,7 @@ while(~mpc_stop)
     step = floor(toc(mpcStart)/dt)+1;
     fprintf('Step: %i, loopIt: %i\n\n',step,loopIt)
     
-    if(loopIt>=1)
+    if(loopIt>1)
         % note - xEst is ERRORS
         % cross-track and heading error relative to desBearing(step)
         [eEst mpc_stop] = parseMPC_XEST;
@@ -126,8 +128,11 @@ while(~mpc_stop)
     % compute xDes in MPC coord frame
     % first construct xDes vector in bearing coord frame
     xDes = zeros(n,T+2);
-    if((loopIt+T+1)<N)
-        xDes(3,:) = desBearing(loopIt:(loopIt+T+1));
+    eDes = zeros(n,T+2);
+    if(loopIt==1)
+        xDes(3,:) = desBearing(1:(loopIt+T+1));
+    elseif((loopIt+T+1)<N)
+        xDes(3,:) = desBearing((loopIt-1):(loopIt+T));
     else
         pad = N-loopIt;
         xDes(3,:) = [desBearing(loopIt:loopIt+pad-1) desBearing(N-1)*ones(1,T+2-pad)];
@@ -158,17 +163,16 @@ while(~mpc_stop)
     
     % (encode, quantize plan)
     
-    while(toc(loopStart)<(dt-0.3))
-        pause(0.01)
+    while(toc(loopStart)<(dt-.005))
+        pause(0.005)
     end
     
     % send plan (just control to start)
+    
     send = uPlan(:,1)+rOff;
     
-    send = send/2;
-    
     iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
-    fprintf('Sending rudder = %f \n',send);
+    fprintf('\n\nSending rudder = %f \n\n\n',send);
     
     % string to log
     MPC_STR = 'uPlan';
