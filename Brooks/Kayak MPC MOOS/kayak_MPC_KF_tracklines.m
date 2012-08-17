@@ -26,7 +26,7 @@ clc
 
 % Parameters and configuration for kayak KF/MPC simulation
 plotStep=0;
-simNoise=0;         % process + meas noise in sims (always in KF)
+simNoise=1;         % process + meas noise in sims (always in KF)
 KFdelay=0;          % meas available immediately or with delay
 uDelay=1;
 

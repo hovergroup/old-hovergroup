@@ -11,14 +11,13 @@ added Bin
 
 %}
 
-ifQuiet = 1;          % if cvx is run in quiet mode
+ifQuiet = 0;          % if cvx is run in quiet mode
 uDelay = 1;
 
 %% PARAMETERS
 
 % System Params
 %n = 3, m=1;
-
 % KASSANDRA OFFSET (no modem, altimeter, 8/16/2012)
 rOff=-7;
 
@@ -28,6 +27,10 @@ m = 1;  % CONTROL INPUT
 q = 2;  % MEASUREMENTS
 
 syss='crossTrack';
+%kayak = 'kassandra_modem_smallR';
+kayak = 'kassandra_modem_30R';
+%kayak = 'nostromo_modem';
+
 % Planning horizon (steps)
 T = 10;
 % T = 6;
@@ -37,6 +40,9 @@ T = 10;
 %dt = 1;
 dt = 2;
 %dt = 6;
+
+% for gen matrices for KF @ 2hz
+%dt = 0.5;
 
 %tracklineType='straight';
 tracklineType = 'pavilion_1turn';
@@ -53,7 +59,7 @@ switch tracklineType
         secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
-        ox = 20;oy = -30;
+        ox = 50;oy = -20;
         pavAng = deg2rad(37);
         kinkAng = deg2rad(30);
     case 'hexagon'
@@ -66,7 +72,7 @@ end
 N = ceil(Nsec/dt);  % total sim steps
 
 % MPC params
-mu=20;              % sparse control weight
+mu=10;              % sparse control weight
 %T=ceil(N/2);        % horizon length 
 % (T set above)
 
@@ -85,16 +91,37 @@ x0c = [0;0;73;-10];
 
 % max/mins (IN PHYSICAL UNITS)
 %xmax= [20 20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
-xmax = [30 30 180 100]'.*ones(n,1);xmin=-xmax;
+xmax = [30 30 75 100]'.*ones(n,1);xmin=-xmax;
 umax = 20*ones(m,1); umin = -umax;
- umax = umax+rOff;
- umin = umin + rOff;
+umax = umax + rOff;
+umin = umin + rOff;
+ 
+
 % System params
 % kayak cross-track model
-Krate=1/1.56; % rudder in to heading rate out
-wn=sqrt(1.56);
-zeta=1.01/(2*wn);
-speed=2; % m/s
+switch kayak
+    case 'nostromo_modem'
+        
+        Krate=1/1.56; % rudder in to heading rate out
+        wn=sqrt(1.56);
+        zeta=1.01/(2*wn);
+        speed=2; % m/s
+        
+    case 'kassandra_modem_smallR'
+        
+        Krate = 1.37/1.13;
+        wn = sqrt(1.13);
+        zeta = 0.5/(2*wn);
+        speed = 1.0;
+        
+    case 'kassandra_modem_30R'
+        
+        Krate = 1.19/1.13;
+        wn = sqrt(1.13);
+        zeta = 1.09/(2*wn);
+        speed = 1.0;
+
+end
 
 %slew rate
 slewRate=(30)*dt; % rad/s
@@ -110,8 +137,8 @@ Bnoise=eye(n);  % process noise input gain
 % simple cross-track only: 
 %Qcross=1e-2;    % continuous time PSD
 %Qheading=1e-2;
-Qcross = 1;
-Qheading = 1;
+Qcross = 5;
+Qheading = 5;
 
 Qkfc=[0 0 0 0;0 0 0 0;0 0 Qheading 0;0 0 0 Qcross];
 Qkfd = Qkfc/dt;
@@ -121,8 +148,8 @@ Qkfd = Qkfc/dt;
 % RCompass=3;       % compass std dev.
 % RGPS=5;           % GPS std dev.   
 % measurement noise:
-RCompass=1;       % compass std dev.
-RGPS=1;           % GPS std dev.   
+RCompass=.5;       % compass std dev.
+RGPS=3;           % GPS std dev.   
 
 Rkf=[RCompass 0;0 RGPS];
 
