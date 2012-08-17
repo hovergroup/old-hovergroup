@@ -29,7 +29,7 @@ ProcessConfig = pKalmanFilter
 	AppTick = 5
 	CommsTick = 5
 	
-	Speed = 2		//m/s
+	Speed = 1		//m/s
 	Thrust = 100		//percent
 	
 }
