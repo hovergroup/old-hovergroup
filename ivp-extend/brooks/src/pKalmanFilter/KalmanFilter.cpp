@@ -319,11 +319,11 @@ void KalmanFilter::EstimateStates(){
 	PublishStates();
 
 	cout << "Kalman Results: " << endl;
-	cout << "Measured Heading Error: " << gsl_vector_get(z,1) << endl;
+	cout << "Measured Heading Error: " << gsl_vector_get(z,0) << endl;
 	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,2) << endl;
 	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
 
-	cout << "Measured Crosstrack Error: " << gsl_vector_get(z,0) << endl;
+	cout << "Measured Crosstrack Error: " << gsl_vector_get(z,1) << endl;
 	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3)*crosstrack << endl;
 	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3)*crosstrack << endl;
 	cout << endl;
