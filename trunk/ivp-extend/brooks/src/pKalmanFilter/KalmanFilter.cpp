@@ -161,7 +161,7 @@ bool KalmanFilter::Iterate()
 
 			else if(wp_id==wpx1.size()-1){ //-------------End
 				cout << "Ending Mission" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true");
+				m_Comms.Notify("MISSION_MODE", "GOTO");
 				m_Comms.Notify("DESIRED_THRUST",0);
 				m_Comms.Notify("DESIRED_RUDDER",0);
 				end = true;
