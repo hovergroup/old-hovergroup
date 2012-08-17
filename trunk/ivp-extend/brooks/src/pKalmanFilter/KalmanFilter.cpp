@@ -369,7 +369,7 @@ double KalmanFilter::GetCrossTrackError(){
 double KalmanFilter::GetHeading(double x1h, double y1h, double x2h, double y2h){
 	double a = x2h-x1h;
 	double b = y2h-y1h;
-	double desired_heading = (atan2(a,b) * 180/3.14159265);
+	double desired_heading = (atan2(b,a) * 180/3.14159265);
 	desired_heading = 90 - desired_heading;
 	if(desired_heading<0){desired_heading+=360;}
 	else if(desired_heading>360){desired_heading-=360;}
@@ -379,7 +379,7 @@ double KalmanFilter::GetHeading(double x1h, double y1h, double x2h, double y2h){
 double KalmanFilter::GetDesiredHeading(){
 	double a = x2-x1;
 	double b = y2-y1;
-	double desired_heading = (atan2(a,b) * 180/3.14159265);
+	double desired_heading = (atan2(b,a) * 180/3.14159265);
 
 	desired_heading = 90 - desired_heading;
 	if(desired_heading<0){desired_heading+=360;}
