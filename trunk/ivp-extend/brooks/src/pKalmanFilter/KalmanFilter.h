@@ -49,7 +49,7 @@ protected:
 
 	vector<double> wpx1,wpy1,wpx2,wpy2,time,headings;
 	double x1,y1,x2,y2;
-	double speed,thrust,compass_offset;
+	double speed,thrust,compass_offset,rudder_offset;
 	double myx,myy,myheading;
 	double start_time,wp_id, wait, offset, crosstrack;
 	double timer;
