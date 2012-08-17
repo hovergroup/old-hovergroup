@@ -51,7 +51,7 @@ protected:
 	double x1,y1,x2,y2;
 	double speed,thrust,compass_offset;
 	double myx,myy,myheading;
-	double start_time,wp_id, wait, offset;
+	double start_time,wp_id, wait, offset, crosstrack;
 	double timer;
 	bool begin,end;
 };

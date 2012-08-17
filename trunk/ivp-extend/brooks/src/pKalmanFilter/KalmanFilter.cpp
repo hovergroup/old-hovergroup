@@ -103,6 +103,7 @@ bool KalmanFilter::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Speed",speed);
 	m_MissionReader.GetConfigurationParam("Thrust",thrust);
 	m_MissionReader.GetConfigurationParam("CompassOffset", compass_offset);
+	m_MissionReader.GetConfigurationParam("Crosstrack",crosstrack);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
@@ -229,7 +230,7 @@ void KalmanFilter::EstimateStates(){
 	temp_matrix = gsl_matrix_alloc(4,1);
 	temp_vector = gsl_vector_alloc(4);
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
-	gsl_vector_fprintf(stdout,x_pre,"%f");
+	//gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_memcpy(temp_matrix,B);
 	gsl_matrix_scale(temp_matrix, u);
 	gsl_matrix_get_col(temp_vector,temp_matrix,0);
@@ -321,8 +322,8 @@ void KalmanFilter::EstimateStates(){
 	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
 
 	cout << "Measured Crosstrack Error: " << gsl_vector_get(z,0) << endl;
-	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3) << endl;
-	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3) << endl;
+	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3)*crosstrack << endl;
+	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3)*crosstrack << endl;
 	cout << endl;
 }
 
