@@ -59,6 +59,7 @@ while((~gotState))
                 
                 MPC_STOP=str{i};
                 if(strcmp(MPC_STOP,'STOP'))
+                    disp('Received MPC STOP')
                     break;
                 end
         end

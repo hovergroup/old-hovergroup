@@ -75,7 +75,7 @@ while((mpc_stop || ~gotStartPos))
         gotStartPos=min([gotX0,gotY0,gotH0]);
         if(gotStartPos);fprintf('Got Start Position');end
     end
-    pause(1)
+    pause(0.5)
 end
 
 
@@ -111,7 +111,7 @@ while(~mpc_stop)
     step = floor(toc(mpcStart)/dt)+1;
     fprintf('Step: %i, loopIt: %i\n\n',step,loopIt)
     
-    if(loopIt>1)
+    if(loopIt>=1)
         % note - xEst is ERRORS
         % cross-track and heading error relative to desBearing(step)
         [eEst mpc_stop] = parseMPC_XEST;
