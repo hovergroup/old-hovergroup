@@ -151,7 +151,7 @@ bool KalmanFilter::Iterate()
 				wait = GetDistance(x1,y1,x2,y2)/speed;
 				offset = wait;
 
-				gsl_vector_set(x_hat,2,(GetDesiredHeading()-myheading));
+				gsl_vector_set(x_hat,2,(myheading-GetDesiredHeading()));
 
 				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
@@ -331,7 +331,7 @@ void KalmanFilter::UpdateSensorReadings(){
 	gsl_vector_set(z,0,GetCrossTrackError());
 	double heading_error;
 	cout << "Heard Compass: " << myheading << endl;
-	heading_error = GetDesiredHeading()-myheading;
+	heading_error = myheading-GetDesiredHeading();
 
 	if(heading_error > 180){heading_error -= 360;}
 	else if(heading_error < -180){heading_error +=360;}
