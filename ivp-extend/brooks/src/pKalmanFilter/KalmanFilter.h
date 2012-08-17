@@ -36,6 +36,7 @@ public:
 	void UpdateSensorReadings();
 
 	double GetDesiredHeading();
+	double GetHeading(double,double,double,double);
 	double GetCrossTrackError();
 	double GetDistance(double,double,double,double);
 

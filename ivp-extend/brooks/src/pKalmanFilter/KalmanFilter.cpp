@@ -356,15 +356,35 @@ double KalmanFilter::GetCrossTrackError(){
 		double cos_a = (pow(a,2.0) + pow(c,2.0) - pow(b,2.0))/(2*a*c);
 		double d = a*cos_a;
 		double ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
+
+		if(GetDesiredHeading() < GetHeading(x1,y1,myx,myy)){
+			ct_error = -ct_error;
+		}
+
 		cout << "Calculated Cross Track Error: " << ct_error << endl;
 		return ct_error;
 	}
+}
+
+double KalmanFilter::GetHeading(double x1h, double y1h, double x2h, double y2h){
+	double a = x2h-x1h;
+	double b = y2h-y1h;
+	double desired_heading = (atan2(a,b) * 180/3.14159265);
+	desired_heading = 90 - desired_heading;
+	if(desired_heading<0){desired_heading+=360;}
+	else if(desired_heading>360){desired_heading-=360;}
+	return desired_heading;
 }
 
 double KalmanFilter::GetDesiredHeading(){
 	double a = x2-x1;
 	double b = y2-y1;
 	double desired_heading = (atan2(a,b) * 180/3.14159265);
+
+	desired_heading = 90 - desired_heading;
+	if(desired_heading<0){desired_heading+=360;}
+	else if(desired_heading>360){desired_heading-=360;}
+
 	cout << "Calculated Desired Heading: " << desired_heading << endl;
 	return desired_heading;
 }
