@@ -12,6 +12,7 @@ Behavior = BHV_ConstantHeading
   duration = no-time-limit
   
   heading = 70
+  speed = 2.0
 }
 
 Behavior = BHV_HSLine
