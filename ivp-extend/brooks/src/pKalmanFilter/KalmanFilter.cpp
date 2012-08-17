@@ -331,7 +331,7 @@ void KalmanFilter::EstimateStates(){
 
 void KalmanFilter::UpdateSensorReadings(){
 	cout << "Updating Sensor Readings: " << endl;
-	gsl_vector_set(z,0,GetCrossTrackError());
+	gsl_vector_set(z,1,GetCrossTrackError());
 	double heading_error;
 	cout << "Heard Compass: " << myheading << endl;
 	heading_error = myheading-GetDesiredHeading();
@@ -339,7 +339,7 @@ void KalmanFilter::UpdateSensorReadings(){
 	if(heading_error > 180){heading_error -= 360;}
 	else if(heading_error < -180){heading_error +=360;}
 
-	gsl_vector_set(z,1,heading_error);
+	gsl_vector_set(z,0,heading_error);
 	cout << "Calculated Heading Error: " << heading_error << endl;
 }
 
