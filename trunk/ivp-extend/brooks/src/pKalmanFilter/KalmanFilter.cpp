@@ -330,6 +330,7 @@ void KalmanFilter::UpdateSensorReadings(){
 	cout << "Updating Sensor Readings: " << endl;
 	gsl_vector_set(z,0,GetCrossTrackError());
 	double heading_error;
+	cout << "Heard Compass: " << myheading << endl;
 	heading_error = GetDesiredHeading()-myheading;
 
 	if(heading_error > 180){heading_error -= 360;}
