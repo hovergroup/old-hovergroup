@@ -15,7 +15,7 @@
 % list of waypoints to hit:
 % time, desired heading, x1, y1, x2, y2
 
-ifPlot=1;
+ifPlot=0;
 tvec = linspace(dt,Nsec,(Nsec)/dt);
 
 %tracklineType = 'straight';
