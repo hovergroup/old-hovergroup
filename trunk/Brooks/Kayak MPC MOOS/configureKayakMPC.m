@@ -76,7 +76,7 @@ end
 N = ceil(Nsec/dt);  % total sim steps
 
 % MPC params
-mu=10;              % sparse control weight
+mu=100;              % sparse control weight
 %T=ceil(N/2);        % horizon length 
 % (T set above)
 
@@ -86,8 +86,15 @@ Rmpc = eye(m);         % control cost
 Pmpc = 10*eye(n);     % terminal state cost
 
 % (eventually scale this properly... with Cd)
-Qmpc(4,4) = .005;
-Pmpc(4,4) = .005;
+% Qmpc(4,4) = .005;
+% Pmpc(4,4) = .005;
+
+Qmpc(4,4) = .05;
+Pmpc(4,4) = .05;
+
+
+
+
 
 % number of 'continuous-time' samples in one time step
 nc=dt/(1e-1);
