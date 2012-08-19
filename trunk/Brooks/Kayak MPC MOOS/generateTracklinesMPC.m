@@ -2,6 +2,7 @@
 % for use with configureKayakMPC
 % make some waypoints, compute desired heading (compass bearing), and print
 % output to a txt file (for read-in on MOOS side)
+% also outputs desBearing - timestep-indexed vector of des Bearing in deg.
 
 % BR, 8/13/2012
 
@@ -15,12 +16,10 @@
 % list of waypoints to hit:
 % time, desired heading, x1, y1, x2, y2
 
+% pavilion dock angle rel. to horizontal (in True N frame):
+pavAng = deg2rad(37);
 ifPlot=0;
 tvec = linspace(dt,Nsec,(Nsec)/dt);
-
-%tracklineType = 'straight';
-%tracklineType = 'hexagon';
-%tracklineType = 'pavilion_1turn';
 
 switch tracklineType
     
@@ -28,11 +27,6 @@ switch tracklineType
         
         % straight line:
         % (doesn't use numLegs - just Nsec)
-        
-%         ox = 20;
-%         oy = -30;
-%         % bearing of straight line:
-%         desB = deg2rad(80);
 
         x = speed*dt*(1:length(tvec));
         y = zeros(size(tvec));
@@ -66,33 +60,19 @@ switch tracklineType
         end
         fclose(fid);
         
-
     case 'pavilion_1turn'
         
-        %numLegs = 2;
-        %secPerLeg = 60
         len = speed*secPerLeg;
-%         ox = 0;
-%         oy = -30;
-%         pavAng = deg2rad(37);
-%         
-%         kinkAng = deg2rad(20);
         x = [0 len len+len*cos(kinkAng)];
         y = [0 0 -len*sin(kinkAng)];
-        
-        %x = [0 len*cos(pavAng) len*cos(pavAng)+len];
-        %y = [0 len*sin(pavAng) len*sin(pavAng)];
         
         if(ifPlot)
             plot(x,y)
             axis equal
         end
         
-        %rotate: (already done here...)
-        %ang=pavAng; %rad
-        % ang = 0; 
-        % slight offset:
-        ang = pavAng + deg2rad(-20);
+        %rotate: 
+        ang = pavAng + deg2rad(pavAngOffset);
         r = [cos(ang),-sin(ang);sin(ang),cos(ang)];
         
         pts = r*[x;y];
@@ -109,9 +89,9 @@ switch tracklineType
         
         desBearing = zeros(1,length(tvec));
         for i = 1:(length(tvec)-1)
-            step = ceil((i)/(secPerLeg/dt));
+            leg = ceil((i)/(secPerLeg/dt));
 
-            hDes = atan2((y(step+1)-y(step)),(x(step+1)-x(step)));
+            hDes = atan2((y(leg+1)-y(leg)),(x(leg+1)-x(leg)));
             hDes = rad2deg(hDes);
             bearing = 90 - hDes;
             if(bearing<0)
