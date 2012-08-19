@@ -36,7 +36,7 @@ ifQuiet=params.ifQuiet;
 T=params.T;
 mu=params.mu;
 Qhalf=params.Qhalf;
-Rhalf=params.Rhalf;
+%Rhalf=params.Rhalf;
 P=params.Pmpc;
 angle2speed=params.angle2speed;
 slewRate=params.slewRate;
@@ -64,13 +64,15 @@ if(uDelay)
     
     variables X(n,T+2) U(m,T)
     
-    % max is defined in terms of ERROR????
+    % max is defined in terms of ERROR
     max((X-xDes)') <= xmax'; max(U') <= umax';
     min((X-xDes)') >= xmin'; min(U') >= umin';
     
+    % **cross-track is defined wrt des bearing - Bin
+    
     % first state is the actual state
     X(:,1) == x;
-    % cross-track is defined wrt des bearing
+    % propagate using previous control to get X(t=2)
     X(:,2) == A*(X(:,1)) + Bin*xDes(:,1) + B*uPrev;
     X(:,3:T+2) == A*(X(:,2:T+1)) + Bin*xDes(:,2:T+1) + B*U(:,1:T);
     

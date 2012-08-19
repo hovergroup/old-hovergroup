@@ -47,63 +47,37 @@ end
 
 %% PLOT STEP RESPONSES
 if(plotStep)
-    
-    nS=3;
-    tmax=15;
-    stepIn=15;  % deg, input
-    
-    [y t1] = step(headingRate,tmax);
-    [y,t2]=step(heading,max(t1));
-    [y,Tc]= step(crossTrack,max(t1));
-    [y_d,Td] = step(sysd,max(Tc));
-    
-    % 4 states on 1 plot
+    tmax=15;stepIn=15;  % deg, input
+    [y t1] = step(headingRate,tmax);[y,t2] =step(heading,max(t1));
+    [y,Tc]= step(crossTrack,max(t1));[y_d,Td] = step(sysd,max(Tc));
     figure
     colorvec={'g--.','b--.','r--.','k--.'};
     for i = 1:4
         stairs(Td,stepIn*y_d(:,i),colorvec{i})
-        xlabel('sec')
-        hold on
+        xlabel('sec');hold on
     end
     legend('heading accel','heading rate','heading','cross-track')
-    
-    figure
-    subplot(1,2,1)
+    figure;subplot(1,2,1)
     step(sysCss*15,dt*2)
-    hold on
-    step(sysd,dt*2)
-    subplot(1,2,2)
-    step(sysd,dt*2)
-    
+    hold on;step(sysd,dt*2);subplot(1,2,2);step(sysd,dt*2)
 end
 
 %% Run simulation
 
 % preallocate
-XallTrueD = zeros(n,N);
-XallTrueC = zeros(n,N*nc);
-TallTrueC = zeros(1,N*nc);
-XallEst = zeros(n,N+1);
-PKFAll = zeros(n,n,N+1);
-Uallmpc = zeros(m,N+1);
-uSave = cell(N+1,1);
+XallTrueD = zeros(n,N);XallTrueC = zeros(n,N*nc);TallTrueC = zeros(1,N*nc);
+XallEst = zeros(n,N+1);PKFAll = zeros(n,n,N+1);
+Uallmpc = zeros(m,N+1);uSave = cell(N+1,1);
 timeMPCAll = zeros(N,1);
-vAll = zeros(q,N);
-zAll = zeros(q,N);
-wAll = zeros(n,N);
+vAll = zeros(q,N);zAll = zeros(q,N);wAll = zeros(n,N);
 
 % intialize
 simStart=tic;
-x = x0;
-xd = x0;
-xcsim = repmat(Cc\x0c,1,nc);
-xHat = x0;
+x = x0;xd = x0;xcsim = repmat(Cc\x0c,1,nc);xHat = x0;
 u = zeros(m,1);
 PKF = eye(n);
 xDes = zeros(n,T+2);xDes(3,:)=desBearing(1:T+2);
-eDes = zeros(n,T+2);
-eHat = x0 - xDes(:,1);
-dDesHeading = 0;
+eDes = zeros(n,T+2);eHat = x0 - xDes(:,1);dDesHeading = 0;
 
 if(uDelay)
     uPlan=zeros(m,T);
@@ -125,11 +99,9 @@ if(KFdelay)
 end
 
 % save full vectors 
-XallEst(:,1) = xHat;
-PKFAll(:,:,1) = PKF;
-Uallmpc(:,1)=[u];
-uSave{1}=uPlan;
-timeMPCAll(1) = [0];
+XallEst(:,1) = xHat;PKFAll(:,:,1) = PKF;
+Uallmpc(:,1)=u;uSave{1}=uPlan;
+timeMPCAll(1) = 0;
 
 simStart=tic;
 for i = 1:(N)
