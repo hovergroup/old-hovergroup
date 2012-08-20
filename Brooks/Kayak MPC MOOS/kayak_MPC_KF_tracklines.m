@@ -33,7 +33,6 @@ clc
 format compact
 
 % parameters and configuration for kayak kf/mpc simulation
-plotStep=0;
 simNoise=0;         % process + meas noise in sims (always in kf)
 KFdelay=0;          % meas available immediately or with delay
 
@@ -50,23 +49,6 @@ configureKayakMPC
 saveFilename = '';
 if(ifSave)
     diary([saveFilename '_log.txt'])
-end
-
-%% plot step responses
-if(plotStep)
-    tmax=15;stepin=15;  % deg, input
-    [y t1] = step(headingRate,tmax);[y,t2] =step(heading,max(t1));
-    [y,tc]= step(crossTrack,max(t1));[y_d,td] = step(sysd,max(tc));
-    figure
-    colorvec={'g--.','b--.','r--.','k--.'};
-    for i = 1:4
-        stairs(td,stepin*y_d(:,i),colorvec{i})
-        xlabel('sec');hold on
-    end
-    legend('heading accel','heading rate','heading','cross-track')
-    figure;subplot(1,2,1)
-    step(syscss*15,dt*2)
-    hold on;step(sysd,dt*2);subplot(1,2,2);step(sysd,dt*2)
 end
 
 %% run simulation

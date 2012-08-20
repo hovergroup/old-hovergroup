@@ -15,7 +15,7 @@ added Bin
 
 ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
-
+plotStep = 0;
 % packet loss probability:
 probPLoss = .02;
 loss2MPC = 1;
@@ -289,3 +289,20 @@ MPCparams=struct('Qhalf',Qhalf,'Pmpc',Pmpc,'mu',mu,'T',T,...
     'speed',speed,'angle2speed',angle2speed,'slewRate',slewRate,...
     'xmax',xmax,'xmin',xmin,'umax',umax,'umin',umin,'CdAll',CdAll);
 KFparams=struct('Rkf',Rkf,'Qkfd',Qkfd);
+
+%% plot step responses
+if(plotStep)
+    tmax=dt*5;stepin=15;  % deg, input
+    [y t1] = step(headingRate,tmax);[y,t2] =step(heading,max(t1));
+    [y,tc]= step(crossTrack,max(t1));[y_d,td] = step(sysd,max(tc));
+    figure
+    colorvec={'g--.','b--.','r--.','k--.'};
+    for i = 1:n
+        stairs(td,stepin*y_d(:,i),colorvec{i})
+        xlabel('sec');hold on
+    end
+    legend('heading accel','heading rate','heading','cross-track')
+    figure;subplot(1,2,1)
+    step(sysCss*15,tmax)
+    hold on;step(sysd*15,tmax);subplot(1,2,2);step(sysd*15,tmax)
+end
