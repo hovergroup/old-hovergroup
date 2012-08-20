@@ -15,7 +15,7 @@ if(rand>probPLoss)
 else
     
     % packet is lost
-    disp('PACKET LOST')
+    fprintf('\n\nPACKET LOST\n\n')
     
     if(kPlan>T)
         disp('WARNING: PACKET NOT RECEIVED FOR T STEPS')

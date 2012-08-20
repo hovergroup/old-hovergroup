@@ -6,8 +6,8 @@
 %% print some parameters and results
 fprintf('qmpc: \n')
 disp(Qmpc)
-fprintf('rmpc: \n')
-disp(Rmpc)
+%fprintf('rmpc: \n')
+%disp(Rmpc)
 fprintf('pmpc: \n')
 disp(Pmpc)
 fprintf('slew rate constrained to: %0.1f deg/s\n',slewRate)
@@ -35,7 +35,7 @@ packetLossInds = find(ifPLossAll);
 figure;
 % plot lower states, and saturations
 %plotstates=1:n;
-plotstates=[1 2 3];
+plotstates=1:(n-1);
 for ii = plotstates;
     subplot(length(plotstates)+2,1,ii-min(plotstates)+1);
     set(gca,'fontsize',16);
@@ -52,7 +52,7 @@ end
 
 %perp. speed (added constraint)
 subplot(length(plotstates)+2,1,length(plotstates)+1)
-stairs(tvec(2:(end-2)),(xAllTrueD(4,2:(N-1))-xAllTrueD(4,1:(N-2))).*CdAll(4,4)./dt,'k')
+stairs(tvec(2:(end-2)),(xAllTrueD(n,2:(N-1))-xAllTrueD(n,1:(N-2))).*CdAll(n,n)./dt,'k')
 title('speed perpendicular to trackline')
 %xlabel('t [sec]')
 ylabel('speed [m/s]')
@@ -66,11 +66,11 @@ ylabel('udot [deg/s]')
 figure
 % plot cross track error and control
 subplot(2,1,1)
-stairs(tvec(1:end-1),CdAll(4,:)*[xAllTrueD],'k')
+stairs(tvec(1:end-1),CdAll(n,:)*[xAllTrueD],'k')
 hold on
 %stairs(tvec,cdall(4,:)*[xallest(:,:,1) [0 0 0 0]'],'b')
-plot(tvec,CdAll(4,:)*[xAllEst],'rx')
-plot(tvecc(1:end-1),Cc(4,:)*[xAllTrueC],'b')
+plot(tvec,CdAll(n,:)*[xAllEst],'rx')
+plot(tvecc(1:end-1),Cc(n,:)*[xAllTrueC],'b')
 
 set(gca,'fontsize',16);
 title({'cross track error',...
@@ -81,7 +81,12 @@ subplot(2,1,2);
 set(gca,'fontsize',16);
 
 stairs(tvec,[uAllMPC(1,1:(end))],'k');
-title('rudder angle')
+switch syss
+    case 'crossTrack'
+        title('rudder angle')
+    case 'crossTrack_CLheading'
+        title('desired heading')
+end
 xlabel('t [sec]');
 ylabel('u1 [deg]');
 hold on

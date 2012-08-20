@@ -15,7 +15,8 @@ function [uPlan timeMPC] = solveKayakMPC(sys,x,params,uDelay,uPrev,xDes)
 -8/14/2012: added Bin, setpoints...
 -8/15 - removed setPt input (always in), got rid of hard terminal
 constraint option
-- 8/16/2012: changed xmin/xmax to not include X(:,2)-X(:,1) with uDelay
+- 8/16/2012: changed delta xmin/xmax to not include X(:,2)-X(:,1) with uDelay
+- 8/19/2012: changed xmin/xmax to not include X(:,1:2), also objective
 
 %}
 
@@ -62,8 +63,8 @@ if(uDelay)
     variables X(n,T+2) U(m,T)
     
     % max is defined in terms of ERROR
-    max((X-xDes)') <= xmax'; max(U') <= umax';
-    min((X-xDes)') >= xmin'; min(U') >= umin';
+    max((X(:,3:T+2)-xDes(:,3:T+2))') <= xmax'; max(U') <= umax';
+    min((X(:,3:T+2)-xDes(:,3:T+2))') >= xmin'; min(U') >= umin';
     
     % **cross-track is defined wrt des bearing - Bin
     
@@ -75,21 +76,22 @@ if(uDelay)
     
     % could add -xDes, but equal to zero
     % constrain perpendicular speed to be fraction of speed*dt
-    (X(4,3:T+1) - X(4,2:T))*C(4,4) <= speed*dt*angle2speed;
-    (X(4,3:T+1) - X(4,2:T))*C(4,4) >= -speed*dt*angle2speed;
+    (X(n,3:T+1) - X(n,2:T))*C(n,n) <= speed*dt*angle2speed;
+    (X(n,3:T+1) - X(n,2:T))*C(n,n) >= -speed*dt*angle2speed;
     
 else
     
     variables X(n,T+1) U(m,T)
-    max(X') <= xmax'; max(U') <= umax';
-    min(X') >= xmin'; min(U') >= umin';
+    max((X(:,2:T+1)-xDes(:,2:T+1))') <= xmax'; max(U') <= umax';
+    min((X(:,2:T+1)-xDes(:,2:T+1))') >= xmin'; min(U') >= umin';
+    
     X(:,2:T+1) == A*X(:,1:T)+B*U;
     X(:,1) == x;
     
     % could add -xDes, but equal to zero
     % constrain perpendicular speed to be fraction of speed*dt
-    (X(4,2:T+1) - X(4,1:T))*C(4,4) <= speed*dt*angle2speed;
-    (X(4,2:T+1) - X(4,1:T))*C(4,4) >= -speed*dt*angle2speed;
+    (X(n,2:T+1) - X(n,1:T))*C(n,n) <= speed*dt*angle2speed;
+    (X(n,2:T+1) - X(n,1:T))*C(n,n) >= -speed*dt*angle2speed;
     
 end
 
@@ -103,10 +105,10 @@ end
 
 % cost fcn defined wrt to desired bearing
 if(uDelay)
-    minimize (norm([Qhalf*(X(:,1:T+1)-xDes(:,1:T+1))],'fro')...
+    minimize (norm([Qhalf*(X(:,3:T+1)-xDes(:,3:T+1))],'fro')...
         + (X(:,T+2)-xDes(:,T+2))'*P*(X(:,T+2)-xDes(:,T+2)) + mu*norm(U,1))
 else
-    minimize (norm([Qhalf*(X(:,1:T)-xDes(:,1:T))],'fro')...
+    minimize (norm([Qhalf*(X(:,2:T)-xDes(:,2:T))],'fro')...
         + (X(:,T+1)-xDes(:,T+1))'*P*(X(:,T+1)-xDes(:,T+1)) + mu*norm(U,1))
 end
 
