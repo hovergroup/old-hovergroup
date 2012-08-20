@@ -43,7 +43,7 @@ for j = 1:(T+2)
     if(eDes(n-1,j) > 180)
         eDes(n-1,j) = eDes(n-1,j) - 360;
     end
-    if(xDes(n-1,j) < (-180))
+    if(eDes(n-1,j) < (-180))
         eDes(n-1,j) = eDes(n-1,j) + 360;
     end
 end

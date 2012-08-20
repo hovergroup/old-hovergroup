@@ -17,7 +17,7 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 plotStep = 0;
 % packet loss probability:
-probPLoss = .02;
+probPLoss = .4;
 loss2MPC = 1;
 
 %% PARAMETERS
@@ -34,8 +34,8 @@ trueNorthAdjustment = -15;
 syss = 'crossTrack_CLheading';
 
 %kayak = 'kassandra_modem_smallR';
-kayak = 'kassandra_modem_30R';
-%kayak = 'nostromo_modem';
+%kayak = 'kassandra_modem_30R';
+kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
 T = 10;
@@ -51,8 +51,8 @@ dt = 4;
 %dt = 0.5;
 
 %tracklineType='straight';
-tracklineType = 'pavilion_1turn';
-%tracklineType = 'hexagon';
+%tracklineType = 'pavilion_1turn';
+tracklineType = 'hexagon';
 
 switch tracklineType
     case 'straight'
@@ -62,7 +62,7 @@ switch tracklineType
         % bearing of straight line:
         desB = deg2rad(80);
     case 'pavilion_1turn'
-        secPerLeg = ceil(120/dt)*dt;
+        secPerLeg = ceil(90/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
@@ -70,7 +70,7 @@ switch tracklineType
         pavAngOffset = -20;
         kinkAng = deg2rad(30);
     case 'hexagon'
-        numLegs = 6;
+        numLegs = 5;
         secPerLeg = 50;
         Nsec = secPerLeg*numLegs;
         ox = 20;
@@ -105,7 +105,7 @@ switch syss
         %xmax= [20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
         xmax = [30 90 100]'.*ones(n,1);xmin=-xmax;
         % u is setpt for desired heading error
-        umax = 30*ones(m,1); umin = -umax;
+        umax = 20*ones(m,1); umin = -umax;
         
 end
 
@@ -255,7 +255,8 @@ switch syss
         % Bc is input matrix for PSI (setpt for CL heading)
         % Bin is input matrix for desired bearing of trackline
         Ac(3,2) = -1;
-        Bin = [0 0 0;0 0 0;0 1 0];
+        Bin = -Ac;
+        Bin(3,:) = [0 1 0];
         
         sysCss=ss(Ac,Bc,Cc,Dc);
         sysd = c2d(sysCss,dt);

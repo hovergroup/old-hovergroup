@@ -16,7 +16,7 @@ else
     
     % packet is lost
     fprintf('\n\nPACKET LOST\n\n')
-    
+    kPlan = kPlan + 1;
     if(kPlan>T)
         disp('WARNING: PACKET NOT RECEIVED FOR T STEPS')
         disp('RESETTING uPLAN TO ZEROS')
@@ -24,7 +24,6 @@ else
         kPlan = 1;
     else
         uPlanBuffered = uPlanBuffered;
-        kPlan = kPlan + 1;
     end
     
     ifPLoss = 1;
