@@ -1,4 +1,4 @@
-function eDes = computeMPCInputs(N,T,desBearing,loopIt)
+function eDes= computeMPCInputs(n,N,T,desBearing,loopIt)
 % compute MPC inputs
 % computes eDes based on desBearing and loopIt
 % function eDes = computeMPCInputs(N,T,desBearing,loopIt)
@@ -19,19 +19,23 @@ eDes = zeros(n,T+2);
 if(loopIt==1)
     % desBearing(planning step 0) = desBearing(1)
     xDes(3,:) = [desBearing(1) desBearing(1:T+1)];
-elseif((loopIt+T+1)<N)
+elseif((loopIt+T)<N)
     xDes(3,:) = desBearing((loopIt-1):(loopIt+T));
 else
-    pad = N-loopIt;
-    xDes(3,:) = [desBearing((loopIt-1):(loopIt+pad))...
-        desBearing(N)*ones(1,T-pad)];
+    pad = N-loopIt
+    xDes(3,:) = [desBearing((loopIt-1):N) desBearing(N)*ones(1,T-pad)];
+    
 end
 fprintf('Step %i, new desired bearing = %f \n\n',...
     loopIt,desBearing(loopIt))
 
 % MPC coord frame is defined relative to desBearing(i-1)
 % (since MPC starts planning for next step)
-eDes(3,:) = xDes(3,:) - ones(size(xDes(3,:)))*desBearing(loopIt-1);
+if(loopIt==1)
+    eDes(3,:) = xDes(3,:) - ones(size(xDes(3,:)))*desBearing(1);
+else
+    eDes(3,:) = xDes(3,:) - ones(size(xDes(3,:)))*desBearing(loopIt-1);
+end
 
 % wrap eDes to +/- 180 deg
 for j = 1:(T+2)

@@ -14,6 +14,9 @@ off though).
     - fixed some indexing issues with desBearing
     - added computeMPCInputs fcn
 
+
+
+
 %}
 clear all
 close all
@@ -25,7 +28,13 @@ configureKayakMPC;
 
 % init
 xDes = zeros(n,T+2);eDes = zeros(n,T+2);uPlan = zeros(m,T);
-lenMPC_STR=100;MPC_STR = char(97*ones(1,100));
+eEst = zeros(n,1);xHat = zeros(n,1);
+kPlan = 1;  % no init packet loss
+uPlanBuffered = uPlan;
+
+lenMPC_STR=110;
+MPC_STR = char(97*ones(1,lenMPC_STR));
+
 initializeMOOS_MPC;
 
 mpcStart = tic;
@@ -41,23 +50,40 @@ while(~mpc_stop)
     if(loopIt>1)
         % cross-track and heading ERROR relative to desBearing(step)
         [eEst mpc_stop] = parseMPC_XEST;
+        xHat = eEst + [0 0 desBearing(loopIt-1) 0]';
+        fprintf('actual est heading: %f [deg]\n',xHat(3))
+        fprintf('cross-track error: %f [m]\n\n',Cd(2,4)*eEst(4))
     end
-    xHat = eEst + [0 0 desBearing(loopIt-1) 0]';
-    fprintf('actual est heading: %f [deg]\n',xHat(3))
-    fprintf('cross-track error: %f [m]\n\n',Cd(2,4)*eEst(4))
     
     % create inputs to MPC: eDes, uPrev:
-    eDes = computeMPCInputs(N,T,desBearing,loopIt);
+    eDes = computeMPCInputs(n,N,T,desBearing,loopIt);
     disp(eDes(3,:))
     
+    if(loss2MPC)
+        % MPC knows previous command is the buffered value
+        uPrev = u;
+    else
+        % MPC assumes previous command was the one it computed
+        uPrev = uPlan(:,1);
+    end
     % solve MPC - xEst and previous control are inputs
-    [uPlan tMPC] = solveKayakMPC(sys,eEst,MPCparams,uDelay,uPlan(:,1),eDes);
+    [uPlan tMPC] = solveKayakMPC(sys,eEst,MPCparams,uDelay,uPrev,eDes);
+    
+    % SIM PACKET LOSS (WITH DELAY)
+    % buffer works on RECEIVED PLAN AT THIS TIME STEP (delayed)
+    [uPlanBuffered kPlan ifPLoss] = simPacketLossMPC...
+        (uPlan,uPlanBuffered,kPlan,probPLoss);
+    u = uPlanBuffered(:,kPlan);     % send appropriate control action
+    %u = uPlan(:,1);
+    
     fprintf('Computed plan: \n')
     disp(uPlan)
+    fprintf('Buffered plan: \n')
+    disp(uPlanBuffered)
 
     % (encode, quantize plan)
     % send plan (just control to start)
-    send = uPlan(:,1)+rOff;
+    send = u+rOff;
     
     % DELAY (simulate acomms...)
     while(toc(loopStart)<(dt-.005))
@@ -65,7 +91,7 @@ while(~mpc_stop)
     end
 
     iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
-    fprintf('\n\nSending rudder = %f \n\n\n',send);
+    fprintf('\n\nSend u = %f, Send rudder = %f \n\n\n',u,send);
     
     % string to log
     MPC_STR(1:5) = 'uPlan';
@@ -74,7 +100,9 @@ while(~mpc_stop)
         MPC_STR((6+((k-1)*lenU)):(5+(k*lenU))) = sprintf(',%+07.3f',uPlan(k));  
         %[MPC_STR ',' num2str(uPlan(k))];
     end
-    MPC_STR(6+(k*lenU):lenMPC_STR) = sprintf(',tMPC,%09.3f',tMPC);
+    MPC_STR(6+(k*lenU):100) = sprintf(',tMPC,%09.3f',tMPC);
+    MPC_STR(101:lenMPC_STR) = sprintf(',ifPLoss,%d',ifPLoss);
+    
     
     % send a big string of a bunch of other stuff:
     iMatlab('MOOS_MAIL_TX','MPC_STR',MPC_STR)

@@ -31,6 +31,7 @@ Qd = params.Qkfd;
 % coord frame xform for change in desired heading
 ehat(4) = ehat(4)*sin(deg2rad(90 - dDesHeading));
 ehat(3) = ehat(3)-dDesHeading;
+
 % wrap ehat(3) to +/- 180 deg
 if(ehat(3) > 180)
     ehat(3) = ehat(3) - 360;

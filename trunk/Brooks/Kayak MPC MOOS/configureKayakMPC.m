@@ -9,12 +9,16 @@
 added Bin
 - 8/15/2012 - moved major settings here from generateTracklinesMPC
 - 8/17/2012 - added kayak models
-
+- 8/19/2012 - added packet loss params
 
 %}
 
 ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
+
+% packet loss probability:
+probPLoss = .5;
+loss2MPC = 0;
 
 %% PARAMETERS
 
@@ -76,7 +80,7 @@ end
 N = ceil(Nsec/dt);  % total sim steps
 
 % MPC params
-mu=100;              % sparse control weight
+mu=10;              % sparse control weight
 %T=ceil(N/2);        % horizon length 
 % (T set above)
 
@@ -101,7 +105,7 @@ nc=dt/(1e-1);
 
 % SIM initial state (ACTUAL BEARING): (IN PHYSICAL UNITS)
 % [headingAccel(deg/s^2), headingRate(deg/s), heading(deg), crossTrack (m)]
-x0c = [0;0;73;-10];
+x0c = [0;0;73+20;0];
 
 % max/mins (IN PHYSICAL UNITS)
 %xmax= [20 20 90 2*x0c(4)]'.*ones(n,1);xmin=-xmax;
