@@ -20,9 +20,6 @@ constraint option
 %}
 
 
-%setPt=0;
-%uDelay=1;
-
 % grab parameters
 n=sys.n;
 m=sys.m;
