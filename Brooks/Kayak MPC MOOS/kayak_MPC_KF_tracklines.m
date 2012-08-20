@@ -16,6 +16,11 @@
 - 8/19/2012: fixed some indexing issues with desBearing
     - added fcn computeMPCInputs, plotMPCSims
     - added simulation of packet loss, control packet buffering
+    - changed cont. time sim to use same process noise as discrete
+    - added mods to support different systems
+            (state n-1 = heading, state n = xtrack)
+    - changed '3' to 'n-1' for heading state (work with both sys)
+
 
 %}
 
@@ -69,31 +74,46 @@ end
 % preallocate
 xAllTrueD = zeros(n,N);xAllTrueC = zeros(n,N*nc);tAllTrueC = zeros(1,N*nc);
 xAllEst = zeros(n,N+1);pKFall = zeros(n,n,N+1);
-uAllMPC = zeros(m,N+1);uSave = cell(N+1,1);ifPLossAll = zeros(1,N);
+uAllMPC = zeros(m,N+1);uSave = cell(N+1,1);
+for i=1:N+1;uSave{i}=zeros(m,T);end
+ifPLossAll = zeros(1,N);
 timeMPCall = zeros(N,1);
 vAll = zeros(q,N);zAll = zeros(q,N);wAll = zeros(n,N);
 
 % intialize
 simStart=tic;
 x = x0;xd = x0;xcsim = repmat(Cc\x0c,1,nc);xhat = x0;
-u = zeros(m,1);ez = [(x0c(3) - desBearing(1)) 0]';
-w = zeros(n,1);wvec = zeros(4,nc);v=zeros(q,1);
+u = zeros(m,1);
+w = zeros(n,1);wvec = zeros(n,nc);v=zeros(q,1);
 PKF = eye(n);
-xDes = zeros(n,T+2);xDes(3,:)=desBearing(1:T+2);
+xDes = zeros(n,T+2);xDes(n-1,:)=desBearing(1:T+2);
 eDes = zeros(n,T+2);ehat = x0 - xDes(:,1);
-xhat = ehat+[0 0 desBearing(i) 0]';dDesHeading = 0;
-if(uDelay);uPlan=zeros(m,T);uSave{2}=uPlan;
-else uPlan=zeros(m,t);end
-if(KFdelay)
-    ezold = (cd*x0)-desbearing(1);
-    if(ezold > 180);ezold = ezold - 360;end
-    if(ez < (-180)); ezold = ezold + 360;end
+
+switch syss
+    case 'crossTrack'
+        ez = [(x0c(n-1) - desBearing(1)) 0]';
+        xhat = ehat+[0 0 desBearing(1) 0]';dDesHeading = 0;
+    case 'crossTrack_CLheading'
+        ez = x0c(n);
+        xhat = ehat+[0 desBearing(1) 0]';dDesHeading = 0;
 end
+
+if(uDelay);uPlan=zeros(m,T);uSave{2}=uPlan;
+else uPlan=zeros(m,T);end
+if(KFdelay)
+    if(strcmp(syss,'crossTrack'))
+        ezold = (Cd*x0)-[desBearing(1) 0]';
+    elseif(strcmp(syss,'crossTrack_CLheading'))
+        ezold = (Cd*x0);
+    end
+    if(ezold(1) > 180);ezold(1) = ezold(1) - 360;end
+    if(ez(1) < (-180)); ezold(1) = ezold(1) + 360;end
+end
+
 kPlan = 1;  % no init packet loss
 uPlanBuffered = uPlan;
 
-
-% save full vectors 
+% save full vectors
 xAllEst(:,1) = xhat;pKFall(:,:,1) = PKF;
 uAllMPC(:,1)=u;uSave{1}=uPlan;
 timeMPCall(1) = 0;
@@ -102,20 +122,27 @@ simStart=tic;
 for i = 1:(N)
     
     % start loop with previous state measurement (meas of x(i))
-     % compute change in desired heading
-     if(i>1);dDesHeading = desBearing(i)-desBearing(i-1);end
+    % compute change in desired heading
+    if(i>1);dDesHeading = desBearing(i)-desBearing(i-1);end
     
     % measure true state (with noise)
-    if(simNoise);v = (randn(1,q)*sqrt(rkf))';end
+    if(simNoise);v = (randn(1,q)*sqrt(Rkf))';end
     z = Cd*x + v;
     
     % convert z into an meas error
-    if(i>1)
-        ez = z.*[1 sin(deg2rad(90 - dDesHeading))]' - [desBearing(i) 0]';
+    switch syss
+        case 'crossTrack'
+            if(i>1)
+                ez = z.*[1 sin(deg2rad(90 - dDesHeading))]' - [desBearing(i) 0]';
+            end
+            % wrap ez(1) to +/- 180 deg
+            if(ez(1) > 180);ez(1) = ez(1) - 360;end
+            if(ez(1) < (-180));ez(1) = ez(1) + 360;end
+        case 'crossTrack_CLheading'
+            if(i>1)
+                ez = z.*sin(deg2rad(90 - dDesHeading));
+            end
     end
-    % wrap ez to +/- 180 deg
-    if(ez(1) > 180);ez(1) = ez(1) - 360;end
-    if(ez(1) < (-180));ez(1) = ez(1) + 360;end
     
     % run kf based on z(i+1) (based on x(i)), u(i), and xhat(i)
     % outputs xhat(i+1)
@@ -126,35 +153,46 @@ for i = 1:(N)
     else
         [ehat PKF] = kayakKF(sys,KFparams,ez,ehat,PKF,u,dDesHeading);
     end
-    if(i>1);xhat = ehat + [0 0 desBearing(i-1) 0]';end
     
     % propagate true system using u(i) and x(i)
-    if(simNoise)
-        w = sqrt(qkfd)*randn(n,1);
-        wvec = sqrt(qkfc)*randn(n,nc)/sqrt(dt/nc);
+    switch syss
+        case 'crossTrack'
+            if(i>1);xhat = ehat + [0 0 desBearing(i-1) 0]';end
+            simxform = [1 1 1 sin(deg2rad(90 - dDesHeading))];
+            simDesIn = [0 0 desBearing(i) 0];
+        case 'crossTrack_CLheading'
+            if(i>1);xhat = ehat + [0 desBearing(i-1) 0]';end
+            simxform = [1 1 sin(deg2rad(90 - dDesHeading))];
+            simDesIn = [0 desBearing(i) 0];
     end
-    % simulation coord frame xform
-    xd = xd.*[1 1 1 sin(deg2rad(90 - dDesHeading))]';
+    
+    % generate noise for propagation (after KF)
+    if(simNoise)
+        w = sqrt(Qkfd)*randn(n,1);
+        wvec = diag(w)*ones(n,nc);%sqrt(qkfc)*randn(n,nc)/sqrt(dt/nc);
+    end
+    % simulation with coord frame xform
+    xd = xd.*simxform';
     % discrete-time:
-    xd = Ad*xd + Bd*u + Bdin*[0 0 desBearing(i) 0]'+ Bdnoise*w;
+    xd = Ad*xd + Bd*u + Bdin*simDesIn'+ Bdnoise*w;
     
     % continuous-time:
     tspan=linspace(0,dt,nc+1);
     if(i==1)
         x0ode=Cc\x0c;
     else
-        x0ode=xcsim(:,nc+1).*[1 1 1 sin(deg2rad(90 - dDesHeading))]';
+        x0ode=xcsim(:,nc+1).*simxform';
     end
     [t_out,xcsim]=ode45(@(t,x) kayak_continuous(t,x,Ac,Bc,Bnoise,Bin,...
-        [0 0 desBearing(i) 0]',u,wvec,tspan),tspan,x0ode);
+        simDesIn',u,wvec,tspan),tspan,x0ode);
     xcsim=xcsim';x = xd;
     
     % run model predictive control
     % using xhat(i+1) - estimated by measuring x(i)
     xmpc = ehat;
     eDes = computeMPCInputs(n,N,T,desBearing,i);
-    disp(eDes(3,:))
-
+    disp(eDes(n-1,:))
+    
     if(loss2MPC)
         % MPC knows previous command is the buffered value
         uPrev = u;
@@ -186,7 +224,7 @@ for i = 1:(N)
     disp(uPlan)
     fprintf('Buffered plan: \n')
     disp(uPlanBuffered)
-    
+    fprintf('\nActual control applied: %f \n',u)
     
     % save full vectors
     % meas/estimate values are technically for next step in time (delayed)
@@ -205,7 +243,7 @@ for i = 1:(N)
     if(uDelay)
         uPlan=uPlanNext;
     end
-
+    
 end
 
 simtime=toc(simStart);

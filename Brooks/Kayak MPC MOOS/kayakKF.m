@@ -9,6 +9,9 @@ function [eHatNew PNew] = kayakKF(sys,params,z,ehat,P,u,dDesHeading)
 - 8/14/2012 added Bin for setpt
 - 8/16/2012: removed Bin for setpt (KF now fed error)
         - added coord frame xform at kinks (with dDesHeading input)
+- 8/19/2012: changed to n, n-1 for xtrack and heading states (support syss)
+-
+
 %}
 
 % grab parameters
@@ -29,15 +32,15 @@ Rd = params.Rkf;
 Qd = params.Qkfd;
 
 % coord frame xform for change in desired heading
-ehat(4) = ehat(4)*sin(deg2rad(90 - dDesHeading));
-ehat(3) = ehat(3)-dDesHeading;
+ehat(n) = ehat(n)*sin(deg2rad(90 - dDesHeading));
+ehat(n-1) = ehat(n-1)-dDesHeading;
 
 % wrap ehat(3) to +/- 180 deg
-if(ehat(3) > 180)
-    ehat(3) = ehat(3) - 360;
+if(ehat(n-1) > 180)
+    ehat(n-1) = ehat(n-1) - 360;
 end
-if(ehat(3) < (-180))
-    ehat(3) = ehat(3) + 360;
+if(ehat(n-1) < (-180))
+    ehat(n-1) = ehat(n-1) + 360;
 end
 
 %xPredict = Ad*xhat + Bin*xDes + Bd*u;
