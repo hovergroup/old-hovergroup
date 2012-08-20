@@ -19,7 +19,7 @@
 % pavilion dock angle rel. to horizontal (in True N frame):
 pavAng = deg2rad(37);
 ifPlot=0;
-tvec = linspace(dt,Nsec,(Nsec)/dt);
+tvec = linspace(dt,Nsec,ceil((Nsec)/dt));
 
 switch tracklineType
     
