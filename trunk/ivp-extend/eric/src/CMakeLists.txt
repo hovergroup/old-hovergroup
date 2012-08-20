@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 ADD_SUBDIRECTORY(pDiscretePID)
 ADD_SUBDIRECTORY(pEric)
 ADD_SUBDIRECTORY(simple_acomms_parser)
+ADD_SUBDIRECTORY(pAcommsController)
 
 ##############################################################################
 #                           END of CMakeLists.txt
