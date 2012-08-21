@@ -29,8 +29,12 @@ ProcessConfig = pKalmanFilter
 	AppTick = 5
 	CommsTick = 5
 	
-	Speed = 1			//m/s
-	Thrust = 100		//percent
+	//Speed = 1			//m/s
+	//Thrust = 00		//percent
+	
+	Speed = 0.8
+	Thrust = 65
+	
 	CompassOffset = 15 	//degrees
 	RudderOffset = 5
 	Crosstrack = 0.028	
