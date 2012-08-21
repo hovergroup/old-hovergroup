@@ -21,7 +21,9 @@
     - added mods to support different systems
             (state n-1 = heading, state n = xtrack)
     - changed '3' to 'n-1' for heading state (work with both sys)
-
+- 8/20/2012: changed sim to use error (and add in desired) to match KF and
+            real sys
+    - fixed CL heading system
 
 %}
 
@@ -65,35 +67,38 @@ vAll = zeros(q,N);zAll = zeros(q,N);wAll = zeros(n,N);
 
 % intialize
 simStart=tic;
-x = x0;xd = x0;xcsim = repmat(Cc\x0c,1,nc);xhat = x0;
-u = zeros(m,1);
 w = zeros(n,1);wvec = zeros(n,nc);v=zeros(q,1);
 PKF = eye(n);
 xDes = zeros(n,T+2);xDes(n-1,:)=desBearing(1:T+2);
 eDes = zeros(n,T+2);ehat = x0 - xDes(:,1);
+xd = x0;xhat = x0;
+x0c = x0c;
+xcsim = repmat(Cc\x0c,1,nc+1);
 
+if(n==3);simDes = [0 desBearing(1) 0];end
+if(n==4);simDes = [0 0 desBearing(1) 0];end
 switch syss
     case 'crossTrack'
+        u = zeros(m,1); % initial rudder angle
         ez = [(x0c(n-1) - desBearing(1)) 0]';
-        simDesIn = [0 0 desBearing(1) 0];
-        xhat = ehat+simDesIn';dDesHeading = 0;
     case 'crossTrack_CLheading'
-        ez = x0c(n);simDesIn = [0 desBearing(1) 0];
-        xhat = ehat+simDesIn';dDesHeading = 0;
+        u = x0(n-1) - desBearing(1); % initial psi is straight
+        ez = x0c(n);
 end
+dDesHeading = 0;
 
 if(uDelay);uPlan=zeros(m,T);uSave{2}=uPlan;
 else uPlan=zeros(m,T);end
 if(KFdelay)
     if(strcmp(syss,'crossTrack'))
         ezold = (Cd*x0)-[desBearing(1) 0]';
+        if(ezold(1) > 180);ezold(1) = ezold(1) - 360;end
+        if(ez(1) < (-180)); ezold(1) = ezold(1) + 360;end
     elseif(strcmp(syss,'crossTrack_CLheading'))
         ezold = (Cd*x0);
     end
-    if(ezold(1) > 180);ezold(1) = ezold(1) - 360;end
-    if(ez(1) < (-180)); ezold(1) = ezold(1) + 360;end
 end
-fp=0;fm=0;
+
 kPlan = 1;  % no init packet loss
 uPlanBuffered = uPlan;
 
@@ -109,15 +114,15 @@ for i = 1:(N)
     % compute change in desired heading
     if(i>1)
         dDesHeading = desBearing(i)-desBearing(i-1);
-        if(dDesHeading < (-180));dDesHeading = ((360-desBearing(i-1))+desBearing(i));end
-        if(dDesHeading > (180));dDesHeading = desBearing(i)-(360-desBearing(i-1));end
+        %if(dDesHeading < (-180));dDesHeading = ((360-desBearing(i-1))+desBearing(i));end
+        %if(dDesHeading > (180));dDesHeading = desBearing(i)-(360-desBearing(i-1));end
     end
     
     % measure true state (with noise)
     if(simNoise);v = (randn(1,q)*sqrt(Rkf))';end
-    z = Cd*x + v;
+    z = Cd*xd + v;
     
-    % convert z into an meas error
+    % convert z into an meas error, 
     switch syss
         case 'crossTrack'
             if(i>1)
@@ -143,21 +148,22 @@ for i = 1:(N)
     end
     
     % propagate true system using u(i) and x(i)
-    switch syss
-        case 'crossTrack'
+    switch n
+        case 4
             if(i>1)
-                xhat = ehat + [0 0 desBearing(i-1) 0]';
+                %xhat = ehat + [0 0 desBearing(i-1) 0]';
+                xhat = ehat + [0 0 desBearing(i) 0]';
                 if(xhat(n-1)<0);xhat(n-1) = xhat(n-1)+360;end
                 if(xhat(n-1)>360);xhat(n-1) = xhat(n-1) - 360;end
-                simDesIn = [0 0 desBearing(i-1)+dDesHeading 0];
+                simDes = [0 0 desBearing(i) 0];
             end
             simxform = [1 1 1 sin(deg2rad(90 - dDesHeading))];
-        case 'crossTrack_CLheading'
+        case 3
             if(i>1)
-                xhat = ehat + [0 desBearing(i-1) 0]';
+                xhat = ehat + [0 desBearing(i) 0]';
                 if(xhat(n-1)<0);xhat(n-1) = xhat(n-1)+360;end
                 if(xhat(n-1)>360);xhat(n-1) = xhat(n-1) - 360;end
-                simDesIn = [0 desBearing(i-1)+dDesHeading 0];
+                simDes = [0 desBearing(i) 0];
             end
             simxform = [1 1 sin(deg2rad(90 - dDesHeading))];
     end
@@ -168,75 +174,57 @@ for i = 1:(N)
         wvec = diag(w)*ones(n,nc);%sqrt(qkfc)*randn(n,nc)/sqrt(dt/nc);
     end
     
-    
-%     if(i>49)
-%         i
-%         simDesIn
-%         dDesHeading
-%         simxform
-%     end
-    
-    
-    
     % simulation with coord frame xform
-    xd = xd.*simxform';
+    ed = (xd.*simxform' - simDes');
     % discrete-time:
-    xd = Ad*xd + Bd*u + Bdin*simDesIn'+ Bdnoise*w;
+    ed = Ad*ed + Bd*u + Bdnoise*w; %Bdin*simeDes'
+    xd = ed + simDes';
     
     % continuous-time:
     tspan=linspace(0,dt,nc+1);
     if(i==1)
-        x0ode=Cc\x0c;
+        e0ode=Cc\(x0c-simDes');
     else
-        x0ode=xcsim(:,nc+1).*simxform';
+        e0ode=(xcsim(:,nc+1)-simDes').*simxform';
     end
+    [t_out,ecsim]=ode45(@(t,x) kayak_continuous(t,x,Ac,Bc,Bnoise,...
+        u,wvec,tspan),tspan,e0ode);
     
-%     % wrap cont time sim to +/-180, sim, then unwrap
-%     fp=0;fm=0;
-%     if(x0ode(n-1) > 180);
-%         fm=1;x0ode(n-1) = x0ode(n-1) - 360;simDesIn(n-1)=simDesIn(n-1)-360;
-%     end
-%     if(x0ode(n-1) < (-180));
-%         fp=1;x0ode(n-1) =x0ode(n-1) + 360;simDesIn(n-1)=simDesIn(n-1)+360;
-%     end
-    [t_out,xcsim]=ode45(@(t,x) kayak_continuous(t,x,Ac,Bc,Bnoise,Bin,...
-        simDesIn',u,wvec,tspan),tspan,x0ode);
-%     if(fp);for j=1:nc;xcsim(j,n-1)=xcsim(j,n-1)-360;end;end
-%     if(fm);for j=1:nc;xcsim(j,n-1)=xcsim(j,n-1)+360;end;end
-%     
     % wrap xd and xcsim to 0,360
     if(xd(n-1)<0);xd(n-1) = xd(n-1)+360;end
     if(xd(n-1)>360);xd(n-1) = xd(n-1) - 360;end
-    for j = 1:nc;
-        if(xcsim(j,n-1)<0); xcsim(j,n-1) = xcsim(j,n-1)+360;end
-        if(xcsim(j,n-1)>360);xcsim(j,n-1) = xcsim(j,n-1) - 360;end
+    for j = 1:(nc+1);
+        xcsim(:,j) = ecsim(j,:)' + simDes';
+        if(xcsim(n-1,j)<0); xcsim(n-1,j) = xcsim(n-1,j) + 360;end
+        if(xcsim(n-1,j)>360);xcsim(n-1,j) = xcsim(n-1,j) - 360;end
     end
-    xcsim=xcsim';x = xd;
     
     % run model predictive control
     % using xhat(i+1) - estimated by measuring x(i)
     xmpc = ehat;
-    eDes = computeMPCInputs(n,N,T,desBearing,i);
+    eDes = computeMPCInputs(n,N,T,syss,desBearing,i);
     disp(eDes(n-1,:))
     
     if(loss2MPC)
         % MPC knows previous command is the buffered value
-        uPrev = u;
+        uPrev = u;  %(????)
+        % DOESN'T WORK...  IS THIS POSSIBLE?
     else
         % MPC assumes previous command was the one it computed
         uPrev = uPlan(:,1);
     end
+    fprintf('MPC Previous control input: %f \n',uPrev);
     
     if(uDelay)
-        [uPlanNext tmpc] = solveKayakMPC(sys,xmpc,MPCparams,uDelay,uPlan(:,1),eDes);
+        [uPlanNext tmpc] = solveKayakMPC(sys,xmpc,MPCparams,uDelay,uPrev,eDes);
     else
-        [uPlan tmpc] = solveKayakMPC(sys,xmpc,MPCparams,uDelay,u,eDes);
+        [uPlan tmpc] = solveKayakMPC(sys,xmpc,MPCparams,uDelay,uPrev,eDes);
     end
     
     % (encode, quantize plan)
     
     % SIM PACKET LOSS (WITH DELAY)
-    % buffer works on RECEIVED PLAN AT THIS TIME STEP (delayed)
+    % buffer works on uPlan: RECEIVED PLAN AT THIS TIME STEP (delayed)
     [uPlanBuffered kPlan ifPLoss] = simPacketLossMPC...
         (uPlan,uPlanBuffered,kPlan,probPLoss);
     u = uPlanBuffered(:,kPlan);     % send appropriate control action
@@ -251,6 +239,12 @@ for i = 1:(N)
     fprintf('Buffered plan: \n')
     disp(uPlanBuffered)
     fprintf('\nActual control applied: %f \n',u)
+    if(strcmp(syss,'crossTrack_CLheading'))
+        uBearing = u + desBearing(i);
+        if(uBearing<0);uBearing = uBearing+360;end
+        if(uBearing>360);uBearing = uBearing - 360;end
+        fprintf('(For MOOS)Heading controller setpoint: %f \n',uBearing);
+    end
     
     % save full vectors
     % meas/estimate values are technically for next step in time (delayed)
@@ -269,7 +263,7 @@ for i = 1:(N)
     if(uDelay)
         uPlan=uPlanNext;
     end
-    
+    fprintf('\n')
 end
 
 simtime=toc(simStart);

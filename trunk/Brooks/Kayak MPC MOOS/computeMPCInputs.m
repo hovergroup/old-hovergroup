@@ -1,4 +1,4 @@
-function eDes= computeMPCInputs(n,N,T,desBearing,loopIt)
+function eDes= computeMPCInputs(n,N,T,syss,desBearing,loopIt)
 % compute MPC inputs
 % computes eDes based on desBearing and loopIt
 % function eDes = computeMPCInputs(N,T,desBearing,loopIt)
@@ -8,6 +8,8 @@ function eDes= computeMPCInputs(n,N,T,desBearing,loopIt)
 % changes
 %{
 - 8/19/2012: changed '3' to 'n-1' for heading state (work with both sys)
+- 8/20/2012: added syss input, and change to "bump" eDes for CL heading
+
 
 %}
 
@@ -23,9 +25,8 @@ if(loopIt==1)
 elseif((loopIt+T)<N)
     xDes(n-1,:) = desBearing((loopIt-1):(loopIt+T));
 else
-    pad = N-loopIt
+    pad = N-loopIt;
     xDes(n-1,:) = [desBearing((loopIt-1):N) desBearing(N)*ones(1,T-pad)];
-    
 end
 fprintf('Step %i, new desired bearing = %f \n\n',...
     loopIt,desBearing(loopIt))
@@ -48,5 +49,12 @@ for j = 1:(T+2)
     end
 end
 
+    % quick hack to test 
+    if(strcmp(syss,'crossTrack_CLheading'))  
+        inds = find(eDes(n-1,:));
+        if(inds)
+            eDes(n-1,(inds(1)+1):end)=zeros(1,1:(T+2-inds(1)));
+        end
+    end
 
 end

@@ -1,4 +1,9 @@
 function [uPlanBuffered kPlan ifPLoss] = simPacketLossMPC(uPlanNow,uPlanBuffered,kPlan,probPLoss)
+% simulates packet loss and buffers MPC control plans
+% eventually a version of this will be in MOOS on the kayak 
+%   (listening to acomms)
+
+% BR, 8/19/2012
 
 if((probPLoss<0) || (probPLoss>1))
     disp('WARNING - INVALID PACKET LOSS PROBABILITY')
@@ -27,4 +32,5 @@ else
     end
     
     ifPLoss = 1;
+    
 end

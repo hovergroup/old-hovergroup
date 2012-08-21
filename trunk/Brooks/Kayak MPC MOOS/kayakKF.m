@@ -35,7 +35,7 @@ Qd = params.Qkfd;
 ehat(n) = ehat(n)*sin(deg2rad(90 - dDesHeading));
 ehat(n-1) = ehat(n-1)-dDesHeading;
 
-% wrap ehat(3) to +/- 180 deg
+% wrap ehat(n-1) to +/- 180 deg
 if(ehat(n-1) > 180)
     ehat(n-1) = ehat(n-1) - 360;
 end

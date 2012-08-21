@@ -9,6 +9,7 @@
 % changes:
 %{
 - 8/15/2012 - moved major settings to configureKayakMPC
+- 8/20/2012 - got rid of step var (conflict with step response)
 
 %}
 
@@ -147,8 +148,8 @@ switch tracklineType
         desBearing = zeros(1,length(tvec));
         for i = 1:(length(tvec)-1)
             
-            step = floor((i)/(secPerLeg/dt))+1;
-            hDes = atan2((y(step+1)-y(step)),(x(step+1)-x(step)));
+            leg = floor((i)/(secPerLeg/dt))+1;
+            hDes = atan2((y(leg+1)-y(leg)),(x(leg+1)-x(leg)));
             hDes = rad2deg(hDes);
             bearing = 90 - hDes;
             if(bearing<0)
