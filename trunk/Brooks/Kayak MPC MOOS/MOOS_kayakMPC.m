@@ -40,7 +40,7 @@ lenMPC_STR=110;
 MPC_STR = char(97*ones(1,lenMPC_STR));
 
 r0=0;
-hd0=73;
+hd0=70;
 initializeMOOS_MPC;
 
 mpcStart = tic;
