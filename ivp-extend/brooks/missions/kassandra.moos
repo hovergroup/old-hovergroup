@@ -126,7 +126,7 @@ ProcessConfig = kayak_interface
 	THRUST_CUTOFF = 0
 	MIN_UPDATE_PERIOD = .25
 	INVERT_RUDDER = 1
-	RUDDER_OFFSET = 0
+	RUDDER_OFFSET = 10
 }
 
 ProcessConfig = iOS5000_filtered
@@ -172,9 +172,9 @@ ProcessConfig = pMarinePID
 	// Yaw PID controller
 //	YAW_PID_KP		= 0.3
 //	YAW_PID_KD		= 0.2
-	YAW_PID_KP		= 0.4
-	YAW_PID_KD		= 0.2
-	YAW_PID_KI		= 0.005
+	YAW_PID_KP		= 0.35
+	YAW_PID_KD		= 0.3
+	YAW_PID_KI		= 0.05
 	YAW_PID_INTEGRAL_LIMIT = 0.25
 
 	// Speed PID controller
