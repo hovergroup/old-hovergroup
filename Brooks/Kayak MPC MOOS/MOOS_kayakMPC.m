@@ -32,7 +32,9 @@ configureKayakMPC;
 
 % init
 xDes = zeros(n,T+2);eDes = zeros(n,T+2);uPlan = zeros(m,T);
-eEst = zeros(n,1);xHat = zeros(n,1);
+eEst = zeros(n,1); % mei's KF hardcoded for 4 states...
+eEstKF = zeros(4,1);
+xHat = zeros(n,1);
 kPlan = 1;  % no init packet loss
 uPlanBuffered = uPlan;
 
@@ -58,7 +60,7 @@ while(~mpc_stop)
         [eEstKF mpc_stop] = parseMPC_XEST;
         xHat = eEstKF + [0 0 desBearing(loopIt-1) 0]';
         fprintf('actual est heading: %f [deg]\n',xHat(3))
-        fprintf('cross-track error: %f [m]\n\n',Cd(2,4)*eEst(4))
+        fprintf('cross-track error: %f [m]\n\n',CdAll(n,n)*eEstKF(n))
     end
     switch syss
         case'crossTrack_CLheading'

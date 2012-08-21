@@ -88,7 +88,7 @@ if(strcmp(MPC_STOP,'STOP'))
 end
 
 fprintf('State estimate\n')
-fprintf('%s %f\n','ehddot', eEst(1), 'ehdot ', ...
-    eEst(2), 'eh    ', eEst(3), 'ex    ', eEst(4))
+fprintf('%s %f\n','ehddot', xEst(1), 'ehdot ', ...
+    xEst(2), 'eh    ', xEst(3), 'ex    ', xEst(4))
 
 end

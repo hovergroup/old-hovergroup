@@ -19,7 +19,7 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 plotStep = 0;
 % packet loss probability:
-probPLoss = .5;
+probPLoss = .0;
 loss2MPC = 0;%%%% currently doesn't work ...
 
 %% PARAMETERS
@@ -27,7 +27,8 @@ loss2MPC = 0;%%%% currently doesn't work ...
 % System Params
 
 % rudder offset: (for use with MOOS)
-rOff = 3;
+%rOff = 3;
+rOff=0;
 trueNorthAdjustment = -15;
 
 %syss='crossTrack';
@@ -44,7 +45,7 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 6;
+dt = 3;
 %dt = 6;
 
 % for gen matrices for KF @ 2hz
@@ -66,8 +67,8 @@ switch tracklineType
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
-        ox = 50;oy = -20;
-        pavAngOffset = -15;
+        ox = 50;oy = -50;
+        pavAngOffset = 0;
         kinkAng = deg2rad(45);
     case 'hexagon'
         numLegs = 6;
