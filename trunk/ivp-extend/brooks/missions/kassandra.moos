@@ -30,7 +30,7 @@ ProcessConfig = pKalmanFilter
 	CommsTick = 5
 	
 	//Speed = 1			//m/s
-	//Thrust = 00		//percent
+	//Thrust = 100		//percent
 	
 	Speed = 0.8
 	Thrust = 65
@@ -165,8 +165,10 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 32.5
-
+	//SPEED_FACTOR	= 32.5
+	SPEED_FACTOR = 40
+	
+	
 	// Yaw PID controller
 //	YAW_PID_KP		= 0.3
 //	YAW_PID_KD		= 0.2
