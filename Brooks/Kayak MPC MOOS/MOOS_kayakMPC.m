@@ -15,7 +15,7 @@ off though).
     - added computeMPCInputs fcn
 - 8/20/2012: added options for different systems (still need to adjust
     parseMPC_XEST)
-
+- 8/21/2012: added a few mods for constant heading behavior update
 
 
 %}
@@ -55,15 +55,21 @@ while(~mpc_stop)
     % grab new estimate (after first loop)
     if(loopIt>1)
         % cross-track and heading ERROR relative to desBearing(step)
-        [eEst mpc_stop] = parseMPC_XEST;
-        xHat = eEst + [0 0 desBearing(loopIt-1) 0]';
+        [eEstKF mpc_stop] = parseMPC_XEST;
+        xHat = eEstKF + [0 0 desBearing(loopIt-1) 0]';
         fprintf('actual est heading: %f [deg]\n',xHat(3))
         fprintf('cross-track error: %f [m]\n\n',Cd(2,4)*eEst(4))
+    end
+    switch syss
+        case'crossTrack_CLheading'
+            eEst = eEstKF(2:4);
+        case 'crossTrack'
+            eEst = eEstKF;
     end
     
     % create inputs to MPC: eDes, uPrev:
     eDes = computeMPCInputs(n,N,T,syss,desBearing,loopIt);
-    disp(eDes(3,:))
+    disp(eDes(n-1,:))
     
     if(loss2MPC)
         % MPC knows previous command is the buffered value
@@ -97,7 +103,7 @@ while(~mpc_stop)
             uBearing = u+desBearing(loopIt);
             if(uBearing<0);uBearing = uBearing+360;end
             if(uBearing>360);uBearing = uBearing - 360;end
-            send = uBearing;
+            send = sprintf('heading = %0.1f',uBearing);
     end
     
     switch TX
@@ -112,8 +118,8 @@ while(~mpc_stop)
                     iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
                     fprintf('\n\nSend u = %f, Send rudder = %f \n\n\n',u,send);
                 case 'crossTrack_CLheading'
-                    iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
-                    fprintf('\n\nSend des heading = %f \n\n\n',send);
+                    iMatlab('MOOS_MAIL_TX','CONST_HEADING_UPDATES',send);
+                    fprintf('\n\nSend des heading = %f \n\n\n',uBearing);
             end
             
         case 'acomms'
