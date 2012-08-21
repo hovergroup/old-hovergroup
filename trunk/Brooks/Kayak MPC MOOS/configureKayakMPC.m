@@ -68,7 +68,7 @@ switch tracklineType
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         ox = 50;oy = -50;
-        pavAngOffset = 0;
+        pavAngOffset = -30;
         kinkAng = deg2rad(45);
     case 'hexagon'
         numLegs = 6;
