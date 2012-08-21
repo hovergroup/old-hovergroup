@@ -64,7 +64,12 @@ ylabel('speed [m/s]')
 
 subplot(length(plotstates)+2,1,length(plotstates)+2)
 stairs(tvec(2:(end-2)),(uAllMPC(1,2:(N-1))-uAllMPC(1,1:(N-2)))./dt,'k')
-title('rudder slew rate')
+switch syss
+    case 'crossTrack'
+        title('rudder slew rate')
+    case 'crossTrack_CLheading'
+        title('change in heading setpoint')
+end
 xlabel('t [sec]')
 ylabel('udot [deg/s]')
 
@@ -124,7 +129,7 @@ for i=2:N
     plot([0 N],-(i-1)*2.2*umaxs*ones(1,2),'k--','linewidth',1)
 end
 ylim = get(gca,'ylim');
-axis([0 N ylim])
+axis([0 N ylim(1) 10*max(abs(uAllMPC))])
 set(gca,'yticklabel',[])
 title('all control plans, actual is on top')
 xlabel(sprintf('time steps (each is %0.2f sec)',dt))

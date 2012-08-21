@@ -19,8 +19,8 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 plotStep = 0;
 % packet loss probability:
-probPLoss = .4;
-loss2MPC = 0;%%%% currently doesn't work if on...
+probPLoss = .5;
+loss2MPC = 0;%%%% currently doesn't work ...
 
 %% PARAMETERS
 
@@ -30,8 +30,8 @@ loss2MPC = 0;%%%% currently doesn't work if on...
 rOff = 3;
 trueNorthAdjustment = -15;
 
-%syss='crossTrack';
-syss = 'crossTrack_CLheading';
+syss='crossTrack';
+%syss = 'crossTrack_CLheading';
 
 %kayak = 'kassandra_modem_smallR';
 %kayak = 'kassandra_modem_30R';
@@ -44,15 +44,15 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 4;
+dt = 6;
 %dt = 6;
 
 % for gen matrices for KF @ 2hz
 %dt = 0.5;
 
 %tracklineType='straight';
-%tracklineType = 'pavilion_1turn';
-tracklineType = 'hexagon';
+tracklineType = 'pavilion_1turn';
+%tracklineType = 'hexagon';
 
 switch tracklineType
     case 'straight'
@@ -62,16 +62,16 @@ switch tracklineType
         % bearing of straight line:
         desB = deg2rad(80);
     case 'pavilion_1turn'
-        secPerLeg = ceil(90/dt)*dt;
+        secPerLeg = ceil(120/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         ox = 50;oy = -20;
         pavAngOffset = -20;
-        kinkAng = deg2rad(30);
+        kinkAng = deg2rad(45);
     case 'hexagon'
         numLegs = 6;
-        secPerLeg = 60;
+        secPerLeg = 120;
         Nsec = secPerLeg*numLegs;
         ox = 20;
         oy = -30;
@@ -101,14 +101,18 @@ exmax = 100;
 if(n==4)
     x0c = [0;0;heading0;ex0];
     xmax = [hddmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-    umax = 30*ones(m,1); umin = -umax;
 elseif(n==3)
     x0c = [0;heading0;ex0];
     xmax = [hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-    % u is setpt for desired heading error
-    umax = 30*ones(m,1); umin = -umax;
 end
-
+switch syss
+    case 'crossTrack'
+        % u is rudder angle
+        umax = 20*ones(m,1); umin = -umax;
+    case 'crossTrack_CLheading'
+        % u is setpt for desired heading error 
+        umax = 90*ones(m,1); umin = -umax;
+end
 
 % MPC params
 mu=10;              % sparse control weight

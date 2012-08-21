@@ -36,20 +36,27 @@ clc
 format compact
 
 % parameters and configuration for kayak kf/mpc simulation
-simNoise=1;         % process + meas noise in sims (always in kf)
+simNoise=0;         % process + meas noise in sims (always in kf)
 KFdelay=0;          % meas available immediately or with delay
 
-ifSave=0;           % save .mat and .txt of command window
-unique='';   % unique name to append to filename
-
+ifSave=1;           % save .mat and .txt of command window
 % run configuration script for parameters and system
 configureKayakMPC
 
+uniques=sprintf('NOnoise_%dloss_prevNext',floor(probPLoss*100));   % unique name to append to filename
+
+
+
 %% save filename
+if(ispc)
+    old = cd('C:\Brooks\Dropbox\Research Dropbox\MATLAB Code\Kayak MPC');
+end
+if(~exist('uniques'));uniques='';end
 % note - this setup for tvec = length 1
-%savefilename = sprintf('%s_kayakmpcsim_dt%s_t%d_mu_%s_%s',datestring('dhms'),...
-%    printnumfile(dt,2),t,printnumfile(mu,2),unique);
-saveFilename = '';
+saveFilename = sprintf('%s_kayakmpcsim_%s_%s_dt%s_T%d_mu_%s_%s',...
+    dateString('DHMS'),syss,tracklineType,...
+    printNumFile(dt,2),T,printNumFile(mu,2),uniques);
+%saveFilename = '';
 if(ifSave)
     diary([saveFilename '_log.txt'])
 end
@@ -86,6 +93,7 @@ switch syss
         ez = x0c(n);
 end
 dDesHeading = 0;
+ehsim=0;ehcsim=0;
 
 if(uDelay);uPlan=zeros(m,T);uSave{2}=uPlan;
 else uPlan=zeros(m,T);end
@@ -114,6 +122,7 @@ for i = 1:(N)
     % compute change in desired heading
     if(i>1)
         dDesHeading = desBearing(i)-desBearing(i-1);
+        %ddesHSim = dDesHeading;
         %if(dDesHeading < (-180));dDesHeading = ((360-desBearing(i-1))+desBearing(i));end
         %if(dDesHeading > (180));dDesHeading = desBearing(i)-(360-desBearing(i-1));end
     end
@@ -176,20 +185,26 @@ for i = 1:(N)
     
     % simulation with coord frame xform
     ed = (xd.*simxform' - simDes');
-    % discrete-time:
-    ed = Ad*ed + Bd*u + Bdnoise*w; %Bdin*simeDes'
-    xd = ed + simDes';
     
+    % wrap ed(n-1) to +/- 180 deg
+    if(ed(n-1) > 180);ed(n-1) = ed(n-1) - 360;end
+    if(ed(n-1) < (-180));ed(n-1) = ed(n-1) + 360;end
+    
+    % discrete-time:
+    ed= Ad*ed + Bd*u + Bdnoise*w; %Bdin*simeDes'(1:n-1)
     % continuous-time:
     tspan=linspace(0,dt,nc+1);
     if(i==1)
         e0ode=Cc\(x0c-simDes');
     else
         e0ode=(xcsim(:,nc+1)-simDes').*simxform';
+        if(e0ode(n-1) > 180);e0ode(n-1) = e0ode(n-1) - 360;end
+        if(e0ode(n-1) < (-180));e0ode(n-1) = e0ode(n-1) + 360;end
     end
     [t_out,ecsim]=ode45(@(t,x) kayak_continuous(t,x,Ac,Bc,Bnoise,...
         u,wvec,tspan),tspan,e0ode);
     
+    xd = ed + simDes';
     % wrap xd and xcsim to 0,360
     if(xd(n-1)<0);xd(n-1) = xd(n-1)+360;end
     if(xd(n-1)>360);xd(n-1) = xd(n-1) - 360;end
@@ -273,4 +288,7 @@ plotMPCSims
 if(ifSave)
     save(saveFilename)
     diary off
+end
+if(ispc)
+    cd(old)
 end
