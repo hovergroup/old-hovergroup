@@ -51,8 +51,8 @@ loopIt=1;
 while(~mpc_stop)
     
     loopStart = tic;
-    step = floor(toc(mpcStart)/dt)+1;
-    fprintf('Step: %i, loopIt: %i\n\n',step,loopIt)
+    runStep = floor(toc(mpcStart)/dt)+1;
+    fprintf('Step: %i, loopIt: %i\n\n',runStep,loopIt)
     
     % grab new estimate (after first loop)
     if(loopIt>1)

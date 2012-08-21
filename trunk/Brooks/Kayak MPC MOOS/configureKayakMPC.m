@@ -35,8 +35,8 @@ trueNorthAdjustment = -15;
 syss = 'crossTrack_CLheading';
 
 %kayak = 'kassandra_modem_smallR';
-%kayak = 'kassandra_modem_30R';
-kayak = 'nostromo_modem';
+kayak = 'kassandra_modem_30R';
+%kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
 T = 10;
