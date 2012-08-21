@@ -39,7 +39,7 @@ format compact
 simNoise=0;         % process + meas noise in sims (always in kf)
 KFdelay=0;          % meas available immediately or with delay
 
-ifSave=1;           % save .mat and .txt of command window
+ifSave=0;           % save .mat and .txt of command window
 % run configuration script for parameters and system
 configureKayakMPC
 

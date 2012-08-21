@@ -30,8 +30,8 @@ loss2MPC = 0;%%%% currently doesn't work ...
 rOff = 3;
 trueNorthAdjustment = -15;
 
-syss='crossTrack';
-%syss = 'crossTrack_CLheading';
+%syss='crossTrack';
+syss = 'crossTrack_CLheading';
 
 %kayak = 'kassandra_modem_smallR';
 %kayak = 'kassandra_modem_30R';
@@ -62,12 +62,12 @@ switch tracklineType
         % bearing of straight line:
         desB = deg2rad(80);
     case 'pavilion_1turn'
-        secPerLeg = ceil(120/dt)*dt;
+        secPerLeg = ceil(90/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         ox = 50;oy = -20;
-        pavAngOffset = -20;
+        pavAngOffset = -15;
         kinkAng = deg2rad(45);
     case 'hexagon'
         numLegs = 6;
