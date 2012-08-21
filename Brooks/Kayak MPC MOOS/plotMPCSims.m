@@ -1,7 +1,12 @@
 % plot MPC Sim Results
-%
 
 % BR, 8/19/2012
+
+% changes
+%{
+- 8/20/2012: made some changes to support both systems 
+
+%}
 
 %% print some parameters and results
 fprintf('qmpc: \n')
@@ -85,7 +90,7 @@ switch syss
     case 'crossTrack'
         title('rudder angle')
     case 'crossTrack_CLheading'
-        title('desired heading')
+        title('heading setpoint - trackline heading')
 end
 xlabel('t [sec]');
 ylabel('u1 [deg]');
@@ -107,7 +112,7 @@ plot([0 N],[0 0],'k')
 
 umaxs=0;
 for i=2:N
-    umaxs=max([umaxs max(uSave{i})]);
+    umaxs=max([umaxs max(abs(uSave{i}))]);
 end
 
 for i=2:N

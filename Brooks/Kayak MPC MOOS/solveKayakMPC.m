@@ -27,14 +27,12 @@ m=sys.m;
 A=sys.Ad;
 B=sys.Bd;
 Bin=sys.Bdin;
-%C=sys.Cd; % use CdAll for MPC... (all states in phys units)
 dt=sys.dt;
 
 ifQuiet=params.ifQuiet;
 T=params.T;
 mu=params.mu;
 Qhalf=params.Qhalf;
-%Rhalf=params.Rhalf;
 P=params.Pmpc;
 angle2speed=params.angle2speed;
 slewRate=params.slewRate;
@@ -63,8 +61,10 @@ if(uDelay)
     variables X(n,T+2) U(m,T)
     
     % max is defined in terms of ERROR
-    max((X(:,3:T+2)-xDes(:,3:T+2))') <= xmax'; max(U') <= umax';
-    min((X(:,3:T+2)-xDes(:,3:T+2))') >= xmin'; min(U') >= umin';
+    max((X(:,3:T+2)-xDes(:,3:T+2))') <= xmax';
+    max(U') <= umax';
+    min((X(:,3:T+2)-xDes(:,3:T+2))') >= xmin';
+    min(U') >= umin';
     
     % **cross-track is defined wrt des bearing - Bin
     
@@ -72,12 +72,12 @@ if(uDelay)
     X(:,1) == x;
     % propagate using previous control to get X(t=2)
     X(:,2) == A*(X(:,1)) + Bin*xDes(:,1) + B*uPrev;
-    X(:,3:T+2) == A*(X(:,2:T+1)) + Bin*xDes(:,2:T+1) + B*U(:,1:T);
+    X(:,3:T+2) == A*(X(:,2:T+1)) + Bin*xDes(:,2:T+1) + B*U;
     
     % could add -xDes, but equal to zero
     % constrain perpendicular speed to be fraction of speed*dt
-    (X(n,3:T+1) - X(n,2:T))*C(n,n) <= speed*dt*angle2speed;
-    (X(n,3:T+1) - X(n,2:T))*C(n,n) >= -speed*dt*angle2speed;
+    (X(n,4:T+1) - X(n,3:T))*C(n,n) <= speed*dt*angle2speed;
+    (X(n,4:T+1) - X(n,3:T))*C(n,n) >= -speed*dt*angle2speed;
     
 else
     
