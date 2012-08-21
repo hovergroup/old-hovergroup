@@ -7,6 +7,8 @@
 
 % changes:
 %{
+-8/20/2012: added options for diff systems
+
 
 %}
 
@@ -25,9 +27,16 @@ iMatlab('MOOS_MAIL_TX','MPC_STOP','STOP')
 pause(1)
 garbageMail = iMatlab('MOOS_MAIL_RX');
 
-send = 0+rOff;
-iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
-fprintf('Sending rudder = %f \n',send);
+switch syss
+    case 'crossTrack'
+        send = r0+rOff;
+        iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
+        fprintf('Sending rudder = %f \n',send);
+    case 'crossTrack_CLheading'
+        send = hd0;
+        iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
+        fprintf('Sending des heading = %f \n',send);
+end
 
 % wait for MOOS side to start, and get initial X, Y, H
 stateReadTimeout = 2;   % time to wait for reading state...
@@ -66,7 +75,12 @@ end
 
 % initial estimate of ERROR is all zero...(first trackline defined off
 % initial measurement)
-eEst = [0;0;0;0];
+switch n
+    case 4
+        eEst = [0;0;0;0];
+    case 3
+        eEst = [0;0;0];
+end
 
 % initial start position
 hDes = atan2((y(1)-y0),(x(1)-x0));

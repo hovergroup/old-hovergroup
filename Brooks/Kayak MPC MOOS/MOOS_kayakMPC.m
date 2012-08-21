@@ -9,11 +9,12 @@
 - 8/14/2012: added set point stuff (cut out heading error wrap for now)
 - 8/14/2012: some minor changes while testing
 - 8/17/2012: added increment to N, adjusted xDes increments (still a bit
-off though).  
+off though).
 - 8/19/2012: added initializeMOOS_MPC script
     - fixed some indexing issues with desBearing
     - added computeMPCInputs fcn
-
+- 8/20/2012: added options for different systems (still need to adjust
+    parseMPC_XEST)
 
 
 
@@ -22,6 +23,9 @@ clear all
 close all
 clc
 format compact
+
+TX = 'wifi';
+%TX = 'acomms';
 
 % configure MPC parameters
 configureKayakMPC;
@@ -35,6 +39,8 @@ uPlanBuffered = uPlan;
 lenMPC_STR=110;
 MPC_STR = char(97*ones(1,lenMPC_STR));
 
+r0=0;
+hd0=73;
 initializeMOOS_MPC;
 
 mpcStart = tic;
@@ -56,7 +62,7 @@ while(~mpc_stop)
     end
     
     % create inputs to MPC: eDes, uPrev:
-    eDes = computeMPCInputs(n,N,T,desBearing,loopIt);
+    eDes = computeMPCInputs(n,N,T,syss,desBearing,loopIt);
     disp(eDes(3,:))
     
     if(loss2MPC)
@@ -80,24 +86,46 @@ while(~mpc_stop)
     disp(uPlan)
     fprintf('Buffered plan: \n')
     disp(uPlanBuffered)
-
+    
     % (encode, quantize plan)
     % send plan (just control to start)
-    send = u+rOff;
     
-    % DELAY (simulate acomms...)
-    while(toc(loopStart)<(dt-.005))
-        pause(0.005)
+    switch syss
+        case 'crossTrack'
+            send = u+rOff;
+        case 'crossTrack_CLheading'
+            uBearing = u+desBearing(loopIt);
+            if(uBearing<0);uBearing = uBearing+360;end
+            if(uBearing>360);uBearing = uBearing - 360;end
+            send = uBearing;
     end
-
-    iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
-    fprintf('\n\nSend u = %f, Send rudder = %f \n\n\n',u,send);
+    
+    switch TX
+        case 'wifi'
+            
+            % DELAY (simulate acomms...)
+            while(toc(loopStart)<(dt-.005))
+                pause(0.005)
+            end
+            switch syss
+                case 'crossTrack'
+                    iMatlab('MOOS_MAIL_TX','DESIRED_RUDDER',send);
+                    fprintf('\n\nSend u = %f, Send rudder = %f \n\n\n',u,send);
+                case 'crossTrack_CLheading'
+                    iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
+                    fprintf('\n\nSend des heading = %f \n\n\n',send);
+            end
+            
+        case 'acomms'
+            
+            
+    end
     
     % string to log
     MPC_STR(1:5) = 'uPlan';
     lenU = 8;
     for k = 1:T
-        MPC_STR((6+((k-1)*lenU)):(5+(k*lenU))) = sprintf(',%+07.3f',uPlan(k));  
+        MPC_STR((6+((k-1)*lenU)):(5+(k*lenU))) = sprintf(',%+07.3f',uPlan(k));
         %[MPC_STR ',' num2str(uPlan(k))];
     end
     MPC_STR(6+(k*lenU):100) = sprintf(',tMPC,%09.3f',tMPC);
