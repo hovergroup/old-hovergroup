@@ -60,7 +60,7 @@ while(~mpc_stop)
         [eEstKF mpc_stop] = parseMPC_XEST;
         xHat = eEstKF + [0 0 desBearing(loopIt-1) 0]';
         fprintf('actual est heading: %f [deg]\n',xHat(3))
-        fprintf('cross-track error: %f [m]\n\n',CdAll(n,n)*eEstKF(n))
+        fprintf('cross-track error: %f [m]\n\n',CdAll(n,n)*eEstKF(4))
     end
     switch syss
         case'crossTrack_CLheading'
