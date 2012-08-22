@@ -34,9 +34,9 @@ trueNorthAdjustment = -15;
 syss='crossTrack';
 %syss = 'crossTrack_CLheading';
 
-%kayak = 'kassandra_modem_smallR';
+kayak = 'kassandra_modem_smallR';
 %kayak = 'kassandra_modem_30R';
-kayak = 'nostromo_modem';
+%kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
 T = 10;
@@ -50,7 +50,7 @@ dt = 3;
 
 % for gen matrices for KF @ 2hz
 %dt = 0.5;
-dt = 1/5;
+%dt = 1/5;
 
 %tracklineType='straight';
 tracklineType = 'pavilion_1turn';
@@ -64,7 +64,7 @@ switch tracklineType
         % bearing of straight line:
         desB = deg2rad(80);
     case 'pavilion_1turn'
-        secPerLeg = ceil(90/dt)*dt;
+        secPerLeg = ceil(120/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
