@@ -39,8 +39,11 @@ ProcessConfig = pKalmanFilter
 	RudderOffset = 0
 	//RudderOffset = 5
 	//Crosstrack = 0.0349 //for Nostromo
-	Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
+	//Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
 	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
+	Crosstrack = 0.0140	// for kassandra small rudder CL heading
+	
+	
 }
 
 ProcessConfig = pSearchRelay
