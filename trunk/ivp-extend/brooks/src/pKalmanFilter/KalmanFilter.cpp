@@ -361,8 +361,9 @@ double KalmanFilter::GetCrossTrackError(){
 		double d = a*cos_a;
 		double ct_error = sqrt(pow(a,2.0)-pow(d,2.0));
 
+		//if(GetDesiredHeading() > GetHeading(x1,y1,myx,myy)){
 		if(GetDesiredHeading() > GetHeading(x1,y1,myx,myy)){
-			ct_error = -ct_error;
+		  ct_error = -ct_error;
 		}
 
 		cout << "Calculated Cross Track Error: " << ct_error << endl;
