@@ -131,7 +131,7 @@ ProcessConfig = kayak_interface
 	THRUST_CUTOFF = 0
 	MIN_UPDATE_PERIOD = .25
 	INVERT_RUDDER = 1
-	RUDDER_OFFSET = 10
+	RUDDER_OFFSET = -10
 }
 
 ProcessConfig = iOS5000_filtered
