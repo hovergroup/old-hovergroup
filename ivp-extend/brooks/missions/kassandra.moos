@@ -43,7 +43,6 @@ ProcessConfig = pKalmanFilter
 	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
 	Crosstrack = 0.0140	// for kassandra small rudder CL heading
 	
-	
 }
 
 ProcessConfig = pSearchRelay
