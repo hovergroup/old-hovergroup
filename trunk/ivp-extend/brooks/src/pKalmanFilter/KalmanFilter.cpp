@@ -460,7 +460,7 @@ void KalmanFilter::PublishStates(){
 	cout << "Publishing states" << endl;
 	string delim = "<|>";
 	stringstream ss;
-	ss << gsl_vector_get(x_hat,0) << delim;`
+	ss << gsl_vector_get(x_hat,0) << delim;
 	ss << gsl_vector_get(x_hat,1) << delim;
 	ss << gsl_vector_get(x_hat,2) << delim;
 	ss << gsl_vector_get(x_hat,3);
