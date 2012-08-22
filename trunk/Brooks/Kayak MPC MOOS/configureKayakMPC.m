@@ -31,8 +31,8 @@ loss2MPC = 0;%%%% currently doesn't work ...
 rOff=0;
 trueNorthAdjustment = -15;
 
-syss='crossTrack';
-%syss = 'crossTrack_CLheading';
+%syss='crossTrack';
+syss = 'crossTrack_CLheading';
 
 kayak = 'kassandra_modem_smallR';
 %kayak = 'kassandra_modem_30R';
