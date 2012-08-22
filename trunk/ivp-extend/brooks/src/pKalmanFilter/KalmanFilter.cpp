@@ -128,9 +128,13 @@ bool KalmanFilter::Iterate()
 
 	if(!end){
 
-		if(timer_time > 0.5 && !begin){
-			EstimateStates();
-			timer = MOOSTime();
+		//if(timer_time > 0.5 && !begin){
+		//	EstimateStates();			// Estimate states at 1/(0.5) Hz
+		//	timer = MOOSTime();
+		//}
+		
+		if(!begin){
+			EstimateStates();	//Estimate states at the App Tick
 		}
 
 		if(time_passed >= wait){
