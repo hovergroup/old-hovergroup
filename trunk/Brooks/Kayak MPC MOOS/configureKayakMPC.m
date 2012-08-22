@@ -53,8 +53,8 @@ dt = 3;
 %dt = 1/5;
 
 %tracklineType='straight';
-tracklineType = 'pavilion_1turn';
-%tracklineType = 'hexagon';
+%tracklineType = 'pavilion_1turn';
+tracklineType = 'hexagon';
 
 switch tracklineType
     case 'straight'
@@ -73,10 +73,10 @@ switch tracklineType
         kinkAng = deg2rad(45);
     case 'hexagon'
         numLegs = 6;
-        secPerLeg = 120;
+        secPerLeg = 90;
         Nsec = secPerLeg*numLegs;
-        ox = 20;
-        oy = -30;
+        ox = 50;
+        oy = -50;
 end
 N = ceil(Nsec/dt);  % total sim steps
 
