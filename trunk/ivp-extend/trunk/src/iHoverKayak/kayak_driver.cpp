@@ -269,9 +269,9 @@ void kayak_driver::shiftBuffer(int shift) {
 
 void kayak_driver::parseVoltages(int index, int stopIndex) {
 	if (readBuffer[index] == 'V' && readBuffer[index + 1] == '=') {
-		float battery_voltage;
-		sscanf(&readBuffer[index], "V=%f", &battery_voltage);
-		m_Comms.Notify("VOLTAGE", battery_voltage);
+		int battery_voltage
+		sscanf(&readBuffer[index], "V=%d", &battery_voltage);
+		m_Comms.Notify("VOLTAGE", battery_voltage/10.0);
 	} else {
 		cout << "bad parse" << endl;
 	}
@@ -279,10 +279,9 @@ void kayak_driver::parseVoltages(int index, int stopIndex) {
 
 void kayak_driver::parseTemperatures(int index, int stopIndex) {
 	if (readBuffer[index] == 'T' && readBuffer[index + 1] == '=') {
-		float cpu_temp;
-		int heatsink_temp, internal_temp;
-		sscanf(&readBuffer[index], "T=%f,%d,%d", &cpu_temp, &heatsink_temp, &internal_temp);
-		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp);
+		int heatsink_temp, internal_temp, cpu_tmp
+		sscanf(&readBuffer[index], "T=%d,%d,%d", &cpu_temp, &heatsink_temp, &internal_temp);
+		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp/10.0);
 		m_Comms.Notify("ROBOTEQ_HEATSINK_TEMP", heatsink_temp);
 		m_Comms.Notify("ROBOTEQ_INTERNAL_TEMP", internal_temp);
 	} else {
@@ -292,10 +291,10 @@ void kayak_driver::parseTemperatures(int index, int stopIndex) {
 
 void kayak_driver::parseCurrents(int index, int stopIndex) {
 	if (readBuffer[index] == 'C' && readBuffer[index + 1] == '=') {
-		float battery_amps, motor_amps;
-		sscanf(&readBuffer[index], "C=%f,%f", &battery_amps, &motor_amps);
-		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps);
-		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps);
+		int battery_amps, motor_amps;
+		sscanf(&readBuffer[index], "C=%d,%d", &battery_amps, &motor_amps);
+		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps/10.0);
+		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps/10.0);
 	} else {
 		cout << "bad parse" << endl;
 	}
