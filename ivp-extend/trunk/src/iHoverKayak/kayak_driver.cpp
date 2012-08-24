@@ -114,7 +114,7 @@ void kayak_driver::sendMotorCommands() {
 	writeData( ss.str().c_str(), ss.str().size() );
 //	writeData( &tmp[0], size );
 
-	cout << "sending command string: " << ss.str() << endl;
+//	cout << "sending command string: " << ss.str() << endl;
 }
 
 //---------------------------------------------------------
@@ -217,7 +217,7 @@ void kayak_driver::processWriteBuffer() {
 		// release lock to prevent outside write requests from blocking on serial write
 		writeBufferMutex.unlock();
 
-		cout << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
+//		cout << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
 
 		// simple synchronous serial write
 		port.write_some( buffer(localWriteBuffer, localWriteBuffer.size()) );
