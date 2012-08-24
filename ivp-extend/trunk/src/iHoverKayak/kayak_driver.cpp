@@ -110,7 +110,7 @@ void kayak_driver::sendMotorCommands() {
 //	int size = sprintf(&tmp[0], "!M=%d,%d\r",
 //			m_desired_thrust*10, m_desired_rudder);
 	stringstream ss;
-	ss << "!M=" << m_desired_thrust*10 << "," << m_desired_rudder << '\r';
+	ss << "!M=" << m_desired_thrust*10 << "," << m_desired_rudder << endl;
 	writeData( ss.str().c_str(), ss.str().size() );
 //	writeData( &tmp[0], size );
 
