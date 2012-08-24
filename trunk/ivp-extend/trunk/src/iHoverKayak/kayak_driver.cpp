@@ -107,8 +107,10 @@ void kayak_driver::RegisterVariables()
 void kayak_driver::sendMotorCommands() {
 	// format motor commands and write to arduino
 	char tmp [100];
-	int size = sprintf(&tmp[0], "!M=%d,%d\r",
+	int size = sprintf(&tmp[0], "!M=%d,%d",
 			m_desired_thrust*10, m_desired_rudder);
+	tmp[size]='\r';
+	size++;
 	writeData( &tmp[0], size );
 
 	cout << "sending command string: " << string(tmp) << endl;
