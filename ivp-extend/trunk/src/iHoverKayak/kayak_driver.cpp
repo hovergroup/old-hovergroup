@@ -110,7 +110,7 @@ void kayak_driver::sendMotorCommands() {
 //	int size = sprintf(&tmp[0], "!M=%d,%d\r",
 //			m_desired_thrust*10, m_desired_rudder);
 	stringstream ss;
-	ss << "!M=" << m_desired_thrust*10 << m_desired_rudder << '\r';
+	ss << "!M=" << m_desired_thrust*10 << "," << m_desired_rudder << '\r';
 	writeData( ss.str().c_str(), ss.str().size() );
 //	writeData( &tmp[0], size );
 
@@ -217,7 +217,7 @@ void kayak_driver::processWriteBuffer() {
 		// release lock to prevent outside write requests from blocking on serial write
 		writeBufferMutex.unlock();
 
-		cout << endl << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
+		cout << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
 
 		// simple synchronous serial write
 		port.write_some( buffer(localWriteBuffer, localWriteBuffer.size()) );
