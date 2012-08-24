@@ -55,6 +55,7 @@ private:
 
 	void writeData( unsigned char *ptr, int length );
 	void writeData( char *ptr, int length );
+	void writeData( const char *ptr, int length );
 
 	void shiftBuffer( int shift );
 	int processBuffer();
