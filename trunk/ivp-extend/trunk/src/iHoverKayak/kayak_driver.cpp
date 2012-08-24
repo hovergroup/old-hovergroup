@@ -181,6 +181,7 @@ void kayak_driver::read_handler(bool& data_available, deadline_timer& timeout,
 		data_available = false;
 		return;
 	}
+	cout << "data available: " << bytes_transferred << endl;
 	data_available = true;
 	buffer_index+=bytes_transferred;
 	timeout.cancel();
@@ -322,11 +323,13 @@ void kayak_driver::parseActuators(int index, int stopIndex) {
 void kayak_driver::serialLoop() {
 	while (!stop_requested) {
 
+		cout << "processing write buffer" << endl;
 		processWriteBuffer();
 
+		cout << "async fun" << endl;
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
-		port.async_read_some( buffer( &readBuffer[buffer_index], 10000-buffer_index ),
+		port.async_read_some( buffer( &readBuffer[buffer_index], 1000-buffer_index ),
 				boost::bind( &kayak_driver::read_handler, this, boost::ref(data_available), boost::ref(timeout),
 					boost::asio::placeholders::error,
 					boost::asio::placeholders::bytes_transferred ) );
@@ -339,6 +342,7 @@ void kayak_driver::serialLoop() {
 		io.reset();
 		io.run();
 
+		cout << "async fun done" << endl;
 		if (data_available) {
 			shiftBuffer( processBuffer() );
 		}
