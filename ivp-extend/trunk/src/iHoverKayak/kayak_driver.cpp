@@ -201,13 +201,13 @@ void kayak_driver::processWriteBuffer() {
 	writeBufferMutex.lock();
 	if ( bytesToWrite > 0 ) {
 		// if there is data waiting, copy it to a local buffer
-		vector<unsigned char> localWriteBuffer( bytesToWrite, 0 );
+		vector<char> localWriteBuffer( bytesToWrite, 0 );
 		memcpy(&localWriteBuffer[0], &writeBuffer[0], bytesToWrite);
 		bytesToWrite = 0;
 		// release lock to prevent outside write requests from blocking on serial write
 		writeBufferMutex.unlock();
 
-//		cout << endl << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
+		cout << endl << dec << "writing " << localWriteBuffer.size() << " bytes" << endl;
 
 		// simple synchronous serial write
 		port.write_some( buffer(localWriteBuffer, localWriteBuffer.size()) );
