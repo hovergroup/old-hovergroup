@@ -106,14 +106,15 @@ void kayak_driver::RegisterVariables()
 
 void kayak_driver::sendMotorCommands() {
 	// format motor commands and write to arduino
-	char tmp [100];
-	int size = sprintf(&tmp[0], "!M=%d,%d",
-			m_desired_thrust*10, m_desired_rudder);
-	tmp[size]='\r';
-	size++;
-	writeData( &tmp[0], size );
+//	char tmp [100];
+//	int size = sprintf(&tmp[0], "!M=%d,%d\r",
+//			m_desired_thrust*10, m_desired_rudder);
+	stringstream ss;
+	ss << "!M=" << m_desired_thrust*10 << m_desired_rudder << '\r';
+	writeData( ss.str().c_str(), ss.str().size() );
+//	writeData( &tmp[0], size );
 
-	cout << "sending command string: " << string(tmp) << endl;
+	cout << "sending command string: " << ss.str() << endl;
 }
 
 //---------------------------------------------------------
@@ -169,6 +170,13 @@ void kayak_driver::writeData( unsigned char *ptr, int length ) {
 }
 
 void kayak_driver::writeData( char * ptr, int length ) {
+	writeBufferMutex.lock();
+	memcpy(&writeBuffer[bytesToWrite], ptr, length);
+	bytesToWrite += length;
+	writeBufferMutex.unlock();
+}
+
+void kayak_driver::writeData( const char * ptr, int length ) {
 	writeBufferMutex.lock();
 	memcpy(&writeBuffer[bytesToWrite], ptr, length);
 	bytesToWrite += length;
