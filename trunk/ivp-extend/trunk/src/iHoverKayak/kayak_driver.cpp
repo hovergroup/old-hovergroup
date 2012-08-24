@@ -107,7 +107,7 @@ void kayak_driver::RegisterVariables()
 void kayak_driver::sendMotorCommands() {
 	// format motor commands and write to arduino
 	char tmp [100];
-	int size = sprintf(&tmp[0], "!M=%d,%d",
+	int size = sprintf(&tmp[0], "!M=%d,%d\r",
 			m_desired_thrust*10, m_desired_rudder);
 	writeData( &tmp[0], size );
 
@@ -120,7 +120,7 @@ void kayak_driver::sendMotorCommands() {
 bool kayak_driver::Iterate()
 {
 	// send at least 4 commands a second
-	if ( MOOSTime() > m_last_command_time + .25 && newCommand) {
+	if ( MOOSTime() > m_last_command_time + .25 || newCommand) {
 		sendMotorCommands();
 		m_last_command_time = MOOSTime();
 		newCommand = false;
