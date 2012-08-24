@@ -181,7 +181,7 @@ void iOS5000_Hover::processLine( double heading, double pitch, double roll, doub
 }
 
 void iOS5000_Hover::parseLine( string msg ) {
-	cout << "parsing line: " << msg << endl;
+//	cout << "parsing line: " << msg << endl;
 	// $C320.5P0.2R-18.3T19.0*3C
 	if ( msg[0]!='$' || msg[1]!='C' ) return;
 
@@ -235,7 +235,7 @@ void iOS5000_Hover::serialLoop() {
 //				cout << "index: " << index << endl;
 //				cout << string_buffer.substr(0, index) << endl;
 //				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
-				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
+				string_buffer = string_buffer.substr( index+1, string_buffer.size()-index-1 );
 			}
 			// print out read data in hexidecimal format
 			/*for (int i=0; i<asyncBytesRead; i++) {
