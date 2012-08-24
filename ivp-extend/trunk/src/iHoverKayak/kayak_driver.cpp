@@ -225,6 +225,12 @@ int kayak_driver::findLine(int index) {
 }
 
 int kayak_driver::processBuffer() {
+	cout << "processing: ";
+	for (int i=0; i<buffer_index; i++ ) {
+		cout << readBuffer[i];
+	}
+	cout << endl;
+
 	int bytesUsed = 0;
 	int stopIndex = findLine(bytesUsed);
 	if (stopIndex == -1)
@@ -259,6 +265,8 @@ int kayak_driver::processBuffer() {
 }
 
 void kayak_driver::shiftBuffer(int shift) {
+	cout << "shifting " << buffer_index-shift << " bytes by " << shift << endl;
+
 	if (shift == 0 || buffer_index == 0)
 		return;
 	for (int i = shift; i < buffer_index; i++) {
