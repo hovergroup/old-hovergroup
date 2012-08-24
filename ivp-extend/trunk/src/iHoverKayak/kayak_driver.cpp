@@ -111,7 +111,7 @@ void kayak_driver::sendMotorCommands() {
 			m_desired_thrust*10, m_desired_rudder);
 	writeData( &tmp[0], size );
 
-//	cout << "sending command string: " << string(tmp) << endl;
+	cout << "sending command string: " << string(tmp) << endl;
 }
 
 //---------------------------------------------------------
