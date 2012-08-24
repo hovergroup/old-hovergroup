@@ -13,18 +13,18 @@ ProcessConfig = ANTLER
 {
 	MSBetweenLaunches	= 500
 
-	Run = MOOSDB		@ NewConsole = false
-	Run = ikayak_driver @ NewConsole = false
-	Run = pNodeReporter	@ NewConsole = false
-	Run = pMOOSBridge		@ NewConsole = false
-	Run = pMarinePID		@ NewConsole = false
-	Run = pHelmIvP		@ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
-	Run = iOS5000_filtered		@ NewConsole = false
-	Run = iGPS_Hover	@ NewConsole = false
+	Run = MOOSDB			@ NewConsole = false
+	Run = iHoverKayak 		@ NewConsole = false
+	//Run = pNodeReporter	@ NewConsole = false
+	//Run = pMOOSBridge		@ NewConsole = false
+	//Run = pMarinePID		@ NewConsole = false
+	//Run = pHelmIvP		@ NewConsole = false
+	//Run = pEchoVar		@ NewConsole = false
+	Run = iOS5000_Hover		@ NewConsole = false
+	//Run = iGPS_Hover		@ NewConsole = false
 
-	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	Run = iacomms_driver @ NewConsole = false
+	//Run = pLogger			@ NewConsole = false	// Logs messages to disk
+	//Run = iAcommsDriver	@ NewConsole = false
 }
 
 ProcessConfig = uTimerScript
@@ -41,9 +41,19 @@ ProcessConfig = uTimerScript
 ProcessConfig = uXMS
 {
 	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=VOLTAGE
+	VAR=CPU_BOX_TEMP
+	VAR=ROBOTEQ_HEATSINK_TEMP
+	VAR=ROBOTEQ_INTERNAL_TEMP
+	VAR=ROBOTEQ_BATTERY_CURRENT
+	VAR=ROBOTEQ_MOTOR_CURRENT
+	VAR=ARDUINO_THRUST
+	VAR=ARDUINO_RUDDER
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
 	CommsTick = 5
@@ -61,7 +71,7 @@ ProcessConfig = iGPS_Hover
 	BAUD_RATE = 57600
 }
 
-ProcessConfig = ikayak_driver
+ProcessConfig = iHoverKayak
 {
 	AppTick = 20
 	CommsTick = 20
@@ -70,7 +80,7 @@ ProcessConfig = ikayak_driver
 	RUDDER_OFFSET = 0
 }
 
-ProcessConfig = iOS5000_filtered
+ProcessConfig = iOS5000_Hover
 {
 	AppTick		= 20
 	CommsTick	= 20
@@ -82,16 +92,15 @@ ProcessConfig = iOS5000_filtered
 	UpdateFraction = .05
 }
 
-
 ProcessConfig = pNodeReporter
-	{
+{
 	// xxxTick	= 5 when using 5hz GPS, 2 when using 1hz GPS 
 	AppTick		= 2
 	CommsTick	= 2
 
 	VESSEL_TYPE	= KAYAK		// Sets the icon in pMarineViewer
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
-	}
+}
 
 ProcessConfig = pMOOSBridge
 	{
@@ -184,6 +193,8 @@ ProcessConfig = pLogger
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
+	
+	WildCardOmitPattern = PLOGGER_STATUS
 }
 
 

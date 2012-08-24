@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <math.h>
+#include <stdio.h>
 
 class kayak_driver : public CMOOSApp
 {
@@ -35,8 +36,6 @@ private:
 	std::string my_port_name;
 	int my_baud_rate;
 
-	std::string string_buffer;
-
 	// for asyncronous serial port operations
 	boost::asio::deadline_timer timeout;
 	bool data_available;
@@ -47,9 +46,9 @@ private:
 	void wait_callback(boost::asio::serial_port& ser_port, const boost::system::error_code& error);
 	void null_handler(const boost::system::error_code& error, std::size_t bytes_transferred) {};
 
-	std::vector<unsigned char> readBuffer, writeBuffer;
+	std::vector<char> readBuffer, writeBuffer;
 	boost::mutex writeBufferMutex;
-	int bytesToWrite;
+	int bytesToWrite, buffer_index;;
 
 	// the background loop responsible for interacting with the serial port
 	void serialLoop();
@@ -58,8 +57,14 @@ private:
 	void writeData( unsigned char *ptr, int length );
 	void writeData( char *ptr, int length );
 
-	void parseLine( std::string msg );
-	void parseSensors( std::string msg );
+	void shiftBuffer( int shift );
+	int processBuffer();
+	int findLine( int index );
+
+	void parseVoltages( int index, int stopIndex );
+	void parseTemperatures( int index, int stopIndex );
+	void parseCurrents( int index, int stopIndex );
+	void parseActuators( int index, int stopIndex );
 
 	// commands
 	int m_desired_rudder, m_desired_thrust;
@@ -72,8 +77,6 @@ private:
 	int mapRudder( int rudder_command );
 	void sendMotorCommands();
 	void toggleCompassCalibration();
-
-	std::vector<std::string> tokenizeString( std::string message, std::string tokens);
 };
 
 #endif
