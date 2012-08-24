@@ -279,7 +279,7 @@ void kayak_driver::parseVoltages(int index, int stopIndex) {
 
 void kayak_driver::parseTemperatures(int index, int stopIndex) {
 	if (readBuffer[index] == 'T' && readBuffer[index + 1] == '=') {
-		int heatsink_temp, internal_temp, cpu_tmp;
+		int heatsink_temp, internal_temp, cpu_temp;
 		sscanf(&readBuffer[index], "T=%d,%d,%d", &cpu_temp, &heatsink_temp, &internal_temp);
 		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp/10.0);
 		m_Comms.Notify("ROBOTEQ_HEATSINK_TEMP", heatsink_temp);
