@@ -12,7 +12,7 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 	readBuffer = vector<char> (1000, 0);
 
 	bytesToWrite = 0;
-	asyncBytesRead = 0;
+	buffer_index = 0;
 	data_available = false;
 	stop_requested = false;
 
@@ -326,7 +326,7 @@ void kayak_driver::serialLoop() {
 		cout << "processing write buffer" << endl;
 		processWriteBuffer();
 
-		cout << "async fun" << endl;
+		cout << "async fun: " << buffer_index << endl;
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
 		port.async_read_some( buffer( &readBuffer[buffer_index], 1000-buffer_index ),
