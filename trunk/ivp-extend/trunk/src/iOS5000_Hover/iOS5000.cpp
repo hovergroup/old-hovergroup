@@ -181,6 +181,7 @@ void iOS5000_Hover::processLine( double heading, double pitch, double roll, doub
 }
 
 void iOS5000_Hover::parseLine( string msg ) {
+	cout << "parsing line: " << msg << endl;
 	// $C320.5P0.2R-18.3T19.0*3C
 	if ( msg[0]!='$' || msg[1]!='C' ) return;
 
