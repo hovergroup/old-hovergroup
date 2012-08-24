@@ -8,8 +8,8 @@ using namespace boost::posix_time;
 
 kayak_driver::kayak_driver() : port(io), timeout(io) {
 	// initialize buffers with some size larger than should ever be needed
-	writeBuffer = vector<unsigned char> (1000, 0);
-	readBuffer = vector<unsigned char> (1000, 0);
+	writeBuffer = vector<char> (1000, 0);
+	readBuffer = vector<char> (1000, 0);
 
 	bytesToWrite = 0;
 	asyncBytesRead = 0;
@@ -18,8 +18,6 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 
 	my_baud_rate = 115200;
 	my_port_name = "/dev/ttyO0";
-
-	string_buffer = "";
 
 	m_desired_rudder = 0;
 	m_desired_thrust = 0;
@@ -109,8 +107,8 @@ void kayak_driver::RegisterVariables()
 void kayak_driver::sendMotorCommands() {
 	// format motor commands and write to arduino
 	char tmp [100];
-	int size = sprintf(&tmp[0], "mtr:thrust=%d,angle=%d\n",
-			m_desired_thrust, m_desired_rudder);
+	int size = sprintf(&tmp[0], "!M=%d,%d",
+			m_desired_thrust*10, m_desired_rudder);
 	writeData( &tmp[0], size );
 
 //	cout << "sending command string: " << string(tmp) << endl;
@@ -122,12 +120,11 @@ void kayak_driver::sendMotorCommands() {
 bool kayak_driver::Iterate()
 {
 	// send at least 4 commands a second
-	if ( MOOSTime() > m_last_command_time + .25 ) {
+	if ( MOOSTime() > m_last_command_time + .25 && newCommand) {
 		sendMotorCommands();
 		m_last_command_time = MOOSTime();
 		newCommand = false;
 	}
-//	m_Comms.Notify("VARIABLE_NAME", "I did something.");
 	return(true);
 }
 
@@ -185,7 +182,7 @@ void kayak_driver::read_handler(bool& data_available, deadline_timer& timeout,
 		return;
 	}
 	data_available = true;
-	asyncBytesRead = bytes_transferred;
+	buffer_index+=bytes_transferred;
 	timeout.cancel();
 }
 
@@ -219,52 +216,99 @@ void kayak_driver::processWriteBuffer() {
 	}
 }
 
-// split string into substrings using provided tokens
-vector<string> kayak_driver::tokenizeString( string message, string tokens ) {
-	char * cstr = new char [message.size() + 1];
-	strcpy(cstr, message.c_str());
-	char * ctokens = new char [tokens.size()+1];
-	strcpy(ctokens, tokens.c_str());
-
-	char * pch;
-	vector<string> subs;
-
-	pch = strtok(cstr,ctokens);
-	while (pch != NULL) {
-		subs.push_back(string(pch));
-		pch  = strtok(NULL,ctokens);
+int kayak_driver::findLine(int index) {
+	for ( int i=index; i<buffer_index; i++ ) {
+		if ( readBuffer[i]=='\r' )
+			return i;
 	}
-
-	delete cstr;
-	delete ctokens;
-
-	return subs;
+	return -1;
 }
 
-void kayak_driver::parseSensors( string msg ) {
-//	cout << msg << endl;
-	vector<string> subs = tokenizeString( msg, ",=" );
-	if ( subs.size() < 6 ) {
-		cout << "WARNING: insufficient data: " << msg << endl;
+int kayak_driver::processBuffer() {
+	int bytesUsed = 0;
+	int stopIndex = findLine(bytesUsed);
+	if (stopIndex == -1)
+		return bytesUsed;
+	while (bytesUsed < buffer_index) {
+		if (bytesUsed > stopIndex) {
+			stopIndex = findLine(bytesUsed);
+			if (stopIndex == -1)
+				return bytesUsed;
+		}
+		switch (readBuffer[bytesUsed]) {
+		case 'V':
+			parseVoltages(bytesUsed, stopIndex);
+			bytesUsed = stopIndex;
+			break;
+		case 'T':
+			parseTemperatures(bytesUsed, stopIndex);
+			bytesUsed = stopIndex;
+			break;
+		case 'C':
+			parseCurrents(bytesUsed, stopIndex);
+			bytesUsed = stopIndex;
+			break;
+		case 'M':
+			parseActuators(bytesUsed, stopIndex);
+			bytesUsed = stopIndex;
+			break;
+		}
+		bytesUsed++;
+	}
+	return bytesUsed;
+}
+
+void kayak_driver::shiftBuffer(int shift) {
+	if (shift == 0 || buffer_index == 0)
 		return;
+	for (int i = shift; i < buffer_index; i++) {
+		readBuffer[i - shift] = readBuffer[i];
 	}
-	double voltage = atoi(subs[1].c_str())/1000.0;
-	double pwm = atoi(subs[3].c_str());
-	double angle = atoi(subs[5].c_str());
-	m_Comms.Notify("VOLTAGE", voltage);
-	m_Comms.Notify("ARDUINO_THRUST", pwm);
-	m_Comms.Notify("ARDUINO_RUDDER", angle);
-//	cout << heading << " " << voltage << endl;
+	buffer_index -= shift;
 }
 
-void kayak_driver::parseLine( string msg ) {
-	if ( msg.find("voltage") != -1 ) {
-		int index = msg.find("voltage");
-		parseSensors( msg.substr(index, msg.length()-index) );
-//		cout << "found sensors: " << index << endl;
+void kayak_driver::parseVoltages(int index, int stopIndex) {
+	if (readBuffer[index] == 'V' && readBuffer[index + 1] == '=') {
+		float battery_voltage;
+		sscanf(&readBuffer[index], "V=%f", &battery_voltage);
+		m_Comms.Notify("VOLTAGE", battery_voltage);
 	} else {
-		m_Comms.Notify("ARDUINO_MESSAGES", msg);
-		cout << "WARNING: Unhandled Arduino message: " << msg << endl;
+		cout << "bad parse" << endl;
+	}
+}
+
+void kayak_driver::parseTemperatures(int index, int stopIndex) {
+	if (readBuffer[index] == 'T' && readBuffer[index + 1] == '=') {
+		float cpu_temp;
+		int heatsink_temp, internal_temp;
+		sscanf(&readBuffer[index], "T=%f,%d,%d", &cpu_temp, &heatsink_temp, &internal_temp);
+		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp);
+		m_Comms.Notify("ROBOTEQ_HEATSINK_TEMP", heatsink_temp);
+		m_Comms.Notify("ROBOTEQ_INTERNAL_TEMP", internal_temp);
+	} else {
+		cout << "bad parse" << endl;
+	}
+}
+
+void kayak_driver::parseCurrents(int index, int stopIndex) {
+	if (readBuffer[index] == 'C' && readBuffer[index + 1] == '=') {
+		float battery_amps, motor_amps;
+		sscanf(&readBuffer[index], "C=%f,%f", &battery_amps, &motor_amps);
+		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps);
+		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps);
+	} else {
+		cout << "bad parse" << endl;
+	}
+}
+
+void kayak_driver::parseActuators(int index, int stopIndex) {
+	if (readBuffer[index] == 'M' && readBuffer[index + 1] == '=') {
+		int thrust, rudder;
+		sscanf(&readBuffer[index], "M=%d,%d", &thrust, &rudder);
+		m_Comms.Notify("ARDUINO_THRUST", thrust);
+		m_Comms.Notify("ARDUINO_RUDDER", rudder);
+	} else {
+		cout << "bad parse" << endl;
 	}
 }
 
@@ -275,7 +319,7 @@ void kayak_driver::serialLoop() {
 
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
-		port.async_read_some( buffer( &readBuffer[0], 1000 ),
+		port.async_read_some( buffer( &readBuffer[buffer_index], 10000-buffer_index ),
 				boost::bind( &kayak_driver::read_handler, this, boost::ref(data_available), boost::ref(timeout),
 					boost::asio::placeholders::error,
 					boost::asio::placeholders::bytes_transferred ) );
@@ -289,14 +333,7 @@ void kayak_driver::serialLoop() {
 		io.run();
 
 		if (data_available) {
-			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
-//			cout << string_buffer << endl;
-			if ( string_buffer.find('\n',1)!=string::npos ) {
-//				cout << string_buffer << endl;
-				int index = string_buffer.find('\n',1);
-				parseLine( string_buffer.substr(0, index) );
-				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
-			}
+			shiftBuffer( processBuffer() );
 		}
 	}
 }
