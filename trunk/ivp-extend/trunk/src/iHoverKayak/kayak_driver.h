@@ -39,7 +39,6 @@ private:
 	// for asyncronous serial port operations
 	boost::asio::deadline_timer timeout;
 	bool data_available;
-	int asyncBytesRead;
 	// ----
 	void read_handler(bool& data_available, boost::asio::deadline_timer& timeout,
 				const boost::system::error_code& error, std::size_t bytes_transferred);
