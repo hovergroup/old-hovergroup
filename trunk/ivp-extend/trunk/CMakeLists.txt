@@ -19,17 +19,17 @@ SET(BUILD_SHORE_APPS TRUE CACHE BOOL "Build shore apps")
 # Find the "moos-ivp-anrp" base directory
 #=============================================================================
 
-find_path( IVP_ANRP_BASE
-			NAMES src/lib_anrp_util
-			PATHS "~/moos-ivp-anrp/trunk"
-			NO_DEFAULT_PATH
-)
-
-set ( IVP_ANRP_INCLUDE_DIRS
-		${IVP_ANRP_BASE}/src/lib_anrp_util )
-		
-set ( IVP_ANRP_LIBRARY_PATH
-		${IVP_ANRP_BASE}/lib )
+#find_path( IVP_ANRP_BASE
+#			NAMES src/lib_anrp_util
+#			PATHS "~/moos-ivp-anrp/trunk"
+#			NO_DEFAULT_PATH
+#)
+#
+#set ( IVP_ANRP_INCLUDE_DIRS
+#		${IVP_ANRP_BASE}/src/lib_anrp_util )
+#		
+#set ( IVP_ANRP_LIBRARY_PATH
+#		${IVP_ANRP_BASE}/lib )
 
 
 #=============================================================================
@@ -86,8 +86,8 @@ SET(MOOS_LIB_DIR
 
 LINK_DIRECTORIES(	${MOOS_LIB_DIR}
 					${IVP_LIBRARY_DIRS}
-					${GOBY_LIBRARY_PATH}
-					${IVP_ANRP_LIBRARY_PATH}	)
+					${GOBY_LIBRARY_PATH} )
+					#${IVP_ANRP_LIBRARY_PATH}	)
 
 # No harm in giving all IvP software access to MOOS's include libraries.
 SET(MOOS_INCLUDE_DIRS
@@ -100,8 +100,8 @@ SET(MOOS_INCLUDE_DIRS
 
 INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
    						${GOBY_INCLUDE_DIRS}
-   						${IVP_ANRP_INCLUDE_DIRS}
    						${IVP_INCLUDE_DIRS}			)
+   						#${IVP_ANRP_INCLUDE_DIRS} )
 
 
 #=============================================================================
