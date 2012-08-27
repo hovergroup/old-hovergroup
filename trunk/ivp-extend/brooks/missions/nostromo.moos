@@ -31,6 +31,13 @@ ProcessConfig = pKalmanFilter
 	Speed = 2		//m/s
 	Thrust = 60		//percent
 	
+	CompassOffset = 15 	//degrees
+	RudderOffset = 0	//handled in interface
+	
+	//RudderOffset = 5
+	//Crosstrack = 0.0349 //for Nostromo
+	Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
+	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
 }
 
 ProcessConfig = pMOOSBridge
