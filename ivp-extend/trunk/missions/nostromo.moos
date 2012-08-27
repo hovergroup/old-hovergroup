@@ -14,12 +14,12 @@ ProcessConfig = ANTLER
 	MSBetweenLaunches	= 500
 
 	Run = MOOSDB			@ NewConsole = false
-	Run = iHoverKayak 		@ NewConsole = false
+	//Run = iHoverKayak 		@ NewConsole = false
 	//Run = pNodeReporter	@ NewConsole = false
 	//Run = pMOOSBridge		@ NewConsole = false
 	//Run = pMarinePID		@ NewConsole = false
 	//Run = pHelmIvP		@ NewConsole = false
-	//Run = pEchoVar		@ NewConsole = false
+	Run = pEchoVar		@ NewConsole = false
 	Run = iOS5000_Hover		@ NewConsole = false
 	//Run = iGPS_Hover		@ NewConsole = false
 
@@ -64,8 +64,8 @@ ProcessConfig = iAcommsDriver
 
 ProcessConfig = iGPS_Hover
 {
-	AppTick = 5
-	CommsTick = 5
+	AppTick = 1
+	CommsTick = 1
 	
 	PORT_NAME = /dev/ttyUSB0
 	BAUD_RATE = 57600
@@ -82,8 +82,8 @@ ProcessConfig = iHoverKayak
 
 ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 1
+	CommsTick	= 1
 
 	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
@@ -203,8 +203,8 @@ ProcessConfig = pLogger
 
 ProcessConfig = pEchoVar
 {
-  AppTick   = 20
-  CommsTick = 20
+  AppTick   = 40
+  CommsTick = 40
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   Echo = GPS_X -> NAV_X
