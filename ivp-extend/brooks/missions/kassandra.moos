@@ -36,13 +36,12 @@ ProcessConfig = pKalmanFilter
 	Thrust = 65
 	
 	CompassOffset = 15 	//degrees
-	RudderOffset = 0
+	RudderOffset = 0	//handled in interface
+	
 	//RudderOffset = 5
 	//Crosstrack = 0.0349 //for Nostromo
-	//Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
+	Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
 	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
-	Crosstrack = 0.0140	// for kassandra small rudder CL heading
-	
 }
 
 ProcessConfig = pSearchRelay
@@ -131,7 +130,7 @@ ProcessConfig = kayak_interface
 	THRUST_CUTOFF = 0
 	MIN_UPDATE_PERIOD = .25
 	INVERT_RUDDER = 1
-	RUDDER_OFFSET = -4
+	RUDDER_OFFSET = 10
 }
 
 ProcessConfig = iOS5000_filtered
