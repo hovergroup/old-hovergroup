@@ -10,7 +10,7 @@ ServerPort			= 9003
 //LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 LatOrigin = 42.34301
-LongOrigin = -71.96979
+LongOrigin = -70.96979
 
 ProcessConfig = ANTLER
 {
