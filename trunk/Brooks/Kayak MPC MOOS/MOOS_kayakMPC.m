@@ -24,6 +24,9 @@ close all
 clc
 format compact
 
+diary on
+
+
 TX = 'wifi';
 %TX = 'acomms';
 
@@ -38,7 +41,8 @@ xHat = zeros(n,1);
 kPlan = 1;  % no init packet loss
 uPlanBuffered = uPlan;
 
-lenMPC_STR=110;
+% 5 + T*(lenU) + len_tMPC + len_ifPLoss
+lenMPC_STR=5+T*10+19+14;
 MPC_STR = char(97*ones(1,lenMPC_STR));
 
 r0=0;
@@ -131,13 +135,13 @@ while(~mpc_stop)
     
     % string to log
     MPC_STR(1:5) = 'uPlan';
-    lenU = 8;
+    lenU = 7+3; % u field plus delimiter
     for k = 1:T
-        MPC_STR((6+((k-1)*lenU)):(5+(k*lenU))) = sprintf(',%+07.3f',uPlan(k));
+        MPC_STR((6+((k-1)*lenU)):(5+(k*lenU))) = sprintf('<|>%+07.3f',uPlan(k));
         %[MPC_STR ',' num2str(uPlan(k))];
     end
-    MPC_STR(6+(k*lenU):100) = sprintf(',tMPC,%09.3f',tMPC);
-    MPC_STR(101:lenMPC_STR) = sprintf(',ifPLoss,%d',ifPLoss);
+    MPC_STR(6+(k*lenU):(6+(k*lenU)-1)+19) = sprintf('<|>tMPC<|>%09.3f',tMPC);
+    MPC_STR((6+(k*lenU))+19:lenMPC_STR) = sprintf('<|>ifPLoss<|>%d',ifPLoss);
     
     
     % send a big string of a bunch of other stuff:
@@ -154,6 +158,8 @@ while(~mpc_stop)
     fprintf('\nLoop Time: %f sec\n',loopTime)
     
 end
+
+diary off
 
 cd(old)
 
