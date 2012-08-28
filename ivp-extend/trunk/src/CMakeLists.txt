@@ -20,6 +20,7 @@ ADD_SUBDIRECTORY(lib_acomms_messages)
 # programs?
 ADD_SUBDIRECTORY(plossRate)
 ADD_SUBDIRECTORY(pacomms_timer)
+ADD_SUBDIRECTORY(pMarinePID_Hover)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)
