@@ -3,8 +3,11 @@ Community			= nostromo
 ServerHost			= 192.168.1.103
 ServerPort			= 9003
 
-LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
-LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+//LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+//LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+
+LatOrigin = 42.34301
+LongOrigin = -70.96979
 
 ProcessConfig = ANTLER
 {
@@ -109,7 +112,7 @@ ProcessConfig = iHoverKayak
 	CommsTick = 20
 	
 	INVERT_RUDDER = false
-	RUDDER_OFFSET = 0
+	RUDDER_OFFSET = 2
 }
 
 ProcessConfig = iOS5000_Hover
@@ -121,7 +124,9 @@ ProcessConfig = iOS5000_Hover
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
-	UpdateFraction = .05
+	//UpdateFraction = .05
+	// tau = dt*(1-updatefraction)/update_fraction
+	UpdateFraction = .025
 }
 
 ProcessConfig = pNodeReporter
@@ -134,10 +139,10 @@ ProcessConfig = pNodeReporter
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
 	}
 
-ProcessConfig = pMarinePID
+ProcessConfig = pMarinePID_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 5
+	CommsTick	= 5
 
 	Verbose		= false
 	DEPTH_CONTROL	= false
@@ -153,12 +158,13 @@ ProcessConfig = pMarinePID
 	// 40 with modem
 
 	// Yaw PID controller
-	YAW_PID_KP		= 0.35
-	YAW_PID_KD		= 0.2
-//	YAW_PID_KP		= 0.4
+	YAW_PID_KP		= 0.45
 //	YAW_PID_KD		= 0.2
-	YAW_PID_KI		= 0.005
+	YAW_PID_KD = 0
+//	YAW_PID_KI		= 0.005
+	YAW_PID_KI = 0
 	YAW_PID_INTEGRAL_LIMIT = 0.25
+	YAW_PID_UPDATE_FRACTION = 0.05
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
@@ -166,6 +172,7 @@ ProcessConfig = pMarinePID
 	SPEED_PID_KI				= 0.0
 	SPEED_PID_INTEGRAL_LIMIT		= 0.07
 }
+
 
 ProcessConfig = pHelmIvP
 {
