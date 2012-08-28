@@ -12,6 +12,18 @@ Behavior = BHV_HSLine
   time_on_leg = 10
 }
 
+Behavior = BHV_ConstantHeading
+{
+  name = constant_heading
+  condition = MISSION_MODE = HEADING
+
+  duration = no-time-limit
+  
+  heading = 70
+  updates = CONST_HEADING_UPDATES
+}
+
+
 Behavior = BHV_Waypoint
 { 
   name      = simple_goto
