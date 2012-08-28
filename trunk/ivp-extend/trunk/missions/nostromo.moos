@@ -20,7 +20,7 @@ ProcessConfig = ANTLER
 	Run = iHoverKayak 		@ NewConsole = false
 	Run = pNodeReporter	@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
-	Run = pMarinePID		@ NewConsole = false
+	Run = pMarinePID_Hover		@ NewConsole = false
 	Run = pHelmIvP		@ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false
 	Run = iOS5000_Hover		@ NewConsole = false
@@ -80,7 +80,7 @@ ProcessConfig = iHoverKayak
 	CommsTick = 20
 	
 	INVERT_RUDDER = false
-	RUDDER_OFFSET = 0
+	RUDDER_OFFSET = 2
 }
 
 ProcessConfig = iOS5000_Hover
@@ -92,7 +92,8 @@ ProcessConfig = iOS5000_Hover
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
-	UpdateFraction = .05
+	// tau = dt*(1-updatefraction)/update_fraction
+	UpdateFraction = .025
 }
 
 ProcessConfig = pNodeReporter
@@ -132,8 +133,8 @@ ProcessConfig = pMOOSBridge
 
 ProcessConfig = pMarinePID_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 5
+	CommsTick	= 5
 
 	Verbose		= false
 	DEPTH_CONTROL	= false
@@ -149,11 +150,11 @@ ProcessConfig = pMarinePID_Hover
 	// 40 with modem
 
 	// Yaw PID controller
-	YAW_PID_KP		= 0.35
-	YAW_PID_KD		= 0.2
-//	YAW_PID_KP		= 0.4
+	YAW_PID_KP		= 0.45
 //	YAW_PID_KD		= 0.2
-	YAW_PID_KI		= 0.005
+	YAW_PID_KD = 0
+//	YAW_PID_KI		= 0.005
+	YAW_PID_KI = 0
 	YAW_PID_INTEGRAL_LIMIT = 0.25
 	YAW_PID_UPDATE_FRACTION = 0.05
 
