@@ -12,7 +12,9 @@ clc;
 %addpath('/home/mei/moos-ivp/MOOS/MOOSBin/')
 
 moosDB = 'icarus.moos';
-pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+%pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions';
+
 
 %moosDB = 'iMatlab.moos';
 %pathName = '/home/mei/moos-ivp/MOOS/Tools/Matlab/iMatlab/';

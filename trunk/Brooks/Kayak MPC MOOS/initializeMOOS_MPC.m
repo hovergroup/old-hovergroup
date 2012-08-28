@@ -1,4 +1,4 @@
-% function  [N desBearing eEst old] = initializeMOOS_MPC(rOff,N,desBearing)
+svn up% function  [N desBearing eEst old] = initializeMOOS_MPC(rOff,N,desBearing)
 
 % initialize MOOS MPC
 % sets up iMatlab, initializes state estimate, calculates first trackline
@@ -15,7 +15,8 @@
 % configure MOOS/iMatlab parameters
 
 moosDB = 'terra.moos';
-pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
+%pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
+pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 % pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
 old = cd(pathName);
 % subscribe to
