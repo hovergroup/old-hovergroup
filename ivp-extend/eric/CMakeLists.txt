@@ -18,7 +18,7 @@ PROJECT( IVP_EXTEND )
 #=============================================================================
 
 find_path( HOVERGROUP_TRUNK_BASE
-			NAMES src/iacomms_driver
+			NAMES src/iAcommsDriver
 			PATHS "../trunk"
 			NO_DEFAULT_PATH
 )
@@ -28,24 +28,6 @@ set ( HOVERGROUP_INCLUDE_DIRECTORIES
 		
 set ( HOVERGROUP_LIBRARY_PATH
 		${HOVERGROUP_TRUNK_BASE}/lib/ )
-
-
-#=============================================================================
-# Find the "moos-ivp-anrp" base directory
-#=============================================================================
-
-find_path( IVP_ANRP_BASE
-			NAMES src/lib_anrp_util
-			PATHS "~/moos-ivp-anrp/trunk"
-			NO_DEFAULT_PATH
-)
-
-set ( IVP_ANRP_INCLUDE_DIRS
-		${IVP_ANRP_BASE}/src/lib_anrp_util )
-		
-set ( IVP_ANRP_LIBRARY_PATH
-		${IVP_ANRP_BASE}/lib )
-
 
 #=============================================================================
 # Find the "goby" base directory
@@ -102,7 +84,6 @@ SET(MOOS_LIB_DIR
 LINK_DIRECTORIES(	${MOOS_LIB_DIR}
 			${IVP_LIBRARY_DIRS}
 			${GOBY_LIBRARY_PATH}
-			${IVP_ANRP_LIBRARY_PATH}
 			${HOVERGROUP_LIBRARY_PATH}	)
 
 # No harm in giving all IvP software access to MOOS's include libraries.
@@ -116,7 +97,6 @@ SET(MOOS_INCLUDE_DIRS
 
 INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
 			${GOBY_INCLUDE_DIRS}
-			${IVP_ANRP_INCLUDE_DIRS}
 			${IVP_INCLUDE_DIRS}
 			${HOVERGROUP_INCLUDE_DIRECTORIES}	)
 
