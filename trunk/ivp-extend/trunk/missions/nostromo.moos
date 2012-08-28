@@ -64,8 +64,8 @@ ProcessConfig = iAcommsDriver
 
 ProcessConfig = iGPS_Hover
 {
-	AppTick = 1
-	CommsTick = 1
+	AppTick = 10
+	CommsTick = 10
 	
 	PORT_NAME = /dev/ttyUSB0
 	BAUD_RATE = 57600
