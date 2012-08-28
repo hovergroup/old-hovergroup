@@ -23,6 +23,17 @@ Behavior = BHV_ConstantHeading
   updates = CONST_HEADING_UPDATES
 }
 
+Behavior = BHV_ConstantSpeed
+{
+  name = constant_speed
+  condition = MISSION_MODE = HEADING
+  
+  duration = no-time-limit
+  
+  speed = 2.0	// (this just means 100% thrust with speed factor = 0.5)
+//   //speed = 1.0
+  
+}
 
 Behavior = BHV_Waypoint
 { 
