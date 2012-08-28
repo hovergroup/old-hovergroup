@@ -57,8 +57,8 @@ while(~mpc_stop)
     fprintf('Step: %i, loopIt: %i\n\n',runStep,loopIt)
     
     % grab new estimate (after first loop)
-    %if(loopIt>1)
-    if(1)
+    if(loopIt>1)
+    %if(1)
         % cross-track and heading ERROR relative to desBearing(step)
         [eEstKF mpc_stop] = parseMPC_XEST;
         xHat = eEstKF + [0 0 desBearing(loopIt-1) 0]';

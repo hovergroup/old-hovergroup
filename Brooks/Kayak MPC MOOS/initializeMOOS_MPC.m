@@ -1,4 +1,4 @@
-svn up% function  [N desBearing eEst old] = initializeMOOS_MPC(rOff,N,desBearing)
+% function  [N desBearing eEst old] = initializeMOOS_MPC(rOff,N,desBearing)
 
 % initialize MOOS MPC
 % sets up iMatlab, initializes state estimate, calculates first trackline
