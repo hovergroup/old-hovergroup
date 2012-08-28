@@ -45,16 +45,16 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-%dt = 3;
+dt = 3;
 %dt = 6;
 
 % for gen matrices for KF @ 2hz
 %dt = 0.5;
-dt = 1/5;
+%dt = 1/5;
 
 %tracklineType='straight';
-%tracklineType = 'pavilion_1turn';
-tracklineType = 'hexagon';
+tracklineType = 'pavilion_1turn';
+%tracklineType = 'hexagon';
 
 switch tracklineType
     case 'straight'
@@ -64,13 +64,15 @@ switch tracklineType
         % bearing of straight line:
         desB = deg2rad(80);
     case 'pavilion_1turn'
-        secPerLeg = ceil(120/dt)*dt;
-        %secPerLeg = ceil(60/dt)*dt;
+        %secPerLeg = ceil(120/dt)*dt;
+        secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
-        ox = 50;oy = -50;
-        pavAngOffset = -30;
-        kinkAng = deg2rad(45);
+        ox = 50;oy = -50;       
+        % (pavAngle = 37 degrees from horizontal = 53 heading)
+        % first leg is pavAngle + pavAngleOffset.  
+        pavAngOffset = -37;     
+        kinkAng = 45;  % second leg is after kink
     case 'hexagon'
         numLegs = 6;
         secPerLeg = 90;
@@ -79,6 +81,9 @@ switch tracklineType
         oy = -50;
 end
 N = ceil(Nsec/dt);  % total sim steps
+r0=0;
+hd0=70;
+
 
 switch syss
     case 'crossTrack'
