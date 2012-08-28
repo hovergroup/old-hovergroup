@@ -64,8 +64,9 @@ switch tracklineType
     case 'pavilion_1turn'
         
         len = speed*secPerLeg;
-        x = [0 len len+len*cos(kinkAng)];
-        y = [0 0 -len*sin(kinkAng)];
+        
+        x = [0 len len+len*cos(deg2rad(kinkAng))];
+        y = [0 0 -len*sin(deg2rad(kinkAng))];
         
         if(ifPlot)
             plot(x,y)
