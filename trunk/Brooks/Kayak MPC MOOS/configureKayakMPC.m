@@ -70,17 +70,17 @@ switch tracklineType
         
         
         Nsec = secPerLeg*numLegs;
-        ox = -200;oy = 80;       
+        ox = 0;oy = 150;       
         % (pavAngle = 37 degrees from horizontal = 53 heading)
         % first leg is pavAngle + pavAngleOffset.  
         pavAngOffset = -37 + 180;     
         kinkAng = 45;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
-        secPerLeg = 90;
+        secPerLeg = 60;
         Nsec = secPerLeg*numLegs;
-        ox = 50;
-        oy = -50;
+        ox = 0;
+        oy = 200;
 end
 N = ceil(Nsec/dt);  % total sim steps
 r0=0;
