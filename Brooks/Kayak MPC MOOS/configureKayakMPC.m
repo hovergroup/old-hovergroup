@@ -34,9 +34,9 @@ trueNorthAdjustment = -15;
 %syss='crossTrack';
 syss = 'crossTrack_CLheading';
 
-kayak = 'kassandra_modem_smallR';
+%kayak = 'kassandra_modem_smallR';
 %kayak = 'kassandra_modem_30R';
-%kayak = 'nostromo_modem';
+kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
 T = 10;
@@ -45,12 +45,12 @@ T = 10;
 
 % Time step (sec)
 %dt = 1;
-dt = 3;
+%dt = 3;
 %dt = 6;
 
 % for gen matrices for KF @ 2hz
 %dt = 0.5;
-%dt = 1/5;
+dt = 1/5;
 
 %tracklineType='straight';
 %tracklineType = 'pavilion_1turn';
