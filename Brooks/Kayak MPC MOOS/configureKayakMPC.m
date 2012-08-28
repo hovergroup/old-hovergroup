@@ -71,8 +71,8 @@ switch tracklineType
         ox = 50;oy = -50;       
         % (pavAngle = 37 degrees from horizontal = 53 heading)
         % first leg is pavAngle + pavAngleOffset.  
-        pavAngOffset = -37;     
-        kinkAng = 45;  % second leg is after kink
+        pavAngOffset = -37 + 180;     
+        kinkAng = 45;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
         secPerLeg = 90;
