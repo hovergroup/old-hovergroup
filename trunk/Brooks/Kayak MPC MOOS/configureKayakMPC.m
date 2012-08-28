@@ -67,8 +67,10 @@ switch tracklineType
         %secPerLeg = ceil(120/dt)*dt;
         secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
+        
+        
         Nsec = secPerLeg*numLegs;
-        ox = 50;oy = -50;       
+        ox = -200;oy = 80;       
         % (pavAngle = 37 degrees from horizontal = 53 heading)
         % first leg is pavAngle + pavAngleOffset.  
         pavAngOffset = -37 + 180;     
