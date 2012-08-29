@@ -18,7 +18,7 @@ ProcessConfig = ANTLER
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
 	
-	Run = iOS5000_filtered		@ NewConsole = false
+	Run = iOS5000_Hover		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iAcommsDriver @ NewConsole = false
 	Run = iAltimeter	@ NewConsole = false
@@ -110,16 +110,16 @@ ProcessConfig = kayak_interface
 	RUDDER_OFFSET = 0
 }
 
-ProcessConfig = iOS5000_filtered
+ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 40
+	CommsTick	= 40
 
 	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 19200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
-	UpdateFraction = .05
+	UpdateFraction = .025
 }
 
 ProcessConfig = pNodeReporter
