@@ -43,7 +43,7 @@ ifSave=0;           % save .mat and .txt of command window
 % run configuration script for parameters and system
 configureKayakMPC
 
-uniques=sprintf('NOnoise_%dloss_prevNext',floor(probPLoss*100));   % unique name to append to filename
+uniques=sprintf('test_%dloss_prevNext',floor(probPLoss*100));   % unique name to append to filename
 
 
 
@@ -89,7 +89,8 @@ switch syss
         u = zeros(m,1); % initial rudder angle
         ez = [(x0c(n-1) - desBearing(1)) 0]';
     case 'crossTrack_CLheading'
-        u = x0(n-1) - desBearing(1); % initial psi is straight
+        %u = x0(n-1) - desBearing(1); % initial psi is straight
+        u=0;
         ez = x0c(n);
 end
 dDesHeading = 0;
