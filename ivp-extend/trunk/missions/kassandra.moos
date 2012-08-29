@@ -18,13 +18,13 @@ ProcessConfig = ANTLER
 	Run = kayak_interface @ NewConsole = false
 	Run = pNodeReporter	@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
-	Run = pMarinePID		@ NewConsole = false
+	Run = pMarinePID_Hover		@ NewConsole = false
 	Run = pHelmIvP		@ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false
-	Run = iOS5000_filtered		@ NewConsole = false
+	Run = iOS5000_Hover		@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
-	Run = iacomms_driver @ NewConsole = false
+	//Run = iAcommsDriver @ NewConsole = false
 }
 
 ProcessConfig = pSearchRelay
@@ -45,7 +45,7 @@ ProcessConfig = uXMS
 //	VAR = NAV_X, NAV_Y, ACOMMS_SNR_OUT, RELAY_STATUS, SEARCH_RELAY_TARGET_WAYPOINT
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
 	CommsTick = 5
@@ -66,10 +66,10 @@ ProcessConfig = kayak_interface
 	RUDDER_OFFSET = 0
 }
 
-ProcessConfig = iOS5000_filtered
+ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 40
+	CommsTick	= 40
 
 	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
 	Speed		= 19200			// Always set to 19200 (OS5000 baud rate)
@@ -114,10 +114,10 @@ ProcessConfig = pMOOSBridge
 	
 	}
 
-ProcessConfig = pMarinePID
+ProcessConfig = pMarinePID_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 5
+	CommsTick	= 5
 
 	Verbose		= false
 	DEPTH_CONTROL	= false
@@ -137,6 +137,7 @@ ProcessConfig = pMarinePID
 	YAW_PID_KD		= 0.2
 	YAW_PID_KI		= 0.005
 	YAW_PID_INTEGRAL_LIMIT = 0.25
+	YAW_PID_UPDATE_FRACTION = 0.05
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
@@ -175,70 +176,12 @@ ProcessConfig = pLogger
 	AppTick			= 20
 	CommsTick		= 20
 
-	//File			= 
-	PATH			= ./logs/
+	File			= LOG_KASSANDRA
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
-
-	// PID Output
-	Log	= DESIRED_THRUST       @ 0
-	Log	= DESIRED_RUDDER       @ 0
-
-	// Helm Output
-	Log	= DEPLOY               @ 0
-	Log	= RETURN               @ 0
-	Log = KEEP				   @ 0
-	Log = GOCOME			   @ 0
 	
-	Log	= MOOS_MANUAL_OVERIDE  @ 0
-	Log	= MOOS_MANUAL_OVERRIDE @ 0
-	Log	= DESIRED_SPEED        @ 0
-	Log	= DESIRED_HEADING      @ 0
-	Log	= HELM_IPF_COUNT       @ 0 
-	log	= LOOP_CPU             @ 0
-	log	= LOOP_WALL            @ 0
-	Log	= VEHICLE_WPT_INDEX    @ 0
-	Log	= DIST_TO_STATION      @ 0
-	Log	= DIST_TO_REGION       @ 0
-
-	// Vehicle Position
-	Log	= NAV_X         @ 0
-	Log	= NAV_Y         @ 0
-	Log	= NAV_HEADING   @ 0
-	Log	= NAV_SPEED		@ 0
-
-	// GPS
-	Log = GPS_LOCK		@ 0
-	Log	= GPS_X         @ 0
-	Log	= GPS_Y         @ 0
-	Log	= GPS_SPEED     @ 0
-	Log	= GPS_COURSE	@ 0
-	Log	= GPS_TIME      @ 0
-	Log = GPS_DATE		@ 0
-	Log = GPS_LATITUDE  @ 0
-	Log = GPS_LONGITUDE	@ 0
-	Log = GPS_MAGNETIC_VARIATION @ 0
-	Log = GPS_TIME_SECONDS @ 0
-
-	// Compass
-	Log	= COMPASS_HEADING_FILTERED 		@ 0
-	Log = COMPASS_HEADING_UNFILTERED 	@ 0
-	Log = COMPASS_YAW_FILTERED 			@ 0
-	Log = COMPASS_YAW_UNFILTERED 		@ 0
-	Log	= COMPASS_PITCH 				@ 0
-	Log	= COMPASS_ROLL 					@ 0
-	Log = COMPASS_TEMPERATURE 			@ 0
-
-	// acomms
-	Log	= ACOMMS_TRANSMIT_RATE 			@ 0
-	Log = ACOMMS_TRANSMIT_DEST 			@ 0
-	Log	= ACOMMS_TRANSMIT_DATA 			@ 0
-	Log	= ACOMMS_TRANSMIT_DATA_BINARY 	@ 0
-	Log	= ACOMMS_RECEIVED_ALL 			@ 0
-	Log	= ACOMMS_RECEIVED_SIMPLE 		@ 0
-	Log	= ACOMMS_DRIVER_WARNING			@ 0
-	Log = ACOMMS_DRIVER_STATUS			@ 0
+	WildCardOmitPattern = PLOGGER_STATUS
 }
 
 
@@ -247,8 +190,8 @@ ProcessConfig = pLogger
 
 ProcessConfig = pEchoVar
 {
-  AppTick   = 20
-  CommsTick = 20
+  AppTick   = 40
+  CommsTick = 40
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   Echo = GPS_X -> NAV_X
