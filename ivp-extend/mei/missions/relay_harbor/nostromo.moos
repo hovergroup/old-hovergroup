@@ -108,8 +108,8 @@ ProcessConfig = iAcommsDriver
 
 ProcessConfig = iGPS_Hover
 {
-	AppTick = 2
-	CommsTick = 2
+	AppTick = 10
+	CommsTick = 10
 	
 	PORT_NAME = /dev/ttyUSB0
 	BAUD_RATE = 57600
@@ -124,16 +124,16 @@ ProcessConfig = ikayak_driver
 	RUDDER_OFFSET = 0
 }
 
-ProcessConfig = iOS5000_filtered
+ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 40
+	CommsTick	= 40
 
 	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
-	UpdateFraction = .05
+	UpdateFraction = .025
 }
 
 
@@ -147,10 +147,10 @@ ProcessConfig = pNodeReporter
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
 	}
 
-ProcessConfig = pMarinePID
+ProcessConfig = pMarinePID_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 5
+	CommsTick	= 5
 
 	Verbose		= false
 	DEPTH_CONTROL	= false
@@ -161,17 +161,20 @@ ProcessConfig = pMarinePID
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 15
+	SPEED_FACTOR	= 30
 	// 25-30 for no modem
 	// 40 with modem
 
 	// Yaw PID controller
-	YAW_PID_KP		= 0.35
-	YAW_PID_KD		= 0.2
+	YAW_PID_KP		= 0.45
+	YAW_PID_KD 		= 0
+//	YAW_PID_KD		= 0.2
 //	YAW_PID_KP		= 0.4
 //	YAW_PID_KD		= 0.2
-	YAW_PID_KI		= 0.005
+//	YAW_PID_KI		= 0.005
+	YAW_PID_KI		= 0
 	YAW_PID_INTEGRAL_LIMIT = 0.25
+	YAW_PID_UPDATE_FRACTION = 0.05
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
@@ -214,6 +217,8 @@ ProcessConfig = pLogger
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
+	
+	WildCardOmitPattern = PLOGGER_STATUS
 }
 
 
@@ -222,8 +227,8 @@ ProcessConfig = pLogger
 
 ProcessConfig = pEchoVar
 {
-  AppTick   = 20
-  CommsTick = 20
+  AppTick   = 40
+  CommsTick = 40
 
   Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
   Echo = GPS_X -> NAV_X
