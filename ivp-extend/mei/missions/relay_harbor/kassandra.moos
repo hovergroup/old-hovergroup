@@ -3,8 +3,24 @@ Community			= kassandra
 ServerHost			= 192.168.1.101
 ServerPort			= 9001
 
-LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
-LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+//LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+//LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+
+LatOrigin = 42.34345
+LongOrigin = -70.97622
+
+
+ProcessConfig = pRelayEnd
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	RelayID = 1	
+	OuterRadius = 15 //m
+	InnerRadius = 3 //m
+	Endx = 700
+	Endy = -300
+}
 
 ProcessConfig = ANTLER
 {
