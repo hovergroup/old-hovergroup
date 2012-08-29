@@ -9,8 +9,8 @@ ServerPort			= 9003
 //LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 //LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
-LatOrigin = 42.34301
-LongOrigin = -70.96979
+LatOrigin = 42.34345
+LongOrigin = -70.97622
 
 ProcessConfig = ANTLER
 {
@@ -196,6 +196,7 @@ ProcessConfig = pLogger
 	AppTick			= 20
 	CommsTick		= 20
 
+	File			= LOG_NOSTROMO
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
