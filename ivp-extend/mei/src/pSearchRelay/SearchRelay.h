@@ -16,7 +16,7 @@
 #include "XYSegList.h"
 #include <string.h>
 #include <math.h>
-#include <acomms_messages.h>
+#include <lib_acomms_messages/acomms_messages.h>
 
 using namespace std;
 
