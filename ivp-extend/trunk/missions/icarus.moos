@@ -15,7 +15,7 @@ ProcessConfig = ANTLER
   Run = pMOOSBridge @ NewConsole = false
   Run = pLogger @ NewConsole = false
   Run = pNodeReporter	@ NewConsole = false
-  Run = iacomms_driver @ NewConsole = false
+  Run = iAcommsDriver @ NewConsole = false
   Run = iGPS_Hover @ NewConsole = false
   Run = pEchoVar		@ NewConsole = false
 }
@@ -42,7 +42,7 @@ ProcessConfig = uXMS
 	DISPLAY_TIME=true
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
 	CommsTick = 5
@@ -119,5 +119,4 @@ ProcessConfig = pEchoVar
 
   Echo = GPS_X -> NAV_X
   Echo = GPS_Y -> NAV_Y
-  Echo = ACOMMS_RECEIVED_DATA -> ACOMMS_TRANSMIT_DATA
 }
