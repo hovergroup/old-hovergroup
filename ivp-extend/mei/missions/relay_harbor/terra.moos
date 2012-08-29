@@ -7,9 +7,11 @@ ServerPort = 9000
 Community  = terra
 
 // Datum for the MIT Sailing Pavilion
-LatOrigin	=  42.358456	// 0,0 just in front of the MIT sailing pavilion
-LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+//LatOrigin	=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+//LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
+LatOrigin = 42.34345
+LongOrigin = -70.97622
 
 //-------------------------------------------------------------
 // Antler configuration  block
@@ -53,7 +55,7 @@ ProcessConfig = pMarineViewer
   AppTick    = 5
   CommsTick  = 5
 
-  TIFF_FILE     = ../data/pavilion.tif
+  TIFF_FILE     = ../../data/harbor.tif
 
     center_view_true = true
   center_view_sticky = true
