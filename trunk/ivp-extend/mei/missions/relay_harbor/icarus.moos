@@ -14,13 +14,13 @@ ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 200
 
-  Run = MOOSDB @ NewConsole = false
-  Run = pMOOSBridge @ NewConsole = false
-  Run = pLogger @ NewConsole = false
+  Run = MOOSDB 		@ NewConsole = false
+  Run = pMOOSBridge 	@ NewConsole = false
+  Run = pLogger 	@ NewConsole = false
   Run = pNodeReporter	@ NewConsole = false
-  Run = iAcommsDriver @ NewConsole = false
+  Run = iAcommsDriver 	@ NewConsole = false
   Run = iGPS_Hover	@ NewConsole = false
-  Run = pEchoVar		@ NewConsole = false
+  Run = pEchoVar	@ NewConsole = false
 }
 
 ProcessConfig = pRelayStart
@@ -28,6 +28,15 @@ ProcessConfig = pRelayStart
 	AppTick = 5
 	CommsTick = 5
 	
+}
+
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+	CommsTick = 5
+
+	PortName = /dev/ttyUSB0
+	ID = 2
 }
 
 ProcessConfig = pMOOSBridge
@@ -47,10 +56,10 @@ ProcessConfig = pMOOSBridge
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
 	//Relay Shares
-	SHARE = [START_TRANSMITTED] -> kassandra@192.168.1.101:9001
+	SHARE = [START_TRANSMITTED] -> nostromo@192.168.1.103:9003
 	}
 
-ProcessConfig = simple_gps
+ProcessConfig = iGPS_Hover
 {
 	AppTick = 2
 	CommsTick = 2
@@ -65,15 +74,6 @@ ProcessConfig = uXMS
 	VAR = ACOMMS_DRIVER_STATUS, ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE
 }
 
-ProcessConfig = iacomms_driver
-{
-	AppTick = 5
-	CommsTick = 5
-
-	PortName = /dev/ttyUSB0
-	ID = 2
-}
-
 ProcessConfig = pLogger
 {
   AppTick       = 10
@@ -86,6 +86,8 @@ ProcessConfig = pLogger
 
   // Log it all!!!!!
   WildCardLogging = true 
+  WildCardOmitPattern = PLOGGER_STATUS
+
 }
 
 ProcessConfig = pNodeReporter
