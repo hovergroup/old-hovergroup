@@ -19,7 +19,7 @@ SearchRelay::SearchRelay()
 	min_obs = 10;
 	discount = 5;
 	num_lookback = 1;
-	wait_time = 15; //s
+	wait_time = 20; //s
 
 	length = 0;
 
@@ -299,11 +299,19 @@ bool SearchRelay::Iterate()
 	}
 	else if(action == "start_transmit_now"){
 		m_Comms.Notify("START_TRANSMIT_NOW","true");
+		start_time = MOOSTime();
 		action = "waiting";
 	}
 	else if(action == "sync_with_start"){
 		start_time = MOOSTime();
 		action = "ticking";
+	}
+	else if(action == "waiting"){
+		double time_elapsed = MOOSTime() - start_time;
+		if(time_elapsed > wait_time){
+			cout << "Missed Wifi Sync with Start" << endl;
+			action = "start_transmit_now";
+		}
 	}
 	else if(action == "relay"){
 		if(end_thrust == 0){
