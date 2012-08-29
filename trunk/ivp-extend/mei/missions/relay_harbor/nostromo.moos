@@ -115,7 +115,7 @@ ProcessConfig = iGPS_Hover
 	BAUD_RATE = 57600
 }
 
-ProcessConfig = ikayak_driver
+ProcessConfig = iHoverKayak
 {
 	AppTick = 20
 	CommsTick = 20
