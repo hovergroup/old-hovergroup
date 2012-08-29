@@ -7,7 +7,7 @@ ServerHost = localhost
 ServerPort = 9000
  
 // Community name IS the vehicle name
-Community  = terra
+Community  = josh
 
 // Datum for Harbor
 //LatOrigin	=  42.347315	
