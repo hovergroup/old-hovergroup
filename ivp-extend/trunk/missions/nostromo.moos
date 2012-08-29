@@ -27,7 +27,7 @@ ProcessConfig = ANTLER
 	Run = iGPS_Hover		@ NewConsole = false
 
 	Run = pLogger			@ NewConsole = false	// Logs messages to disk
-	//Run = iAcommsDriver	@ NewConsole = false
+	Run = iAcommsDriver	@ NewConsole = false
 }
 
 ProcessConfig = uTimerScript
