@@ -18,8 +18,13 @@
 % time, desired heading, x1, y1, x2, y2
 
 % pavilion dock angle rel. to horizontal (in True N frame):
-pavAng = deg2rad(37);
+%pavAng = deg2rad(37);
+
 ifPlot=0;
+
+MOOSpathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
+
+
 tvec = linspace(dt,Nsec,ceil((Nsec)/dt));
 
 switch tracklineType
@@ -61,6 +66,9 @@ switch tracklineType
         end
         fclose(fid);
         
+        dest = [MOOSpathName 'waypoints.txt'];
+        copyfile('pavilionPts.txt',dest,'f')
+        
     case 'pavilion_1turn'
         
         len = speed*secPerLeg;
@@ -74,7 +82,7 @@ switch tracklineType
         end
         
         %rotate: 
-        ang = pavAng + deg2rad(pavAngOffset);
+        ang = deg2rad(startAngle);  %pavAng + deg2rad(pavAngOffset);
         r = [cos(ang),-sin(ang);sin(ang),cos(ang)];
         
         pts = r*[x;y];
@@ -114,7 +122,8 @@ switch tracklineType
         end
         fclose(fid);
         
-        
+        dest = [MOOSpathName 'waypoints.txt'];
+        copyfile('pavilionPts.txt',dest,'f')
 
     case 'hexagon'
         
@@ -173,5 +182,9 @@ switch tracklineType
         end
         
         fclose(fid);
+        
+        dest = [MOOSpathName 'waypoints.txt'];
+        copyfile('pavilionPts.txt',dest,'f')
+        
 end
 

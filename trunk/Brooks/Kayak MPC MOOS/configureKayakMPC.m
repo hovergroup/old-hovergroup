@@ -39,7 +39,7 @@ syss = 'crossTrack_CLheading';
 kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
-T = 10;
+T = 11;
 % T = 6;
 % T = 15;
 
@@ -67,13 +67,11 @@ switch tracklineType
         %secPerLeg = ceil(120/dt)*dt;
         secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
-        
-        
         Nsec = secPerLeg*numLegs;
-        ox = 0;oy = 150;       
-        % (pavAngle = 37 degrees from horizontal = 53 heading)
-        % first leg is pavAngle + pavAngleOffset.  
-        pavAngOffset = -37 + 180;     
+        ox = 0;oy = 150;               
+        % pavAngle = 37; pavAngleOffset = -20;
+        % startAngle = pavAngle + pavAngleOffset;
+        startAngle = 180;     
         kinkAng = 45;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
@@ -84,7 +82,7 @@ switch tracklineType
 end
 N = ceil(Nsec/dt);  % total sim steps
 r0=0;
-hd0=70;
+hd0=180;
 
 
 switch syss
@@ -93,47 +91,52 @@ switch syss
         m = 1;  % CONTROL INPUT
         q = 2;  % MEASUREMENTS
     case 'crossTrack_CLheading'
-        n = 3;  % STATES
-        %n = 4;
+        n = 4;  % STATES
         m = 1;  % CONTROL INPUT
         q = 1;  % MEASUREMENTS  
 end
 
 % SIM initial state (ACTUAL BEARING): (IN PHYSICAL UNITS)
 % [headingAccel(deg/s^2), headingRate(deg/s), heading(deg), crossTrack (m)]
-heading0 = 73+20;
+%heading0 = 73+20;
+heading0 = 185;
 ex0 = 0;
 hddmax = 30;
 hdmax = 30;
 hmax = 90;
 exmax = 100;
-if(n==4)
-    x0c = [0;0;heading0;ex0];
-    xmax = [hddmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-elseif(n==3)
-    x0c = [0;heading0;ex0];
-    xmax = [hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-end
+dhmax = 90;
 switch syss
     case 'crossTrack'
+        x0c = [0;0;heading0;ex0];
+        xmax = [hddmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
         % u is rudder angle
         umax = 20*ones(m,1); umin = -umax;
+        slewRate=(10)*dt; % deg per time step
+        
+        Qmpc = eye(n);
+        Pmpc = 10*eye(n);
+        Qmpc(n,n) = 2;
+        Pmpc(n,n) = 10*2;
+        
     case 'crossTrack_CLheading'
-        % u is setpt for desired heading error 
+        x0c = [0;0;heading0;ex0];
+        xmax = [dhmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
+        % u is the CHANGE in setpt for desired heading error 
         umax = 90*ones(m,1); umin = -umax;
+        slewRate = 45;   % deg per time step
+        
+        Qmpc = eye(n);
+        Pmpc = 10*eye(n);
+        Qmpc(1,1) = 0;      % no cost on setpoint
+        Qmpc(n,n) = 2;  % cross-track error
+        Pmpc(1,1) = 0;
+        Pmpc(n,n) = 2*10;
+        
 end
 
 % MPC params
 mu=10;              % sparse control weight
-
-Qmpc = eye(n);         % state cost
-Pmpc = 10*eye(n);     % terminal state cost
-% Qmpc and Pmpc are scaled by CdAll below 
-% (set weights based on physical units)
-Qmpc(n,n) = 2;
-Pmpc(n,n) = 10*2;
-%Qmpc(n,n) = .05;
-%Pmpc(n,n) = .05;
 
 % System params
 % kayak cross-track model
@@ -155,9 +158,6 @@ switch kayak
         speed = 0.8;    % with 65% thrust...?
 end
 
-%slew rate
-slewRate=(10)*dt; % rad/s
-
 % constrain perpendicular speed to be fraction of speed*dt
 % (half: max 30 deg heading diff) Taylor 1st order |error|=0.0236
 % (1/3: max 20 deg heading diff) Taylor 1st order |error|=0.007
@@ -166,12 +166,17 @@ angle2speed = 1/2;
 
 % KF params
 Bnoise=eye(n);  % process noise input gain
-% simple cross-track only:
+
+% cross-track:
 %Qcross=1e-2;    % continuous time PSD
 %Qheading=1e-2;
 Qcross = 5;
 Qheading = 5;
+
 Qkfc=zeros(n);
+if(strcmp(syss,'crossTrack_CLheading'))
+    Qkfc(1,1)=0;
+end
 Qkfc(n-1,n-1)=Qheading;
 Qkfc(n,n)=Qcross;
 %Qkfc=[0 0 0 0;0 0 0 0;0 0 Qheading 0;0 0 0 Qcross];
@@ -185,7 +190,7 @@ switch syss
     case 'crossTrack'
         Rkf=[RCompass 0;0 RGPS];
     case 'crossTrack_CLheading'
-        Rkf=[RGPS];
+        Rkf=RGPS;
 end
 % number of 'continuous-time' samples in one time step
 nc=dt/(1e-1);
@@ -239,11 +244,7 @@ switch syss
         wnH = 1;
         zetaH = .7;
         tauRudder = 0.25;
-        if(n==4)
-            TFrudder = ((1/tauRudder)/(s+(1/tauRudder)));
-        else
-            TFrudder = 1;
-        end
+        TFrudder=1;
         % this version just uses stable 2nd order for heading
         CLheading = wnH^2/(s^2+2*wnH*zetaH*s+wnH^2)*TFrudder;
         crossTrack = CLheading*Kcross/s;
@@ -253,17 +254,18 @@ switch syss
         % set up system
         [num den] = tfdata(sysC);
         
-        [Ac Bc Cc Dc] = tf2ss(num{1},den{1});
-        if(n==3)
-            Cc = [1 0 0 ;0 1 0 ;Cc];
-        elseif(n==4)
-            %%%% SOME SCALING ISSUE WITH HEADING???
-            Cc = [1 0 0 0;0 1 0 0;0 0 1 0;Cc];
-        end
-        % Bc is input matrix for PSI (setpt for CL heading)
+        [Ac3 Bc3 Cc3 Dc] = tf2ss(num{1},den{1});
+        % add commanded heading state
+        Ac = zeros(n);
+        Ac(2:4,1:3) = Ac3;
+        Ac(2,4) = 1;
+        % Bc is input matrix for dPSI (change in setpt for CL heading)
+        Bc = [1 0 0 0]';
+        Cc = [1 0 0 0;0 1 0 0;0 0 1 0;0 Cc3];
+        
+        
+        %%%%%%%%%%%% FIX AFTER THIS
         % Bin is input matrix for desired bearing of trackline
-        Ac(n,n-1) = -1;
-        %Bin = -Ac;
         Bin = zeros(n);
         if(n==3)
             Bin(n,:) = [0 1 0];
@@ -299,6 +301,9 @@ Qmpc = Qmpc.*CdAll;
 Pmpc = Pmpc.*CdAll;
 Qhalf = sqrtm(Qmpc);
 
+Qkfd = Qkfd/(CdAll.^2);
+
+
 % setup structures to pass to KF, MPC
 sys=struct('n',n,'m',m,'Ad',Ad,'Bd',Bd,'Cd',Cd,'Bdnoise',Bdnoise,...
     'dt',dt,'Bdin',Bdin);
@@ -324,3 +329,5 @@ if(plotStep)
     step(sysCss*15,tmax)
     hold on;step(sysd*15,tmax);subplot(1,2,2);step(sysd*15,tmax)
 end
+
+
