@@ -69,7 +69,7 @@ switch tracklineType
         dest = [MOOSpathName 'waypoints.txt'];
         copyfile('pavilionPts.txt',dest,'f')
         
-    case 'pavilion_1turn'
+    case 'oneturn'
         
         len = speed*secPerLeg;
         
@@ -81,6 +81,7 @@ switch tracklineType
             axis equal
         end
         
+        startAngle = 90-startHeading;
         %rotate: 
         ang = deg2rad(startAngle);  %pavAng + deg2rad(pavAngOffset);
         r = [cos(ang),-sin(ang);sin(ang),cos(ang)];
@@ -115,7 +116,7 @@ switch tracklineType
         end
         desBearing(i+1)=bearing;
         
-        fid = fopen('pavilionPts.txt','w');
+        fid = fopen('oneturnPts.txt','w');
         for i = 1:(numLegs)
             fprintf(fid,'%f,%f,%f,%f,%f,%f\n',...
                 tvec(ceil(i*(secPerLeg/dt))),desBearing(ceil(i*(secPerLeg/dt))),x(i),y(i),x(i+1),y(i+1));
@@ -123,7 +124,7 @@ switch tracklineType
         fclose(fid);
         
         dest = [MOOSpathName 'waypoints.txt'];
-        copyfile('pavilionPts.txt',dest,'f')
+        copyfile('oneturnPts.txt',dest,'f')
 
     case 'hexagon'
         

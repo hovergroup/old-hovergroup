@@ -16,17 +16,10 @@ function [eHatNew PNew] = kayakKF(sys,params,z,ehat,P,u,dDesHeading)
 
 % grab parameters
 n=sys.n;
-%m=sys.m;
 Ad=sys.Ad;
 Bd=sys.Bd;
-%Bin=sys.Bdin;
 Cd=sys.Cd;
 Bdnoise=sys.Bdnoise;
-
-%speed=sys.speed;
-%dt=sys.dt;
-%angle2speed=sys.angle2speed;
-%slewRate=sys.slewRate;
 
 Rd = params.Rkf;
 Qd = params.Qkfd;
@@ -34,6 +27,9 @@ Qd = params.Qkfd;
 % coord frame xform for change in desired heading
 ehat(n) = ehat(n)*sin(deg2rad(90 - dDesHeading));
 ehat(n-1) = ehat(n-1)-dDesHeading;
+
+% IF syss='crossTrack_CLheading'
+ehat(1) = ehat(1) - dDesHeading;
 
 % wrap ehat(n-1) to +/- 180 deg
 if(ehat(n-1) > 180)
@@ -43,10 +39,12 @@ if(ehat(n-1) < (-180))
     ehat(n-1) = ehat(n-1) + 360;
 end
 
-%xPredict = Ad*xhat + Bin*xDes + Bd*u;
 xPredict = Ad*ehat + Bd*u;
 PPredict = Ad*P*Ad' + Bdnoise*Qd*Bdnoise';
-K = PPredict*Cd'*inv(Cd*PPredict*Cd' + Rd);
+
+%K = PPredict*Cd'*inv(Cd*PPredict*Cd' + Rd);
+K = (PPredict*Cd')/(Cd*PPredict*Cd' + Rd);
+
 eHatNew = xPredict + K*(z - Cd*ehat); 
 PNew = (eye(n,n) - K*Cd)*PPredict;
 

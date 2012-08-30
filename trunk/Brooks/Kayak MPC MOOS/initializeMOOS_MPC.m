@@ -8,7 +8,7 @@
 % changes:
 %{
 -8/20/2012: added options for diff systems
-
+- 8/29/2012: removed trueNorthAdjustment (compass does already)
 
 %}
 
@@ -18,6 +18,7 @@ moosDB = 'terra.moos';
 %pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
 pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 % pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+
 old = cd(pathName);
 % subscribe to
 % 'MPC_XEST'% 'MPC_STOP'% 'GPS_X'% 'GPS_Y'% 'COMPASS_HEADING_FILTERED'
@@ -65,7 +66,7 @@ while((mpc_stop || ~gotStartPos))
             y0 = mail(m).DBL;
             gotY0 = 1;
         elseif(strcmp(key,'COMPASS_HEADING_FILTERED'))
-            h0 = mail(m).DBL+trueNorthAdjustment;
+            h0 = mail(m).DBL;   %+trueNorthAdjustment;(compass already)
             gotH0 = 1;
         end
         gotStartPos=min([gotX0,gotY0,gotH0]);
