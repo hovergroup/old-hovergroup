@@ -42,9 +42,50 @@ KFdelay=0;          % meas available immediately or with delay
 % run configuration script for parameters and system
 configureKayakMPC
 
-ifSave=0;           % save .mat and .txt of command window
-uniques=sprintf('test_%dloss_prevNext',floor(probPLoss*100));   % unique name to append to filename
+uniques=sprintf('NOnoise_%dloss_prevNext',floor(probPLoss*100));   % unique name to append to filename
 initializeMPCSim
+
+simStart=tic;
+w = zeros(n,1);wvec = zeros(n,nc);v=zeros(q,1);
+PKF = eye(n);
+xDes = zeros(n,T+2);xDes(n-1,:)=desBearing(1:T+2);
+eDes = zeros(n,T+2);ehat = x0 - xDes(:,1);
+xd = x0;xhat = x0;
+x0c = x0c;
+xcsim = repmat(Cc\x0c,1,nc+1);
+
+if(n==3);simDes = [0 desBearing(1) 0];end
+if(n==4);simDes = [0 0 desBearing(1) 0];end
+switch syss
+    case 'crossTrack'
+        u = zeros(m,1); % initial rudder angle
+        ez = [(x0c(n-1) - desBearing(1)) 0]';
+    case 'crossTrack_CLheading'
+        u = x0(n-1) - desBearing(1); % initial psi is straight
+        ez = x0c(n);
+end
+dDesHeading = 0;
+ehsim=0;ehcsim=0;
+
+if(uDelay);uPlan=zeros(m,T);uSave{2}=uPlan;
+else uPlan=zeros(m,T);end
+if(KFdelay)
+    if(strcmp(syss,'crossTrack'))
+        ezold = (Cd*x0)-[desBearing(1) 0]';
+        if(ezold(1) > 180);ezold(1) = ezold(1) - 360;end
+        if(ez(1) < (-180)); ezold(1) = ezold(1) + 360;end
+    elseif(strcmp(syss,'crossTrack_CLheading'))
+        ezold = (Cd*x0);
+    end
+end
+
+kPlan = 1;  % no init packet loss
+uPlanBuffered = uPlan;
+
+% save full vectors
+xAllEst(:,1) = xhat;pKFall(:,:,1) = PKF;
+uAllMPC(:,1)=u;uSave{1}=uPlan;
+timeMPCall(1) = 0;
 
 simStart=tic;
 for i = 1:(N)
