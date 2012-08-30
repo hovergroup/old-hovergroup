@@ -105,8 +105,16 @@ end
 
 % cost fcn defined wrt to desired bearing
 if(uDelay)
-    minimize (norm([Qhalf*(X(:,3:T+1)-xDes(:,3:T+1))],'fro')...
-        + (X(:,T+2)-xDes(:,T+2))'*P*(X(:,T+2)-xDes(:,T+2)) + mu*norm(U,1))
+    
+    % NOT SPARSE
+    %minimize (norm([Qhalf*(X(:,3:T+1)-xDes(:,3:T+1))],'fro')...
+    %    + (X(:,T+2)-xDes(:,T+2))'*P*(X(:,T+2)-xDes(:,T+2)) + mu*norm(U,1))
+    
+    
+        minimize (norm([Qhalf*(X(:,3:T+1)-xDes(:,3:T+1))],'fro')...
+        + (X(:,T+2)-xDes(:,T+2))'*P*(X(:,T+2)-xDes(:,T+2)) + mu*norm(U(1,2:T) - U(1,1:T-1),1))
+    
+    
 else
     minimize (norm([Qhalf*(X(:,2:T)-xDes(:,2:T))],'fro')...
         + (X(:,T+1)-xDes(:,T+1))'*P*(X(:,T+1)-xDes(:,T+1)) + mu*norm(U,1))

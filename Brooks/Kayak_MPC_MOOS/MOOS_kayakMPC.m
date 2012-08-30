@@ -47,6 +47,9 @@ MPC_STR = char(97*ones(1,lenMPC_STR));
 
 initializeMOOS_MPC;
 
+
+integral = 0;
+
 mpcStart = tic;
 loopIt=1;
 % start loop  (breaks when MPC_STOP==1)
@@ -71,6 +74,17 @@ while(~mpc_stop)
         case 'crossTrack'
             eEst = eEstKF;
     end
+    
+    
+    integral = integral + eEstKF(4)*CdAll(n,n);
+    if(integral>50)
+        integral = 50;
+    elseif(integral<-50)
+        integral = -50;
+    end
+    fprintf('integral = %f\n',integral);
+    
+    
     
     % create inputs to MPC: eDes, uPrev:
     eDes = computeMPCInputs(n,N,T,syss,desBearing,loopIt);
@@ -106,9 +120,20 @@ while(~mpc_stop)
             send = u+rOff;
         case 'crossTrack_CLheading'
             uBearing = u+desBearing(loopIt);
+            fprintf('MPC send = %f \n',uBearing)
+            Kint = 0.25;
+            uBearing = uBearing + Kint*integral;
+            
+            
             if(uBearing<0);uBearing = uBearing+360;end
             if(uBearing>360);uBearing = uBearing - 360;end
             send = sprintf('heading = %0.1f',uBearing);
+            
+
+
+            
+            
+            
     end
     
     switch TX

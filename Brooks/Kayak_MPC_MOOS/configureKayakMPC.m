@@ -29,7 +29,7 @@ loss2MPC = 0;%%%% currently doesn't work ...
 % rudder offset: (for use with MOOS)
 %rOff = 3;
 rOff=0;
-trueNorthAdjustment = -15;
+trueNorthAdjustment = 0;%-15;
 
 %syss='crossTrack';
 syss = 'crossTrack_CLheading';
@@ -39,14 +39,14 @@ syss = 'crossTrack_CLheading';
 kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
-T = 10;
+T = 15;
 % T = 6;
 % T = 15;
 
 % Time step (sec)
 %dt = 1;
-dt = 3;
-%dt = 6;
+%dt = 3;
+dt = 6;
 
 % for gen matrices for KF @ 2hz
 %dt = 0.5;
@@ -70,21 +70,23 @@ switch tracklineType
         
         
         Nsec = secPerLeg*numLegs;
-        ox = 0;oy = 150;       
+        ox = 100;oy = -50;       
         % (pavAngle = 37 degrees from horizontal = 53 heading)
         % first leg is pavAngle + pavAngleOffset.  
-        pavAngOffset = -37 + 180;     
+        %pavAngOffset = -37 + 180;     
+        pavAngOffset = -10;
+        
         kinkAng = 45;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
-        secPerLeg = 60;
+        secPerLeg = 40;
         Nsec = secPerLeg*numLegs;
-        ox = 0;
-        oy = 200;
+        ox = 80;
+        oy = -40;
 end
 N = ceil(Nsec/dt);  % total sim steps
 r0=0;
-hd0=70;
+hd0=80;
 
 
 switch syss
@@ -130,8 +132,8 @@ Qmpc = eye(n);         % state cost
 Pmpc = 10*eye(n);     % terminal state cost
 % Qmpc and Pmpc are scaled by CdAll below 
 % (set weights based on physical units)
-Qmpc(n,n) = 2;
-Pmpc(n,n) = 10*2;
+Qmpc(n,n) = 50;
+Pmpc(n,n) = 10*50;
 %Qmpc(n,n) = .05;
 %Pmpc(n,n) = .05;
 
@@ -142,7 +144,8 @@ switch kayak
         Krate=1/1.56; % rudder in to heading rate out
         wn=sqrt(1.56);
         zeta=1.01/(2*wn);
-        speed=2; % m/s
+        %speed=2; % m/s
+        speed = 1.5
     case 'kassandra_modem_smallR'
         Krate = 1.37/1.13;
         wn = sqrt(1.13);
