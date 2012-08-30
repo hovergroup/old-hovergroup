@@ -15,9 +15,10 @@
 % configure MOOS/iMatlab parameters
 
 moosDB = 'terra.moos';
-%pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
-pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
+pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
+%pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 % pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+
 old = cd(pathName);
 % subscribe to
 % 'MPC_XEST'% 'MPC_STOP'% 'GPS_X'% 'GPS_Y'% 'COMPASS_HEADING_FILTERED'
