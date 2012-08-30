@@ -76,8 +76,8 @@ if(uDelay)
     
     % could add -xDes, but equal to zero
     % constrain perpendicular speed to be fraction of speed*dt
-    (X(n,4:T+2) - X(n,3:T+1))*C(n,n) <= speed*dt*angle2speed;
-    (X(n,4:T+2) - X(n,3:T+1))*C(n,n) >= -speed*dt*angle2speed;
+    (X(n,4:T+1) - X(n,3:T))*C(n,n) <= speed*dt*angle2speed;
+    (X(n,4:T+1) - X(n,3:T))*C(n,n) >= -speed*dt*angle2speed;
     
 else
     
