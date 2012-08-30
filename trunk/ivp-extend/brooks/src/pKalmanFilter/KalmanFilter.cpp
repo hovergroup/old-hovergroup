@@ -151,7 +151,7 @@ bool KalmanFilter::Iterate()
 				PublishSegList();
 
 				wait = GetDistance(x1,y1,x2,y2)/speed;
-				offset = wait;
+				offset = GetDistance(x1,y1,x2,y2)/speed;
 
 				gsl_vector_set(x_hat,2,(myheading-GetDesiredHeading()));
 
