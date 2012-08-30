@@ -12,6 +12,9 @@ added Bin
 - 8/19/2012 - added packet loss params
 - 8/19/2012 - added CL heading system
 - 8/20/2012 - added option for CL heading to have n=3 or n=4
+- 8/29/2012 - changed CL heading sys to n = 4 with psi as a state, and dPsi
+    as control input (for sparse controls), modified ICs to reflect this
+
 
 %}
 
@@ -22,14 +25,21 @@ plotStep = 0;
 probPLoss = .0;
 loss2MPC = 0;%%%% currently doesn't work ...
 
+%% ICs
+
+% ICs for MOOS
+r0=0;       % if cross-track... initial rudder
+hd0=180;    % if heading setpt... initial heading 
+% hd0 SHOULD MATCH STARTING CONSTANT HEADING BEHAVIOR SETPT
+
+% SIM initial state (ACTUAL BEARING): (IN PHYSICAL UNITS)
+% [headingAccel(deg/s^2), headingRate(deg/s), heading(deg), crossTrack (m)]
+heading0 = 73+10;
+%heading0 = 185;
+
+ex0 = 0;
+
 %% PARAMETERS
-
-% System Params
-
-% rudder offset: (for use with MOOS)
-%rOff = 3;
-rOff=0;
-trueNorthAdjustment = -15;
 
 %syss='crossTrack';
 syss = 'crossTrack_CLheading';
@@ -39,21 +49,23 @@ syss = 'crossTrack_CLheading';
 kayak = 'nostromo_modem';
 
 % Planning horizon (steps)
-T = 11;
+T = 20;
+% T=32;
 % T = 6;
 % T = 15;
+mu=10;              % sparse control weight
 
 % Time step (sec)
 %dt = 1;
-dt = 3;
-%dt = 6;
+%dt = 3;
+dt = 6;
 
-% for gen matrices for KF @ 2hz
+% for gen matrices for KF @ __hz
 %dt = 0.5;
 %dt = 1/5;
 
 %tracklineType='straight';
-tracklineType = 'pavilion_1turn';
+tracklineType = 'oneturn';
 %tracklineType = 'hexagon';
 
 switch tracklineType
@@ -63,15 +75,17 @@ switch tracklineType
         ox = 20;oy = -30;
         % bearing of straight line:
         desB = deg2rad(80);
-    case 'pavilion_1turn'
+    case 'oneturn'
         %secPerLeg = ceil(120/dt)*dt;
-        secPerLeg = ceil(60/dt)*dt;
+        secPerLeg = ceil(90/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
-        ox = 0;oy = 150;               
-        % pavAngle = 37; pavAngleOffset = -20;
-        % startAngle = pavAngle + pavAngleOffset;
-        startAngle = 180;     
+        %ox = 0;oy = 150;      
+        ox = -20;
+        oy = -50;
+        pavHeading = 73; pavHeadingOffset = 0;
+        startHeading = pavHeading + pavHeadingOffset;
+        %startHeading = 180;     
         kinkAng = 45;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
@@ -81,9 +95,6 @@ switch tracklineType
         oy = 200;
 end
 N = ceil(Nsec/dt);  % total sim steps
-r0=0;
-hd0=180;
-
 
 switch syss
     case 'crossTrack'
@@ -96,50 +107,46 @@ switch syss
         q = 1;  % MEASUREMENTS  
 end
 
-% SIM initial state (ACTUAL BEARING): (IN PHYSICAL UNITS)
-% [headingAccel(deg/s^2), headingRate(deg/s), heading(deg), crossTrack (m)]
-%heading0 = 73+20;
-heading0 = 185;
-ex0 = 0;
+% max and mins for MPC
 hddmax = 30;
 hdmax = 30;
 hmax = 90;
 exmax = 100;
 dhmax = 90;
+
+% setup MPC params (THESE ARE IN PHYSICAL UNITS)
 switch syss
     case 'crossTrack'
-        x0c = [0;0;heading0;ex0];
+        x0true = [0;0;heading0;ex0];
         xmax = [hddmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
         % u is rudder angle
         umax = 20*ones(m,1); umin = -umax;
         slewRate=(10)*dt; % deg per time step
         
         Qmpc = eye(n);
-        Pmpc = 10*eye(n);
-        Qmpc(n,n) = 2;
-        Pmpc(n,n) = 10*2;
+        Qmpc(n,n) = 10;
+        Pfac = 10;  % terminal
+        Pmpc = Pfac*eye(n);
+        Pmpc(n,n) = Pfac*Qmpc(n,n);
         
     case 'crossTrack_CLheading'
-        x0c = [0;0;heading0;ex0];
+        x0true = [heading0;0;heading0;ex0];
         xmax = [dhmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
         % u is the CHANGE in setpt for desired heading error 
         umax = 90*ones(m,1); umin = -umax;
         slewRate = 45;   % deg per time step
         
         Qmpc = eye(n);
-        Pmpc = 10*eye(n);
         Qmpc(1,1) = 0;      % no cost on setpoint
-        Qmpc(n,n) = 2;  % cross-track error
+        Qmpc(n,n) = .00010;  % cross-track error
+        Pfac = 10;
+        Pmpc = Pfac*eye(n);
         Pmpc(1,1) = 0;
-        Pmpc(n,n) = 2*10;
+        Pmpc(n,n) = Pfac*Qmpc(n,n);
         
 end
 
-% MPC params
-mu=10;              % sparse control weight
-
-% System params
-% kayak cross-track model
+% kayak open-loop cross-track model
 switch kayak
     case 'nostromo_modem'
         Krate=1/1.56; % rudder in to heading rate out
@@ -202,15 +209,14 @@ generateTracklinesMPC
 %% generate A, B matrices
 
 s = tf('s');
-K=wn^2*Krate;
-headingRate = (K/(s^2 + s + wn^2));
-heading=headingRate/s;
-% dz/dt = U*sin(theta) ~ U*theta (in radians)
-Kcross=speed*pi/180;
 
+Kcross=speed*pi/180;
 switch syss
     case 'crossTrack'
-        
+        K=wn^2*Krate;
+        headingRate = (K/(s^2 + s + wn^2));
+        heading=headingRate/s;
+        % dz/dt = U*sin(theta) ~ U*theta (in radians)
         crossTrack = heading*Kcross/s;
         sysC=crossTrack;
         
@@ -243,7 +249,7 @@ switch syss
         
         wnH = 1;
         zetaH = .7;
-        tauRudder = 0.25;
+        %tauRudder = 0.25;
         TFrudder=1;
         % this version just uses stable 2nd order for heading
         CLheading = wnH^2/(s^2+2*wnH*zetaH*s+wnH^2)*TFrudder;
@@ -257,31 +263,34 @@ switch syss
         [Ac3 Bc3 Cc3 Dc] = tf2ss(num{1},den{1});
         % add commanded heading state
         Ac = zeros(n);
-        Ac(2:4,1:3) = Ac3;
-        Ac(2,4) = 1;
+        Ac(2:4,2:4) = Ac3;      % closed-loop heading
+        Ac(4,3) = -1;           % sign convention for xtrack
+        Ac(2,1) = 1;            % CL heading setpoint 
+        
         % Bc is input matrix for dPSI (change in setpt for CL heading)
         Bc = [1 0 0 0]';
-        Cc = [1 0 0 0;0 1 0 0;0 0 1 0;0 Cc3];
-        
-        
-        %%%%%%%%%%%% FIX AFTER THIS
-        % Bin is input matrix for desired bearing of trackline
+        % Bin is input matrix for eDes
         Bin = zeros(n);
-        if(n==3)
-            Bin(n,:) = [0 1 0];
-        elseif(n==4)
-            Bin(n,:) = [0 0 1 0];
-        end
+        % ePHIb (change in trackline bearing)
+        %Bin(3,3) = 1;
+        % ePHIb also changes cross-track
+        Bin(4,3) = 1;
+        %Bin(1,3) = 1;
+        
+        
+        Bin = eye(n);
+        
+        
+        % Cc is all state output matrix
+        Cc = [1 0 0 0;0 1 0 0;0 0 wnH^2 0;0 0 0 speed*wnH^2*pi/180];
         
         sysCss=ss(Ac,Bc,Cc,Dc);
         sysd = c2d(sysCss,dt);
         
         [Ad Bd CdAll Dd] = ssdata(sysd);    % this uses full state output
-        if(n==3)
-            Cd = [0,0,CdAll(n,n)];   % this for MEASUREMENT
-        elseif(n==4)
-            Cd = [0,0,0,CdAll(n,n)];
-        end
+        
+        % Cd is for just CROSS-TRACK ERROR MEASUREMENT
+        Cd = [0 0 0 CdAll(n,n)];
         
         % repeat to get noise input
         sysdNoise = c2d(ss(Ac,Bnoise,Cc,Dc),dt);
@@ -291,11 +300,10 @@ switch syss
         sysdSetpt = c2d(ss(Ac,Bin,Cc,Dc),dt);
         [~,Bdin,~,~] = ssdata(sysdSetpt);
         
-        
 end
 
 % convert z, max/min, Qmpc to discrete time states
-x0 = CdAll\x0c;
+x0 = CdAll\x0true;
 xmax = CdAll\xmax; xmin = CdAll\xmin;
 Qmpc = Qmpc.*CdAll;
 Pmpc = Pmpc.*CdAll;

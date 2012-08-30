@@ -9,16 +9,20 @@ function eDes= computeMPCInputs(n,N,T,syss,desBearing,loopIt)
 %{
 - 8/19/2012: changed '3' to 'n-1' for heading state (work with both sys)
 - 8/20/2012: added syss input, and change to "bump" eDes for CL heading
-
+- 8/29/2012: made last eDes all zeros (to avoid edge case with terminal
+        state weighting)
 
 %}
 
 % compute xDes in MPC coord frame
+
 % first construct xDes vector in bearing coord frame
 xDes = zeros(n,T+2);
 eDes = zeros(n,T+2);
+
 % Note - MPC uses xDes(1) in propagation of state estimate to X(:,2),
 % along with uPrev.  So xDes(1) matches timestep of uPrev
+
 if(loopIt==1)
     % desBearing(planning step 0) = desBearing(1)
     xDes(n-1,:) = [desBearing(1) desBearing(1:T+1)];
@@ -52,9 +56,19 @@ end
     % quick hack to test 
     if(strcmp(syss,'crossTrack_CLheading'))  
         inds = find(eDes(n-1,:));
+        
+        % with Bin eye(n)
+        eDes(n,:) = eDes(n-1,:);
+        
+        
+        
         if(inds)
             eDes(n-1,(inds(1)+1):end)=zeros(1,1:(T+2-inds(1)));
         end
     end
+    
+    %%%% QUICK HACK FOR TERMINAL STATE WEIGHTING...
+    eDes(:,end) = zeros(n,1);
 
+    
 end

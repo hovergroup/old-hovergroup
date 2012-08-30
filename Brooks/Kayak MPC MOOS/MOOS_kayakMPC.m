@@ -103,7 +103,7 @@ while(~mpc_stop)
     
     switch syss
         case 'crossTrack'
-            send = u+rOff;
+            send = u;  %+rOff; (rOff in MOOS)
         case 'crossTrack_CLheading'
             uBearing = u+desBearing(loopIt);
             if(uBearing<0);uBearing = uBearing+360;end
