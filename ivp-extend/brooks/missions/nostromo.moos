@@ -34,7 +34,8 @@ ProcessConfig = pKalmanFilter
 	Speed = 2		//m/s
 	Thrust = 60		//percent
 	
-	CompassOffset = 15 	//degrees
+	//CompassOffset = 15 	//degrees
+	CompassOffset = 0
 	RudderOffset = 0	//handled in interface
 	
 	//RudderOffset = 5
