@@ -124,7 +124,7 @@ bool KalmanFilter::Iterate()
 	// happens AppTick times per second
 
 	double time_passed = MOOSTime() - start_time;
-	double timer_time = MOOSTime() - timer;
+	//double timer_time = MOOSTime() - timer;
 
 	if(!end){
 
@@ -239,7 +239,7 @@ void KalmanFilter::EstimateStates(){
 	//gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_free(temp_matrix);
 	gsl_vector_free(temp_vector);
-	cout << "Got x_pre: " << endl;
+	//cout << "Got x_pre: " << endl;
 	//gsl_vector_fprintf(stdout,x_pre,"%f");
 	//cout << endl;
 
@@ -443,7 +443,7 @@ void KalmanFilter::GetWaypoints(string txtfile){ //Waypoints Ordered
 			ss >> param; wpx1.push_back(param); ss >> discard;
 			ss >> param; wpy1.push_back(param); ss >> discard;
 			ss >> param; wpx2.push_back(param); ss >> discard;
-			ss >> param; wpy2.push_back(param); ss >> discard;
+			ss >> param; wpy2.push_back(param);
 		}
 	}
 
