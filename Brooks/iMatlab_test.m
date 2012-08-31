@@ -8,7 +8,6 @@ close all;
 clc;
 
 
-
 %addpath('/home/mei/moos-ivp/MOOS/MOOSBin/')
 
 moosDB = 'icarus.moos';
