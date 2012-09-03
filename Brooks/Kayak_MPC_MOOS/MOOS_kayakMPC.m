@@ -26,9 +26,6 @@ close all
 clc
 format compact
 
-
-
-
 %% ICs
 r0=0;       % if cross-track... initial rudder
 hd0=80;    % if heading setpt... initial heading 
