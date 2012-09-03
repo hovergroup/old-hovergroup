@@ -118,7 +118,7 @@ ProcessConfig = iHoverKayak
 	CommsTick = 20
 	
 	INVERT_RUDDER = false
-	RUDDER_OFFSET = 0
+	RUDDER_OFFSET = -1
 }
 
 ProcessConfig = iOS5000_Hover
@@ -168,7 +168,7 @@ ProcessConfig = pMarinePID_Hover
 //	YAW_PID_KD		= 0.2
 	YAW_PID_KD = 0
 //	YAW_PID_KI		= 0.005
-	YAW_PID_KI = 0
+	YAW_PID_KI = 0.1
 	YAW_PID_INTEGRAL_LIMIT = 0.25
 	YAW_PID_UPDATE_FRACTION = 0.05
 
