@@ -105,7 +105,7 @@ Rkf
 fname='matrices';
 %fpath='/home/brooks/hovergroup/Brooks/Kayak_MPC_MOOS/';
 fpath='/home/brooks/hovergroup/ivp-extend/brooks/missions/';
-fid = fopen([fpath,fname,'txt'],'w');
+fid = fopen([fpath,fname,'.txt'],'w');
 printMatrix(fid,Ad);
 fprintf(fid,'\n');
 printMatrix(fid,Bd);
