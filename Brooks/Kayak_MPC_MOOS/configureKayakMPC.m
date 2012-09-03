@@ -25,8 +25,8 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 
 % packet loss probability:
-%probPLoss = .5;
-probPLoss = 0;
+probPLoss = .5;
+%probPLoss = 0;
 
 
 %% PARAMETERS
@@ -38,13 +38,19 @@ syss = 'crossTrack_integrator';
 speed = 1.2;
 % speed = 0.8;  % kassandra modem
 
+
+%%%
+hspeed = 1.5;
+%%%
+
+
 % Planning horizon (steps)
 T = 15;
 % T=32;
 % T = 6;
 % T = 15;
 
-mu=100;              % sparse control weight
+mu=20;              % sparse control weight
 
 % Time step (sec)
 %dt = 1;
@@ -131,7 +137,7 @@ switch syss
         % mpc max: (also scaled by Cd later)
         intmax = intSat*10;
         xmax = [epsimax intmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-        Qmpc(2,2) = 1e-6; % cost on integral term
+        Qmpc(2,2) = 1e-2; % cost on integral term
 end
 Pmpc = Pfac*Qmpc;
 
@@ -144,7 +150,7 @@ angle2speed = 1/2;
 %% generate A, B matrices
 
 s = tf('s');
-Kcross=speed*pi/180;
+Kcross=hspeed*pi/180;
 wnH = 1;
 %wnH = 1/3;
 %wnH = 4;
@@ -162,7 +168,7 @@ switch syss
         sysC = crossTrack;
         [num den] = tfdata(sysC);
         [Ac3,Bc3,~,Dc] = tf2ss(num{1},den{1});
-        Cc = [1 0 0 0;0 1 0 0;0 0 wnH^2 0;0 0 0 speed*wnH^2*pi/180];
+        Cc = [1 0 0 0;0 1 0 0;0 0 wnH^2 0;0 0 0 hspeed*wnH^2*pi/180];
         % add commanded heading state
         Ac = zeros(n);
         Ac(2:n,2:n) = Ac3;      % closed-loop heading
@@ -177,7 +183,7 @@ switch syss
         sysC = crossTrack;
         [num den] = tfdata(sysC);
         [Ac3,Bc3,~,Dc] = tf2ss(num{1},den{1});
-        Cc = [1 0 0 0 0;0 speed*wnH^2*pi/180 0 0 0;0 0 1 0 0;0 0 0 wnH^2 0;0 0 0 0 speed*wnH^2*pi/180];
+        Cc = [1 0 0 0 0;0 speed*wnH^2*pi/180 0 0 0;0 0 1 0 0;0 0 0 wnH^2 0;0 0 0 0 hspeed*wnH^2*pi/180];
 
         % add commanded heading state
         Ac = zeros(n);
