@@ -87,6 +87,9 @@ if(strcmp(syss,'crossTrack_integrator'))
     PKF(1,1) = 0;   % no uncert in integral?
 end
 eDes = computeMPCInputs(n,N,T,desBearing,1);
+%%%%
+eDes = zeros(size(eDes));
+%%%%
 
 xd = x0;
 xhat = x0;

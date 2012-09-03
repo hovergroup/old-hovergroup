@@ -17,6 +17,7 @@ added Bin
 - 8/29/2012 - modified gen tracklines to work all on headings (not angles)
 - 8/30/2012 - removed crossTrack with rudder input from this version
 - 8/31/2012 - rearranged
+
         
 %}
 
@@ -37,8 +38,8 @@ speed = 1.5;    % nostromo modem
 % speed = 0.8;  % kassandra modem
 
 % Planning horizon (steps)
-%T = 10;
- T=32;
+T = 15;
+% T=32;
 % T = 6;
 % T = 15;
 
@@ -46,8 +47,9 @@ mu=10;              % sparse control weight
 
 % Time step (sec)
 %dt = 1;
-dt = 6;
 %dt = 6;
+%dt = 3;
+dt = 6;
 
 %tracklineType='straight';
 tracklineType = 'oneturn';
@@ -64,13 +66,13 @@ switch tracklineType
         %startHeading = 80;
         startHeading = pavHeading + pavHeadingOffset;
     case 'oneturn'
-        secPerLeg = ceil(90/dt)*dt;
+        secPerLeg = ceil(120/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         %ox = 0;oy = 150;      
-        ox = 200;
-        oy = -10;
+        ox = 230;
+        oy = 0;
         startHeading = pavHeading + pavHeadingOffset;
         %startHeading = 180;     
         kinkAng = 30;  % second leg is after kink, + angle turns right
@@ -103,7 +105,7 @@ q = 1;  % MEASUREMENTS
 % exmax = 100;
 % epsimax = 90;
 
-hdmax = 100;
+hdmax = 1000;
 hmax = 90;
 exmax = 500;
 epsimax = 90;
@@ -111,7 +113,7 @@ epsimax = 90;
 
 
 % u is the change in heading setpoint.  (acts as a slew rate)
-umax = 45*ones(m,1); umin = -umax;
+umax = 90*ones(m,1); umin = -umax;
 
 slewRate = 45;   % deg per time step % not used now
 
@@ -143,7 +145,10 @@ angle2speed = 1/2;
 s = tf('s');
 Kcross=speed*pi/180;
 wnH = 1;
-zetaH = .7;
+%wnH = 1/3;
+%wnH = 4;
+
+zetaH = .8;
 %tauRudder = 0.25;
 TFrudder=1;
 % this version just uses stable 2nd order for heading

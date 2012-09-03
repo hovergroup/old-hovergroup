@@ -27,20 +27,20 @@ itstart = loopIt-2;
 itend = loopIt+T+1;
 
 %%%%%%%%%
-
+desBearingLocal = [];
 if(itstart>=N)
     itstart = N;
 end
 if(itstart<1)
-    desBearingLocal = [desBearing(1:1-itstart) desBearing(1:itend)];
+    desBearingLocal = [desBearing(1:1-itstart)];
     itstart = 1;
-else
-    if(itend<=N)
-        desBearingLocal = desBearing(itstart:itend);
-    else
-        desBearingLocal = [desBearing(itstart:N) desBearing(N)*ones(1,T+3-N+itstart)];
-    end
 end
+if(itend<=N)
+        desBearingLocal = [desBearingLocal desBearing(itstart:itend)];
+    else
+        desBearingLocal = [desBearingLocal desBearing(itstart:N) desBearing(N)*ones(1,T+3-N+loopIt-2)];
+end
+
 eDesBearingLocal = desBearingLocal - ones(size(desBearingLocal))*desBearing(itstart);
 
 % wrap eDes to +/- 180 deg

@@ -203,6 +203,10 @@ for i = 1:(N)
     eDes = computeMPCInputs(n,N,T,desBearing,i);
     disp(eDes(n-1,:))
     
+    %%%%%%%%%
+    eDes = zeros(size(eDes));
+    %%%%%%%%%
+    
     if(i>1)
         % MPC knows previous control IT COMPUTED
         %uPrev = uPlanNext(1)+dDesHeading(i);

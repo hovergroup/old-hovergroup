@@ -78,11 +78,38 @@ if(uDelay)
     
     % **cross-track is defined wrt des bearing - Bin
     
+    %
     % first state is the actual state
     X(:,1) == x;
     % propagate using previous control to get X(t=2)
     X(:,2) == A*(X(:,1)) + Bin*xDes(:,1) + B*uPrev;
     X(:,3:T+2) == A*(X(:,2:T+1)) + Bin*xDes(:,2:T+1) + B*(U);%-xDes(n-1,1:T));
+    %
+     
+    
+    %{
+    % first state is the actual state
+    X(:,1) == x;
+    % propagate using previous control to get X(t=2)
+    X(1,2) == X(1,1) + uPrev;    
+    X(2:n,2) == A(2:n,2:n)*(X(2:n,1)) + Bin(2:n,2:n)*xDes(2:n,1);   % + B*uPrev;
+    
+    X(1,3:T+2) == X(1,2:T+1) + U;
+    X(2:n,3:T+2) == A(2:n,2:n)*(X(2:n,2:T+1)) + Bin(2:n,2:n)*xDes(2:n,2:T+1);% + B*(U);%-xDes(n-1,1:T));
+    %}
+    
+    
+    
+    % first state is the actual state 
+    %{
+    %(!! control takes a step to propagate to ePSI)
+    X(:,1) == x + B*uPrev;
+    % propagate using previous control to get X(t=2)
+    X(:,2) == A*(X(:,1)) + Bin*xDes(:,1) + B*U(1);
+    X(:,3:T+1) == A*(X(:,2:T)) + Bin*xDes(:,2:T) + B*(U(2:T));%-xDes(n-1,1:T));
+    X(:,T+2) == A*(X(:,T+1)) + Bin*xDes(:,T+1);
+    %}
+
     
     % constrain perpendicular speed to be fraction of speed*dt
     (X(n,4:T+2) - X(n,3:T+1))*C(n,n) <= speed*dt*angle2speed;
