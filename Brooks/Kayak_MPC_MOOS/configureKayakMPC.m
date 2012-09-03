@@ -31,10 +31,11 @@ probPLoss = 0;
 
 %% PARAMETERS
 
-syss = 'crossTrack';
-%syss = 'crossTrack_integrator';
+%syss = 'crossTrack';
+syss = 'crossTrack_integrator';
 
-speed = 1.5;    % nostromo modem
+%speed = 1.5;    % nostromo modem
+speed = 1.2;
 % speed = 0.8;  % kassandra modem
 
 % Planning horizon (steps)
@@ -43,7 +44,7 @@ T = 15;
 % T = 6;
 % T = 15;
 
-mu=10;              % sparse control weight
+mu=100;              % sparse control weight
 
 % Time step (sec)
 %dt = 1;
@@ -113,13 +114,13 @@ epsimax = 90;
 
 
 % u is the change in heading setpoint.  (acts as a slew rate)
-umax = 90*ones(m,1); umin = -umax;
+umax = 30*ones(m,1); umin = -umax;
 
 slewRate = 45;   % deg per time step % not used now
 
 Qmpc = eye(n);
 Qmpc(1,1) = 0;  % no cost on ePSI
-Qmpc(n,n) = 10; % cross-track error
+Qmpc(n,n) = 40; % cross-track error
 Pfac = 10;
 switch syss
     case 'crossTrack'

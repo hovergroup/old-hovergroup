@@ -176,26 +176,36 @@ cd(old)
 %%
 
 figure
-plot(eEstSave{:}(1))
+stairs(eEstSave(1:3,:)')
 
 %plotInds = [10 11]
 plotInds = [20 21 22];
+%plotInds = [50 51 52 53];
 
 %
-ns = 3;
+ns = 4;
 figure
  for k = plotInds
      
-subplot(3,1,1)
- stairs(uPlanSave{k})
- hold on
- subplot(3,1,2)
- stairs(XSave{k}(3,:))
- hold on
- subplot(3,1,3)
- stairs(XSave{k}(4,:))
- hold on
-
+    subplot(ns,1,1)
+    stairs(uPlanSave{k})
+    hold on
+    title('control plan')
+    subplot(ns,1,2)
+    stairs(XSave{k}(1,:))
+    hold on
+    title('predicted setpoint')
+    
+    subplot(ns,1,3)
+    stairs(XSave{k}(3,:))
+    hold on
+    title('predicted heading')
+    
+    subplot(ns,1,4)
+    stairs(XSave{k}(4,:))
+    hold on
+    title('predicted cross track')
+    
  end
 %
 
