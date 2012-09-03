@@ -30,8 +30,8 @@ probPLoss = 0;
 
 %% PARAMETERS
 
-syss = 'crossTrack';
-%syss = 'crossTrack_integrator';
+%syss = 'crossTrack';
+syss = 'crossTrack_integrator';
 
 speed = 1.5;    % nostromo modem
 % speed = 0.8;  % kassandra modem
