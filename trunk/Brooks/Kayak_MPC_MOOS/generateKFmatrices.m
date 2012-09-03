@@ -17,8 +17,8 @@ sys = 'crossTrack_integrator';n = 5;
 %kayak = 'kassandra_modem_30R';
 kayak = 'nostromo_modem';
 
-Rcompass = 0.5;       % compass var
-RGPS=4;            % GPS var.
+Rcompass = 4;       % compass var
+RGPS=9;            % GPS var.
 Qheading = 9;
 Qcross = 16;
 
@@ -112,8 +112,16 @@ Rkf
 
 fname='matrices';
 %fpath='/home/brooks/hovergroup/Brooks/Kayak_MPC_MOOS/';
-fpath='/home/brooks/hovergroup/ivp-extend/brooks/missions/';
-fid = fopen([fpath,fname,'.txt'],'w');
+fpath1='/home/brooks/hovergroup/ivp-extend/brooks/missions/';
+fpath2='/home/josh/hovergroup/ivp-extend/brooks/missions/';
+
+try
+    fid = fopen([fpath1,fname,'.txt'],'w');
+end
+try
+    fid = fopen([fpath2,fname,'.txt'],'w');
+end
+
 printMatrix(fid,Ad);
 fprintf(fid,'\n');
 printMatrix(fid,Bd);

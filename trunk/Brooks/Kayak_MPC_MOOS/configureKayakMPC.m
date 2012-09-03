@@ -54,7 +54,7 @@ tracklineType = 'oneturn';
 %tracklineType = 'hexagon';
 
 pavHeading = 73;
-pavHeadingOffset = 80;
+pavHeadingOffset = 0;
 switch tracklineType
     case 'straight'
         %Nsec=30;
@@ -64,12 +64,12 @@ switch tracklineType
         %startHeading = 80;
         startHeading = pavHeading + pavHeadingOffset;
     case 'oneturn'
-        secPerLeg = ceil(120/dt)*dt;
+        secPerLeg = ceil(90/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         %ox = 0;oy = 150;      
-        ox = 100;
+        ox = 200;
         oy = -50;
         startHeading = pavHeading + pavHeadingOffset;
         %startHeading = 180;     
