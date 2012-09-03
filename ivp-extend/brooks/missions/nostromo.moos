@@ -118,7 +118,7 @@ ProcessConfig = iHoverKayak
 	CommsTick = 20
 	
 	INVERT_RUDDER = false
-	RUDDER_OFFSET = -2
+	RUDDER_OFFSET = 0
 }
 
 ProcessConfig = iOS5000_Hover
