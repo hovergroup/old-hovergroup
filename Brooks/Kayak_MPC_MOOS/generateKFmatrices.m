@@ -106,18 +106,18 @@ fname='matrices';
 %fpath='/home/brooks/hovergroup/Brooks/Kayak_MPC_MOOS/';
 fpath='/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 fid = fopen([fpath,fname,'txt'],'w');
-printMatrix(fid,Ad)
-fprintf(fid,'\n')
-printMatrix(fid,Bd)
-fprintf(fid,'\n')
-printMatrix(fid,Bdnoise)
-fprintf(fid,'\n')
-printMatrix(fid,Cd)
-fprintf(fid,'\n')
-printMatrix(fid,Qkfd)
-fprintf(fid,'\n')
-printMatrix(fid,Rkf)
-fprintf(fid,'\n')
-fclose(fid)
+printMatrix(fid,Ad);
+fprintf(fid,'\n');
+printMatrix(fid,Bd);
+fprintf(fid,'\n');
+printMatrix(fid,Bdnoise);
+fprintf(fid,'\n');
+printMatrix(fid,Cd);
+fprintf(fid,'\n');
+printMatrix(fid,Qkfd);
+fprintf(fid,'\n');
+printMatrix(fid,Rkf);
+fprintf(fid,'\n');
+fclose(fid);
 
 
