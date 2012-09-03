@@ -107,6 +107,8 @@ bool KalmanFilter::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("CompassOffset", compass_offset);
 	m_MissionReader.GetConfigurationParam("Crosstrack",crosstrack);
 	m_MissionReader.GetConfigurationParam("RudderOffset",rudder_offset);
+	m_MissionReader.GetConfigurationParam("ConstrainMax",constrain_max);
+	m_MissionReader.GetConfigurationParam("ConstrainMin",constrain_min);
 
 	m_Comms.Register("COMPASS_HEADING_FILTERED",0);
 	m_Comms.Register("GPS_X",0);
@@ -299,6 +301,10 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_set(x_hat,3,x_wrap);}
 	else if(x_wrap < -180){x_wrap +=360;
 	gsl_vector_set(x_hat,3,x_wrap);}
+
+	double transform = gsl_vector_get(x_hat,0);
+	transform = Constrain(transform,constrain_max,constrain_min);
+	gsl_vector_set(x_hat,0,transform);
 
 	cout << "Got X_hat: " << endl;
 	//gsl_vector_fprintf(stdout,x_hat,"%f");
