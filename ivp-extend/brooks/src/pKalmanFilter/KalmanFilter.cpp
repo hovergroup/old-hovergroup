@@ -196,6 +196,8 @@ bool KalmanFilter::Iterate()
 				else if(transform < -180){transform+=360;}
 				gsl_vector_set(x_hat,3,transform);
 
+				gsl_vector_set(x_hat,0,0);
+
 				//Increment Segment ID
 				wp_id++;
 			}
