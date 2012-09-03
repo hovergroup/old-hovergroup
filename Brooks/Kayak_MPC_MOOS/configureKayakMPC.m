@@ -54,7 +54,7 @@ tracklineType = 'oneturn';
 %tracklineType = 'hexagon';
 
 pavHeading = 73;
-pavHeadingOffset = 0;
+pavHeadingOffset = 80;
 switch tracklineType
     case 'straight'
         %Nsec=30;

@@ -1,3 +1,11 @@
+% creates kayak open-loop model for use with KF
+% includes integrator state, 2nd order heading rate, integrators for 
+% heading and cross-track.  
+% 
+% writes to matrices.txt in ivp-extend/{brooks or josh}/missions
+
+
+% BR, 9/2/2012
 
 clear all;close all;clc
 

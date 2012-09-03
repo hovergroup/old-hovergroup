@@ -22,8 +22,8 @@
 % pavilion dock angle rel. to horizontal (in True N frame):
 ifPlot=0;
 
-%MOOSpathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
-MOOSpathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
+MOOSpathName2 = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
+MOOSpathName1 = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
 
 tvec = linspace(dt,Nsec,ceil((Nsec)/dt));
 
@@ -121,8 +121,15 @@ switch tracklineType
         fclose(fid);
         
         if(~ispc)
-            dest = [MOOSpathName 'waypoints.txt'];
-            copyfile('oneturnPts.txt',dest,'f')
+            try
+                dest = [MOOSpathName1 'waypoints.txt'];
+                copyfile('oneturnPts.txt',dest,'f')
+            end
+            try
+                dest = [MOOSpathName2 'waypoints.txt'];
+                copyfile('oneturnPts.txt',dest,'f')
+                disp('writing to brooks')
+            end
         end
 
     case 'hexagon'
