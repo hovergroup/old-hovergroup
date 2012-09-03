@@ -34,8 +34,8 @@ public:
 	void PublishSegList();
 	void EstimateStates();
 	void UpdateSensorReadings();
-	double Constrain(double, double, double);
 
+	double Constrain(double, double, double);
 	double GetDesiredHeading();
 	double GetHeading(double,double,double,double);
 	double GetCrossTrackError();
@@ -49,6 +49,7 @@ protected:
 	double u;								//command
 
 	double x_size, z_size;
+	double constrain_max, constrain_min;
 	vector<double> wpx1,wpy1,wpx2,wpy2,time,headings;
 	double x1,y1,x2,y2;
 	double speed,thrust,compass_offset,rudder_offset;
