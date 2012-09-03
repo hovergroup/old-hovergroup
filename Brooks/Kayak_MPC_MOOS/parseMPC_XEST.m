@@ -1,4 +1,4 @@
-function [xEst mpc_stop] = parseMPC_XEST(n,sys)
+function [xEst mpc_stop] = parseMPC_XEST(nIn,sys)
 % function to find and parse MPC_XEST in MOOS mail
 
 % BR 8/15/2012
@@ -11,12 +11,14 @@ function [xEst mpc_stop] = parseMPC_XEST(n,sys)
 
 %}
 
-if((n~=4) || (n~=5))
-    disp('ERROR - WRONG NUMBER OF STATES')
-    mpc_stop = 1;
-    xEst = [];
-    return
-end
+% if(~((n==4) || (n==5)))
+%     disp('ERROR - WRONG NUMBER OF STATES')
+%     mpc_stop = 1;
+%     xEst = [];
+%     return
+% end
+
+n=5;
 
 xEst = zeros(n,1);
 MPC_STOP='GO';
@@ -102,7 +104,7 @@ if(strcmp(MPC_STOP,'STOP'))
     mpc_stop=1;
 end
 
-xtrack = sys.CdAll(n,n);
+xtrack = sys.Cd(1,nIn);
 if(n==4)
     fprintf('State estimate\n')
     fprintf('%s %f\n','ehddot', xEst(1), 'ehdot ', ...

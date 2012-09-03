@@ -17,7 +17,8 @@
 % (n is number of MPC states)
 % (KF has n states as well, but has ehddot instead of ePSI)
 xDes = zeros(n,T+2);eDes = zeros(n,T+2);
-eEstKF = zeros(n,1);
+% KF always has 5 states
+eEstKF = zeros(5,1);
 xHat = zeros(n,1);
 uPlan = zeros(m,T);
 kPlan = 1;  % no init packet loss
@@ -35,11 +36,18 @@ TX = 'wifi';
 % configure MOOS/iMatlab parameters
 
 moosDB = 'terra.moos';
-%pathName = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
-pathName = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
+pathName1 = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
+pathName2 = '/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 % pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
 
-old = cd(pathName);
+try 
+    old = cd(pathName1);
+end
+try
+   old = cd(pathName2); 
+end
+
+
 % subscribe to
 % 'MPC_XEST'% 'MPC_STOP'% 'GPS_X'% 'GPS_Y'% 'COMPASS_HEADING_FILTERED'
 iMatlab('init','CONFIG_FILE',moosDB);
