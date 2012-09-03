@@ -179,30 +179,31 @@ figure
 stairs(eEstSave(1:3,:)')
 
 %plotInds = [10 11]
-plotInds = [20 21 22];
-%plotInds = [50 51 52 53];
+%plotInds = [20 21 22];
+plotInds = [40 41 42 43];
 
+colors = {'r','b','g','m','c','k'}
 %
 ns = 4;
 figure
- for k = plotInds
-     
+ for i = 1:length(plotInds)
+    k = plotInds(i); 
     subplot(ns,1,1)
-    stairs(uPlanSave{k})
+    stairs(uPlanSave{k},colors{i})
     hold on
     title('control plan')
     subplot(ns,1,2)
-    stairs(XSave{k}(1,:))
+    stairs(XSave{k}(1,:),colors{i})
     hold on
     title('predicted setpoint')
     
     subplot(ns,1,3)
-    stairs(XSave{k}(3,:))
+    stairs(XSave{k}(3,:),colors{i})
     hold on
     title('predicted heading')
     
     subplot(ns,1,4)
-    stairs(XSave{k}(4,:))
+    stairs(XSave{k}(4,:),colors{i})
     hold on
     title('predicted cross track')
     
