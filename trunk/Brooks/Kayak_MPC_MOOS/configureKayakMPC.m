@@ -30,8 +30,8 @@ probPLoss = 0;
 
 %% PARAMETERS
 
-%syss = 'crossTrack';
-syss = 'crossTrack_integrator';
+syss = 'crossTrack';
+%syss = 'crossTrack_integrator';
 
 speed = 1.5;    % nostromo modem
 % speed = 0.8;  % kassandra modem
@@ -70,7 +70,7 @@ switch tracklineType
         Nsec = secPerLeg*numLegs;
         %ox = 0;oy = 150;      
         ox = 200;
-        oy = -50;
+        oy = -10;
         startHeading = pavHeading + pavHeadingOffset;
         %startHeading = 180;     
         kinkAng = 30;  % second leg is after kink, + angle turns right
@@ -98,14 +98,22 @@ q = 1;  % MEASUREMENTS
 %% setup MPC params (THESE ARE IN PHYSICAL UNITS)
 
 % max and mins for MPC
-hdmax = 30;
+% hdmax = 30;
+% hmax = 90;
+% exmax = 100;
+% epsimax = 90;
+
+hdmax = 100;
 hmax = 90;
-exmax = 100;
+exmax = 500;
 epsimax = 90;
+
+
 
 % u is the change in heading setpoint.  (acts as a slew rate)
 umax = 45*ones(m,1); umin = -umax;
-slewRate = 45;   % deg per time step
+
+slewRate = 45;   % deg per time step % not used now
 
 Qmpc = eye(n);
 Qmpc(1,1) = 0;  % no cost on ePSI

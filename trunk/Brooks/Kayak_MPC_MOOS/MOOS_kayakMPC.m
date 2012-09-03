@@ -28,7 +28,7 @@ format compact
 
 %% ICs
 r0=0;       % if cross-track... initial rudder
-hd0=80;    % if heading setpt... initial heading 
+hd0=80;    % if heading setpt... initial heading
 % hd0 SHOULD MATCH STARTING CONSTANT HEADING BEHAVIOR SETPT
 
 %% Loop
@@ -49,6 +49,23 @@ while(~mpc_stop)
     if(loopIt>1)
         % cross-track and heading ERROR relative to desBearing(step)
         [eEstKF mpc_stop] = parseMPC_XEST(n,sys);
+        
+        
+        % first state is always ePSI - propagated here
+        eEst(1) = eEst(1) + u;
+        switch syss
+            case 'crossTrack'
+                % next states are ehdot, eh, ex
+                eEst(2:4) = eEstKF(3:5);
+            case 'crossTrack_integrator'
+                % next states are intx, ehdot, eh, ex
+                eEst(2) = eEstKF(1);
+                % (skip state 2: ehddot)
+                eEst(3:5) = eEstKF(3:5);
+        end
+        
+        
+        
         switch syss
             % xDes is for KF states (not PSI)
             case 'crossTrack'
@@ -56,27 +73,21 @@ while(~mpc_stop)
             case 'crossTrack_integrator'
                 xDes = [0 0 0 desBearing(loopIt-1) 0]';
         end
-        xHat = eEstKF + xDes;
+        xHat = eEst + xDes;
         fprintf('actual est heading: %f [deg]\n',xHat(n-1))
-
+        
         % create inputs to MPC: eDes, uPrev:
-        eDes = computeMPCInputs(n,N,T,desBearing,loopIt-1);
+        if(loopIt>=4)
+            itIn = loopIt-1;
+        else
+            itIn = 3;
+        end
+        
+        eDes = computeMPCInputs(n,N,T,desBearing,itIn);
         disp(eDes(n-1,:))
         
     end
     
-    % first state is always ePSI - propagated here
-    eEst(1) = eEst(1) + u;
-    switch syss
-        case 'crossTrack'
-            % next states are ehdot, eh, ex
-            eEst(2:4) = eEstKF(3:5);
-        case 'crossTrack_integrator'
-            % next states are intx, ehdot, eh, ex
-            eEst(2) = eEstKF(1);
-            % (skip state 2: ehddot)
-            eEst(3:5) = eEstKF(3:5);
-    end
     
     % solve MPC - xEst and previous control are inputs
     uPrev = uPlan(:,1);
@@ -99,7 +110,7 @@ while(~mpc_stop)
     if(uBearing<0);uBearing = uBearing+360;end
     if(uBearing>360);uBearing = uBearing - 360;end
     fprintf('\n Next step heading controller setpoint: %f\n\n',uBearing)
-  
+    
     
     % (encode, quantize plan)
     % send plan (just control to start)
@@ -119,7 +130,7 @@ while(~mpc_stop)
             
         case 'acomms'
             
-            % 
+            %
             
     end
     
