@@ -9,7 +9,8 @@
 %{
 -8/20/2012: added options for diff systems
 - 8/29/2012: removed trueNorthAdjustment (compass does already)
-
+- 9/3/2012 - initial xEst has very small nonzero values (avoids CVX
+problem)
 %}
 
 % some preallocations and inits for script
@@ -104,6 +105,8 @@ switch n
     case 5
         eEst = [0;0;0;0;0];
 end
+eEst = eEst + 0.001;
+
 
 % initial start position
 hDes = atan2((y(1)-y0),(x(1)-x0));

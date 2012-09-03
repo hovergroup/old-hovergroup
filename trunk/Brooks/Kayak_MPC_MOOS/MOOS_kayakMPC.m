@@ -28,7 +28,7 @@ format compact
 
 %% ICs
 r0=0;       % if cross-track... initial rudder
-hd0=80;    % if heading setpt... initial heading
+hd0=90;    % if heading setpt... initial heading
 % hd0 SHOULD MATCH STARTING CONSTANT HEADING BEHAVIOR SETPT
 
 %% Loop
@@ -36,6 +36,10 @@ configureKayakMPC;
 initializeMOOS_MPC;
 mpcStart = tic;
 loopIt=1;
+
+uPlanSave = cell(1,N+1);
+XSave = cell(1,N+1);
+eEstSave = zeros(n,N+1);
 
 diary on
 % start loop  (breaks when MPC_STOP==1)
@@ -84,14 +88,15 @@ while(~mpc_stop)
         end
         
         eDes = computeMPCInputs(n,N,T,desBearing,itIn);
-        disp(eDes(n-1,:))
+        %disp(eDes(n-1,:))
+        eDes = zeros(size(eDes));
         
     end
     
     
     % solve MPC - xEst and previous control are inputs
     uPrev = uPlan(:,1);
-    [uPlan tMPC] = solveKayakMPC(sys,eEst,MPCparams,uDelay,uPrev,eDes);
+    [uPlan tMPC X] = solveKayakMPC(sys,eEst,MPCparams,uDelay,uPrev,eDes);
     
     % SIM PACKET LOSS (WITH DELAY)
     % buffer works on RECEIVED PLAN AT THIS TIME STEP (delayed)
@@ -134,6 +139,11 @@ while(~mpc_stop)
             
     end
     
+    % matlab save
+    uPlanSave{loopIt} = uPlan;
+    XSave{loopIt} = X;
+    eEstSave(:,loopIt) = eEst;
+    
     % string to log
     MPC_STR(1:5) = 'uPlan';
     lenU = 7+3; % u field plus delimiter
@@ -162,5 +172,33 @@ end
 diary off
 
 cd(old)
+
+%%
+
+figure
+plot(eEstSave{:}(1))
+
+%plotInds = [10 11]
+plotInds = [20 21 22];
+
+%
+ns = 3;
+figure
+ for k = plotInds
+     
+subplot(3,1,1)
+ stairs(uPlanSave{k})
+ hold on
+ subplot(3,1,2)
+ stairs(XSave{k}(3,:))
+ hold on
+ subplot(3,1,3)
+ stairs(XSave{k}(4,:))
+ hold on
+
+ end
+%
+
+
 
 
