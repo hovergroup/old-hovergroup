@@ -12,26 +12,29 @@
 
 KalmanFilter::KalmanFilter()
 {
+	z_size = 2;
+	x_size = 5;
+
 	//Inputs
 	GetMatrices("matrices.txt");
 	GetWaypoints("waypoints.txt");
 
 	//Sensor
-	z = gsl_vector_alloc(2);
+	z = gsl_vector_alloc(z_size);
 
 	//Predicted
-	x_pre = gsl_vector_alloc(4);
-	P_pre = gsl_matrix_alloc(4,4);
+	x_pre = gsl_vector_alloc(x_size);
+	P_pre = gsl_matrix_alloc(x_size,x_size);
 
 	//Computed
-	K = gsl_matrix_alloc(4,2);
-	x_hat = gsl_vector_calloc(4);		//allocated all 0s
-	P = gsl_matrix_calloc(4,4);		//allocated all 0s
+	K = gsl_matrix_alloc(x_size,z_size);
+	x_hat = gsl_vector_calloc(x_size);		//allocated all 0s
+	P = gsl_matrix_calloc(x_size,x_size);		//allocated all 0s
 	gsl_matrix_set_identity(P);		//initialized to identity
 
 	//History
-	x_hist = gsl_vector_calloc(4);	//allocated all 0s
-	P_hist = gsl_matrix_calloc(4,4);	//allocated all 0s
+	x_hist = gsl_vector_calloc(x_size);	//allocated all 0s
+	P_hist = gsl_matrix_calloc(x_size,x_size);	//allocated all 0s
 
 	u = 0;
 
@@ -153,7 +156,7 @@ bool KalmanFilter::Iterate()
 				wait = GetDistance(x1,y1,x2,y2)/speed;
 				offset = GetDistance(x1,y1,x2,y2)/speed;
 
-				gsl_vector_set(x_hat,2,(myheading-GetDesiredHeading()));
+				gsl_vector_set(x_hat,3,(myheading-GetDesiredHeading()));
 
 				cout << "Sending MPC Command" << endl;
 				m_Comms.Notify("MPC_STOP","GO");
@@ -180,16 +183,16 @@ bool KalmanFilter::Iterate()
 
 				//Transform kalman history
 				double heading_offset = GetDesiredHeading() - old_heading;
-				double transform = gsl_vector_get(x_hat,3);
+				double transform = gsl_vector_get(x_hat,4);
 				double angle = (90-heading_offset) * 3.14159265/180;
 				transform = transform*sin(angle);
-				gsl_vector_set(x_hat,3,transform);
+				gsl_vector_set(x_hat,4,transform);
 
-				transform = gsl_vector_get(x_hat,2);
+				transform = gsl_vector_get(x_hat,3);
 				transform = transform - heading_offset;
 				if(transform > 180){transform-=360;}
 				else if(transform < -180){transform+=360;}
-				gsl_vector_set(x_hat,2,transform);
+				gsl_vector_set(x_hat,3,transform);
 
 				//Increment Segment ID
 				wp_id++;
@@ -228,8 +231,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector *temp_vector, *temp_vector_2;
 
 	// Get X Prediction
-	temp_matrix = gsl_matrix_alloc(4,1);
-	temp_vector = gsl_vector_alloc(4);
+	temp_matrix = gsl_matrix_alloc(x_size,1);
+	temp_vector = gsl_vector_alloc(x_size);
 	gsl_blas_dgemv(CblasNoTrans,1.0, A, x_hist,0.0, x_pre);
 	//gsl_vector_fprintf(stdout,x_pre,"%f");
 	gsl_matrix_memcpy(temp_matrix,B);
@@ -244,8 +247,8 @@ void KalmanFilter::EstimateStates(){
 	//cout << endl;
 
 	//Get P Prediction
-	temp_matrix = gsl_matrix_alloc(4,4);
-	temp_matrix_2 = gsl_matrix_alloc(4,4);
+	temp_matrix = gsl_matrix_alloc(x_size,x_size);
+	temp_matrix_2 = gsl_matrix_alloc(x_size,x_size);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_hist,A,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,A,temp_matrix,0.0,P_pre);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,Q,B_noise,0.0,temp_matrix);
@@ -258,14 +261,14 @@ void KalmanFilter::EstimateStates(){
 	gsl_matrix_free(temp_matrix_2);
 
 	//Get K
-	temp_matrix = gsl_matrix_alloc(4,2);
-	temp_matrix_2 = gsl_matrix_alloc(2,2);
-	temp_matrix_3 = gsl_matrix_alloc(2,2);
+	temp_matrix = gsl_matrix_alloc(x_size,z_size);
+	temp_matrix_2 = gsl_matrix_alloc(z_size,z_size);
+	temp_matrix_3 = gsl_matrix_alloc(z_size,z_size);
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1.0,P_pre,C,0.0,temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,C,temp_matrix,0.0,temp_matrix_2);
 	gsl_matrix_add(temp_matrix_2,R);
 	int s;
-	gsl_permutation *p = gsl_permutation_alloc (2);
+	gsl_permutation *p = gsl_permutation_alloc(z_size);
 	gsl_linalg_LU_decomp (temp_matrix_2,p, &s);
 	//cout << "Successfully Decomposed" << endl;
 	gsl_linalg_LU_invert(temp_matrix_2,p,temp_matrix_3);
@@ -282,8 +285,8 @@ void KalmanFilter::EstimateStates(){
 
 	//Get X_hat
 	UpdateSensorReadings();
-	temp_vector = gsl_vector_alloc(2);
-	temp_vector_2 = gsl_vector_alloc(2);
+	temp_vector = gsl_vector_alloc(z_size);
+	temp_vector_2 = gsl_vector_alloc(z_size);
 	gsl_blas_dgemv(CblasNoTrans,1.0, C, x_pre,0.0, temp_vector);
 	gsl_vector_memcpy(temp_vector_2,z);
 	gsl_vector_sub(temp_vector_2,temp_vector);
@@ -291,11 +294,11 @@ void KalmanFilter::EstimateStates(){
 	gsl_blas_dgemv(CblasNoTrans,1.0,K,temp_vector_2,0.0,x_hat);
 	gsl_vector_add(x_hat,x_pre);
 
-	double x_wrap = gsl_vector_get(x_hat,2);
+	double x_wrap = gsl_vector_get(x_hat,3);
 	if(x_wrap > 180){x_wrap -= 360;
-	gsl_vector_set(x_hat,2,x_wrap);}
+	gsl_vector_set(x_hat,3,x_wrap);}
 	else if(x_wrap < -180){x_wrap +=360;
-	gsl_vector_set(x_hat,2,x_wrap);}
+	gsl_vector_set(x_hat,3,x_wrap);}
 
 	cout << "Got X_hat: " << endl;
 	//gsl_vector_fprintf(stdout,x_hat,"%f");
@@ -304,8 +307,8 @@ void KalmanFilter::EstimateStates(){
 	gsl_vector_free(temp_vector_2);
 
 	//Get P
-	temp_matrix = gsl_matrix_alloc(4,4);
-	temp_matrix_2 = gsl_matrix_alloc(4,4);
+	temp_matrix = gsl_matrix_alloc(x_size,x_size);
+	temp_matrix_2 = gsl_matrix_alloc(x_size,x_size);
 	gsl_matrix_set_identity(temp_matrix);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,K,C,0.0,temp_matrix_2);
 	gsl_matrix_sub(temp_matrix,temp_matrix_2);
@@ -320,12 +323,12 @@ void KalmanFilter::EstimateStates(){
 
 	cout << "Kalman Results: " << endl;
 	cout << "Measured Heading Error: " << gsl_vector_get(z,0) << endl;
-	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,2) << endl;
-	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,2) << endl;
+	cout << "Predicted Heading Error: " << gsl_vector_get(x_pre,3) << endl;
+	cout << "Estimated Heading Error: " << gsl_vector_get(x_hat,3) << endl;
 
 	cout << "Measured Crosstrack Error: " << gsl_vector_get(z,1) << endl;
-	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,3)*crosstrack << endl;
-	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,3)*crosstrack << endl;
+	cout << "Predicted Crosstrack Error: " << gsl_vector_get(x_pre,4)*crosstrack << endl;
+	cout << "Estimated Crosstrack Error: " << gsl_vector_get(x_hat,4)*crosstrack << endl;
 	cout << endl;
 }
 
@@ -397,12 +400,12 @@ double KalmanFilter::GetDesiredHeading(){
 void KalmanFilter::GetMatrices(string txtfile){
 	FILE* f=fopen(txtfile.c_str(),"r");
 
-	A = gsl_matrix_alloc(4,4);
-	B = gsl_matrix_alloc(4,1);
-	B_noise = gsl_matrix_alloc(4,4);
-	C = gsl_matrix_alloc(2,4);
-	Q = gsl_matrix_alloc(4,4);
-	R = gsl_matrix_alloc(2,2);
+	A = gsl_matrix_alloc(x_size,x_size);
+	B = gsl_matrix_alloc(x_size,1);
+	B_noise = gsl_matrix_alloc(x_size,x_size);
+	C = gsl_matrix_alloc(z_size,x_size);
+	Q = gsl_matrix_alloc(x_size,x_size);
+	R = gsl_matrix_alloc(z_size,z_size);
 
 	gsl_matrix_fscanf(f,A);
 	cout << "Read A, ";
@@ -455,16 +458,24 @@ double KalmanFilter::GetDistance(double xi1,double yi1,double xi2,double yi2){
 	return sqrt(pow((xi1-xi2),2.0) + pow((yi1-yi2),2.0));
 }
 
+double KalmanFilter::Constrain(double var_in, double max, double min){
+	if(var_in > max){return max;}
+	else if(var_in < min){return min;}
+	else{return var_in;}
+}
+
 //-----------PUBLISH--------------------
 
 void KalmanFilter::PublishStates(){
 	cout << "Publishing states" << endl;
 	string delim = "<|>";
 	stringstream ss;
-	ss << gsl_vector_get(x_hat,0) << delim;
-	ss << gsl_vector_get(x_hat,1) << delim;
-	ss << gsl_vector_get(x_hat,2) << delim;
-	ss << gsl_vector_get(x_hat,3);
+
+	for(int i=0;i<x_hat->size-1;i++){
+		ss << gsl_vector_get(x_hat,i) << delim;
+	}
+
+	ss << gsl_vector_get(x_hat,x_hat->size-1);
 	m_Comms.Notify("MPC_XEST",ss.str());
 }
 

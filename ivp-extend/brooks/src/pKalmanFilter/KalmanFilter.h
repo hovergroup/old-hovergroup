@@ -34,6 +34,7 @@ public:
 	void PublishSegList();
 	void EstimateStates();
 	void UpdateSensorReadings();
+	double Constrain(double, double, double);
 
 	double GetDesiredHeading();
 	double GetHeading(double,double,double,double);
@@ -47,6 +48,7 @@ protected:
 	gsl_matrix *P_pre, *K, *P, *P_hist; 	//computed
 	double u;								//command
 
+	double x_size, z_size;
 	vector<double> wpx1,wpy1,wpx2,wpy2,time,headings;
 	double x1,y1,x2,y2;
 	double speed,thrust,compass_offset,rudder_offset;
