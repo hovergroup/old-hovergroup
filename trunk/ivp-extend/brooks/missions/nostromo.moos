@@ -32,7 +32,7 @@ ProcessConfig = pKalmanFilter
 	CommsTick = 5
 	
 	//Speed = 1.5		// m/s
-	Speed = 1.8;
+	Speed = 1.5;
 	Thrust = 60		// percent
 	
 	CompassOffset = 0
