@@ -169,7 +169,7 @@ ProcessConfig = pMarinePID_Hover
 //	YAW_PID_KD		= 0.2
 	YAW_PID_KD = 0.1
 //	YAW_PID_KI		= 0.005
-	YAW_PID_KI = 0.2
+	YAW_PID_KI = 0.1
 	YAW_PID_INTEGRAL_LIMIT = 10;
 	YAW_PID_UPDATE_FRACTION = 0.05
 
