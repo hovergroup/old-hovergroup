@@ -34,7 +34,7 @@ probPLoss = .5;
 %syss = 'crossTrack';
 syss = 'crossTrack_integrator';
 
-speed = 2;    % nostromo modem
+speed = 1.8;    % nostromo modem
 %speed = 1.2;
 % speed = 0.8;  % kassandra modem
 
