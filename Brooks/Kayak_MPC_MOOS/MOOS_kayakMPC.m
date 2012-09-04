@@ -102,7 +102,9 @@ while(~mpc_stop)
     else
         uPrev = 0;
     end
-    
+    u
+    eEst(1)
+    uPrev
     
     % uPrev = uPlan(1);
     % solve MPC - xEst and previous control are inputs
@@ -188,9 +190,9 @@ cd(old)
 figure
 stairs(eEstSave(1:3,:)')
 
-%plotInds = [10 11]
+plotInds = [10 11 12 13]
 %plotInds = [20 21 22];
-plotInds = [40 41 42 43];
+%plotInds = [40 41 42 43];
 
 colors = {'r','b','g','m','c','k'}
 %

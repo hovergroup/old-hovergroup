@@ -25,7 +25,7 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 
 % packet loss probability:
-probPLoss = .5;
+probPLoss = .2;
 %probPLoss = 0;
 
 
@@ -133,7 +133,7 @@ slewRate = 45;   % deg per time step % not used now
 
 Qmpc = eye(n);
 Qmpc(1,1) = 0;  % no cost on ePSI
-Qmpc(n,n) = 40; % cross-track error
+Qmpc(n,n) = 50; % cross-track error
 Pfac = 10;
 switch syss
     case 'crossTrack'
@@ -144,7 +144,7 @@ switch syss
         % mpc max: (also scaled by Cd later)
         intmax = intSat*10;
         xmax = [epsimax intmax hdmax hmax exmax]'.*ones(n,1);xmin=-xmax;
-        Qmpc(2,2) = 1e-2; % cost on integral term
+        Qmpc(2,2) = 1e-1; % cost on integral term
 end
 Pmpc = Pfac*Qmpc;
 
