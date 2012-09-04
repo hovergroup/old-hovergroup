@@ -158,11 +158,11 @@ angle2speed = 1/2;
 
 s = tf('s');
 Kcross=hspeed*pi/180;
-%wnH = 1;
-wnH = 1/3;
+wnH = 1;
+%wnH = 1/3;
 %wnH = 4;
 
-zetaH = .8;
+zetaH = .6;
 %tauRudder = 0.25;
 TFrudder=1;
 % this version just uses stable 2nd order for heading
