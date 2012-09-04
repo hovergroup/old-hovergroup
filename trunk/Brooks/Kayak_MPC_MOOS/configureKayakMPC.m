@@ -74,7 +74,7 @@ switch tracklineType
         %startHeading = 80;
         startHeading = pavHeading + pavHeadingOffset;
     case 'oneturn'
-        secPerLeg = ceil(100/dt)*dt;
+        secPerLeg = ceil(60/dt)*dt;
         %secPerLeg = ceil(60/dt)*dt;
         numLegs=2;
         Nsec = secPerLeg*numLegs;
@@ -83,10 +83,10 @@ switch tracklineType
         %oy = 0;
         %startHeading = pavHeading + pavHeadingOffset;
 
-        ox = -30;
-        oy = -60;
+        ox = -162;
+        oy = -159;
         
-        startHeading = 220;
+        startHeading = 190;
         kinkAng = -30;
         %startHeading = 180;     
         %kinkAng = 30;  % second leg is after kink, + angle turns right
