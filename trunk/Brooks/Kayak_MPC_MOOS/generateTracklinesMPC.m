@@ -124,6 +124,7 @@ switch tracklineType
             try
                 dest = [MOOSpathName1 'waypoints.txt'];
                 copyfile('oneturnPts.txt',dest,'f')
+                disp('writing to josh')
             end
             try
                 dest = [MOOSpathName2 'waypoints.txt'];

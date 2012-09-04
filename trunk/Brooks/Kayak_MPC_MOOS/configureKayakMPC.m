@@ -34,13 +34,14 @@ probPLoss = .5;
 %syss = 'crossTrack';
 syss = 'crossTrack_integrator';
 
-%speed = 1.5;    % nostromo modem
-speed = 1.2;
+speed = 2;    % nostromo modem
+%speed = 1.2;
 % speed = 0.8;  % kassandra modem
 
 
 %%%
-hspeed = 1.5;
+%hspeed = 1.5;
+hspeed = 2;
 %%%
 
 
@@ -78,11 +79,17 @@ switch tracklineType
         numLegs=2;
         Nsec = secPerLeg*numLegs;
         %ox = 0;oy = 150;      
-        ox = 230;
-        oy = 0;
-        startHeading = pavHeading + pavHeadingOffset;
+        %ox = 230;
+        %oy = 0;
+        %startHeading = pavHeading + pavHeadingOffset;
+
+        ox = -100;
+        oy = -100;
+        
+        startHeading = 240;
+        kinkAng = -30;
         %startHeading = 180;     
-        kinkAng = 30;  % second leg is after kink, + angle turns right
+        %kinkAng = 30;  % second leg is after kink, + angle turns right
     case 'hexagon'
         numLegs = 6;
         secPerLeg = 90;
