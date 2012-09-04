@@ -28,7 +28,7 @@ format compact
 
 %% ICs
 r0=0;       % if cross-track... initial rudder
-hd0=240;    % if heading setpt... initial heading
+hd0=200;    % if heading setpt... initial heading
 % hd0 SHOULD MATCH STARTING CONSTANT HEADING BEHAVIOR SETPT
 
 %% Loop
