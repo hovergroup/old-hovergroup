@@ -191,7 +191,7 @@ uPlan = U;
 
 
 %
-if(1)
+if(0)
     xplot = X;
     xplot(2,:) = xplot(2,:)*sys.Cd(n);
     xplot(5,:) = xplot(5,:)*sys.Cd(n);
