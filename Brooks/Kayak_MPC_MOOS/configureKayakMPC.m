@@ -158,8 +158,8 @@ angle2speed = 1/2;
 
 s = tf('s');
 Kcross=hspeed*pi/180;
-wnH = 1;
-%wnH = 1/3;
+%wnH = 1;
+wnH = 1/3;
 %wnH = 4;
 
 zetaH = .8;
