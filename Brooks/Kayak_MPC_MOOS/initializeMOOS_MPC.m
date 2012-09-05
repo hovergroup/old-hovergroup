@@ -49,7 +49,7 @@ try
 end
 
 
-% subscribe to
+% subscribe to (subscribe vars in .moos process config)
 % 'MPC_XEST'% 'MPC_STOP'% 'GPS_X'% 'GPS_Y'% 'COMPASS_HEADING_FILTERED'
 iMatlab('init','CONFIG_FILE',moosDB);
 
