@@ -36,8 +36,11 @@ ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 
 // find the nearest entry by time, returns index and time diff
 pair<int,double> findNearest( vector<double> time_vector, double msg_time ) {
-	if ( time_vector.empty() ) return pair<int,double>(-1,-1);
-	double min_diff = 10000;
+	if ( time_vector.empty() ) {
+		cout << "PASSED AN EMPTY VECTOR" << endl;
+		return pair<int,double>(-1,-1);
+	}
+	double min_diff = 100000000;
 	int index = -1;
 	for ( int i=0; i<time_vector.size(); i++ ) {
 		if ( fabs(time_vector[i]-msg_time) < min_diff ) {
@@ -51,8 +54,11 @@ pair<int,double> findNearest( vector<double> time_vector, double msg_time ) {
 // find the nearest entry by time, returns index and time diff
 template <class T>
 pair<int,double> findNearest( vector< pair<double,T> > item_list, double msg_time ) {
-	if ( item_list.empty() ) return pair<int,double>(-1,-1);
-	double min_diff = 10000;
+	if ( item_list.empty() ) {
+		cout << "PASSED AN EMPTY VECTOR" << endl;
+		return pair<int,double>(-1,-1);
+	}
+	double min_diff = 100000000;
 	int index = -1;
 	for ( int i=0; i<item_list.size(); i++ ) {
 		if ( fabs(item_list[i].first-msg_time) < min_diff ) {
