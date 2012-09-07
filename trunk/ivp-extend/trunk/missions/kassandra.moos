@@ -25,16 +25,7 @@ ProcessConfig = ANTLER
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	//Run = iAcommsDriver @ NewConsole = false
-}
-
-ProcessConfig = pSearchRelay
-{
-	AppTick = 5
-	CommsTick = 5
-	
-	Role = relay
-	Mode = normal
-	Discount = 5
+	Run = iAltimeter 
 }
 
 ProcessConfig = uXMS
@@ -50,7 +41,7 @@ ProcessConfig = iAcommsDriver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+	PortName = /dev/ttyUSB1
 	ID = 1
 }
 
@@ -71,7 +62,7 @@ ProcessConfig = iOS5000_Hover
 	AppTick		= 40
 	CommsTick	= 40
 
-	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
+	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 19200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
@@ -108,9 +99,6 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_SEGLIST]		-> shoreside@192.168.1.100:9000 [VIEW_SEGLIST]
 	SHARE = [VIEW_RANGE_PULSE]	-> shoreside@192.168.1.100:9000 [VIEW_RANGE_PULSE]
 	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> shoreside@192.168.1.100:9000
-	
-	//Search Relay Shares
-	//SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
 	
 	}
 
@@ -149,7 +137,7 @@ ProcessConfig = pMarinePID_Hover
 ProcessConfig = pHelmIvP
 {
 	AppTick		= 2
-	CommsTick		= 2
+	CommsTick	= 2
 	VERBOSE		= false
 	Behaviors	= kayak_simplest.bhv
 	OK_SKEW		= ANY
@@ -184,6 +172,14 @@ ProcessConfig = pLogger
 	WildCardOmitPattern = PLOGGER_STATUS
 }
 
+ProcessConfig = iAltimeter
+{
+        AppTick = 10
+        CommsTick = 10
+
+        PORT_NAME = /dev/ttyUSB0
+//      BAUD_RATE = 9600
+}
 
 //------------------------------------------
 // pEchoVar configuration block
