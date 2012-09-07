@@ -24,6 +24,26 @@ ProcessConfig = ANTLER
   Run = pLogger @ NewConsole = false 
 }
 
+//-----------------------------------------------------------------
+ProcessConfig = iMatlab
+{
+AppTick = 10
+Comms Tick = 10
+Port = COM6
+BaudRate = 4800
+Verbose = false
+Streaming = false
+MOOSComms = true
+SerialComms = false
+SERIAL_TIMEOUT = 10.0
+SUBSCRIBE = DB_TIME @ 1.0
+SUBSCRIBE = MPC_XEST @ 0.0
+SUBSCRIBE = MPC_STOP @ 0.0
+SUBSCRIBE = GPS_X @ 1.0
+SUBSCRIBE = GPS_Y @ 1.0
+SUBSCRIBE = COMPASS_HEADING_FILTERED @ 1.0
+}
+
 //------------------------------------------------------------------
 // pMOOSBridge config block
 
@@ -43,6 +63,9 @@ ProcessConfig = pMOOSBridge
 
 	SHARE = [WPT_SURVEY_UPDATES_NOSTROMO, MISSION_MODE_NOSTROMO, MOOS_MANUAL_OVERRIDE_NOSTROMO] -> nostromo@192.168.1.103:9003 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
 	SHARE = [WPT_SURVEY_UPDATES_KASSANDRA, MISSION_MODE_KASSANDRA, MOOS_MANUAL_OVERRIDE_KASSANDRA] -> kassandra@192.168.1.101:9001 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
+	
+	SHARE = [DESIRED_RUDDER] -> nostromo@192.168.1.103:9003
+
 }
 
 //----------------------------------------------
