@@ -52,10 +52,10 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 }
 
 int kayak_driver::mapRudder( int rudder_command ) {
+	rudder_command += RUDDER_OFFSET;
 	// invert and offset rudder
 	if ( INVERT_RUDDER )
 		rudder_command*=-1;
-	rudder_command += RUDDER_OFFSET;
 
 	// limit
 	if ( rudder_command > 90 )
@@ -71,7 +71,7 @@ int kayak_driver::mapThrust( int thrust_command ) {
 	if ( thrust_command >= 100 )
 		return 100;
 	else if ( thrust_command <= -100 )
-		return -100;
+		return -100;\
 	else
 		return thrust_command;
 }
