@@ -58,9 +58,9 @@ bool KAYAK_INTERFACE::OnNewMail(MOOSMSG_LIST &NewMail)
 }
 
 int KAYAK_INTERFACE::mapRudder( int rudder_command ) {
+	rudder_command += RUDDER_OFFSET;
 	if ( INVERT_RUDDER )
 		rudder_command*=-1;
-	rudder_command += RUDDER_OFFSET;
 
 	if ( rudder_command > 90 )
 		rudder_command = 90;
