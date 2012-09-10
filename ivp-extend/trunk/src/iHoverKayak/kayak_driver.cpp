@@ -28,6 +28,13 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 	RUDDER_OFFSET = 0;
 }
 
+int kayak_driver::roundFloat( double val ) {
+	if ( val < 0.0 )
+		return (int) floor( val - 0.5 );
+	else
+		return (int) floor( val + 0.5 );
+}
+
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
@@ -40,10 +47,10 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		// check for new commands from moosdb
 		if (key == "DESIRED_RUDDER") {
-			m_desired_rudder = mapRudder( (int) msg.GetDouble() );
+			m_desired_rudder = mapRudder( roundFloat( msg.GetDouble() ) );
 			newCommand = true;
 		} else if (key == "DESIRED_THRUST" ) {
-			m_desired_thrust = mapThrust( (int) msg.GetDouble() );
+			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
 			newCommand = true;
 		}
 	}
