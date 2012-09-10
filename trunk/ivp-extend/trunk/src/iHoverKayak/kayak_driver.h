@@ -75,6 +75,7 @@ private:
 
 	int mapThrust( int thrust_command );
 	int mapRudder( int rudder_command );
+	int roundFloat( double val );
 	void sendMotorCommands();
 	void toggleCompassCalibration();
 };
