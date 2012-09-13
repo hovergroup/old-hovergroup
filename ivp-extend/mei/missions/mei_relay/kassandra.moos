@@ -24,6 +24,18 @@ ProcessConfig = ANTLER
 	Run = iAltimeter	@ NewConsole = false
 }
 
+ProcessConfig = pRelayEnd
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	RelayID = 3	
+	OuterRadius = 15 //m
+	InnerRadius = 3 //m
+	Endx = 700
+	Endy = -300
+}
+
 ProcessConfig = pSearchRelay
 {
 	AppTick = 5
@@ -59,8 +71,11 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000	
 	
 	//Search Relay Shares
-	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
-	SHARE = [ACOMMS_TRANSMIT_RATE] -> icarus@192.168.1.102:9002
+	//SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
+	//SHARE = [ACOMMS_TRANSMIT_RATE] -> icarus@192.168.1.102:9002
+	SHARE = [RELAY_SUCCESS] -> nostromo@192.168.1.103:9003
+	SHARE = [END_STATUS] -> nostromo@192.168.1.103:9003
+	SHARE = [END_THRUST] -> nostromo@192.168.1.103:9003
 	}
 
 ProcessConfig = iAltimeter

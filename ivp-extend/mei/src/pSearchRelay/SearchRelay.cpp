@@ -33,6 +33,7 @@ SearchRelay::SearchRelay()
 	update_time = 7;
 	last_update = 0;
 	voltage = 0;
+	srand (time(NULL));
 }
 
 //---------------------------------------------------------
@@ -377,86 +378,46 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 
 		data[closest_ind].push_back(packet_got);
 
-		//NORMAL INDICES
-		if(mode == "normal"){
-			cout << "Transmissions sent: " << data[closest_ind].size() << endl;
-			cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
+		cout << "Transmissions sent: " << data[closest_ind].size() << endl;
+		cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
 
-			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
-				std::cout<<"--->Holding Station"<<std::endl<<std::endl;
-			}
-			else{
-				cout<<"--->Computing Standard Deviation"<<endl;
-				int num_obs = data[closest_ind].size()/num_lookback;
-				vector<double> means_of_observations (num_obs,-1);
-				int sd_counting_index = data[closest_ind].size();
-
-				for(int i=0;i<num_obs;i++){
-					double one_mean;
-					one_mean = gsl_stats_mean(&(data[closest_ind][sd_counting_index-num_lookback]),1,num_lookback);
-					means_of_observations[i] = one_mean;
-					cout << "One mean: " << one_mean << endl;
-					sd_counting_index = sd_counting_index - num_lookback;
-				}
-
-				stdev[closest_ind] = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
-				mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
-
-				cout<<"--->Updating data for Point #"<<closest_ind<<std::endl;
-				cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
-				cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl << endl;
-
-				ComputeIndex(closest_ind);
-				cout<<"--->Making a Decision"<<endl;
-				int target = Decision();
-				targetx = wpx[target];
-				targety = wpy[target];
-				std::stringstream ss;
-				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
-				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-				m_Comms.Notify("RELAY_MODE","GOTO");
-				ss.str("");
-				ss<<"station_pt="<<targetx<<","<<targety;
-				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-			}
+		if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
+			std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 		}
+		else{
+			cout<<"--->Computing Standard Deviation"<<endl;
+			int num_obs = data[closest_ind].size()/num_lookback;
+			vector<double> means_of_observations (num_obs,-1);
+			int sd_counting_index = data[closest_ind].size();
 
-		//EPSILON GREEDY
-		else if(mode == "greedy"){
-
-			cout << "Transmissions sent: " << data[closest_ind].size() << endl;
-			cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
-
-			if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
-				cout<<"--->Holding Station"<<endl<<endl;
+			for(int i=0;i<num_obs;i++){
+				double one_mean;
+				one_mean = gsl_stats_mean(&(data[closest_ind][sd_counting_index-num_lookback]),1,num_lookback);
+				means_of_observations[i] = one_mean;
+				cout << "One mean: " << one_mean << endl;
+				sd_counting_index = sd_counting_index - num_lookback;
 			}
 
-			else{
-				std::cout<<"--->Making a Decision"<<std::endl;
+			stdev[closest_ind] = gsl_stats_sd(&(means_of_observations[0]),1,means_of_observations.size());
+			mean[closest_ind] = gsl_stats_mean(&(data[closest_ind][0]),1,data[closest_ind].size());
 
-				double temp = rand() % 100;
-				cout<<"Dice Rolled: "<<temp<<endl;
-				int target;
-				if(temp <= epsilon){
-					target = (int) rand()%(total_points-1);
-					std::cout<< "Random point was: " << target << std::endl;
-				}
-				else{
-					target = Decision();
-				}
+			cout<<"--->Updating data for Point #"<<closest_ind<<std::endl;
+			cout<<seglist.get_vx(closest_ind)<<" , "<<seglist.get_vy(closest_ind)<< std::endl;
+			cout<<"  Mean:"<<mean[closest_ind]<<" , "<<"STDev:"<< stdev[closest_ind]<< std::endl << endl;
 
-				targetx = wpx[target];
-				targety = wpy[target];
-				std::stringstream ss;
-				ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
-				std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
-				m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
-				m_Comms.Notify("RELAY_MODE","GOTO");
-				ss.str("");
-				ss<<"station_pt="<<targetx<<","<<targety;
-				m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
-			}
+			ComputeIndex(closest_ind);
+			cout<<"--->Making a Decision"<<endl;
+			int target = Decision();
+			targetx = wpx[target];
+			targety = wpy[target];
+			std::stringstream ss;
+			ss<<"points="<<myx<<","<<myy<<":"<<targetx<<","<<targety;
+			std::cout<<"Updating: "<<ss.str()<<std::endl<<std::endl;
+			m_Comms.Notify("WPT_RELAY_UPDATES",ss.str());
+			m_Comms.Notify("RELAY_MODE","GOTO");
+			ss.str("");
+			ss<<"station_pt="<<targetx<<","<<targety;
+			m_Comms.Notify("STATION_RELAY_UPDATES",ss.str());
 		}
 	}
 }
@@ -472,20 +433,38 @@ void SearchRelay::ComputeIndex(int closest_ind){
 		Decision();
 	}
 
-	double gindex;
-	if(num_obs<=10){
-		gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
-		std::cout<<"   Observations: "<<num_obs<<", gindex: "<<gindex<<std::endl;
-	}
-	else{	//interpolate
-		int base = 7+(num_obs/10);
-		int offset = num_obs%10;
-		double difference = (normal_indices[base+1]-normal_indices[base])/10;
-		gindex = normal_indices[base] + offset*difference;
-		std::cout<<"   Observations: "<<" ,gindex: "<<gindex<<std::endl;
+	if(mode=="normal"){
+		double gindex;
+		if(num_obs<=10){
+			gindex = normal_indices[num_obs-2];//table starts from 2 obs, vector starts from 0 index
+			std::cout<<"   Observations: "<<num_obs<<", gindex: "<<gindex<<std::endl;
+		}
+		else{	//interpolate
+			int base = 7+(num_obs/10);
+			int offset = num_obs%10;
+			double difference = (normal_indices[base+1]-normal_indices[base])/10;
+			gindex = normal_indices[base] + offset*difference;
+			std::cout<<"   Observations: "<<" ,gindex: "<<gindex<<std::endl;
+		}
+
+		indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
 	}
 
-	indices[closest_ind] = mean[closest_ind]+stdev[closest_ind]*gindex;
+	else if(mode=="greedy"){
+		indices[closest_ind] = mean[closest_ind];
+	}
+
+	else if(mode=="roundrobin"){
+		if(closest_ind<total_points-1){
+			indices[closest_ind]=0;
+			indices[closest_ind+1]=1;
+		}
+		else{
+			indices[closest_ind]=0;
+			indices[0]=1;
+		}
+	}
+
 	cout << endl;
 	std::cout<<"  Point #"<<closest_ind<<" New Index "<<indices[closest_ind]<<std::endl;
 
@@ -505,89 +484,61 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	}
 
 	my_stat.successful_packets = temp_successes;
-
 	Confess(my_stat);
 }
 
-int SearchRelay::Decision(){
+int SearchRelay::Decision(){		//Find largest index
 	int target=0;
 	stringstream ss;
 
-	if(mode == "normal"){
-		//Find largest index
+	for(int i=0;i<indices.size();i++){
+		cout<<"Point: "<<i<<" Index: "<<indices[i]<<endl;
+		ss<<indices[i];
 
-		for(int i=0;i<indices.size();i++){
-			cout<<"Point: "<<i<<" Index: "<<indices[i]<<endl;
-			ss<<indices[i];
+		if(indices[i]<0){	 // first round
+			target = i;
+			break;
+		}
+		else if(indices[i]>indices[target]){
+			target = i;
+		}
+		else if(indices[i]==indices[target]){ //tiebreak
 
-			if(indices[i]<0){	 // first round
+			double new_dist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
+			double old_dist = sqrt(pow((seglist.get_vx(target)-myx),2) + pow((seglist.get_vy(target)-myy),2));
+
+			if(new_dist < old_dist){
 				target = i;
-				break;
-			}
-			else if(indices[i]>indices[target]){
-				target = i;
-			}
-			else if(indices[i]==indices[target]){ //tiebreak
-
-				double new_dist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
-				double old_dist = sqrt(pow((seglist.get_vx(target)-myx),2) + pow((seglist.get_vy(target)-myy),2));
-
-				if(new_dist < old_dist){
-					target = i;
-				}
-			}
-
-			if(i<indices.size()-1){
-				ss << "<|>";
 			}
 		}
 
-		std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
-
-		RelayStat my_stat = RelayStat();
-		my_stat.debug_string = "Decision";
-		my_stat.point_index = target;
-		my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
-		my_stat.gittins_index = indices[target];
-		my_stat.stat_x = myx;
-		my_stat.stat_y = myy;
-		my_stat.num_obs = data[target].size()/num_lookback;
-
-		Confess(my_stat);
-		m_Comms.Notify("SEARCH_RELAY_INDEX_LIST",ss.str());
-	}
-
-	else if(mode == "greedy"){
-		for(int i=0;i<mean.size();i++){
-			std::cout<<"Point: "<<i<<" Mean: "<<mean[i]<<std::endl;
-			ss<<mean[i];
-
-			if(mean[i]<0){
-				target = i;
-				break;
-			}
-
-			else if(mean[i]>mean[target]){
-				target = i;
-			}
-
-			else if(mean[i]==mean[target]){ //tiebreak
-
-				double new_dist = sqrt(pow((seglist.get_vx(i)-myx),2) + pow((seglist.get_vy(i)-myy),2));
-				double old_dist = sqrt(pow((seglist.get_vx(target)-myx),2) + pow((seglist.get_vy(target)-myy),2));
-
-				if(new_dist < old_dist){
-					target = i;
-				}
-			}
-
-			if(i<mean.size()-1){
-				ss << "<|>";
-			}
+		if(i<indices.size()-1){
+			ss << "<|>";
 		}
-		std::cout<<"Decided on Point #"<<target<<" with Mean: "<<mean[target]<<std::endl;
-		m_Comms.Notify("SEARCH_RELAY_MEAN_LIST",ss.str());
 	}
+
+	if(mode=="greedy"){
+		int temp = rand() % 100 + 1;
+		cout<<"Dice Rolled: "<<temp<<endl;
+		int target;
+		if(temp <= epsilon){
+			target = rand()%(total_points-1);
+			std::cout<< "Random point was chosen: " << target << std::endl;
+		}
+	}
+	std::cout<<"Decided on Point #"<<target<<" with Index: "<<indices[target]<<std::endl;
+
+	RelayStat my_stat = RelayStat();
+	my_stat.debug_string = "Decision";
+	my_stat.point_index = target;
+	my_stat.stat_mean = mean[target]; my_stat.stat_std=stdev[target];
+	my_stat.gittins_index = indices[target];
+	my_stat.stat_x = myx;
+	my_stat.stat_y = myy;
+	my_stat.num_obs = data[target].size()/num_lookback;
+
+	Confess(my_stat);
+	m_Comms.Notify("SEARCH_RELAY_INDEX_LIST",ss.str());
 
 	return target;
 }
