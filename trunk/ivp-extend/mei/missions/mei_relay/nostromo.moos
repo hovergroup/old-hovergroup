@@ -26,6 +26,20 @@ ProcessConfig = ANTLER
 	Run = iAcommsDriver @ NewConsole = false
 }
 
+ProcessConfig = pSearchRelay
+{
+	AppTick = 5
+	CommsTick = 5
+	
+	Mode = normal
+	Discount = 5
+	MinObs = 10		//at least 2x Lookback
+	FudgeFactor = 10  //m
+	Lookback = 5    //observations per result
+	Epsilon = 5		//percent
+	Rate = 2
+}
+
 ProcessConfig = pRelayEnd
 {
 	AppTick = 5
@@ -60,9 +74,11 @@ ProcessConfig = pMOOSBridge
 	SHARE = [VIEW_MARKER] -> terra@192.168.1.100:9000	
 	
 	//Search Relay Shares
-	SHARE = [RELAY_SUCCESS] -> kassandra@192.168.1.101:9001
-	SHARE = [END_STATUS] -> kassandra@192.168.1.101:9001
-	SHARE = [END_THRUST] -> kassandra@192.168.1.101:9001
+	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9002
+	SHARE = [ACOMMS_TRANSMIT_RATE] -> icarus@192.168.1.102:9002
+	//SHARE = [RELAY_SUCCESS] -> kassandra@192.168.1.101:9001
+	//SHARE = [END_STATUS] -> kassandra@192.168.1.101:9001
+	//SHARE = [END_THRUST] -> kassandra@192.168.1.101:9001
 }
 
 ProcessConfig = uTimerScript

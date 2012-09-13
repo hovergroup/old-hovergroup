@@ -1,4 +1,4 @@
-# Install script for directory: /home/josh/hovergroup/ivp-extend/mei/src/prateless_coding
+# Install script for directory: /home/mei/hovergroup/ivp-extend/mei/src/prateless_coding
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
