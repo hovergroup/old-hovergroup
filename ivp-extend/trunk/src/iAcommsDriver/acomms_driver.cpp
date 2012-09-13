@@ -402,20 +402,20 @@ void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmissi
 			if ( num_bad == 0 ) {
 				m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
 				publishWarning("had frame_with_bad_crc extension, size 0");
-			} else if ( num_bad == 1 ) {
+			} else /*if ( num_bad == 1 )*/ {
 				stringstream ss;
 				ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc);
-				m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str() );
-			} else {
-				stringstream ss;
-				for ( int i=0; i<num_bad; i++ ) {
-					ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc, i);
-					if ( i<num_bad-1 )
-						ss << ",";
-					cout << ss.str() << endl;
-				}
-				m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str() );
-			}
+				m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str() ); }
+//			} else {
+//				stringstream ss;
+//				for ( int i=0; i<num_bad; i++ ) {
+//					ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc, i);
+//					if ( i<num_bad-1 )
+//						ss << ",";
+//					cout << ss.str() << endl;
+//				}
+//				m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str() );
+//			}
 		} else {
 			m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
 			publishWarning("did not have frame_with_bad_crc extension");
