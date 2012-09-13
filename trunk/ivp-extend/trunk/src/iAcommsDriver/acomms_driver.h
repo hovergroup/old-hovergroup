@@ -15,7 +15,6 @@
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
 #include "goby/acomms/connect.h"
-#include <google/protobuf/text_format.h>
 #include "XYRangePulse.h"
 
 class acomms_driver : public CMOOSApp
