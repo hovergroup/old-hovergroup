@@ -9,6 +9,7 @@
 
 global u YC YsaveC Psi uold xhatGupta
 global Y Ysave Ginfo1 Ginfo2 dt yhat xhatInfo
+global Ad Gd Bd Klqr
 
 u=0;
 YC=eye(4,4);
@@ -23,7 +24,58 @@ Ginfo2 = zeros(4,1);
 yhat = zeros(4,1);
 xhatInfo = zeros(4,1);
 
-dt=6; %delay and time step
+%define constants of continuous-time heading transfer function
+A=1.;
+B=1.01;
+C=1.56;
+V=2.1;
+
+%define state-space matrices
+Ac = [0 1 0 0;
+      0 0 1 0;
+      0 0 0 1;
+      0 0 -C -B];
+
+Bc = [0;0;0;V*A];
+Cc = [1 0 0 0;  %y
+       0 1 0 0];  %ydot
+Dc = 0;
+
+G = 0.1*eye(4,4);   % noise input gain - MUST be square invertible
+                % for information filter
+
+
+dt = 6 ;   % time step
+
+Qd = 1 ;  % process noise covar. for
+                          % discrete system
+Rd = [10 0;0 10*pi/180] ;  % sensor noise covar. for discrete system
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+s=tf('s');
+sys = ss(Ac,Bc,Cc,Dc) ; % the system
+sysd = c2d(sys*exp(-dt*s),dt) ; % system in discrete-time form
+[Ad,Bd,Cd,Dd] = ssdata(sysd)  % discrete-time state-space matrices
+
+% sysw=ss(Ac,G,Cc,Dc); %system model with process noise instead of control input u
+% syswd=c2d(sysw*exp(-dt*s),dt);  %discrete form of system with process noise
+% [Awd,Gwd,Cwd,Dwd] = ssdata(syswd);
+
+Gd=[1 0 0 0;
+    0 0.5 0 0;
+    0 0 0.1 0;
+    0 0 0 1];
+
+Q = [1 0 0 0;
+       0 25 0 0;
+       0 0 1 0;
+       0 0 0 1];
+   
+R = 10^13;
+
+[Klqr,S,e]=dlqr(Ad,Bd,Q,R); %find discrete lqr gain K 
+
 %%
 TX = 'wifi';
 %TX = 'acomms';
@@ -33,14 +85,14 @@ TX = 'wifi';
 moosDB = 'terra.moos';
 pathName1 = '/home/josh/hovergroup/ivp-extend/brooks/missions/';
 pathName2 = '/home/eric/hovergroup/ivp-extend/eric/missions/';
-% pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
+pathName = '/home/mei/hovergroup/ivp-extend/mei/missions/mei_relay/';
 
 try 
-    old = cd(pathName1);
+    old = cd(pathName);
 end
-try
-   old = cd(pathName2); 
-end
+% try
+%    old = cd(pathName2); 
+% end
 
 
 % subscribe to (subscribe vars in .moos process config)
@@ -52,7 +104,7 @@ iMatlab('MOOS_MAIL_TX','MPC_STOP','STOP')
 pause(1)
 garbageMail = iMatlab('MOOS_MAIL_RX');
 
-send = hd0;
+send = 0;
 iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
 fprintf('Sending des heading = %f \n',send);
 
