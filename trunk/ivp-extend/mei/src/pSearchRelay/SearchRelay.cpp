@@ -493,6 +493,9 @@ int SearchRelay::Decision(){		//Find largest index
 
 	for(int i=0;i<indices.size();i++){
 		cout<<"Point: "<<i<<" Index: "<<indices[i]<<endl;
+		if(mode=="roundrobin"){
+			cout<<" Mean: "<<mean[i]<<endl;
+		}
 		ss<<indices[i];
 
 		if(indices[i]<0){	 // first round
