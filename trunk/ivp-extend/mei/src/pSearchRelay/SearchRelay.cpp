@@ -457,7 +457,9 @@ void SearchRelay::ComputeIndex(int closest_ind){
 	else if(mode=="roundrobin"){
 		if(closest_ind<total_points-1){
 			indices[closest_ind]=0;
+			if(indices[closest_ind+1]!=-1){
 			indices[closest_ind+1]=1;
+			}
 		}
 		else{
 			indices[closest_ind]=0;
