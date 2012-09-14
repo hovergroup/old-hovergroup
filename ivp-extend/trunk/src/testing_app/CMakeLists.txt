@@ -11,4 +11,7 @@ TARGET_LINK_LIBRARIES(testing_app
 	gsl
 	gslcblas
 	geometry
-	mbutil)
+	mbutil
+	protobuf
+	goby_common
+	goby_acomms)

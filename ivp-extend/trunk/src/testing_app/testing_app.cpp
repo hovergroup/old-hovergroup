@@ -2,29 +2,22 @@
 #include <gsl/gsl_blas.h>
 #include <vector>
 #include <stdio.h>
+#include "goby/acomms/protobuf/mm_driver.pb.h"
+#include "goby/acomms/acomms_helpers.h"
+#include "goby/acomms/acomms_constants.h"
+#include "goby/acomms/protobuf/modem_message.pb.h"
+#include "goby/acomms/protobuf/driver_base.pb.h"
 
 using namespace std;
 
 int main () {
-	int rows = 2;
-	int columns = 2;
-	gsl_matrix *A = gsl_matrix_calloc(rows, columns);
+	goby::acomms::protobuf::ModemTransmission m;
+//	m.AddExtension(micromodem::protobuf::frame_with_bad_crc, 1);
+//	m.AddExtension(micromodem::protobuf::frame_with_bad_crc, 2);
 
-	//	gsl_matrix *temp_matrix;
-	//	temp_matrix = gsl_matrix_calloc(2,2);
-	//	gsl_matrix *temp_matrix_2;
-	//	temp_matrix_2 = gsl_matrix_calloc(2,2);
-	//	gsl_matrix_set(temp_matrix_2,0,0,2);
-	//	gsl_matrix_set(temp_matrix_2,0,1,8);
-	//	gsl_matrix_set(temp_matrix_2,1,0,-4);
-	//	gsl_matrix_set(temp_matrix_2,1,1,9);
-	//
-	//	int s;
-	//	gsl_permutation *p = gsl_permutation_alloc (2);
-	//	gsl_linalg_LU_decomp (temp_matrix_2,p, &s);
-	//	gsl_linalg_LU_invert(temp_matrix_2,p,temp_matrix);
-	//	gsl_matrix_fprintf(stdout, temp_matrix, "%f");
-
+	for ( int i=0; i<m.ExtensionSize(micromodem::protobuf::frame_with_bad_crc); i++ ) {
+		cout << m.GetExtension(micromodem::protobuf::frame_with_bad_crc, i) << endl;
+	}
 
 	return 0;
 }
