@@ -400,7 +400,7 @@ void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmissi
 		ss.str("");
 		int numbad = trans.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
 		for ( 	int i=0; i<numbad; i++ ) {
-			ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc);
+			ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc, i);
 			if ( i<numbad-1 ) ss << ",";
 		}
 		m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str());
