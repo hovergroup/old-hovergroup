@@ -560,6 +560,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SHF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DOP,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
 	if ( use_psk_for_minipackets )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
 	else
