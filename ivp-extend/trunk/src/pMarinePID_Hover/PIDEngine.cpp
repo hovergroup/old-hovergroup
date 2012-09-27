@@ -55,7 +55,7 @@ double PIDEngine::getDesiredRudder(double desired_heading,
   double heading_error = current_heading - desired_heading;
   heading_error = angle180(heading_error);
   double desired_rudder = 0;
-  m_heading_pid.Run(heading_error, m_current_time, desired_rudder);
+  m_heading_pid.Run(current_heading, desired_heading, m_current_time, desired_rudder, true);
   desired_rudder *= -1.0;
     
   // Enforce limit on desired rudder
@@ -88,7 +88,7 @@ double PIDEngine::getDesiredThrust(double desired_speed,
   }
   // ELSE apply the PID contoller to the problem.
   else {
-    m_speed_pid.Run(speed_error,  m_current_time, delta_thrust);
+    m_speed_pid.Run(current_speed, desired_speed,  m_current_time, delta_thrust);
     desired_thrust += delta_thrust;
   }
   
@@ -133,13 +133,13 @@ double PIDEngine::getDesiredElevator(double desired_depth,
   double desired_elevator = 0;
   double desired_pitch = 0;
   double depth_error = current_depth - desired_depth;
-  m_z_to_pitch_pid.Run(depth_error, m_current_time, desired_pitch);
+  m_z_to_pitch_pid.Run(current_depth, desired_depth, m_current_time, desired_pitch);
 
   // Enforce limits on desired pitch
   MOOSAbsLimit(desired_pitch,max_pitch);
 
   double pitch_error = current_pitch - desired_pitch;
-  m_pitch_pid.Run(pitch_error, m_current_time, desired_elevator);
+  m_pitch_pid.Run(current_pitch, desired_pitch, m_current_time, desired_elevator);
 
   // Convert desired elevator to degrees
   desired_elevator=MOOSRad2Deg(desired_elevator);

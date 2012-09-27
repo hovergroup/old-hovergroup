@@ -373,7 +373,7 @@ bool MarinePID::handleYawSettings()
 {
   int ok = true;
 
-  double yaw_pid_Kp, yaw_pid_Kd, yaw_pid_Ki, yaw_pid_ilim, yaw_pid_update_fraction;
+  double yaw_pid_Kp, yaw_pid_Kd, yaw_pid_Ki, yaw_pid_ilim, yaw_pid_tau;
   if(!m_MissionReader.GetConfigurationParam("YAW_PID_KP", yaw_pid_Kp)) {
     MOOSDebugWrite("YAW_PID_KP not found in Mission File");
     ok = false;
@@ -395,13 +395,13 @@ bool MarinePID::handleYawSettings()
     MOOSDebugWrite("MAXRUDDER not found in Mission File");
     ok = false;
   }
-  if(!m_MissionReader.GetConfigurationParam("YAW_PID_UPDATE_FRACTION", yaw_pid_update_fraction)) {
-    MOOSDebugWrite("YAW_PID_UPDATE_FRACTION not found in Mission File");
+  if(!m_MissionReader.GetConfigurationParam("YAW_PID_TAU", yaw_pid_tau)) {
+    MOOSDebugWrite("YAW_PID_TAU not found in Mission File");
     ok = false;
   }
   
   ScalarPID crsPID;
-  crsPID.SetGains(yaw_pid_Kp, yaw_pid_Kd, yaw_pid_Ki, yaw_pid_update_fraction);
+  crsPID.SetGains(yaw_pid_Kp, yaw_pid_Kd, yaw_pid_Ki, yaw_pid_tau);
   crsPID.SetLimits(yaw_pid_ilim, 100);
   m_pengine.setPID(0, crsPID);
 
