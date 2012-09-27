@@ -63,19 +63,20 @@ public:
   void SetLogPath(std::string & sPath);
   void SetLog(bool bLog);
   void SetName(std::string sName);
-  bool Run(double dfeIn, double dfErrorTime, double& dfOut);
+  bool Run(double measurement, double target, double dfErrorTime, double& dfOut, bool isAngle=false);
 
 protected:  // Core parameters
   double m_dfKi;
   double m_dfKd;
   double m_dfKp;
-  double m_update_fraction;
+  double m_tau; // new
   double m_dfIntegralLimit;
   double m_dfOutputLimit;
 
 protected: // Data persistent between runs
   double m_dfeOld;
   double m_dfOldTime;
+  double m_oldMeasurement; // new
   double m_dfOut;
   unsigned int m_nHistorySize;
   std::list<double> m_DiffHistory;
