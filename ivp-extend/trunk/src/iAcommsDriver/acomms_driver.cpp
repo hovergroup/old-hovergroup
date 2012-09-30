@@ -555,12 +555,21 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	driver = new goby::acomms::MMDriver;
 
 	// set configuration variables
+
+	// various statistics
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DQF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MFD,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SHF,1");
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "DOP,1");
+
+	// impulse response
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
+
+	// ranging
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
+
+	// number of CTOs before hard reboot
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,1");
 	if ( use_psk_for_minipackets )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
 	else
