@@ -569,7 +569,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
 
 	// number of CTOs before hard reboot
-	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,1");
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,0");
 	if ( use_psk_for_minipackets )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
 	else
