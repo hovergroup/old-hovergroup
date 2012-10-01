@@ -33,8 +33,8 @@ ProcessConfig = iGPS_Hover
 	AppTick = 2
 	CommsTick = 2
 	
-	PORT_NAME = /dev/ttyUSB1	
-	BAUD_RATE = 9600
+	PORT_NAME = /dev/ttyUSB0	
+	BAUD_RATE = 57600
 }
 
 ProcessConfig = uXMS
@@ -47,7 +47,7 @@ ProcessConfig = iAcommsDriver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+	PortName = /dev/ttyUSB1
 	ID = 2
 }
 
