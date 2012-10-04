@@ -65,7 +65,6 @@ SNAME="terra"
 SPORT="9000"
 SLPORT="9001"
 
-
 # Prepare nostromo files
 nsplug meta_vehicle_sim.moos targ_nostromo.moos -f		\
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
