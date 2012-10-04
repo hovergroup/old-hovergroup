@@ -1,37 +1,40 @@
 #!/bin/bash 
 
-PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
+# modify path
+#PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
 
 WARP=1
 HELP="no"
 JUST_BUILD="no"
-JLEIGHT_A="no"
-JLEIGHT_B="no"
 BAD_ARGS=""
-SHOREHOST="10.25.0.5"
-COOL_FAC=10
-COOL_STEP=1000
+SHOREHOST="192.168.1.100"
+VEHICLE=""
+CRUISESPEED=2
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
 #-------------------------------------------------------
+
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
 	HELP="yes"
 	UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--jleight_a" -o "${ARGI}" = "-b" ] ; then
-      JLEIGHT_A="yes"
-      UNDEFINED_ARG=""
-    fi
-    if [ "${ARGI}" = "--jleight_b" -o "${ARGI}" = "-a" ] ; then
-      JLEIGHT_B="yes"
-      UNDEFINED_ARG=""
-    fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
 	JUST_BUILD="yes"
 	UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--nostromo" ] ; then
+	VEHICLE="nostromo"
+    UNDEFINE
+    if [ "${ARGI}" = "--kassandra" ] ; then
+	VEHICLE="kassandra"
+    UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--icarus" ] ; then
+	VEHICLE="icarus"
+    UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
 	BAD_ARGS=$UNDEFINED_ARG
@@ -42,27 +45,22 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
+if [ VEHICLE = "" ] ; then
+	printf "Must specify a vehicle name."
+	exit 0
+fi
 
 if [ "${BAD_ARGS}" != "" ] ; then
     printf "Bad Argument: %s \n" $BAD_ARGS
     exit 0
 fi
 
-if [ "${JLEIGHT_A}" = "no" -a "${JLEIGHT_B}" = "no" ] ; then
-    printf "ONE vehicle MUST be selected!!!!!!!!!!!! \n"
-    HELP="yes"
-fi
-
-if [ "${JLEIGHT_A}" = "yes" -a "${JLEIGHT_B}" = "yes" ] ; then
-    printf "ONE vehicle MUST be selected!!!!!!!!!!!! \n"
-    HELP="yes"
-fi
-
 if [ "${HELP}" = "yes" ]; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
-    printf "  --archie, -a           archie vehicle only                   \n"
-    printf "  --betty, -b            betty vehicle only                    \n"
+    printf "  --nostromo	         nostromo vehicle only                 \n"
+    printf "  --kassandra            kassandra vehicle only                \n"
+    printf "  --icarus               icarus vehicle only                   \n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -72,64 +70,78 @@ fi
 #  Part 3: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-CRUISESPEED="1.8"
+VNAME1="icarus"  # The first vehicle Community
+VPORT1="9201"
+LPORT1="9251"
 
-VNAME1="jleight_a"  # The first vehicle Community
-VPORT1="9100"
-LPORT1="9101"
-LOITER_PT1="x=-10,y=-60"
-RETURN_PT1="0,-20"
+VNAME2="kassandra"  # The second vehicle Community
+VPORT2="9202"
+LPORT2="9252"
+RETURN_PT2="10,-20"
 
-VNAME2="jleight_b"  # The second vehicle Community
-VPORT2="9200"
-LPORT2="9201"
-LOITER_PT2="x=50,y=-40"
-RETURN_PT2="30,-10"
+VNAME3="nostromo"  # The third vehicle Community
+VPORT3="9203"
+LPORT3="9253"
+RETURN_PT3="30,-10"
 
-# Conditionally Prepare Archie files
-if [ "${JLEIGHT_A}" = "yes" ]; then
-    nsplug meta_vehicle_fld.moos targ_jleight_a.moos -f      \
-      VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1 WARP=$WARP SHOREIP=$SHOREHOST \
-	COOL_FAC=$COOL_FAC COOL_STEPS=$COOL_STEP  
+# Conditionally Prepare nostromo files
+if [ VEHICLE = "nostromo" ]; then
+    nsplug meta_vehicle_fld.moos targ_nostromo.moos -f	\
+		VNAME=$VNAME3									\
+		VPORT=$VPORT3									\
+		LPORT=$LPORT3									\
+		WARP=$WARP										\
+		SHOREIP=$SHOREHOST
 
-    nsplug meta_vehicle.bhv targ_jleight_a.bhv -f            \
-        VNAME=$VNAME1                                     \
-	CRUISESPEED=$CRUISESPEED                          \
-        RETURN_PT=$RETURN_PT1                             \
-        LOITER_PT=$LOITER_PT1
+    nsplug meta_vehicle.bhv targ_nostromo.bhv -f	\
+        VNAME=$VNAME3                               \
+		CRUISESPEED=$CRUISESPEED                    \
+        RETURN_PT=$RETURN_PT3
 fi
 
-# Conditionally Prepare Betty files
-if [ "${JLEIGHT_B}" = "yes" ]; then
-    nsplug meta_vehicle_fld.moos targ_jleight_b.moos -f       \
-      VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2 WARP=$WARp SHOREIP=$SHOREHOST \
-	COOL_FAC=$COOL_FAC COOL_STEPS=$COOL_STEP
+# Conditionally Prepare kassandra files
+if [ VEHICLE = "kassandra" ]; then
+    nsplug meta_vehicle_fld.moos targ_kassandra.moos -f	\
+		VNAME=$VNAME2									\
+		VPORT=$VPORT2									\
+		LPORT=$LPORT2									\
+		WARP=$WARP										\
+		SHOREIP=$SHOREHOST
 
-    nsplug meta_vehicle.bhv targ_jleight_b.bhv -f             \
-            VNAME=$VNAME2                                 \
-      CRUISESPEED=$CRUISESPEED                            \
-        RETURN_PT=$RETURN_PT2                             \
-        LOITER_PT=$LOITER_PT2
+    nsplug meta_vehicle.bhv targ_kassandra.bhv -f	\
+        VNAME=$VNAME2                               \
+		CRUISESPEED=$CRUISESPEED                    \
+        RETURN_PT=$RETURN_PT2
 fi
 
-if [ ${JUST_BUILD} = "yes" ] ; then
-    exit 0
+# Conditionally Prepare icarus files
+if [ VEHICLE = "icarus" ]; then
+    nsplug meta_icarus.moos targ_icarus.moos -f	\
+		VNAME=$VNAME1							\
+		VPORT=$VPORT1							\
+		LPORT=$LPORT1							\
+		WARP=$WARP								\
+		SHOREIP=$SHOREHOST
 fi
 
 #-------------------------------------------------------
 #  Part 4: Launch the processes
 #-------------------------------------------------------
 
-# Launch Archie
-if [ "${JLEIGHT_A}" = "yes" ]; then
-    printf "Launching jleight_a MOOS Community \n"
-    pAntler targ_jleight_a.moos >& /dev/null &
+# Launch nostromo
+if [ VEHICLE = "nostromo" ]; then
+    printf "Launching nostromo MOOS Community \n"
+    pAntler targ_nostromo.moos >& /dev/null &
 fi
-
-# Launch Betty
-if [ "${JLEIGHT_B}" = "yes" ]; then
-    printf "Launching jleight_b MOOS Community \n"
-    pAntler targ_jleight_b.moos >& /dev/null &
+# Launch kassandra
+if [ VEHICLE = "kassandra" ]; then
+    printf "Launching kassandra MOOS Community \n"
+    pAntler targ_kassandra.moos >& /dev/null &
+fi
+# Launch icarus
+if [ VEHICLE = "icarus" ]; then
+    printf "Launching icarus MOOS Community \n"
+    pAntler targ_icarus.moos >& /dev/null &
 fi
 
 #-------------------------------------------------------
