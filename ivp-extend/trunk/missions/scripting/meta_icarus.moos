@@ -9,15 +9,16 @@ Processconfig = ANTLER
 {
   MSBetweenLaunches = 500
    
-  Run = MOOSDB             @ NewConsole = false
-  Run = pMOOSBridge        @ NewConsole = false ~ pMOOSBridge_%(VNAME)
-  Run = pLogger            @ NewConsole = false
-  Run = pNodeReporter      @ NewConsole = false
-  Run = pHostInfo          @ NewConsole = false
-  Run = uFldNodeBroker     @ NewConsole = false
-  Run = uFldMessageHandler @ NewConsole = false
-  Run = iGPS_Hover         @ NewConsole = false
-  Run = pEchoVar           @ NewConsole = false
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
 }
 
 #include plug_pMOOSBridgeV.moos
@@ -28,3 +29,4 @@ Processconfig = ANTLER
 #include plug_uFldMessageHandler.moos
 #include plug_pEchoVar.moos
 #include plug_iGPS_Hover.moos
+#include plug_iAcommsDriver.moos
