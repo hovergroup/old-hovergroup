@@ -7,7 +7,7 @@ Behavior = BHV_Waypoint
 	name 		= goto_and_station
 	pwt       	= 100
 	condition	= MISSION_MODE = GOTO
-	condition	= GOSTAY = false
+	condition	= GOSTAY = true
 	endflag		= MISSION_MODE = STATION-KEEP
 	perpetual	= true
 	updates		= GOTO_UPDATES
