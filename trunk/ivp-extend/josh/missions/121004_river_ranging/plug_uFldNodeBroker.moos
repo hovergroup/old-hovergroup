@@ -16,4 +16,7 @@ ProcessConfig = uFldNodeBroker
   BRIDGE = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
   
   BRIDGE = src=ACOMMS_ONE_WAY_TRAVEL_TIME, alias=ACOMMS_ONE_WAY_TRAVEL_TIME_$(VNAME)
+  BRIDGE = src=NAV_X, alias=NAV_X_$(VNAME)
+  BRIDGE = src=NAV_Y, alias=NAV_Y_$(VNAME)
+  BRIDGE = src=NAV_SPEED, alias=NAV_SPEED_$(VNAME)
 }
