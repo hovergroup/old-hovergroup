@@ -41,8 +41,8 @@ fi
 #-------------------------------------------------------
 
 SNAME="terra"  # Shoreside Community
-SPORT="9200"
-SLPORT="9250"
+SPORT="9000"
+SLPORT="9001"
 WARP=1
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
