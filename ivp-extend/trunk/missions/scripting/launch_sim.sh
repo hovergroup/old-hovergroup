@@ -4,8 +4,6 @@ WARP=1
 HELP="no"
 JUST_BUILD="no"
 SIMULATE="no"
-SIMVPLUGFILE="plug_SIMvessel.moos"
-REALVPLUGFILE="plug_REALvessel.moos"
 BAD_ARGS=""
 CRUISESPEED=2
 
@@ -103,12 +101,12 @@ fi
 #-------------------------------------------------------
 
 # Launch Archie
-printf "Launching Nostromo MOOS Community \n"
+printf "Launching nostromo MOOS Community \n"
 pAntler targ_nostromo.moos >& /dev/null &
 sleep 0.1
 
 # Launch Betty
-printf "Launching Kassandra MOOS Community \n"
+printf "Launching kassandra MOOS Community \n"
 pAntler targ_kassandra.moos >& /dev/null &
 sleep 0.1
 
