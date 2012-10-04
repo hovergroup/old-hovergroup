@@ -74,16 +74,19 @@ fi
 VNAME1="icarus"  # The first vehicle Community
 VPORT1="9300"
 LPORT1="9301"
+ID1=1
 
 VNAME2="kassandra"  # The second vehicle Community
 VPORT2="9200"
 LPORT2="9201"
 RETURN_PT2="10,-20"
+ID2=2
 
 VNAME3="nostromo"  # The third vehicle Community
 VPORT3="9100"
 LPORT3="9101"
 RETURN_PT3="30,-10"
+ID3=3
 
 # Conditionally Prepare nostromo files
 if [ VEHICLE = "nostromo" ]; then
@@ -93,7 +96,11 @@ if [ VEHICLE = "nostromo" ]; then
 		LPORT=$LPORT3									\
 		WARP=$WARP										\
 		SHOREIP=$SHOREHOST								\
-		RUDDER_OFFSET=$RUDDER_OFFSET
+		RUDDER_OFFSET=$RUDDER_OFFSET					\
+		ACOMMSID=$ID3									\
+		MODEMPORT="/dev/ttyUSB1"						\
+		OS5000PORT="/dev/ttyUSB2"						\
+		GPSPORT="/dev/ttyUSB0"
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f	\
         VNAME=$VNAME3                               \
@@ -108,7 +115,10 @@ if [ VEHICLE = "kassandra" ]; then
 		VPORT=$VPORT2									\
 		LPORT=$LPORT2									\
 		WARP=$WARP										\
-		SHOREIP=$SHOREHOST
+		SHOREIP=$SHOREHOST								\
+		ACOMMSID=$ID2									\
+		MODEMPORT="/dev/ttyUSB1"						\
+		OS5000PORT="/dev/ttyUSB2"
 
     nsplug meta_vehicle.bhv targ_kassandra.bhv -f	\
         VNAME=$VNAME2                               \
@@ -123,7 +133,10 @@ if [ VEHICLE = "icarus" ]; then
 		VPORT=$VPORT1							\
 		LPORT=$LPORT1							\
 		WARP=$WARP								\
-		SHOREIP=$SHOREHOST
+		SHOREIP=$SHOREHOST						\
+		ACOMMSID=$ID1							\
+		MODEMPORT="/dev/ttyUSB1"				\
+		GPSPORT="/dev/ttyUSB0"
 fi
 
 #-------------------------------------------------------

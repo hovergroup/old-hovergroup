@@ -1,0 +1,10 @@
+
+
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+	CommsTick = 5
+
+	PortName = $(MODEMPORT)
+	ID = $(ACOMMSID)
+}
