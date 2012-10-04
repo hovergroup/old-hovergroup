@@ -19,9 +19,27 @@ Processconfig = ANTLER
 	Run = pHostInfo       @ NewConsole = false
 	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
 	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+	
+	Run = uXMS            @ NewConsole = true
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uXMS
+{
+	AppTick = 4
+	CommsTick = 4
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=NAV_X_NOSTROMO
+	VAR=NAV_Y_NOSTROMO
+	VAR=NAV_SPEED_NOSTROMO
+	
+	VAR=ACOMMS_ONE_WAY_TRAVEL_TIME_NOSTROMO
+	VAR=ACOMMS_ONE_WAY_TRAVEL_TIME_ICARUS
 }
 
 #include plug_pHostInfo.moos
