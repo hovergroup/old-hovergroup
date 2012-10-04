@@ -50,20 +50,20 @@ fi
 #-------------------------------------------------------
 
 VNAME1="nostromo"
-VPORT1="9203"
-LPORT1="9253"
+VPORT1="9100"
+LPORT1="9101"
 START_POS1="10,-20"
 RETURN_PT1="10,-20"
 
 VNAME2="kassandra"
-VPORT2="9202"
-LPORT2="9252"
-START_POS2="30-10"
+VPORT2="9200"
+LPORT2="9201"
+START_POS2="30,-10"
 RETURN_PT2="30,-10"
 
 SNAME="terra"
-SPORT="9200"
-SLPORT="9250"
+SPORT="9000"
+SLPORT="9001"
 
 
 # Prepare nostromo files
