@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 # modify path
-#PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
+# PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
 
 WARP=1
 HELP="no"
@@ -28,14 +28,15 @@ for ARGI; do
     fi
     if [ "${ARGI}" = "--nostromo" ] ; then
 	VEHICLE="nostromo"
-    UNDEFINE
+	UNDEFINED_ARG=""
+    fi
     if [ "${ARGI}" = "--kassandra" ] ; then
 	VEHICLE="kassandra"
-    UNDEFINED_ARG=""
+	UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--icarus" ] ; then
 	VEHICLE="icarus"
-    UNDEFINED_ARG=""
+	UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
 	BAD_ARGS=$UNDEFINED_ARG
@@ -137,6 +138,10 @@ if [ VEHICLE = "icarus" ]; then
 		ACOMMSID=$ID1							\
 		MODEMPORT="/dev/ttyUSB1"				\
 		GPSPORT="/dev/ttyUSB0"
+fi
+
+if [ ${JUST_BUILD} = "yes" ] ; then
+    exit 0
 fi
 
 #-------------------------------------------------------

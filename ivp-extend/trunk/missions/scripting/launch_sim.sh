@@ -11,12 +11,10 @@ CRUISESPEED=2
 #  Part 1: Check for and handle command-line arguments
 #-------------------------------------------------------
 
-let COUNT=0
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI:0:6}" = "--warp" ] ; then
         WARP="${ARGI#--warp=*}"
-        let "COUNT=$COUNT+1"
         UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
