@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 HELP="no"
 JUST_BUILD="no"
