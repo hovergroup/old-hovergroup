@@ -10,6 +10,7 @@ BAD_ARGS=""
 SHOREHOST="192.168.1.100"
 VEHICLE=""
 CRUISESPEED=2
+RUDDER_OFFSET=2
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -91,7 +92,8 @@ if [ VEHICLE = "nostromo" ]; then
 		VPORT=$VPORT3									\
 		LPORT=$LPORT3									\
 		WARP=$WARP										\
-		SHOREIP=$SHOREHOST
+		SHOREIP=$SHOREHOST								\
+		RUDDER_OFFSET=$RUDDER_OFFSET
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f	\
         VNAME=$VNAME3                               \
@@ -101,7 +103,7 @@ fi
 
 # Conditionally Prepare kassandra files
 if [ VEHICLE = "kassandra" ]; then
-    nsplug meta_vehicle_fld.moos targ_kassandra.moos -f	\
+    nsplug meta_kassandra.moos targ_kassandra.moos -f	\
 		VNAME=$VNAME2									\
 		VPORT=$VPORT2									\
 		LPORT=$LPORT2									\
