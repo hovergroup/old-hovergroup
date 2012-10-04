@@ -49,20 +49,20 @@ fi
 #-------------------------------------------------------
 
 VNAME1="nostromo"
-VPORT1="9003"
-LPORT1="9203"
+VPORT1="9100"
+LPORT1="9101"
 START_POS1="0,-20"
 RETURN_PT1="0,-20"
 
 VNAME2="kassandra"
-VPORT2="9001"
+VPORT2="9200"
 LPORT2="9201"
 START_POS2="50,0"
 RETURN_PT2="50,0"
 
 SNAME="terra"
 SPORT="9000"
-SLPORT="9200"
+SLPORT="9001"
 
 
 # Prepare nostromo files
@@ -80,7 +80,7 @@ nsplug meta_vehicle_sim.moos targ_kassandra.moos -f		\
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
     START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost
 
-nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
+nsplug meta_vehicle.bhv targ_kassandra.bhv -f            \
     VNAME=$VNAME2                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT2
