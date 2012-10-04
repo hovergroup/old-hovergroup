@@ -40,9 +40,9 @@ fi
 #  Part 2: Create the shoreside.moos file
 #-------------------------------------------------------
 
-SNAME="shoreside"  # Shoreside Community
-SPORT="9000"
-SLPORT="9001"
+SNAME="terra"  # Shoreside Community
+SPORT="9200"
+SLPORT="9250"
 WARP=1
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
