@@ -72,17 +72,17 @@ fi
 #-------------------------------------------------------
 
 VNAME1="icarus"  # The first vehicle Community
-VPORT1="9201"
-LPORT1="9251"
+VPORT1="9300"
+LPORT1="9301"
 
 VNAME2="kassandra"  # The second vehicle Community
-VPORT2="9202"
-LPORT2="9252"
+VPORT2="9200"
+LPORT2="9201"
 RETURN_PT2="10,-20"
 
 VNAME3="nostromo"  # The third vehicle Community
-VPORT3="9203"
-LPORT3="9253"
+VPORT3="9100"
+LPORT3="9101"
 RETURN_PT3="30,-10"
 
 # Conditionally Prepare nostromo files
