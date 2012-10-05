@@ -26,6 +26,8 @@ Processconfig = ANTLER
 
   Run = uTimerScript            @ NewConsole = false
   //Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
+  
+  Run = pEchoVar                @ NewConsole = false ~ pEchoVar_Acomms
 }
 
 Processconfig = uTimerScript_Config
