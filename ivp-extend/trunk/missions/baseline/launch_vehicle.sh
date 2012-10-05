@@ -155,17 +155,17 @@ fi
 #-------------------------------------------------------
 
 # Launch nostromo
-if [ VEHICLE = "nostromo" ]; then
+if [ "${VEHICLE}" = "nostromo" ]; then
     printf "Launching nostromo MOOS Community \n"
     pAntler targ_nostromo.moos >& /dev/null &
 fi
 # Launch kassandra
-if [ VEHICLE = "kassandra" ]; then
+if [ "${VEHICLE}" = "kassandra" ]; then
     printf "Launching kassandra MOOS Community \n"
     pAntler targ_kassandra.moos >& /dev/null &
 fi
 # Launch icarus
-if [ VEHICLE = "icarus" ]; then
+if [ "${VEHICLE}" = "icarus" ]; then
     printf "Launching icarus MOOS Community \n"
     pAntler targ_icarus.moos >& /dev/null &
 fi
