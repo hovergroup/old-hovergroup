@@ -73,7 +73,7 @@ ProcessConfig = pEchoVar_Acomms
 	AppTick   = 1
 	CommsTick = 1
 
-	Echo = ACOMMS_RECEIVED_DATA -> ACOMMS_TRANSMIT_DATA
+	Echo = ACOMMS_RECEIVED_DATA_HEX -> ACOMMS_TRANSMIT_DATA
 }
 
 #include plug_pMOOSBridgeV.moos
