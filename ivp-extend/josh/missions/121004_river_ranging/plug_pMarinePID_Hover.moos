@@ -12,7 +12,7 @@ ProcessConfig = pMarinePID_Hover
 	// SPEED_FACTOR
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 30
+	SPEED_FACTOR	= 20
 	// 25-30 for no modem
 	// 40 with modem
 

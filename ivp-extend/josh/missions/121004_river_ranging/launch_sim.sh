@@ -5,7 +5,7 @@ HELP="no"
 JUST_BUILD="no"
 SIMULATE="no"
 BAD_ARGS=""
-CRUISESPEED=2
+CRUISESPEED=3
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
