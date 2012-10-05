@@ -135,7 +135,7 @@ fi
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
     nsplug meta_icarus.moos targ_icarus.moos -f    \
-        VHOST=$VHOST2                                   \
+        VHOST=$VHOST1                                   \
         VNAME=$VNAME1                            \
         VPORT=$VPORT1                            \
         LPORT=$LPORT1                            \
