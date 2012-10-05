@@ -25,7 +25,7 @@ Processconfig = ANTLER
   Run = iAcommsDriver		@ NewConsole = false
 
   Run = uTimerScript            @ NewConsole = false
-  Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
+  //Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
 }
 
 Processconfig = uTimerScript_Config

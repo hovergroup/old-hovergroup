@@ -20,7 +20,7 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
   
-  Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
+  //Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
   Run = uTimerScript		@ NewConsole = false
 }
 
@@ -40,7 +40,7 @@ Processconfig = uTimerScript
     reset_max = nolimit
     reset_time = all-posted
 
-    event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT] hello world",time=7
+    event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]_hello_world",time=15
 }
 
 #include plug_pMOOSBridgeV.moos
