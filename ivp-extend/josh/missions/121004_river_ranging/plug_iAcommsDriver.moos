@@ -8,5 +8,5 @@ ProcessConfig = iAcommsDriver
 	PortName = $(MODEMPORT)
 	ID = $(ACOMMSID)
 	
-	enable_ranging = false
+	enable_ranging = true
 }
