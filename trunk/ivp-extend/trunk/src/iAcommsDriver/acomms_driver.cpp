@@ -272,6 +272,20 @@ void acomms_driver::transmit_data() {
 		transmitted_data = packMessage(6, 32, &transmit_message);
 		break;
 
+	case 100:
+        // if mini packet, just take up to the first two bytes
+        // truncating done in goby
+        if ( transmission_data.size() == 1 ) {
+                char filler = 0x00;
+                transmission_data.insert(0,&filler, 1);
+                publishWarning("Only passed one byte for minipacket, packing with 0x00.");
+        }
+        transmit_message.add_frame( transmission_data.data(), 2 );
+        transmit_message.mutable_frame(0)->at(0) &= 0x1f;
+        transmitted_data = vector<unsigned char> (2,0);
+        memcpy( &transmitted_data[0], transmit_message.frame(0).data(), 2 );
+        break;
+
 	default:
 		stringstream ss;
 		ss << "Requested rate " << transmission_rate << " is not supported.";
