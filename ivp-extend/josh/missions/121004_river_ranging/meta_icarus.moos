@@ -40,7 +40,7 @@ Processconfig = uTimerScript
     reset_max = nolimit
     reset_time = all-posted
 
-    event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]_hello_world",time=5
+    event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]_hello_world",time=10
 }
 
 #include plug_pMOOSBridgeV.moos
