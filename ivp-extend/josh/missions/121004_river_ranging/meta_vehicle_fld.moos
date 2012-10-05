@@ -25,6 +25,15 @@ Processconfig = ANTLER
   Run = iAcommsDriver		@ NewConsole = false
 
   Run = uTimerScript            @ NewConsole = false
+  Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
+}
+
+Processconfig = uTimerScript_Config
+{
+    AppTick = 4
+    CommsTick = 4
+    
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
 }
 
 Processconfig = uTimerScript
