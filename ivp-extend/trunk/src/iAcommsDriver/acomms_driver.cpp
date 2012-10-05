@@ -31,6 +31,7 @@ acomms_driver::acomms_driver()
 	status_set_time = 0;
 
 	use_psk_for_minipackets = false;
+	enable_one_way_ranging = false;
 }
 
 //---------------------------------------------------------
@@ -104,6 +105,7 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetConfigurationParam("ID", my_id);
    m_MissionReader.GetValue("Community", my_name);
    m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
+   m_MissionReader.GetConfigurationParam("enable_ranging", enable_one_way_ranging);
 
    // post these to make sure they are the correct type
    unsigned char c = 0x00;
@@ -378,6 +380,14 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 }
 
 void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmission & trans ) {
+	if ( trans.HasExtension( micromodem::protobuf::ranging_reply ) ) {
+		micromodem::protobuf::RangingReply ranging =
+				trans.GetExtension(micromodem::protobuf::ranging_reply);
+		for ( int i=0; i<ranging.one_way_travel_time_size(); i++ ) {
+			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", ranging.one_way_travel_time(i) );
+		}
+	}
+
 	if ( trans.frame_size() > 0 ) {
 		// notify data received in ascii format
 		string frame_string = trans.frame(0);
@@ -566,7 +576,8 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
 
 	// ranging
-	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
+	if ( enable_one_way_ranging )
+		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
 
 	// number of CTOs before hard reboot
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,0");
