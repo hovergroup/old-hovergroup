@@ -20,6 +20,23 @@ Processconfig = ANTLER
   Run = uFldNodeBroker     @ NewConsole = false
   Run = uFldMessageHandler @ NewConsole = false
   Run = pEchoVar           @ NewConsole = false
+
+  Run = uTimerScript            @ NewConsole = false
+}
+
+Processconfig = uTimerScript
+{
+    AppTick = 4
+    CommsTick = 4
+
+    reset_max = nolimit
+    reset_time = all-posted
+
+    event = var=SPEED_TEST_UPDATES,val="speed = 1",time=30
+    event = var=SPEED_TEST_UPDATES,val="speed = 2",time=60
+    event = var=SPEED_TEST_UPDATES,val="speed = 3",time=90
+    event = var=SPEED_TEST_UPDATES,val="speed = 4",time=120
+    event = var=SPEED_TEST_UPDATES,val="speed = 5",time=150
 }
 
 #include plug_uSimMarine.moos

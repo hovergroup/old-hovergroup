@@ -21,9 +21,19 @@ Processconfig = ANTLER
 	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
 	
 	Run = uXMS            @ NewConsole = true
+	Run = uTermCommand    @ NewConsole = true
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = speed_test --> MISSION_MODE_NOSTROMO --> SPEED-TEST
+	CMD = lawnmower  --> MISSION_MODE_NOSTROMO --> LAWNMOWER
 }
 
 ProcessConfig = uXMS

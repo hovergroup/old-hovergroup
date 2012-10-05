@@ -9,7 +9,7 @@ JUST_BUILD="no"
 BAD_ARGS=""
 SHOREHOST="192.168.1.100"
 VEHICLE=""
-CRUISESPEED=2
+CRUISESPEED=3
 RUDDER_OFFSET=2
 
 #-------------------------------------------------------

@@ -6,18 +6,41 @@ Behavior = BHV_Waypoint
 {
 	name 		= ranging_speed_test
 	pwt       	= 100
-	condition	= MISSION_MODE = SPEED_TEST
+	condition	= MISSION_MODE = SPEED-TEST
 	endflag		= MISSION_MODE = STATION-KEEP
 	perpetual	= true
 	updates		= SPEED_TEST_UPDATES
 
-	lead 			= 15
+	lead 		= 15
 	lead_damper 	= 1
-	speed 			= $(CRUISESPEED)
-	radius 			= 4.0
+	speed 		= $(CRUISESPEED)
+	radius 		= 4.0
 	slip_radius 	= 10.0
-	points 			= 20,-30:70,-300
-	repeat 			= 1
+	points          = 20,-30 : 130,-400 : 20,-30
+	repeat 		= 20
+	visual_hints	= nextpt_color=red, nextpt_lcolor=green
+	visual_hints	= vertex_color=red, line_color=green
+	visual_hints	= vertex_size=2, edge_size=1
+}
+
+Behavior = BHV_Waypoint
+{
+	name 		= ranging_lawnmower
+	pwt       	= 100
+	condition	= MISSION_MODE = LAWNMOWER
+	endflag		= MISSION_MODE = RETURN
+	perpetual	= true
+	updates		= LAWNMOWER_UPDATES
+
+	lead 		= 15
+	lead_damper 	= 1
+	speed 		= $(CRUISESPEED)
+	radius 		= 4.0
+	slip_radius 	= 10.0
+	points          = format=lawnmower, label=ranging_survey, x=120, y=-230, \
+                          width=400, height=300, lane_width=50, rows=east-west,  \
+                          degs=-25
+	repeat 		= 0
 	visual_hints	= nextpt_color=red, nextpt_lcolor=green
 	visual_hints	= vertex_color=red, line_color=green
 	visual_hints	= vertex_size=2, edge_size=1
@@ -33,13 +56,13 @@ Behavior = BHV_Waypoint
 	perpetual	= true
 	updates		= GOTO_UPDATES
 
-	lead 			= 15
+	lead            = 15
 	lead_damper 	= 1
-	speed 			= $(CRUISESPEED)
-	radius 			= 4.0
+	speed           = $(CRUISESPEED)
+	radius          = 4.0
 	slip_radius 	= 10.0
-	points 			= $(RETURN_PT)
-	repeat 			= 1
+	points 		= $(RETURN_PT)
+	repeat 		= 1
 	visual_hints	= nextpt_color=red, nextpt_lcolor=green
 	visual_hints	= vertex_color=red, line_color=green
 	visual_hints	= vertex_size=2, edge_size=1
