@@ -32,7 +32,7 @@ protected:
 	// configuration variables
 	google::protobuf::uint32 my_id;
 	std::string port_name, my_name;
-	bool use_psk_for_minipackets;
+	bool use_psk_for_minipackets, enable_one_way_ranging;
 
 	// not user configurable
 	static const double transmission_pulse_range = 50;
