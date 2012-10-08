@@ -102,7 +102,7 @@ ProcessConfig = pLogger
 	CommsTick 	= 10
 
 	File		= LOG_%(SNAME)
-	PATH		= ./
+	PATH		= /home/josh/logs/
 	AsyncLog 	= true
 	FileTimeStamp = true
 	WildCardLogging		= true
