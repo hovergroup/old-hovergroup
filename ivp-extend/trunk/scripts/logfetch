@@ -10,6 +10,8 @@ else
     mkdir $FOLDERDATE
 fi
 
+cd ${FOLDERDATE}
+
 LOCAL="no"
 VEHICLE=""
 
