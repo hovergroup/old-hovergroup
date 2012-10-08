@@ -1,0 +1,84 @@
+#!/bin/bash
+
+MOOSDATE=$(date +%-d_%-m_%Y)
+FOLDERDATE=$(date +%Y_%m_%d)
+
+if [ -d $FOLDERDATE ]; then
+    echo "Directory already exists"
+else
+    echo "Creating directory"
+    mkdir $FOLDERDATE
+fi
+
+LOCAL="no"
+VEHICLE=""
+
+#-------------------------------------------------------
+#  Part 1: Process command-line arguments
+#-------------------------------------------------------
+
+for ARGI; do
+    UNDEFINED_ARG=$ARGI
+    if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
+    HELP="yes"
+    UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--local" ] ; then
+    LOCAL="yes"
+    UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--vehicle" ] ; then
+    VEHICLE="${ARGI#--vehicle=*}"
+    UNDEFINED_ARG=""
+    fi
+    if [ "${UNDEFINED_ARG}" != "" ] ; then
+    BAD_ARGS=$UNDEFINED_ARG
+    fi
+done
+
+if [ "${VEHICLE}" = "" ] ; then
+    printf "Must define a vehicle\n"
+    exit 0
+fi
+
+if [ "${LOCAL}" = "no" ] ; then
+#-------------------------------------------------------
+#  Part 2: Remote fetch
+#-------------------------------------------------------
+
+TARNAME = LOG_${VEHICLE}_${CURRENTDATE}.tar.gz
+
+ssh josh@${VEHICLE} <<'ENDSSH'
+
+cd logs
+
+if test $(find . -maxdepth 1 -name *_${VEHICLE}_${CURRENTDATE}* -print -quit); then
+    printf "Found log files.\n"
+else
+    echo "No log folders found."
+    exit 0
+fi
+
+tar cvfz ${TARNAME} *_${VEHICLE}_${CURRENTDATE}*
+
+ENDSSH
+
+scp josh@${VEHICLE}:/home/josh/logs/${TARNAME} ${TARNAME}
+
+else
+#-------------------------------------------------------
+#  Part 2: Local fetch
+#-------------------------------------------------------
+
+TARNAME = LOG_${VEHICLE}_${CURRENTDATE}.tar.bz2
+
+if test $(find /home/josh/logs -maxdepth 1 -name *_${VEHICLE}_${CURRENTDATE}* -print -quit); then
+    printf "Found log files.\n"
+else
+    echo "No log folders found."
+    exit 0
+fi
+
+tar cvfz ${TARNAME} /home/josh/logs/*_${VEHICLE}_${CURRENTDATE}*
+
+fi
