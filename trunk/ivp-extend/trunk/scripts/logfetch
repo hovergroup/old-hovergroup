@@ -3,6 +3,8 @@
 MOOSDATE=$(date +%-d_%-m_%Y)
 FOLDERDATE=$(date +%Y_%m_%d)
 
+cd /media/Data
+
 if [ -d $FOLDERDATE ]; then
     echo "Directory already exists"
 else
@@ -29,7 +31,7 @@ for ARGI; do
     LOCAL="yes"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--vehicle" ] ; then
+    if [ "${ARGI:0:9}" = "--vehicle" ] ; then
     VEHICLE="${ARGI#--vehicle=*}"
     UNDEFINED_ARG=""
     fi
@@ -48,20 +50,14 @@ if [ "${LOCAL}" = "no" ] ; then
 #  Part 2: Remote fetch
 #-------------------------------------------------------
 
-TARNAME = LOG_${VEHICLE}_${CURRENTDATE}.tar.gz
+TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.gz"
 
-ssh josh@${VEHICLE} <<'ENDSSH'
+echo "Connecting to host ${VEHICLE}"
+ssh josh@${VEHICLE} <<ENDSSH
 
 cd logs
 
-if test $(find . -maxdepth 1 -name *_${VEHICLE}_${CURRENTDATE}* -print -quit); then
-    printf "Found log files.\n"
-else
-    echo "No log folders found."
-    exit 0
-fi
-
-tar cvfz ${TARNAME} *_${VEHICLE}_${CURRENTDATE}*
+tar cvfz ${TARNAME} *_${VEHICLE}_${MOOSDATE}*
 
 ENDSSH
 
@@ -72,15 +68,15 @@ else
 #  Part 2: Local fetch
 #-------------------------------------------------------
 
-TARNAME = LOG_${VEHICLE}_${CURRENTDATE}.tar.bz2
+TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.bz2"
 
-if test $(find /home/josh/logs -maxdepth 1 -name *_${VEHICLE}_${CURRENTDATE}* -print -quit); then
+if test $(find /home/josh/logs -maxdepth 1 -name *_${VEHICLE}_${MOOSDATE}* -print -quit); then
     printf "Found log files.\n"
 else
     echo "No log folders found."
     exit 0
 fi
 
-tar cvfz ${TARNAME} /home/josh/logs/*_${VEHICLE}_${CURRENTDATE}*
+tar cvfz ${TARNAME} /home/josh/logs/*_${VEHICLE}_${MOOSDATE}*
 
 fi
