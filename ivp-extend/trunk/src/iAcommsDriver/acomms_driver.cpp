@@ -592,6 +592,8 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	// ranging
 	if ( enable_one_way_ranging )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
+	else
+		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,0");
 
 	// number of CTOs before hard reboot
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,0");
