@@ -13,7 +13,7 @@ Behavior = BHV_Waypoint
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= 2
+	speed 		= 3
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
@@ -34,7 +34,7 @@ Behavior = BHV_Waypoint
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= 3.5
+	speed 		= 4
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
