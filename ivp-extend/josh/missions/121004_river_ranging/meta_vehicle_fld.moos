@@ -21,10 +21,9 @@ Processconfig = ANTLER
   Run = iGPS_Hover         	@ NewConsole = false
   Run = iOS5000_Hover      	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
-  Run = iHoverKayak		   	@ NewConsole = false
+  Run = iHoverKayak		@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
 
-  Run = uTimerScript            @ NewConsole = false
   Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
   
   Run = pEchoVar                @ NewConsole = false ~ pEchoVar_Acomms
@@ -36,21 +35,6 @@ Processconfig = uTimerScript_Config
     CommsTick = 4
     
     event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
-}
-
-Processconfig = uTimerScript
-{
-    AppTick = 4
-    CommsTick = 4
-
-    reset_max = nolimit
-    reset_time = all-posted
-
-    event = var=SPEED_TEST_UPDATES,val="speed = 1",time=30
-    event = var=SPEED_TEST_UPDATES,val="speed = 2",time=60
-    event = var=SPEED_TEST_UPDATES,val="speed = 3",time=90
-    event = var=SPEED_TEST_UPDATES,val="speed = 4",time=120
-    event = var=SPEED_TEST_UPDATES,val="speed = 5",time=150
 }
 
 ProcessConfig = uXMS
@@ -70,8 +54,8 @@ ProcessConfig = uXMS
 
 ProcessConfig = pEchoVar_Acomms
 {
-	AppTick   = 1
-	CommsTick = 1
+	AppTick   = 2
+	CommsTick = 2
 
 	Echo = ACOMMS_RECEIVED_DATA_HEX -> ACOMMS_TRANSMIT_DATA
 }
