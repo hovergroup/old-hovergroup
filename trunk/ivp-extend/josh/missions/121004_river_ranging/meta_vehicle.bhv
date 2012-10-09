@@ -7,17 +7,59 @@ Behavior = BHV_Waypoint
 	name 		= ranging_speed_test
 	pwt       	= 100
 	condition	= MISSION_MODE = SPEED-TEST
+	endflag		= MISSION_MODE = SPEED-TEST2
+	perpetual	= true
+	updates		= SPEED_TEST_UPDATES
+
+	lead 		= 15
+	lead_damper 	= 1
+	speed 		= 40
+	radius 		= 4.0
+	slip_radius 	= 10.0
+	points          = 20,-30 : 130,-400 : 20,-30
+	repeat 		= 0
+	visual_hints	= nextpt_color=red, nextpt_lcolor=green
+	visual_hints	= vertex_color=red, line_color=green
+	visual_hints	= vertex_size=2, edge_size=1
+}
+
+Behavior = BHV_Waypoint
+{
+	name 		= ranging_speed_test2
+	pwt       	= 100
+	condition	= MISSION_MODE = SPEED-TEST2
+	endflag		= MISSION_MODE = SPEED-TEST3
+	perpetual	= true
+	updates		= SPEED_TEST_UPDATES
+
+	lead 		= 15
+	lead_damper 	= 1
+	speed 		= 70
+	radius 		= 4.0
+	slip_radius 	= 10.0
+	points          = 20,-30 : 130,-400 : 20,-30
+	repeat 		= 0
+	visual_hints	= nextpt_color=red, nextpt_lcolor=green
+	visual_hints	= vertex_color=red, line_color=green
+	visual_hints	= vertex_size=2, edge_size=1
+}
+
+Behavior = BHV_Waypoint
+{
+	name 		= ranging_speed_test3
+	pwt       	= 100
+	condition	= MISSION_MODE = SPEED-TEST3
 	endflag		= MISSION_MODE = STATION-KEEP
 	perpetual	= true
 	updates		= SPEED_TEST_UPDATES
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= $(CRUISESPEED)
+	speed 		= 100
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
-	repeat 		= 20
+	repeat 		= 0
 	visual_hints	= nextpt_color=red, nextpt_lcolor=green
 	visual_hints	= vertex_color=red, line_color=green
 	visual_hints	= vertex_size=2, edge_size=1
