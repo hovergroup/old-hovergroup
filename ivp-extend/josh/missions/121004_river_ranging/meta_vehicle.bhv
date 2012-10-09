@@ -4,16 +4,16 @@ initialize   GOSTAY = true
 
 Behavior = BHV_Waypoint
 {
-	name 		= ranging_speed_test
+	name 		= ranging_speed_testa
 	pwt       	= 100
 	condition	= MISSION_MODE = SPEED-TEST
-	endflag		= MISSION_MODE = SPEED-TEST2
+	endflag		= MISSION_MODE = SPEED-TESTa
 	perpetual	= true
 	updates		= SPEED_TEST_UPDATES
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= 40
+	speed 		= 2
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
@@ -25,16 +25,16 @@ Behavior = BHV_Waypoint
 
 Behavior = BHV_Waypoint
 {
-	name 		= ranging_speed_test2
+	name 		= ranging_speed_testb
 	pwt       	= 100
-	condition	= MISSION_MODE = SPEED-TEST2
-	endflag		= MISSION_MODE = SPEED-TEST3
+	condition	= MISSION_MODE = SPEED-TESTa
+	endflag		= MISSION_MODE = SPEED-TESTb
 	perpetual	= true
 	updates		= SPEED_TEST_UPDATES
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= 70
+	speed 		= 3.5
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
@@ -46,16 +46,16 @@ Behavior = BHV_Waypoint
 
 Behavior = BHV_Waypoint
 {
-	name 		= ranging_speed_test3
+	name 		= ranging_speed_testc
 	pwt       	= 100
-	condition	= MISSION_MODE = SPEED-TEST3
+	condition	= MISSION_MODE = SPEED-TESTb
 	endflag		= MISSION_MODE = STATION-KEEP
 	perpetual	= true
 	updates		= SPEED_TEST_UPDATES
 
 	lead 		= 15
 	lead_damper 	= 1
-	speed 		= 100
+	speed 		= 5
 	radius 		= 4.0
 	slip_radius 	= 10.0
 	points          = 20,-30 : 130,-400 : 20,-30
