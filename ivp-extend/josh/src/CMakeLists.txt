@@ -14,7 +14,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
-#ADD_SUBDIRECTORY(simple_acomms_parser)
+ADD_SUBDIRECTORY(simple_acomms_parser)
 #ADD_SUBDIRECTORY(pKalmanFilter)
 
 ##############################################################################
