@@ -103,9 +103,9 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         SHOREIP=$SHOREHOST                              \
         RUDDER_OFFSET=$RUDDER_OFFSET                    \
         ACOMMSID=$ID3                                   \
-        MODEMPORT="/dev/ttyUSB1"                        \
-        OS5000PORT="/dev/ttyUSB2"                       \
-        GPSPORT="/dev/ttyUSB0"
+        MODEMPORT="/dev/ttyUSB0"                        \
+        OS5000PORT="/dev/ttyUSB1"                       \
+        GPSPORT="/dev/ttyACM0"
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
         VNAME=$VNAME3                                   \
