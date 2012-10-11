@@ -93,7 +93,8 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         ACOMMSID=$ID3                                   \
         MODEMPORT="/dev/ttyUSB0"                        \
         OS5000PORT="/dev/ttyUSB1"                       \
-        GPSPORT="/dev/ttyACM0"
+        GPSPORT="/dev/ttyACM0"							\
+		GPSBAUD="9600"
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
         VNAME=$VNAME3                                   \
@@ -112,7 +113,8 @@ if [ "${VEHICLE}" = "icarus" ]; then
         SHOREIP=$SHOREHOST                        \
         ACOMMSID=$ID1                            \
         MODEMPORT="/dev/ttyUSB1"                \
-        GPSPORT="/dev/ttyUSB0"
+        GPSPORT="/dev/ttyUSB0"							\
+		GPSBAUD="57600"
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
