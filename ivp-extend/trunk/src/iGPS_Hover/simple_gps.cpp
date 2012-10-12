@@ -171,7 +171,7 @@ void SIMPLE_GPS::parseGPRMC( string msg ) {
 	// 4221.5066 = 42 degrees, 21.5066 minutes
 	vector<string> subs = tokenizeString( msg, ",");
 
-	cout << "parsing " << msg << endl;
+//	cout << "parsing " << msg << endl;
 
 	// only proceed if we have lock
 	if ( subs[2] != "A" ) {
@@ -271,7 +271,7 @@ void SIMPLE_GPS::parseLine( string msg ) {
 	if ( msg.find("$GPRMC") != -1 ) {
 		int index = msg.find("$GPRMC");
 		parseGPRMC( msg.substr(index, msg.length()-index) );
-		cout << "found gps: " << index << endl;
+//		cout << "found gps: " << index << endl;
 	}
 }
 
