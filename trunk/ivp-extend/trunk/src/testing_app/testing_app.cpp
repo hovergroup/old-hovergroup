@@ -14,12 +14,29 @@ int main () {
 	goby::acomms::protobuf::ModemTransmission m;
 //	m.AddExtension(micromodem::protobuf::frame_with_bad_crc, 1);
 //	m.AddExtension(micromodem::protobuf::frame_with_bad_crc, 2);
+	string message = "1,2,,4";
+	string tokens =",";
 
-	for ( int i=0; i<m.ExtensionSize(micromodem::protobuf::frame_with_bad_crc); i++ ) {
-		cout << m.GetExtension(micromodem::protobuf::frame_with_bad_crc, i) << endl;
+	char * cstr = new char [message.size() + 1];
+	strcpy(cstr, message.c_str());
+	char * ctokens = new char [tokens.size()+1];
+	strcpy(ctokens, tokens.c_str());
+
+	char * pch;
+	vector<string> subs;
+
+	pch = strtok(cstr,ctokens);
+	while (pch != NULL) {
+		subs.push_back(string(pch));
+		pch  = strtok(NULL,ctokens);
 	}
 
-	return 0;
+	delete cstr;
+	delete ctokens;
+
+	for ( int i=0; i<subs.size(); i++ ) {
+		cout << subs[i] << endl;
+	}
 }
 
 ///*
