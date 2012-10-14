@@ -8,7 +8,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-class SIMPLE_GPS : public CMOOSApp
+#include "MOOSGeodesy.h"
+#include "MOOSInstrument.h"
+
+class SIMPLE_GPS : public CMOOSInstrument
 {
 public:
 	SIMPLE_GPS();
@@ -26,11 +29,11 @@ public:
 	void writeData( unsigned char *ptr, int length );
 
 private:
+	CMOOSGeodesy m_Geodesy;
+
 	// basic serial port components
 	boost::asio::io_service io;
 	boost::asio::serial_port port;
-
-	double m_lat, m_lon, m_speed, m_course, m_lat_origin, m_lon_origin;
 
 	boost::thread serial_thread;
 	bool stop_requested;
@@ -54,8 +57,9 @@ private:
 	boost::mutex writeBufferMutex;
 	int bytesToWrite;
 
+	// parsing operations
 	void parseGPRMC( std::string msg );
-	std::vector<std::string> tokenizeString( std::string message, std::string tokens );
+	void parseGPGGA( std::string msg );
 	void parseLine( std::string msg );
 
 	// the background loop responsible for interacting with the serial port
