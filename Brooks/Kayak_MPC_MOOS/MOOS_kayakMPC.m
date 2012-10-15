@@ -22,7 +22,8 @@ off though).
 - 10/9/2012: updated for next round of exps
     REMOVED TRAJECTORY-FOLLOWING PARTS
     Added some more logging
-
+- 10/15/2012: fixed issues with internal state vs output (phys units)
+scaling
 
 %}
 
@@ -53,8 +54,8 @@ while(~mpc_stop)
     loopStart = tic;
     runStep = floor(toc(mpcStart)/dt)+1;
     fprintf('Step: %i, loopIt: %i\n\n',runStep,loopIt-1)
-
-    % estimate is of state right when control packet arrives 
+    
+    % estimate is of state right when control packet arrives
     
     if(loopIt>1)
         % cross-track and heading ERROR relative to desBearing(step)
@@ -64,7 +65,8 @@ while(~mpc_stop)
         % UPDATE SETPOINT (takes effect immediately on reception)
         % estimator knows what setpt applied
         eEst(1) = eEst(1) + u;
-    
+        
+        % update all outputs (physical units)
         switch syss
             case 'crossTrack'
                 eEst(2:(n+1)) = eEstKF(2:5);
@@ -72,9 +74,20 @@ while(~mpc_stop)
                 eEst(n+1) = eEstKF(1);
                 eEst(2:n) = eEstKF(2:5);
         end
+        
+        % convert to internal state scaling
+        eEst(2:n+1) = sys.CdAll\eEst(2:n+1);
+        
+        if(0)
+            fprintf('State estimate (all outputs)\n')
+            fprintf('%s %f\n','ehddot', eEst(2), 'ehdot ', ...
+                eEst(3), 'eh    ', eEst(4), 'ex    ', eEst(5),...
+                'intx   ',eEst(6))
+        end
+        
         hEst = eEst(n-1) + desBearing(loopIt);
         fprintf('actual est heading: %f [deg]\n',hEst)
-                
+        
     end
     
     % next planned control action
@@ -84,7 +97,6 @@ while(~mpc_stop)
         uPrev = 0;
     end
     
-    
     % solve MPC - xEst and previous control are inputs
     [uPlan tMPC X] = solveKayakMPC(sys,eEst,MPCparams,uPrev);
     
@@ -93,7 +105,7 @@ while(~mpc_stop)
     [uPlanBuffered kPlan ifPLoss] = simPacketLossMPC...
         (uPlan,uPlanBuffered,kPlan,probPLoss);
     u = uPlanBuffered(:,kPlan);     % send appropriate control action
-   
+    
     fprintf('Computed plan: \n')
     disp(uPlan)
     %fprintf('Buffered plan: \n')
@@ -104,13 +116,11 @@ while(~mpc_stop)
     if(uBearing<0);uBearing = uBearing+360;end
     if(uBearing>360);uBearing = uBearing - 360;end
     fprintf('\n Next step heading controller setpoint: %f\n\n',uBearing)
-
+    
     fprintf('uBearing: %f   u: %f      e_phi: %f       uPrev: %f\n',...
         uBearing,u,eEst(1),uPrev)
     fprintf('MPC predicted next state (from uPrev):\n')
     X(:,2)
-    
-    
     
     switch TX
         case 'wifi'
@@ -122,7 +132,6 @@ while(~mpc_stop)
             send = sprintf('heading = %0.1f',uBearing);
             iMatlab('MOOS_MAIL_TX','CONST_HEADING_UPDATES',send);
             fprintf('\n\nSend des heading = %f \n\n\n',uBearing);
-            
             
         case 'acomms'
             
@@ -177,8 +186,8 @@ colors = {'r','b','g','m','c','k'}
 %
 ns = 4;
 figure
- for i = 1:length(plotInds)
-    k = plotInds(i); 
+for i = 1:length(plotInds)
+    k = plotInds(i);
     subplot(ns,1,1)
     stairs(uPlanSave{k},colors{i})
     hold on
@@ -198,7 +207,7 @@ figure
     hold on
     title('predicted cross track')
     
- end
+end
 %
 
 
