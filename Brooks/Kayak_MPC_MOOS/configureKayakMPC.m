@@ -21,7 +21,7 @@ added Bin
     - removed some unused settings
     - changed so ePsi not in state-space system
     - (ePsi still in xmin/max)
-- 10/15/2012 - switched Cd in sys to CdAll
+- 10/15/2012 - switched Cd in sys to CdAll, added KF_cross
         
 %}
 
@@ -43,8 +43,8 @@ speed = 2;    % nostromo modem
 % speed = 0.8;  % kassandra modem
 
 % SPEED USED IN THE LINEARIZED KINEMATIC CROSS-TRACK MODEL
-%hspeed = 1.5;
-hspeed = 2;
+%hspeed = 1.5;%KF_cross = 0.0262; % 1 m/s
+hspeed = 2;KF_cross = 0.0349;    % 2 m/s
 %%%
 
 % Time step (sec)

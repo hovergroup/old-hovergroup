@@ -1,4 +1,4 @@
-function [xEst mpc_stop] = parseMPC_XEST(nIn,sys)
+function [xEst mpc_stop] = parseMPC_XEST
 % function to find and parse MPC_XEST in MOOS mail
 
 % BR 8/15/2012
