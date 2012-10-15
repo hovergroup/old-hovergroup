@@ -142,6 +142,7 @@ void SIMPLE_GPS::parseLine(string msg) {
 //	}
 
 	string cmd = MOOSChomp(msg, ",");
+	cout << "command = " << cmd << endl;
 	if (cmd == "$GPRMC")
 		parseGPRMC(msg);
 	else if ( cmd == "$GPGGA" )
