@@ -13,7 +13,7 @@ using namespace std;
 using namespace boost::posix_time;
 
 void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
-	cout << "rmc: " << sNMEAString << endl;
+//	cout << "rmc: " << sNMEAString << endl;
 	bool bGood = true;
 
 	string sTmp;
@@ -71,7 +71,7 @@ void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 }
 
 void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
-	cout << "gga: " << sNMEAString << endl;
+//	cout << "gga: " << sNMEAString << endl;
 	bool bGood = true;
 
 	string sTmp;
@@ -136,13 +136,13 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 
 void SIMPLE_GPS::parseLine(string msg) {
 
-//	if (!DoNMEACheckSum(msg)) {
-//		cout << "checksum failed" << endl;
-//		return;
-//	}
+	if (!DoNMEACheckSum(msg)) {
+		cout << "checksum failed on: " << msg << endl;
+		return;
+	}
 
 	string cmd = MOOSChomp(msg, ",");
-	cout << "command = " << cmd << endl;
+//	cout << "command = " << cmd << endl;
 	if (cmd == "$GPRMC")
 		parseGPRMC(msg);
 	else if ( cmd == "$GPGGA" )
