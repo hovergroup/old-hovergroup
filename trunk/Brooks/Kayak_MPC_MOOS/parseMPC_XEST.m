@@ -110,15 +110,4 @@ if(strcmp(MPC_STOP,'STOP'))
     mpc_stop=1;
 end
 
-xtrack = sys.Cd(1,nIn);
-if(n==4)
-    fprintf('State estimate\n')
-    fprintf('%s %f\n','ehddot', xEst(1), 'ehdot ', ...
-        xEst(2), 'eh    ', xEst(3), 'ex    ', xEst(4)*xtrack)
-elseif(n==5)
-    fprintf('State estimate\n')
-    fprintf('%s %f\n','intx  ',xEst(1),'ehddot', xEst(2), 'ehdot ', ...
-        xEst(3), 'eh    ', xEst(4), 'ex    ', xEst(5)*xtrack)
-end
-
 end

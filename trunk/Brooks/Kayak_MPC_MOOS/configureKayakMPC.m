@@ -21,6 +21,7 @@ added Bin
     - removed some unused settings
     - changed so ePsi not in state-space system
     - (ePsi still in xmin/max)
+- 10/15/2012 - switched Cd in sys to CdAll
         
 %}
 
@@ -38,7 +39,7 @@ probPLoss = .2;
 % used for estimating length to waypoint
 % SHOULD MATCH SPEED GIVEN TO pKalmanFilter
 % (irrelevant when just doing one line)
-speed = 1.5;    % nostromo modem
+speed = 2;    % nostromo modem
 % speed = 0.8;  % kassandra modem
 
 % SPEED USED IN THE LINEARIZED KINEMATIC CROSS-TRACK MODEL
@@ -136,11 +137,17 @@ switch nH
         % this version just uses stable 2nd order for heading
         CLheading = wnH^2/(s^2+2*wnH*zetaH*s+wnH^2)*TFrudder;
         KH = 1; % DC gain of CL heading
+        C_KH = wnH^2;
     case 3
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % 3rd order CL heading model (from sysID on simulated PID)
-        CLheading = (0.6433*s + 0.1135)/(s^3 + 1.681*s^2 + 0.5983*s + 0.1135);
+        %CLheading = (0.6433*s + 0.1135)/(s^3 + 1.681*s^2 + 0.5983*s + 0.1135);
+        % 3rd order CL heading model (from sysID on 3 step responses, eric)
+        A = 2.4;B=3.5;C=4.3;D=2.4;
+        CLheading = A/(s^3+B*s^2+C*s+D);
+        
         KH = 1;
+        C_KH = A;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
@@ -154,8 +161,8 @@ switch syss
         [Ac3,Bc3,~,Dc] = tf2ss(num{1},den{1});
         
         Cc = zeros(2,n);
-        Cc(1,n-1) = KH;
-        Cc(2,n) = KH*Kcross;
+        Cc(1,n-1) = C_KH;
+        Cc(2,n) = C_KH*Kcross;
         
         Ac = zeros(n);
         Ac(1:n,1:n) = Ac3;
@@ -170,21 +177,21 @@ switch syss
         [Ac3,Bc3,~,Dc] = tf2ss(num{1},den{1});
         
         Cc = zeros(3,n);
-        Cc(1,n-2) = KH;
-        Cc(2,n-1) = KH*Kcross;
-        Cc(3,n) = KH*Kcross;
+        Cc(1,n-2) = C_KH;
+        Cc(2,n-1) = C_KH*Kcross;
+        Cc(3,n) = C_KH*Kcross;
         
         % add commanded heading state
         Ac = zeros(n);
         Ac(1:n-1,1:n-1) = Ac3;      % closed-loop heading
         Ac(n-1,n-2) = -1;           % sign convention for xtrack
-        Ac(n,n) = 1;                % integrator of xtrack error
+        Ac(n,n-1) = 1;                % integrator of xtrack error
         
         Bc = [1 zeros(1,n-1)]';
         
 end
 % Bin is input matrix for desired states
-Bin = eye(n);
+% Bin = eye(n);
 
 sysCss=ss(Ac,Bc,Cc,Dc);
 % discrete-time:
@@ -194,12 +201,12 @@ sysd = c2d(sysCss,dt);
 % Cd is for just CROSS-TRACK ERROR MEASUREMENT
 switch syss
     case 'crossTrack_integrator'
-        Cd = [zeros(1,n-2) KH*Kcross 0];
-        intSat = intSat/(KH*Kcross);
+        Cd = [zeros(1,n-2) C_KH*Kcross 0];
+        intSat = intSat/(C_KH*Kcross);
         CdAll = [zeros(nH-1,n);CdOut];
         CdAll(1:nH-1,1:nH-1) = diag(ones(1,nH-1));
     case 'crossTrack'
-        Cd = [zeros(1,n-1) KH*Kcross];
+        Cd = [zeros(1,n-1) C_KH*Kcross];
         CdAll = [zeros(nH-1,n);CdOut];
         CdAll(1:nH-1,1:nH-1) = diag(ones(1,nH-1));
 end
@@ -210,7 +217,7 @@ Pmpc(2:end,2:end) = Pmpc(2:end,2:end).*CdAll.^2;
 Qhalf = sqrtm(Qmpc);
 
 % setup structures to pass to KF, MPC
-sys=struct('n',n,'m',m,'Ad',Ad,'Bd',Bd,'Cd',Cd,...
+sys=struct('n',n,'m',m,'Ad',Ad,'Bd',Bd,'CdAll',CdAll,...
     'dt',dt);
 MPCparams=struct('Qhalf',Qhalf,'Pmpc',Pmpc,'mu',mu,'T',T,...
     'ifQuiet',ifQuiet,'speed',speed,...

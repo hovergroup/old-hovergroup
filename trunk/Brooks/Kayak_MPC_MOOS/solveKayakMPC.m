@@ -65,18 +65,19 @@ else
     cvx_begin
 end
 
-% delay on U by 1 step...
+% MPC states include ePsi: 
+nn = n+1;
 
-variables X(n,T+2) U(m,T)
+variables X(nn,T+2) U(m,T)
 
 % ePsi:
-X(1,1) = x(1) + uPrev;    % ePsi(k)
-X(1,2:T+1) = X(1,1:T) + U(1:T); % ePsi(k+1:k+T+1)
+X(1,1) == x(1) + uPrev;    % ePsi(k)
+X(1,2:T+1) == X(1,1:T) + U(1:T); % ePsi(k+1:k+T+1)
 
 % state estimate:
-X(2:n,1) = x(2:n);
+X(2:nn,1) == x(2:nn);
 % propagation:
-X(2:n,2:T+2) = A*X(2:n,1:T+1) + B*X(1,1:T+1);
+X(2:nn,2:T+2) == A*X(2:nn,1:T+1) + B*X(1,1:T+1);
 
 % max is defined in terms of ERROR
 % start @ 3 b/c takes 1 step for control to take effect
@@ -97,27 +98,28 @@ uPlan = U;
 
 
 %
-if(0)
+if(1)
     xplot = X;
-    xplot(2,:) = xplot(2,:)*sys.Cd(n);
-    xplot(5,:) = xplot(5,:)*sys.Cd(n);
+    xplot(n-1,:) = xplot(n-1,:)*sys.CdAll(n-2,n-2);    % heading
+    xplot(n,:) = xplot(n,:)*sys.CdAll(n-1,n-1);            % xtrack
+    xplot(nn,:) = xplot(nn,:)*sys.CdAll(nn-1,nn-1);        % int xtrack
     
     figure
-    stairs([1 2],[uPrev uPrev],'k*')
-    hold on
     stairs(2:T+1,uPlan,'b-*')
-    stairs(1:T+2,xplot(1,1:T+2),'r')
+    hold on
+    stairs(1:T+2,xplot(1,:),'r')
     stairs(0:T+1,xplot(n-1,:),'g--')
-    legend('previous control (applies during step 1)',...
-        'uPlan','local heading setpoint','local heading predicted')
-    
-    
+    stairs([1 2],[uPrev uPrev],'k-o')
+    plot(1,xplot(n-1,1),'gd','MarkerFaceColor','g','MarkerSize',12)
+    stairs([0 1],[x(1) x(1)],'r')
+    legend('uPlan (\delta \psi)','heading setpoint (e_{\psi})',...
+        'predicted heading (e_{\phi})','uPrev','initial heading')
     
     figure
-    stateTitles = {'heading setpoint','int x','ehdot','eh','ex'};
+    stateTitles = {'heading setpoint','ehddot','ehdot','eh','ex','intx'};
     %stairs(1:T+3,xplot')
-    for i = 1:n
-        subplot(n,1,i)
+    for i = 1:nn
+        subplot(nn,1,i)
         stairs(xplot(i,:))
         title(stateTitles{i})
     end
