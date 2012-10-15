@@ -361,7 +361,7 @@ void KAYAK_INTERFACE::parseGPRMC( string msg ) {
 		double lonError = m_lon - m_lon_origin;
 		double rlat = m_lat * M_PI/180;
 		double latErrorRad = latError * M_PI/180;
-		double lonErrorRad = lonError * M_PI/180;
+		double lonErrorRad = lonError * M_PI/180 * cos(rlat);
 
 		double a = 6378137; //equatorial radius in m
 		double b = 6356752.3; //polar radius in m
