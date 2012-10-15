@@ -589,6 +589,10 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	// impulse response
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "IRE,1");
 
+	// gain control
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "AGC,0");
+	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "AGN,250");
+
 	// ranging
 	if ( enable_one_way_ranging )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
@@ -597,10 +601,13 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
 	// number of CTOs before hard reboot
 	cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,0");
+
+	// psk vs. fsk minipackets
 	if ( use_psk_for_minipackets )
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
 	else
 		cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,0");
+
 
 	// connect receive and raw signals to our functions
 	goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );

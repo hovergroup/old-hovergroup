@@ -13,5 +13,9 @@ TARGET_LINK_LIBRARIES(testing_app
 	geometry
 	mbutil
 	protobuf
+	MOOS
+	MOOSGen
+    MOOSUtility
+	mbutil
 	goby_common
 	goby_acomms)
