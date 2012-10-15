@@ -110,7 +110,7 @@ if(1)
     stairs(1:T+2,xplot(1,:),'r')
     stairs(0:T+1,xplot(n-1,:),'g--')
     stairs([1 2],[uPrev uPrev],'k-o')
-    plot(1,xplot(n-1,1),'gd','MarkerFaceColor','g','MarkerSize',12)
+    plot(1,xplot(n-1,1),'gd','MarkerFaceColor','g','MarkerSize',10)
     stairs([0 1],[x(1) x(1)],'r')
     legend('uPlan (\delta \psi)','heading setpoint (e_{\psi})',...
         'predicted heading (e_{\phi})','uPrev','initial heading')
