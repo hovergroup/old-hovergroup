@@ -14,7 +14,6 @@ using namespace boost::posix_time;
 
 void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 	cout << "rmc: " << sNMEAString << endl;
-	string sWhat = MOOSChomp(sNMEAString, ",");
 	bool bGood = true;
 
 	string sTmp;
@@ -73,8 +72,6 @@ void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 
 void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 	cout << "gga: " << sNMEAString << endl;
-
-	string sWhat = MOOSChomp(sNMEAString, ",");
 	bool bGood = true;
 
 	string sTmp;
@@ -84,7 +81,6 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 
 	// field 2 - latitude
 	sTmp = MOOSChomp(sNMEAString, ",");
-	cout << 2 << sTmp << endl;
 	if ( sTmp.size() == 0 ) return;
 	double dfLat = atof( sTmp.c_str() );
 
@@ -102,7 +98,6 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 	if ( sTmp == "W" ) dfLong *= -1.0;
 
 	// perform lat/lon conversion
-	cout << "dflat=" << dfLat << ", dfLong=" << dfLong << endl;
 	double dfLatDecDeg = m_Geodesy.DMS2DecDeg(dfLat);
 	double dfLongDecDeg = m_Geodesy.DMS2DecDeg(dfLong);
 	m_Comms.Notify("GPS_LATITUDE", dfLatDecDeg);
