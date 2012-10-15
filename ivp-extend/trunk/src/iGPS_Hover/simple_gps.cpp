@@ -197,7 +197,7 @@ void SIMPLE_GPS::serialLoop() {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
 //			cout << string_buffer << endl;
 			int start_index, stop_index;
-			while ( (stop_index=string_buffer.find("\n\r",1))!=string::npos &&
+			while ( (stop_index=string_buffer.find("\r\n",1))!=string::npos &&
 					 (start_index=string_buffer.find("$",0))!=string::npos ) {
 				parseLine( string_buffer.substr(start_index, stop_index) );
 				string_buffer = string_buffer.substr( stop_index, string_buffer.size()-stop_index );
