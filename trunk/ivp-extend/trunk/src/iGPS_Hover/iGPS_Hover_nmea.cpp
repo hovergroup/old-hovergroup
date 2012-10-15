@@ -101,6 +101,7 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 	if ( sTmp == "W" ) dfLong *= -1.0;
 
 	// perform lat/lon conversion
+	cout << "dflat=" << dfLat << ", dfLong=" << dfLong << endl;
 	double dfLatDecDeg = m_Geodesy.DMS2DecDeg(dfLat);
 	double dfLongDecDeg = m_Geodesy.DMS2DecDeg(dfLong);
 	m_Comms.Notify("GPS_LATITUDE", dfLatDecDeg);
@@ -139,10 +140,10 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 
 void SIMPLE_GPS::parseLine(string msg) {
 
-	if (!DoNMEACheckSum(msg)) {
-		cout << "checksum failed" << endl;
-		return;
-	}
+//	if (!DoNMEACheckSum(msg)) {
+//		cout << "checksum failed" << endl;
+//		return;
+//	}
 
 	string cmd = MOOSChomp(msg, ",");
 	cout << "command = " << cmd << endl;
