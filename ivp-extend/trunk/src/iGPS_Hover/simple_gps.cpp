@@ -196,13 +196,14 @@ void SIMPLE_GPS::serialLoop() {
 		if (data_available) {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
 //			cout << string_buffer << endl;
-			while ( string_buffer.find("\n",1)!=string::npos ) {
-				int index = string_buffer.find("\n",1);
-				parseLine( string_buffer.substr(0, index) );
+			int start_index, stop_index;
+			while ( (stop_index=string_buffer.find("\n",1))!=string::npos &&
+					 (start_index=string_buffer.find("$",0))!=string::npos ) {
+				parseLine( string_buffer.substr(start_index, stop_index) );
 //				cout << "index: " << index << endl;
 //				cout << string_buffer.substr(0, index) << endl;
 //				m_Comms.Notify("GPS_SENTENCE", string_buffer.substr(0, index) );
-				string_buffer = string_buffer.substr( index, string_buffer.size()-index );
+				string_buffer = string_buffer.substr( stop_index, string_buffer.size()-stop_index );
 			}
 			// print out read data in hexidecimal format
 			/*for (int i=0; i<asyncBytesRead; i++) {
