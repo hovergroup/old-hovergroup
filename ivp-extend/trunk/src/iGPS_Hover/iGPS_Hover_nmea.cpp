@@ -84,6 +84,7 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 
 	// field 2 - latitude
 	sTmp = MOOSChomp(sNMEAString, ",");
+	cout << 2 << sTmp << endl;
 	if ( sTmp.size() == 0 ) return;
 	double dfLat = atof( sTmp.c_str() );
 
