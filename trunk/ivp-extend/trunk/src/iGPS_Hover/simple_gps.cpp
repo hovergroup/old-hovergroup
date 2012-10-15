@@ -197,13 +197,11 @@ void SIMPLE_GPS::serialLoop() {
 			string_buffer += string(readBuffer.begin(), readBuffer.begin()+=asyncBytesRead);
 //			cout << string_buffer << endl;
 			int start_index, stop_index;
-			int old_stop = -1;
-			while ( (stop_index=string_buffer.find("\n\r",old_stop+2))!=string::npos &&
-					 (start_index=string_buffer.find("$",old_stop+1))!=string::npos ) {
+			while ( (stop_index=string_buffer.find("\n\r",1))!=string::npos &&
+					 (start_index=string_buffer.find("$",0))!=string::npos ) {
 				parseLine( string_buffer.substr(start_index, stop_index) );
-				old_stop = stop_index;
+				string_buffer = string_buffer.substr( stop_index, string_buffer.size()-stop_index );
 			}
-			string_buffer = string_buffer.substr( old_stop, string_buffer.size()-old_stop );
 		}
 	}
 }
