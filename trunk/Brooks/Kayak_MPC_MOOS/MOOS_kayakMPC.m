@@ -23,7 +23,7 @@ off though).
     REMOVED TRAJECTORY-FOLLOWING PARTS
     Added some more logging
 - 10/15/2012: fixed issues with internal state vs output (phys units)
-scaling
+scaling (added KF_cross)
 
 %}
 
@@ -59,7 +59,7 @@ while(~mpc_stop)
     
     if(loopIt>1)
         % cross-track and heading ERROR relative to desBearing(step)
-        [eEstKF mpc_stop] = parseMPC_XEST(n,sys);
+        [eEstKF mpc_stop] = parseMPC_XEST();
         % eEstKF: intx,ehddot,ehdot,eh,ex
         
         % UPDATE SETPOINT (takes effect immediately on reception)
@@ -70,13 +70,12 @@ while(~mpc_stop)
         switch syss
             case 'crossTrack'
                 eEst(2:(n+1)) = eEstKF(2:5);
+                eEst(n+1) = eEst(n+1)*KF_cross; % convert to meters
             case 'crossTrack_integrator'
-                eEst(n+1) = eEstKF(1);
+                eEst(n+1) = KF_cross*eEstKF(1);
                 eEst(2:n) = eEstKF(2:5);
+                eEst(n) = KF_cross*eEst(n);
         end
-        
-        % convert to internal state scaling
-        eEst(2:n+1) = sys.CdAll\eEst(2:n+1);
         
         if(0)
             fprintf('State estimate (all outputs)\n')
@@ -84,9 +83,12 @@ while(~mpc_stop)
                 eEst(3), 'eh    ', eEst(4), 'ex    ', eEst(5),...
                 'intx   ',eEst(6))
         end
-        
         hEst = eEst(n-1) + desBearing(loopIt);
         fprintf('actual est heading: %f [deg]\n',hEst)
+        
+        % convert to internal state scaling
+        eEst(2:n+1) = sys.CdAll\eEst(2:n+1);
+        
         
     end
     
@@ -198,12 +200,12 @@ for i = 1:length(plotInds)
     title('predicted setpoint')
     
     subplot(ns,1,3)
-    stairs(XSave{k}(3,:),colors{i})
+    stairs(XSave{k}(4,:),colors{i})
     hold on
     title('predicted heading')
     
     subplot(ns,1,4)
-    stairs(XSave{k}(4,:),colors{i})
+    stairs(XSave{k}(5,:),colors{i})
     hold on
     title('predicted cross track')
     
