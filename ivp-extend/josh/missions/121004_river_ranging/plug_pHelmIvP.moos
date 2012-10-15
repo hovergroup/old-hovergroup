@@ -11,7 +11,7 @@ ProcessConfig = pHelmIvP
   Behaviors    = targ_$(VNAME).bhv  
   Verbose      = true
   Domain       = course:0:359:360
-  Domain       = speed:0:5:26
+  Domain       = speed:0:5:51
   
 //  IVP_BEHAVIOR_DIR = /home/student/moos-ivp-jleight/ivp-extend/trunk/lib
 }
