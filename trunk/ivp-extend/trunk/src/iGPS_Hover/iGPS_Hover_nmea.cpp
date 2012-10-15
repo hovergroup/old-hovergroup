@@ -136,10 +136,10 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 
 void SIMPLE_GPS::parseLine(string msg) {
 
-	if (!DoNMEACheckSum(msg)) {
-		cout << "checksum failed" << endl;
-		return;
-	}
+//	if (!DoNMEACheckSum(msg)) {
+//		cout << "checksum failed" << endl;
+//		return;
+//	}
 
 	string cmd = MOOSChomp(msg, ",");
 	if (cmd == "$GPRMC")
