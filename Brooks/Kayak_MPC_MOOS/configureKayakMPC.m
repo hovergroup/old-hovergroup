@@ -17,7 +17,7 @@ added Bin
 - 8/29/2012 - modified gen tracklines to work all on headings (not angles)
 - 8/30/2012 - removed crossTrack with rudder input from this version
 - 8/31/2012 - rearranged
-- 10/9/2012 - modified/simplified for 2nd round of exps 
+- 10/9/2012 - modified/simplified for 2nd round of exps
     - removed some unused settings
     - changed so ePsi not in state-space system
     - (ePsi still in xmin/max)
@@ -34,14 +34,14 @@ probPLoss = .2;
 
 %% PARAMETERS
 
-% EFFECTIVELY THE SPEED ALONG TRACKLINE 
-% used for estimating length to waypoint 
+% EFFECTIVELY THE SPEED ALONG TRACKLINE
+% used for estimating length to waypoint
 % SHOULD MATCH SPEED GIVEN TO pKalmanFilter
 % (irrelevant when just doing one line)
 speed = 1.5;    % nostromo modem
 % speed = 0.8;  % kassandra modem
 
-% SPEED USED IN THE LINEARIZED KINEMATIC CROSS-TRACK MODEL 
+% SPEED USED IN THE LINEARIZED KINEMATIC CROSS-TRACK MODEL
 %hspeed = 1.5;
 hspeed = 2;
 %%%
@@ -63,9 +63,9 @@ startHeading = 190;
 
 
 % CL heading model order:
-nH = 2;
+%nH = 2;
 %nH = 5;
-%nH = 3;
+nH = 3;
 
 %syss = 'crossTrack';
 syss = 'crossTrack_integrator';
@@ -78,7 +78,6 @@ end
 m = 1;  % CONTROL INPUT
 q = 1;  % MEASUREMENTS
 
-
 %% setup MPC params (THESE ARE IN PHYSICAL UNITS)
 
 % MPC constraints for ePsi, but ePsi handled separately from A
@@ -89,8 +88,8 @@ exmax = 500;    % in meters...cost fcn should handle this
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 epsimax = 30;   % MAIN CONSTRAINT: commanded heading within linear regime
-% u is the change in heading setpoint.  
-% acts as a slew rate 
+% u is the change in heading setpoint.
+% acts as a slew rate
 umax = 30*ones(m,1); umin = -umax;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -103,17 +102,17 @@ Qmpc = zeros(n+1);  % mpc has ePsi as a state
 switch syss
     case 'crossTrack'
         xmax = [epsimax 1e5*ones(1,nH-1) hmax exmax]'.*ones(n+1,1);
-        Qmpc(n+1,n+1) = Qcross;  
+        Qmpc(n+1,n+1) = Qcross;
         Qmpc(n,n) = Qheading;
     case 'crossTrack_integrator'
         % integrator saturation: (scaled by Cd later)
-        intSat = 100*dt;   % m*sec  
+        intSat = 100*dt;   % m*sec
         % mpc max: (also scaled by Cd later)
         intmax = intSat*1.1;
         xmax = [epsimax 1e5*ones(1,nH-1) hmax exmax intmax]'.*ones(n+1,1);
         Qmpc(n,n) = Qcross;
         Qmpc(n-1,n-1) = Qheading;
-        Qmpc(n+1,n+1) = Qint; 
+        Qmpc(n+1,n+1) = Qint;
 end
 xmin=-xmax;
 Pmpc = Pfac*Qmpc;
@@ -123,22 +122,27 @@ Pmpc = Pfac*Qmpc;
 s = tf('s');
 Kcross=hspeed*pi/180;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 2nd order CL heading model
-wnH = 1;
-%wnH = 1/3;
-%wnH = 4;
-zetaH = .6;
-%tauRudder = 0.25;
-TFrudder=1;
-% this version just uses stable 2nd order for heading
-CLheading = wnH^2/(s^2+2*wnH*zetaH*s+wnH^2)*TFrudder;
-KH = 1; % DC gain of CL heading
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 3rd order CL heading model
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+switch nH
+    case 2
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % 2nd order CL heading model
+        wnH = 1;
+        %wnH = 1/3;
+        %wnH = 4;
+        zetaH = .6;
+        %tauRudder = 0.25;
+        TFrudder=1;
+        % this version just uses stable 2nd order for heading
+        CLheading = wnH^2/(s^2+2*wnH*zetaH*s+wnH^2)*TFrudder;
+        KH = 1; % DC gain of CL heading
+    case 3
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % 3rd order CL heading model (from sysID on simulated PID)
+        CLheading = (0.6433*s + 0.1135)/(s^3 + 1.681*s^2 + 0.5983*s + 0.1135);
+        KH = 1;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end
 
 crossTrack = CLheading*Kcross/s;
 
@@ -158,13 +162,13 @@ switch syss
         Ac(n,n-1) = -1;     % sign convention for xtrack
         
         Bc = [1 zeros(1,n-1)]';
-   
+        
     case 'crossTrack_integrator'
         
         sysC = crossTrack;
         [num den] = tfdata(sysC);
         [Ac3,Bc3,~,Dc] = tf2ss(num{1},den{1});
-
+        
         Cc = zeros(3,n);
         Cc(1,n-2) = KH;
         Cc(2,n-1) = KH*Kcross;
@@ -184,7 +188,7 @@ Bin = eye(n);
 
 sysCss=ss(Ac,Bc,Cc,Dc);
 % discrete-time:
-sysd = c2d(sysCss,dt);     
+sysd = c2d(sysCss,dt);
 [Ad Bd CdOut Dd] = ssdata(sysd);    % this uses full state output
 % CdAll has heading, cross-track, (intx) outputs
 % Cd is for just CROSS-TRACK ERROR MEASUREMENT
@@ -192,11 +196,11 @@ switch syss
     case 'crossTrack_integrator'
         Cd = [zeros(1,n-2) KH*Kcross 0];
         intSat = intSat/(KH*Kcross);
-        CdAll = [zeros(nH-1,n);CdOut]; 
+        CdAll = [zeros(nH-1,n);CdOut];
         CdAll(1:nH-1,1:nH-1) = diag(ones(1,nH-1));
     case 'crossTrack'
         Cd = [zeros(1,n-1) KH*Kcross];
-        CdAll = [zeros(nH-1,n);CdOut]; 
+        CdAll = [zeros(nH-1,n);CdOut];
         CdAll(1:nH-1,1:nH-1) = diag(ones(1,nH-1));
 end
 
