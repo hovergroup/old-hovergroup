@@ -13,7 +13,7 @@ using namespace std;
 
 int main () {
 
-	string sNMEA = "$GPRMC,183923.50,A,4221.51338,N,07105.25272,W,0.010,,151012,,,D*6D";
+	string sNMEA = "$GPRMC,183923.50,A,4221.51338,N,07105.25272,W,0.010,,151012,,,D*6D\r\n";
 
     unsigned char xCheckSum=0;
 
