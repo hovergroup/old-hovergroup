@@ -199,7 +199,7 @@ void SIMPLE_GPS::serialLoop() {
 			int start_index, stop_index;
 			while ( (stop_index=string_buffer.find("\r\n",2))!=string::npos &&
 					 (start_index=string_buffer.find("$",0))!=string::npos ) {
-				parseLine( string_buffer.substr(start_index, stop_index-start_index-1) );
+				parseLine( string_buffer.substr(start_index, stop_index-start_index) );
 				string_buffer = string_buffer.substr( stop_index, string_buffer.size()-stop_index );
 			}
 		}
