@@ -1,0 +1,18 @@
+//------------------------------------------------------
+// pTulip26bit Configuration Block  (Created from plugin)
+
+ProcessConfig = pTulip26bit_leader
+{
+  AppTick   = 10
+  CommsTic  = 10
+  
+  receive_period = 10
+  receive_offset = 0
+  
+  transmit_period = 10
+  transmit_offset = 5
+  
+  receive_extension = .5
+  
+  vehicle_mode = follower
+}
