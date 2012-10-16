@@ -44,6 +44,7 @@ bool TargetRangeSensorSim::OnConnectToServer()
    // possibly look at the mission file?
    // m_MissionReader.GetConfigurationParam("Name", <string>);
    // m_Comms.Register("VARNAME", is_float(int));
+	m_Comms.Register("TARGET_RANGE_REQUEST", 0);
 	
    return(true);
 }

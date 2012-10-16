@@ -5,8 +5,6 @@
  *      Author: josh
  */
 
-#include "MOOSLib.h"
-
 #ifndef RANGESENSORTYPES_H_
 #define RANGESENSORTYPES_H_
 
