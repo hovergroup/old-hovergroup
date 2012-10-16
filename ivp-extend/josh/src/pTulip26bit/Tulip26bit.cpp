@@ -13,6 +13,7 @@
 // Constructor
 
 Tulip26bit::Tulip26bit() {
+	m_WaitingForData = false;
 }
 
 //---------------------------------------------------------
@@ -29,6 +30,38 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 	for (p = NewMail.begin(); p != NewMail.end(); p++) {
 		CMOOSMsg &msg = *p;
+		std::string key = msg.GetKey();
+
+		if ( key == "ACOMMS_DRIVER_STATUS") {
+			std::string status = msg.GetString();
+			if ( m_AcommsStatus != "receiving" && status == "receiving" )
+				m_AcommsTimer.signalStartOfModemReceiving();
+			m_AcommsStatus = status;
+
+		} else if ( key == "ACOMMS_RECEIVED_DATA" ) {
+			m_ReceivedData = msg.GetString();
+			m_ReceivedDataTime = msg.GetTime();
+			if ( m_WaitingForData && abs(m_BadFramesTime-m_ReceivedDataTime) < 0.25 ) {
+				m_AcommsTimer.signalGoodReception( m_ReceivedData );
+				m_WaitingForData = false;
+			}
+
+		} else if ( key == "ACOMMS_BAD_FRAMES" ) {
+			std::string frame_status = msg.GetString();
+			m_BadFramesTime = msg.GetTime();
+			if ( frame_status == "" ) {
+				if ( abs( m_BadFramesTime - m_ReceivedDataTime ) < 0.25 )
+					m_AcommsTimer.signalGoodReception(m_ReceivedData);
+				else
+					m_WaitingForData = true;
+			} else {
+				m_AcommsTimer.signalBadReception();
+			}
+
+		} else if ( key == "GPS_TIME_SECONDS" ) {
+			m_AcommsTimer.processGpsTimeSeconds( msg.GetDouble() );
+
+		}
 	}
 
 	return (true);
@@ -80,11 +113,20 @@ bool Tulip26bit::OnConnectToServer() {
 	goby::acomms::connect( &m_AcommsTimer.signal_updates,
 			boost::bind( &Tulip26bit::handleDebug, this, _1) );
 
+	m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
+	m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
+	m_Comms.Register("ACOMMS_BAD_FRAMES", 0);
+	m_Comms.Register("GPS_TIME_SECONDS", 0);
+
 	return (true);
 }
 
 void Tulip26bit::handleDebug( const std::string msg ) {
 	m_Comms.Notify("TULIP_DEBUG", msg);
+}
+
+void Tulip26bit::handleUpdate( const std::string msg ) {
+	m_Comms.Notify("TULIP_UPDATES", msg);
 }
 
 //---------------------------------------------------------

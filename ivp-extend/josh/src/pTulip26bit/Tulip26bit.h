@@ -34,6 +34,11 @@ protected:
 	void onGoodReceive_leader( const std::string data );
 	void onBadReceive_follower();
 	void onBadReceive_leader();
+
+	std::string m_AcommsStatus;
+	std::string m_ReceivedData;
+	bool m_WaitingForData;
+	double m_ReceivedDataTime, m_BadFramesTime;
 };
 
 #endif 
