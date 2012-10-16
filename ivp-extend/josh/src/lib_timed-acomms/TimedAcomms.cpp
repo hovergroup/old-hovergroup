@@ -215,3 +215,17 @@ int TimedAcomms::findPreviousSlot( double current_time, double period, double of
 double TimedAcomms::slot2Time( int slot, double period, double offset ) {
 	return slot*period + offset;
 }
+
+void TimedAcomms::setReceiveTiming( double period, double offset ) {
+	m_ReceivePeriod = period;
+	m_ReceiveOffset = offset;
+}
+
+void TimedAcomms::setTransmitTiming( double period, double offset ) {
+	m_TransmitPeriod = period;
+	m_TransmitOffset = offset;
+}
+
+void TimedAcomms::setReceivingExtension( double extension ) {
+	m_AllowedReceivingExtension = extension;
+}

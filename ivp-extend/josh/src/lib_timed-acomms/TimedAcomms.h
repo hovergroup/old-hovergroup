@@ -28,8 +28,12 @@ public:
 	boost::signal<void ()> signal_no_receipt;
 	boost::signal<void (const std::string data)> signal_receipt;
 	boost::signal<void ()> signal_transmit;
-
 	boost::signal<void (const std::string msg)> signal_debug, signal_updates;
+
+	// configuration
+	void setReceiveTiming( double period, double offset );
+	void setTransmitTiming( double period, double offset );
+	void setReceivingExtension( double extension );
 
 
 private:
