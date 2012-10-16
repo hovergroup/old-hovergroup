@@ -23,7 +23,15 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = iHoverKayak		   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
+  
+  Run = pTulip26bit			@ NewConsole = false
 }
+
+#ifdef ROLE leader
+	#include plug_pTulip26bit_leader.moos
+#else
+	#include plug_pTulip26bit_follower.moos
+#endif
 
 ProcessConfig = uXMS
 {
