@@ -138,6 +138,10 @@ void SIMPLE_GPS::parseLine(string msg) {
 
 	if (!DoNMEACheckSum(msg)) {
 		cout << "checksum failed on: " << msg << endl;
+		for ( int i=0; i<msg.size(); i++ ) {
+			cout << hex << (int) msg[i] << " ";
+		}
+		cout << endl;
 		return;
 	}
 
