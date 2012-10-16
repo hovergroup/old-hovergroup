@@ -26,3 +26,6 @@ protected:
 };
 
 #endif 
+
+
+// VIEW_SEGLIST="label,blah:msg,showthis:x,y:x,y"
