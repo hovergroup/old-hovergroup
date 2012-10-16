@@ -7,6 +7,8 @@
 
 #include <iterator>
 #include "Tulip26bit.h"
+#include "goby/acomms/connect.h"
+
 //---------------------------------------------------------
 // Constructor
 
@@ -36,10 +38,6 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool Tulip26bit::OnConnectToServer() {
-	// register for variables here
-	// possibly look at the mission file?
-	// m_MissionReader.GetConfigurationParam("Name", <string>);
-	// m_Comms.Register("VARNAME", is_float(int));
 	double receive_period, receive_offset;
 	m_MissionReader.GetConfigurationParam("receive_period", receive_period);
 	m_MissionReader.GetConfigurationParam("receive_offset", receive_offset);
@@ -54,14 +52,32 @@ bool Tulip26bit::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("receive_extension", receive_extension);
 	m_AcommsTimer.setReceivingExtension( receive_extension );
 
+	std::string vehicle_mode;
+	m_MissionReader.GetConfigurationParam("vehicle_mode", vehicle_mode);
+
+	if ( vehicle_mode == "leader" ) {
+
+	} else if ( vehicle_mode == "follower" ) {
+
+	} else {
+		std::cout << "Invalid vehicle mode - exiting." << std::endl;
+		exit(0);
+	}
+
+	goby::acomms::connect( &m_AcommsTimer.signal_debug, boost::bind( &Tulip26bit::handleDebug, this, _1) );
+	goby::acomms::connect( &m_AcommsTimer.signal_updates, boost::bind( &Tulip26bit::handleDebug, this, _1) );
+
 	return (true);
+}
+
+void Tulip26bit::handleDebug( const std::string msg ) {
+	m_Comms.Notify("TULIP_DEBUG", msg);
 }
 
 //---------------------------------------------------------
 // Procedure: Iterate()
 
 bool Tulip26bit::Iterate() {
-	// happens AppTick times per second
 	m_AcommsTimer.doWork();
 
 	return (true);
