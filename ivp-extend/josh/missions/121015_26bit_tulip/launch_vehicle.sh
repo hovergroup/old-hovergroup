@@ -11,6 +11,7 @@ SHOREHOST="192.168.1.100"
 VEHICLE=""
 CRUISESPEED=2
 RUDDER_OFFSET=2
+ROLE=""
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -38,6 +39,10 @@ for ARGI; do
     VEHICLE="icarus"
     UNDEFINED_ARG=""
     fi
+    if [ "${ARGI:0:6}" = "--role" ] ; then
+        ROLE="${ARGI#--role=*}"
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
     BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -46,6 +51,16 @@ done
 #-------------------------------------------------------
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
+
+if [ "${ROLE}" = "" ] ; then
+	printf "Must specify a role. \n"
+	exit 0
+fi
+
+if [ "${ROLE}" != "leader" -a "${ROLE}" != "follower" ] ; then
+	printf "Role must be leader or follower.\n"
+	exit 0
+fi 
 
 if [ "${VEHICLE}" = "" ] ; then
     printf "Must specify a vehicle name. \n"
@@ -63,6 +78,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --nostromo             nostromo vehicle only                 \n"
     printf "  --kassandra            kassandra vehicle only                \n"
     printf "  --icarus               icarus vehicle only                   \n"
+    printf "  --ROLE=[follower/leader]\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -95,6 +111,7 @@ ID3=3
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
     nsplug meta_vehicle_fld.moos targ_nostromo.moos -f  \
+    	ROLE=$ROLE										\
         VHOST=$VHOST3                                   \
         VNAME=$VNAME3                                   \
         VPORT=$VPORT3                                   \
@@ -117,6 +134,7 @@ fi
 # Conditionally Prepare kassandra files
 if [ "${VEHICLE}" = "kassandra" ]; then
     nsplug meta_kassandra.moos targ_kassandra.moos -f   \
+    	ROLE=$ROLE										\
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
         VPORT=$VPORT2                                   \
@@ -136,6 +154,7 @@ fi
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
     nsplug meta_icarus.moos targ_icarus.moos -f    \
+    	ROLE=$ROLE										\
         VHOST=$VHOST1                                   \
         VNAME=$VNAME1                            \
         VPORT=$VPORT1                            \

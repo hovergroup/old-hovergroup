@@ -3,6 +3,8 @@
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
+LEADER=""
+FOLLOWER=""
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -18,11 +20,24 @@ for ARGI; do
 	JUST_BUILD="yes"
 	UNDEFINED_ARG=""
     fi
+    if [ "${ARGI:0:8}" = "--leader" ] ; then
+        LEADER="${ARGI#--leader=*}"
+        UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI:0:10}" = "--follower" ] ; then
+        FOLLOWER="${ARGI#--follower=*}"
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
 	BAD_ARGS=$UNDEFINED_ARG
     fi
 done
 
+if [ "${LEADER} = "" -o "${FOLLOWER} = "" ] ; then
+	printf "Must specify leader and follower.\n"
+	exit 0
+fi
+	
 if [ "${BAD_ARGS}" != "" ] ; then
     printf "Bad Argument: %s \n" $BAD_ARGS
     exit 0
@@ -46,6 +61,7 @@ SLPORT="9001"
 WARP=1
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
+	LEADER = $LEADER   FOLLOWER=$FOLLOWER				\
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
     LOITER_PT1=$LOITER_PT1                              \

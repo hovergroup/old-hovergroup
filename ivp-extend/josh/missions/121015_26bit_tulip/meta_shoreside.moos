@@ -24,6 +24,21 @@ Processconfig = ANTLER
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
 }
 
+ProcessConfig = uXMS_tulip-acommms
+{
+	AppTick = 1
+	CommsTick = 1
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR = TULIP_UPDATES_$(LEADER)
+	VAR = TULIP_UPDATES_$(FOLLOWER)
+	VAR = TULIP_DEBUG_$(LEADER)
+	VAR = TULIP_DEBUG_$(FOLLOWER)
+	VAR = GPS_TIME_SECONDS
+}
+
 #include plug_pHostInfo.moos
 
 //--------------------------------------------------
@@ -36,6 +51,8 @@ ProcessConfig = uFldShoreBroker
 
   QBRIDGE  = MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, GOTO_UPDATES
   QBRIDGE  = NODE_REPORT, NODE_MESSAGE
+  
+  BRIDGE = TARGET_RANGE_RETURN_$V, alias=TARGET_RANGE_RETURN
   
   //BRIDGE   = src=LOITER_UPDATES_$V, alias=LOITER_UPDATES
 }
