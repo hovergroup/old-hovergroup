@@ -9,7 +9,7 @@
 #define TIMEDACOMMS_H_
 
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <map>
 
 class TimedAcomms {
@@ -25,10 +25,10 @@ public:
 	void signalGoodReception( std::string data );
 
 	// output signals - use goby methods to connect
-	boost::signal<void ()> signal_no_receipt;
-	boost::signal<void (const std::string data)> signal_receipt;
-	boost::signal<void ()> signal_transmit;
-	boost::signal<void (const std::string msg)> signal_debug, signal_updates;
+	boost::signals2::signal<void ()> signal_no_receipt;
+	boost::signals2::signal<void (const std::string data)> signal_receipt;
+	boost::signals2::signal<void ()> signal_transmit;
+	boost::signals2::signal<void (const std::string msg)> signal_debug, signal_updates;
 
 	// configuration
 	void setReceiveTiming( double period, double offset );

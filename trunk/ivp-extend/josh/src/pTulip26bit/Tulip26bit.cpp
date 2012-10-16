@@ -56,16 +56,29 @@ bool Tulip26bit::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("vehicle_mode", vehicle_mode);
 
 	if ( vehicle_mode == "leader" ) {
-
+		goby::acomms::connect( &m_AcommsTimer.signal_transmit,
+				boost::bind( &Tulip26bit::onTransmit_leader, this) );
+		goby::acomms::connect( &m_AcommsTimer.signal_no_receipt,
+				boost::bind( &Tulip26bit::onBadReceive_leader, this) );
+		goby::acomms::connect( &m_AcommsTimer.signal_receipt,
+				boost::bind( &Tulip26bit::onGoodReceive_leader, this, _1) );
 	} else if ( vehicle_mode == "follower" ) {
+		goby::acomms::connect( &m_AcommsTimer.signal_transmit,
+				boost::bind( &Tulip26bit::onTransmit_follower, this) );
+		goby::acomms::connect( &m_AcommsTimer.signal_no_receipt,
+				boost::bind( &Tulip26bit::onBadReceive_follower, this) );
+		goby::acomms::connect( &m_AcommsTimer.signal_receipt,
+				boost::bind( &Tulip26bit::onGoodReceive_follower, this, _1) );
 
 	} else {
 		std::cout << "Invalid vehicle mode - exiting." << std::endl;
 		exit(0);
 	}
 
-	goby::acomms::connect( &m_AcommsTimer.signal_debug, boost::bind( &Tulip26bit::handleDebug, this, _1) );
-	goby::acomms::connect( &m_AcommsTimer.signal_updates, boost::bind( &Tulip26bit::handleDebug, this, _1) );
+	goby::acomms::connect( &m_AcommsTimer.signal_debug,
+			boost::bind( &Tulip26bit::handleDebug, this, _1) );
+	goby::acomms::connect( &m_AcommsTimer.signal_updates,
+			boost::bind( &Tulip26bit::handleDebug, this, _1) );
 
 	return (true);
 }

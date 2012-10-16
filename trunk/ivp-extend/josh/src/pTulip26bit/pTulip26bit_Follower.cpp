@@ -6,3 +6,15 @@
  */
 
 #include "Tulip26bit.h"
+
+void Tulip26bit::onTransmit_follower() {
+
+}
+
+void Tulip26bit::onGoodReceive_follower( const std::string data ) {
+
+}
+
+void Tulip26bit::onBadReceive_follower() {
+
+}
