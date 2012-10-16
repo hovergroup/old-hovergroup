@@ -18,6 +18,11 @@ TimedAcomms::TimedAcomms() {
 
 	m_LastTransmitSlot = -1;
 	m_LastReceiveSlot = -1;
+
+	m_StateNames[GPS_TIME_CAL] = "GPS_TIME_CAL";
+	m_StateNames[EXITING_TIME_CAL] = "EXITING_TIME_CAL";
+	m_StateNames[READY] = "READY";
+	m_StateNames[RECEIVING] = "RECEIVING";
 }
 
 void TimedAcomms::doWork() {
@@ -32,6 +37,9 @@ void TimedAcomms::doWork() {
 		break;
 	case READY:
 		doReadyState();
+		break;
+	case RECEIVING:
+		doReceivingState();
 		break;
 	}
 
@@ -50,7 +58,12 @@ void TimedAcomms::doGpsTimeCalState() {
  * transition state to make sure both run times are synced to gps
  */
 void TimedAcomms::doExitingTimeCalState() {
-	if ( m_ExitingTimeCalIterations > 2 ) m_State = READY;
+	if ( m_ExitingTimeCalIterations > 2 ) {
+		m_State = READY;
+		std::stringstream ss;
+		ss << "Clock offset is " << m_ClockOffset;
+		signal_updates(ss.str());
+	}
 	m_ExitingTimeCalIterations++;
 }
 
@@ -61,6 +74,10 @@ void TimedAcomms::doReadyState() {
 	// check if it is time to transmit
 	int transmit_slot = findPreviousSlot( m_LastRunTime, m_TransmitPeriod, m_TransmitOffset );
 	if ( transmit_slot > m_LastTransmitSlot ) {
+		std::stringstream ss;
+		ss << "Beginning transmission for slot " << transmit_slot;
+		signal_updates(ss.str());
+
 		m_LastTransmitSlot = transmit_slot;
 		signal_transmit();
 	}
@@ -68,6 +85,10 @@ void TimedAcomms::doReadyState() {
 	// check if past receive time
 	int receive_slot = findPreviousSlot( m_ThisRunTime, m_ReceivePeriod, m_ReceiveOffset );
 	if ( receive_slot > m_LastReceiveSlot ) {
+		std::stringstream ss;
+		ss << "Notifying no reception for slot " << receive_slot;
+		signal_updates(ss.str());
+
 		m_LastReceiveSlot = receive_slot;
 		signal_no_receipt();
 	}
@@ -75,6 +96,11 @@ void TimedAcomms::doReadyState() {
 	// check if modem has started receiving
 	if ( m_BeginModemReceive ) {
 		// calculate receive slot we expect to fill
+		m_ExpectedReceiveSlot = findNextSlot( m_ThisRunTime, m_ReceivePeriod, m_ReceiveOffset );
+
+		std::stringstream ss;
+		ss << "Entering receive time slot " << m_ExpectedReceiveSlot;
+		signal_updates(ss.str());
 
 		m_BeginModemReceive = false;
 		m_State = RECEIVING;
@@ -85,23 +111,42 @@ void TimedAcomms::doReadyState() {
  * receiving state where we wait for indication of good/bad receipt
  */
 void TimedAcomms::doReceivingState() {
-	//
-
 	// check for bad receive signal
 	if ( m_BadReceive ) {
+		std::stringstream ss;
+		ss << "Got bad receipt for receive slot " << m_ExpectedReceiveSlot;
+		signal_updates(ss.str());
+
 		m_BadReceive = false;
 		signal_no_receipt();
 		m_State = READY;
+		m_LastReceiveSlot = m_ExpectedReceiveSlot;
 	}
 
 	// check for good receive signal
 	if ( m_GoodReceive ) {
+		std::stringstream ss;
+		ss << "Got good receipt for receive slot " << m_ExpectedReceiveSlot;
+		signal_updates(ss.str());
+
 		m_GoodReceive = false;
 		signal_receipt( m_ReceivedData );
 		m_State = READY;
+		m_LastReceiveSlot = m_ExpectedReceiveSlot;
 	}
 
 	// check for timeout
+	double expected_receive_time = slot2Time( m_ExpectedReceiveSlot,
+			m_ReceivePeriod, m_ReceiveOffset );
+	if ( m_ThisRunTime > expected_receive_time + m_AllowedReceivingExtension ) {
+		std::stringstream ss;
+		ss << "Timed out in receive slot " << m_ExpectedReceiveSlot;
+		signal_updates(ss.str());
+
+		signal_no_receipt();
+		m_State = READY;
+		m_LastReceiveSlot = m_ExpectedReceiveSlot;
+	}
 }
 
 void TimedAcomms::signalStartOfModemReceiving() {
@@ -109,12 +154,22 @@ void TimedAcomms::signalStartOfModemReceiving() {
 }
 
 void TimedAcomms::signalBadReception() {
-	m_BadReceive = true;
+	if ( m_State == RECEIVING ) {
+		m_BadReceive = true;
+	} else {
+		signal_debug("WARNING - tried to signal bad receipt during state " +
+				m_StateNames[m_State]);
+	}
 }
 
 void TimedAcomms::signalGoodReception(std::string data) {
-	m_ReceivedData = data;
-	m_GoodReceive = true;
+	if ( m_State == RECEIVING ) {
+		m_ReceivedData = data;
+		m_GoodReceive = true;
+	} else {
+		signal_debug("WARNING - tried to signal good reception during state " +
+				m_StateNames[m_State]);
+	}
 }
 
 /**

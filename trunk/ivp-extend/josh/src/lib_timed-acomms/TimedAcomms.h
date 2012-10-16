@@ -10,6 +10,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/signal.hpp>
+#include <map>
 
 class TimedAcomms {
 public:
@@ -28,6 +29,8 @@ public:
 	boost::signal<void (const std::string data)> signal_receipt;
 	boost::signal<void ()> signal_transmit;
 
+	boost::signal<void (const std::string msg)> signal_debug, signal_updates;
+
 
 private:
 	static const int GPS_TIME_SAMPLES=5;
@@ -38,6 +41,7 @@ private:
 					RECEIVING };
 
 	StateIDs m_State;
+	std::map<StateIDs, std::string> m_StateNames;
 
 	double getSysTimeSeconds(); // system clock
 	double getAbsTimeSeconds(); // system clock with gps correction
