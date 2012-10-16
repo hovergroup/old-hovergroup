@@ -4,10 +4,10 @@
 ProcessConfig = pTulip26bit_leader
 {
   AppTick   = 10
-  CommsTic  = 10
+  CommsTick  = 10
   
   receive_period = 10
-  receive_offset = 0
+  receive_offset = 3
   
   transmit_period = 10
   transmit_offset = 5
