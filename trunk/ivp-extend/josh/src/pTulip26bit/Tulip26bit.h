@@ -10,6 +10,7 @@
 
 #include "MOOSLib.h"
 #include "TimedAcomms.h"
+#include "goby/acomms/connect.h"
 
 class Tulip26bit: public CMOOSApp {
 public:
@@ -23,7 +24,9 @@ public:
 
 protected:
 	TimedAcomms m_AcommsTimer;
-	// insert local vars here
+
+	void handleDebug( const std::string msg );
+	void handleUpdate( const std::string msg );
 };
 
 #endif 
