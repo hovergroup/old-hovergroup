@@ -5,6 +5,16 @@
  *      Author: josh
  */
 
-
 #include "Tulip26bit.h"
 
+void Tulip26bit::onTransmit_leader() {
+
+}
+
+void Tulip26bit::onGoodReceive_leader( const std::string data ) {
+
+}
+
+void Tulip26bit::onBadReceive_leader() {
+
+}

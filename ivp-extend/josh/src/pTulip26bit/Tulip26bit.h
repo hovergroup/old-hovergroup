@@ -27,6 +27,13 @@ protected:
 
 	void handleDebug( const std::string msg );
 	void handleUpdate( const std::string msg );
+
+	void onTransmit_follower();
+	void onTransmit_leader();
+	void onGoodReceive_follower( const std::string data );
+	void onGoodReceive_leader( const std::string data );
+	void onBadReceive_follower();
+	void onBadReceive_leader();
 };
 
 #endif 
