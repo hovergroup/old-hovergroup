@@ -135,16 +135,14 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 }
 
 void SIMPLE_GPS::parseLine(string msg) {
-	msg.erase(msg.end());
-
-	if (!DoNMEACheckSum(msg)) {
-		cout << "checksum failed on: " << msg << endl;
-		for ( int i=0; i<msg.size(); i++ ) {
-			cout << hex << (int) msg[i] << " ";
-		}
-		cout << endl;
-		return;
-	}
+//	if (!DoNMEACheckSum(msg)) {
+//		cout << "checksum failed on: " << msg << endl;
+//		for ( int i=0; i<msg.size(); i++ ) {
+//			cout << hex << (int) msg[i] << " ";
+//		}
+//		cout << endl;
+//		return;
+//	}
 
 	string cmd = MOOSChomp(msg, ",");
 //	cout << "command = " << cmd << endl;
