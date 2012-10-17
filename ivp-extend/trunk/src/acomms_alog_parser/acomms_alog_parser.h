@@ -64,17 +64,13 @@ public:
 		int vehicle_id;
 
 		enum RECEIVE_STATUS {
-			not_set,
+			not_set = 0,
 			received_fully,
 			bad_crcs,
 			sync_loss,
 			driver_inactive
 		};
 		RECEIVE_STATUS receive_status;
-		// 0 = received fully
-		// 1 = sync ok, bad crc(s)
-		// 2 = sync loss, no detection
-		// 3 = driver not running
 
 		// usually related to the receive status
 		std::string debugInfo;
@@ -281,5 +277,6 @@ private:
 
 	std::vector<FILE_INFO> alog_files;
 };
+
 
 #endif /* ACOMMS_ALOG_PARSER_H_ */
