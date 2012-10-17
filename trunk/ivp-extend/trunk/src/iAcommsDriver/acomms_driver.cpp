@@ -32,6 +32,7 @@ acomms_driver::acomms_driver()
 
 	use_psk_for_minipackets = false;
 	enable_one_way_ranging = false;
+	enable_range_pulses = true;
 }
 
 //---------------------------------------------------------
@@ -106,6 +107,7 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetValue("Community", my_name);
    m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
    m_MissionReader.GetConfigurationParam("enable_ranging", enable_one_way_ranging);
+   m_MissionReader.GetConfigurationParam("show_range_pulses", enable_range_pulses);
 
    // post these to make sure they are the correct type
    unsigned char c = 0x00;
@@ -328,6 +330,8 @@ void acomms_driver::transmit_data() {
 
 // post range pulse for pMarineViewer
 void acomms_driver::postRangePulse( string label, double range, double duration, string color ) {
+	if ( !enable_range_pulses ) return;
+
 	XYRangePulse pulse;
 	pulse.set_x(m_navx);
 	pulse.set_y(m_navy);
