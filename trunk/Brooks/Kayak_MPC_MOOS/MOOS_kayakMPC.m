@@ -37,16 +37,15 @@ format compact
 configureKayakMPC;
 initializeMOOS_MPC;
 
-
 %% Loop
 mpcStart = tic;
 loopIt=1;
 
 uPlanSave = cell(1,N+1);
 XSave = cell(1,N+1);
-eEstSave = zeros(n,N+1);
-ifPLossSave = zeros(n,N+1);
-uSave = zeros(n,N+1);
+xEstSave = zeros(n+1,N+1);
+ifPLossSave = zeros(1,N+1);
+uSave = zeros(1,N+1);
 
 diary on
 % start loop  (breaks when MPC_STOP==1)
@@ -145,7 +144,8 @@ while(~mpc_stop)
     % matlab save
     uPlanSave{loopIt} = uPlan;
     XSave{loopIt} = X;
-    eEstSave(:,loopIt) = eEst;
+    xEstSave(1,loopIt) = eEst(1);
+    xEstSave(2:n+1,loopIt) = CdAll*eEst(2:n+1);
     ifPLossSave(loopIt) = ifPLoss;
     uSave(loopIt) = u;
     
@@ -181,14 +181,14 @@ cd(old)
 %%
 
 figure
-stairs(eEstSave(1:3,:)')
+stairs(xEstSave([1 4 5 6],:)')
+legend('Heading setpoint','Heading','Cross Track','Int Cross Track')
 
-plotInds = [10 11 12 13]
+plotInds = [10 11 12 13];
 %plotInds = [20 21 22];
 %plotInds = [40 41 42 43];
 
-colors = {'r','b','g','m','c','k'}
-%
+colors = {'r','b','g','m','c','k'};
 ns = 4;
 figure
 for i = 1:length(plotInds)
@@ -214,7 +214,6 @@ for i = 1:length(plotInds)
     
 end
 %
-
 
 
 

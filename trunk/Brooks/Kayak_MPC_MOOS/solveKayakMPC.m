@@ -104,7 +104,7 @@ if(1)
     xplot(n,:) = xplot(n,:)*sys.CdAll(n-1,n-1);            % xtrack
     xplot(nn,:) = xplot(nn,:)*sys.CdAll(nn-1,nn-1);        % int xtrack
     
-    figure
+    figure(1)
     stairs(2:T+1,uPlan,'b-*')
     hold on
     stairs(1:T+2,xplot(1,:),'r')
@@ -114,7 +114,9 @@ if(1)
     stairs([0 1],[x(1) x(1)],'r')
     legend('uPlan (\delta \psi)','heading setpoint (e_{\psi})',...
         'predicted heading (e_{\phi})','uPrev','initial heading')
+    hold off
     
+    %{
     figure
     stateTitles = {'heading setpoint','ehddot','ehdot','eh','ex','intx'};
     %stairs(1:T+3,xplot')
@@ -123,7 +125,7 @@ if(1)
         stairs(xplot(i,:))
         title(stateTitles{i})
     end
-    
+    %}
 end
 %
 
