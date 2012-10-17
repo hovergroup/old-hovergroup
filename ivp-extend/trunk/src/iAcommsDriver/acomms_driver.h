@@ -35,10 +35,10 @@ protected:
 	bool use_psk_for_minipackets, enable_one_way_ranging, enable_range_pulses;
 
 	// not user configurable
-	static const double transmission_pulse_range = 50;
-	static const double transmission_pulse_duration = 5;
+	static const double transmission_pulse_range = 30;
+	static const double transmission_pulse_duration = 3;
 	static const double receive_pulse_range = 20;
-	static const double receive_pulse_duration = 3;
+	static const double receive_pulse_duration = 2;
 	double m_navx, m_navy;
 
 	// data for transmissions
