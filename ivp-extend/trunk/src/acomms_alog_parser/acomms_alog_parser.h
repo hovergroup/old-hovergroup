@@ -66,9 +66,11 @@ public:
 		enum RECEIVE_STATUS {
 			not_set = 0,
 			received_fully,
-			bad_crcs,
+			received_partial,
+			all_bad,
 			sync_loss,
-			driver_inactive
+			driver_inactive,
+			no_frames
 		};
 		RECEIVE_STATUS receive_status;
 

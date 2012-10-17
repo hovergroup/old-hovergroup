@@ -29,10 +29,12 @@ std::map<ACOMMS_ALOG_PARSER::RECEPTION_EVENT::RECEIVE_STATUS,
 
 ACOMMS_ALOG_PARSER::ACOMMS_ALOG_PARSER() {
 	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::not_set] = "not set";
-	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::received_fully] = "received fully";
-	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::bad_crcs] = "bad crcs";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::received_fully] = "received_fully";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::received_partial] = "received_partial";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::all_bad] = "all_bad";
 	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::sync_loss] = "sync loss";
-	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::driver_inactive] = "driver inactive";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::driver_inactive] = "driver_inactive";
+	RECEIVE_STATUS_STRINGS[ACOMMS_ALOG_PARSER::RECEPTION_EVENT::no_frames] = "no_frames";
 }
 
 // find the nearest entry by time, returns index and time diff
@@ -903,14 +905,16 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
 
 	int numbad = trans.ExtensionSize( micromodem::protobuf::frame_with_bad_crc );
-	if ( numbad == 0 ) {
+	int numframes = trans.frame_size();
+	if ( numframes == 0 ) {
+		r_event.receive_status = RECEPTION_EVENT::no_frames;
+	} else if ( numbad == 0 ) {
 		r_event.receive_status = RECEPTION_EVENT::received_fully;
+	} else if ( numbad == numframes ) {
+		r_event.receive_status = RECEPTION_EVENT::all_bad;
 	} else {
-		r_event.receive_status = RECEPTION_EVENT::bad_crcs;
+		r_event.receive_status = RECEPTION_EVENT::received_partial;
 	}
-
-	if ( trans.frame_size() == 0 )
-		r_event.receive_status = RECEPTION_EVENT::bad_crcs;
 
 	// find the relevant receive statistics
 	if( num_stats == 1 ) { // psk or mini packet transmission
