@@ -902,6 +902,16 @@ ACOMMS_ALOG_PARSER::RECEPTION_EVENT ACOMMS_ALOG_PARSER::FILE_INFO::constructRece
 	micromodem::protobuf::ReceiveStatistics stat;
 	int num_stats = trans.ExtensionSize(micromodem::protobuf::receive_stat);
 
+	int numbad = trans.ExtensionSize( micromodem::protobuf::frame_with_bad_crc );
+	if ( numbad == 0 ) {
+		r_event.receive_status = RECEPTION_EVENT::received_fully;
+	} else {
+		r_event.receive_status = RECEPTION_EVENT::bad_crcs;
+	}
+
+	if ( trans.frame_size() == 0 )
+		r_event.receive_status = RECEPTION_EVENT::bad_crcs;
+
 	// find the relevant receive statistics
 	if( num_stats == 1 ) { // psk or mini packet transmission
 		stat = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
