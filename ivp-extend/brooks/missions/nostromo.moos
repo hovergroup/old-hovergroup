@@ -17,10 +17,10 @@ ProcessConfig = ANTLER
 	Run = iHoverKayak	 		@ NewConsole = false
 	Run = pNodeReporter			@ NewConsole = false
 	Run = pMOOSBridge			@ NewConsole = false
-	Run = pMarinePID_Hover			@ NewConsole = false
+	Run = pMarinePID_Hover		@ NewConsole = false
 	Run = pHelmIvP				@ NewConsole = false
 	Run = pEchoVar				@ NewConsole = false
-	Run = iOS5000_Hover		@ NewConsole = false
+	Run = iOS5000_Hover			@ NewConsole = false
 	Run = iGPS_Hover			@ NewConsole = false
 	Run = iAcommsDriver 		@ NewConsole = false
 	Run = pLogger				@ NewConsole = false	// Logs messages to disk
@@ -32,14 +32,14 @@ ProcessConfig = pKalmanFilter
 	CommsTick = 5
 	
 	//Speed = 1.5		// m/s
-	Speed = 1.5;
+	Speed = 2;	
 	Thrust = 60		// percent
 	
 	CompassOffset = 0
 	RudderOffset = 0	// handled in interface
 	
-	Crosstrack = 0.0349 	// for Nostromo 2 m/s
-	//Crosstrack = 0.0262	// for Nostromo 1.5 m/s
+	Crosstrack = 0.0349 	// for Nostromo 2 m/s (for horizontal kinematics)
+	//Crosstrack = 0.0262	// for Nostromo 1.5 m/s (for horizontal kinematics)
 
 	//Crosstrack = 0.0191		// for Kassandra small rudder model (1.37 * speed * pi/180)
 	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
@@ -75,6 +75,7 @@ ProcessConfig = pMOOSBridge
 	UDPSHARE = [GPS_X] -> terra@192.168.1.100:9200
 	UDPSHARE = [GPS_Y] -> terra@192.168.1.100:9200
 	UDPSHARE = [COMPASS_HEADING_FILTERED] -> terra@192.168.1.100:9200
+	UDPSHARE = [ACOMMS_RECEIVED_DATA] -> terra@192.168.1.100:9200
 	
 }
 
@@ -166,10 +167,10 @@ ProcessConfig = pMarinePID_Hover
 
 	// Yaw PID controller
 	YAW_PID_KP		= 0.45
-//	YAW_PID_KD		= 0.2
-	YAW_PID_KD = 0.1
-//	YAW_PID_KI		= 0.005
-	YAW_PID_KI = 0.1
+//		YAW_PID_KD		= 0.2
+	YAW_PID_KD 		= 0.1
+//		`YAW_PID_KI		= 0.005
+	YAW_PID_KI 		= 0.1
 	YAW_PID_INTEGRAL_LIMIT = 10;
 	YAW_PID_UPDATE_FRACTION = 0.05
 
@@ -177,18 +178,18 @@ ProcessConfig = pMarinePID_Hover
 	SPEED_PID_KP				= 0.4
 	SPEED_PID_KD				= 0.0
 	SPEED_PID_KI				= 0.0
-	SPEED_PID_INTEGRAL_LIMIT		= 0.07
+	SPEED_PID_INTEGRAL_LIMIT	= 0.07
 }
 
 
 ProcessConfig = pHelmIvP
 {
 	AppTick		= 2
-	CommsTick		= 2
+	CommsTick	= 2
 	VERBOSE		= false
 	Behaviors	= kayak_brooks.bhv
 	OK_SKEW		= ANY
-	Domain		= course,0:359:36
+	Domain		= course,0:359:360
 	Domain		= speed,0:2.0:21
 }
 
