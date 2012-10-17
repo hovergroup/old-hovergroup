@@ -12,6 +12,7 @@
 
 TargetRangeSensorSim::TargetRangeSensorSim()
 {
+	m_LastTargetMarkTime = 0;
 }
 
 //---------------------------------------------------------
@@ -54,9 +55,11 @@ bool TargetRangeSensorSim::OnConnectToServer()
 
 bool TargetRangeSensorSim::Iterate()
 {
-   // happens AppTick times per second
-	
-   return(true);
+	if ( MOOSTime() - m_LastTargetMarkTime > 1 ) {
+		std::pair<double,double> loc = getTargetPos();
+		drawTarget( loc.first, loc.second );
+	}
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -112,4 +115,12 @@ void TargetRangeSensorSim::drawSeglist( std::string label, std::string msg,
 	}
 
 	m_Comms.Notify("VIEW_SEGLIST", ss.str() );
+}
+
+std::pair<double, double> TargetRangeSensorSim::getTargetPos() {
+
+}
+
+double TargetRangeSensorSim::getRange( double nav_x, double nav_y ) {
+
 }

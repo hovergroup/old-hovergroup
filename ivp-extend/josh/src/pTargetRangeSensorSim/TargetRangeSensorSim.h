@@ -34,6 +34,8 @@ protected:
 			std::string label, std::string msg, std::string color );
 	void drawSeglist( std::string label, std::string msg,
 			std::vector< std::pair<double, double> > points );
+
+	double m_LastTargetMarkTime;
 };
 
 #endif 
