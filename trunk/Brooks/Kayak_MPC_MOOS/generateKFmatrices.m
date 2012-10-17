@@ -28,7 +28,8 @@ switch kayak
         Krate=1/1.56; % rudder in to heading rate out
         wn=sqrt(1.56);
         zeta=1.01/(2*wn);
-        speed=1.5; % m/s
+        %speed=1.5; % m/s
+        speed = 2;  % m/s
     case 'kassandra_modem_smallR'
         Krate = 1.37/1.13;
         wn = sqrt(1.13);
@@ -115,11 +116,16 @@ fname='matrices';
 fpath1='/home/brooks/hovergroup/ivp-extend/brooks/missions/';
 fpath2='/home/josh/hovergroup/ivp-extend/brooks/missions/';
 
+fid = 0;
 try
     fid = fopen([fpath1,fname,'.txt'],'w');
+    disp('writing to brooks')
 end
+if(~fid)
 try
     fid = fopen([fpath2,fname,'.txt'],'w');
+    disp('writing to josh')
+end
 end
 
 printMatrix(fid,Ad);

@@ -54,6 +54,7 @@ T=32;
 
 mu=1;              % sparse control weight
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set up a short trackline after the first waypoint (stop within this...)
 tracklineType='straight';
 Nsec = 30;N = ceil(Nsec/dt);  % total sim steps
@@ -61,7 +62,7 @@ ox = -160;
 oy = -160;
 % pavHeading = 73;
 startHeading = 190;
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % CL heading model order:
 %nH = 2;
