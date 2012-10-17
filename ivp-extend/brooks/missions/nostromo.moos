@@ -46,8 +46,8 @@ ProcessConfig = pKalmanFilter
 	//Crosstrack = 0.0166	// for Kassandra large rudder model (1.19 * speed * pi/180)
 	
 	//saturation limits for integrator state
-	ConstrainMax = 2292
-	ConstrainMin = -2292
+	ConstrainMax = 4000
+	ConstrainMin = -4000
 	
 }
 
@@ -172,7 +172,7 @@ ProcessConfig = pMarinePID_Hover
 	YAW_PID_KD 		= 0.1
 //		`YAW_PID_KI		= 0.005
 	YAW_PID_KI 		= 0.1
-	YAW_PID_INTEGRAL_LIMIT = 10;
+	YAW_PID_INTEGRAL_LIMIT = 50;
 	YAW_PID_TAU = 1
 
 	// Speed PID controller
