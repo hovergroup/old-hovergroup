@@ -14,6 +14,7 @@ ProcessConfig = ANTLER
 	MSBetweenLaunches	= 500
 
 	Run = MOOSDB				@ NewConsole = false
+	Run = pLogger				@ NewConsole = false
 	Run = iHoverKayak	 		@ NewConsole = false
 	Run = pNodeReporter			@ NewConsole = false
 	Run = pMOOSBridge			@ NewConsole = false
@@ -23,7 +24,7 @@ ProcessConfig = ANTLER
 	Run = iOS5000_Hover			@ NewConsole = false
 	Run = iGPS_Hover			@ NewConsole = false
 	Run = iAcommsDriver 		@ NewConsole = false
-	Run = pLogger				@ NewConsole = false	// Logs messages to disk
+//	Run = pLogger				@ NewConsole = false	// Logs messages to disk
 }
 
 ProcessConfig = pKalmanFilter
@@ -101,7 +102,7 @@ ProcessConfig = iAcommsDriver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB1
+	PortName = /dev/ttyUSB0
 	ID = 3
 }
 
@@ -110,7 +111,7 @@ ProcessConfig = iGPS_Hover
 	AppTick = 10
 	CommsTick = 10
 	
-	PORT_NAME = /dev/ttyUSB0
+	PORT_NAME = /dev/ttyACM0
 	BAUD_RATE = 57600
 }
 
@@ -128,7 +129,7 @@ ProcessConfig = iOS5000_Hover
 	AppTick		= 40
 	CommsTick	= 40
 
-	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
+	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
@@ -172,7 +173,7 @@ ProcessConfig = pMarinePID_Hover
 //		`YAW_PID_KI		= 0.005
 	YAW_PID_KI 		= 0.1
 	YAW_PID_INTEGRAL_LIMIT = 10;
-	YAW_PID_UPDATE_FRACTION = 0.05
+	YAW_PID_TAU = 1
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
