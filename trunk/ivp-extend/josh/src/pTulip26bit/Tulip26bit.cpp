@@ -61,6 +61,10 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
 		} else if ( key == "GPS_TIME_SECONDS" ) {
 			m_AcommsTimer.processGpsTimeSeconds( msg.GetDouble() );
 
+		} else if ( key == "NAV_X" ) {
+			m_osx = msg.GetDouble();
+		} else if ( key == "NAV_Y" ) {
+			m_osy = msg.GetDouble();
 		}
 	}
 
@@ -71,6 +75,11 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool Tulip26bit::OnConnectToServer() {
+	m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
+	m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
+	m_MissionReader.GetConfigurationParam("y_min", m_osy_minimum);
+	m_MissionReader.GetConfigurationParam("y_max", m_osy_maximum);
+
 	double receive_period, receive_offset;
 	m_MissionReader.GetConfigurationParam("receive_period", receive_period);
 	m_MissionReader.GetConfigurationParam("receive_offset", receive_offset);
@@ -118,6 +127,9 @@ bool Tulip26bit::OnConnectToServer() {
 	m_Comms.Register("ACOMMS_BAD_FRAMES", 0);
 	m_Comms.Register("GPS_TIME_SECONDS", 0);
 
+	m_Comms.Register("NAV_X", 0);
+	m_Comms.Register("NAV_Y", 0);
+
 	return (true);
 }
 
@@ -147,3 +159,18 @@ bool Tulip26bit::OnStartUp() {
 	return (true);
 }
 
+unsigned char Tulip26bit::LinearEncode( double val, double min, double max, int bits ) {
+	unsigned char transmit_val;
+	if ( val <= min ) return 0;
+	else if ( val >= max ) return pow(2,bits)-1;
+	else {
+		double ratio = (val-min)/(max-min);
+		double scaled = ratio * (pow(2,bits)-1);
+		return floor( scaled + .5 );
+	}
+}
+
+double Tulip26bit::LinearDecode( unsigned char val, double min, double max, int bits ) {
+	double ratio = val / ( pow(2.0,bits) - 1.0 );
+	return min + ratio * ( max - min );
+}
