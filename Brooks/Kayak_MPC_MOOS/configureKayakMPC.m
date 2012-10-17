@@ -29,7 +29,7 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 
 % packet loss probability:
-probPLoss = .2;
+probPLoss = .8;
 %probPLoss = 0;
 
 
@@ -58,8 +58,20 @@ mu=1;              % sparse control weight
 % set up a short trackline after the first waypoint (stop within this...)
 tracklineType='straight';
 Nsec = 30;N = ceil(Nsec/dt);  % total sim steps
-ox = -160;
-oy = -160;
+%ox = -160;
+%oy = -160;
+
+
+ox = 940;
+oy = 50;
+%ox = -84;
+%oy = -120;
+
+
+
+%ox = 600;
+%oy = 0;
+
 % pavHeading = 73;
 startHeading = 190;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,9 +107,9 @@ epsimax = 30;   % MAIN CONSTRAINT: commanded heading within linear regime
 umax = 30*ones(m,1); umin = -umax;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Qcross = 10;
+Qcross = 100;
 Qheading = 0.1;
-Qint = 1e-1;
+Qint = 0;   %.1;
 Pfac = 10;
 
 Qmpc = zeros(n+1);  % mpc has ePsi as a state

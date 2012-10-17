@@ -59,9 +59,9 @@ iMatlab('MOOS_MAIL_TX','MPC_STOP','STOP')
 pause(1)
 garbageMail = iMatlab('MOOS_MAIL_RX');
 
-send = hd0;
-iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
-fprintf('Sending des heading = %f \n',send);
+%send = hd0;
+%iMatlab('MOOS_MAIL_TX','DESIRED_HEADING',send);
+%fprintf('Sending des heading = %f \n',send);
 
 
 % wait for MOOS side to start, and get initial X, Y, H
