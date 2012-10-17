@@ -10,7 +10,7 @@
 %{
 - 8/15/2012 - moved major settings to configureKayakMPC
 - 8/20/2012 - got rid of step var (conflict with step response)
-- 8/29/2012 - changed a bit for heading inputs, conversions to angles, 
+- 8/29/2012 - changed a bit for heading inputs, conversions to angles,
     - also added copy file to waypoints.txt on non PC systems
 
 %}
@@ -33,7 +33,7 @@ switch tracklineType
         
         % straight line:
         desB = deg2rad(startHeading);
-        x = speed*dt*(1:length(tvec));
+        x = speed*dt*(0:length(tvec)-1);
         y = zeros(size(tvec));
         if(ifPlot)
             plot(x,y);
@@ -62,9 +62,18 @@ switch tracklineType
         fclose(fid);
         
         if(~ispc)
-            dest = [MOOSpathName 'waypoints.txt'];
-            copyfile('straightPts.txt',dest,'f')
+            try
+                dest = [MOOSpathName1 'waypoints.txt'];
+                copyfile('straightPts.txt',dest,'f')
+                disp('writing to josh')
+            end
+            try
+                dest = [MOOSpathName2 'waypoints.txt'];
+                copyfile('straightPts.txt',dest,'f')
+                disp('writing to brooks')
+            end
         end
+        
         
     case 'oneturn'
         
@@ -79,7 +88,7 @@ switch tracklineType
         end
         
         startAngle = 90-startHeading;
-        %rotate: 
+        %rotate:
         ang = deg2rad(startAngle);  %pavAng + deg2rad(pavAngOffset);
         r = [cos(ang),-sin(ang);sin(ang),cos(ang)];
         
@@ -98,7 +107,7 @@ switch tracklineType
         desBearing = zeros(1,length(tvec));
         for i = 1:(length(tvec)-1)
             leg = ceil((i)/(secPerLeg/dt));
-
+            
             hDes = atan2((y(leg+1)-y(leg)),(x(leg+1)-x(leg)));
             hDes = rad2deg(hDes);
             bearing = 90 - hDes;
@@ -109,7 +118,7 @@ switch tracklineType
                 bearing = bearing - 360;
             end
             desBearing(i) = bearing;
-
+            
         end
         desBearing(i+1)=bearing;
         
@@ -132,12 +141,12 @@ switch tracklineType
                 disp('writing to brooks')
             end
         end
-
+        
     case 'hexagon'
         
-         len = speed*secPerLeg;
-%         ox = 0;
-%         oy = -50;
+        len = speed*secPerLeg;
+        %         ox = 0;
+        %         oy = -50;
         
         x = [0 len len+len/2 len 0 -len/2 0];
         y = [0 0 -len*sqrt(3)/2 -len*sqrt(3) -len*sqrt(3) -len*sqrt(3)/2 0];
