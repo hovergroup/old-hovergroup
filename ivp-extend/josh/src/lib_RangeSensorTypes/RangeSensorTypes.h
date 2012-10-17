@@ -8,6 +8,8 @@
 #ifndef RANGESENSORTYPES_H_
 #define RANGESENSORTYPES_H_
 
+#include <string>
+
 namespace RangeSensorTypes {
 	class RangeRequest {
 	public:

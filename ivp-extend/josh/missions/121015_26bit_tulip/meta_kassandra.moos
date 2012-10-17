@@ -23,7 +23,9 @@ Processconfig = ANTLER
   Run = kayak_interface	   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
   
-  Run = pTulip26bit			@ NewConsole = false
+  Run = uTimerScript		@ NewConsole = false ~ uTimerScript_Config
+  
+  //Run = pTulip26bit			@ NewConsole = false
 }
 
 #ifdef ROLE leader
@@ -31,6 +33,14 @@ Processconfig = ANTLER
 #else
 	#include plug_pTulip26bit_follower.moos
 #endif
+
+Processconfig = uTimerScript_Config
+{
+    AppTick = 4
+    CommsTick = 4
+    
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+}
 
 #include plug_pMOOSBridgeV.moos
 #include plug_pLogger.moos

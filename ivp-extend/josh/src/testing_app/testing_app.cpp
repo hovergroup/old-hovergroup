@@ -1,7 +1,8 @@
 #include "RangeSensorTypes.h"
+#include <iostream>
 
-using namespace std;
 using namespace RangeSensorTypes;
+using namespace std;
 
 int main () {
 	RangeRequest request;
