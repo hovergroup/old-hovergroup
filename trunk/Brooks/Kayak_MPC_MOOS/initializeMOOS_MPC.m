@@ -133,3 +133,7 @@ logStr = sprintf('N,%d,T,%d,mu,%0.2f,X0,%f,Y0,%f,PHI0,%f,PHI_DES,%f,hspeed,%f,P_
 iMatlab('MOOS_MAIL_TX','MPC_PARAMS',logStr);
 fprintf('Sending MPC_PARAMS \n%s \n',logStr);
 
+startSettings.x0 = x0;
+startSettings.y0 = y0;
+startSettings.h0 = h0;
+startSettings.bearing = bearing;

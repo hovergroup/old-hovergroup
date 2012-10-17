@@ -45,7 +45,8 @@ loopIt=1;
 uPlanSave = cell(1,N+1);
 XSave = cell(1,N+1);
 eEstSave = zeros(n,N+1);
-
+ifPLossSave = zeros(n,N+1);
+uSave = zeros(n,N+1);
 
 diary on
 % start loop  (breaks when MPC_STOP==1)
@@ -145,6 +146,8 @@ while(~mpc_stop)
     uPlanSave{loopIt} = uPlan;
     XSave{loopIt} = X;
     eEstSave(:,loopIt) = eEst;
+    ifPLossSave(loopIt) = ifPLoss;
+    uSave(loopIt) = u;
     
     % string to log
     MPC_STR(1:5) = 'uPlan';
