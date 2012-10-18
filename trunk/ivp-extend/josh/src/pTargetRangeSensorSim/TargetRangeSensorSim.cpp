@@ -31,6 +31,10 @@ bool TargetRangeSensorSim::OnNewMail(MOOSMSG_LIST &NewMail)
    
    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
       CMOOSMsg &msg = *p;
+      std::string key = msg.GetKey();
+      if ( key == "TARGET_RANGE_REQUEST" ) {
+    	  handleRangeRequest( msg.GetString() );
+      }
    }
 	
    return(true);
@@ -122,5 +126,31 @@ std::pair<double, double> TargetRangeSensorSim::getTargetPos() {
 }
 
 double TargetRangeSensorSim::getRange( double nav_x, double nav_y ) {
+	std::pair<double, double> target_pos = getTargetPos();
+	return sqrt( pow(nav_x-target_pos.first, 2) + pow(nav_y-target_pos.second, 2) );
+}
+
+double TargetRangeSensorSim::getRange( double nav_x, double nav_y,
+		double & target_x, double & target_y ) {
+	std::pair<double, double> target_pos = getTargetPos();
+	target_x = target_pos.first;
+	target_y = target_pos.second;
+	return sqrt( pow(nav_x-target_pos.first, 2) + pow(nav_y-target_pos.second, 2) );
+}
+
+void TargetRangeSensorSim::handleRangeRequest( std::string msg ) {
+	double target_x, target_y;
+	RangeSensorTypes::RangeRequest request( msg );
+	double range = getRange( request.nav_x, request.nav_y, target_x, target_y );
+
+	RangeSensorTypes::RangeReply reply;
+	reply.vname = request.vname;
+	reply.range = range;
+
+	m_Comms.Notify("TARGET_RANGE_RETURN_" + request.vname, reply.toString() );
+
+	drawDistance( request.nav_x, request.nav_y,
+			target_x, target_y,
+			range, request.vname );
 
 }

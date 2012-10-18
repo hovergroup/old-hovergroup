@@ -9,6 +9,8 @@
 #define TargetRangeSensorSim_HEADER
 
 #include "MOOSLib.h"
+#include "RangeSensorTypes.h"
+#include "math.h"
 
 class TargetRangeSensorSim : public CMOOSApp
 {
@@ -24,6 +26,7 @@ public:
 protected:
 	std::pair<double,double> getTargetPos();
 	double getRange( double nav_x, double nav_y );
+	double getRange( double nav_x, double nav_y, double & target_x, double & target_y );
 
 	void drawTarget( double x, double y );
 	void drawDistance( double nav_x, double nav_y,
@@ -34,6 +37,8 @@ protected:
 			std::string label, std::string msg, std::string color );
 	void drawSeglist( std::string label, std::string msg,
 			std::vector< std::pair<double, double> > points );
+
+	void handleRangeRequest ( std::string msg );
 
 	double m_LastTargetMarkTime;
 };
