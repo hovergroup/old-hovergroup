@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PATH=$PATH:/home/josh/hovergroup/ivp-extend/josh/bin
+
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
@@ -61,7 +63,7 @@ SLPORT="9001"
 WARP=1
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
-	LEADER = $LEADER   FOLLOWER=$FOLLOWER				\
+	LEADER=$LEADER   FOLLOWER=$FOLLOWER					\
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
     LOITER_PT1=$LOITER_PT1                              \

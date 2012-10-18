@@ -17,14 +17,21 @@ Processconfig = ANTLER
 	Run = pMarineViewer   @ NewConsole = false
 	Run = pLogger         @ NewConsole = false
 	Run = pHostInfo       @ NewConsole = false
-	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
-	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+	//Run = uFldShoreBroker @ NewConsole = true,XConfig=2
+	//Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+	
+	Run = uXMS			  @ NewConsole = true,XConfig=3 ~ --alias=uXMS_tulip-acomms
+	Run = uXMS			  @ NewConsole = true,XConfig=4 ~ --alias=uXMS_target-sim
+	
+	Run = pTargetRangeSensorSim @ NewConsole = false
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+	3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
+	4 = -geometry,80x30+0+460,-bg,blue,-fg,white
 }
 
-ProcessConfig = uXMS_tulip-acommms
+ProcessConfig = uXMS_tulip-acomms
 {
 	AppTick = 1
 	CommsTick = 1
@@ -37,6 +44,27 @@ ProcessConfig = uXMS_tulip-acommms
 	VAR = TULIP_DEBUG_$(LEADER)
 	VAR = TULIP_DEBUG_$(FOLLOWER)
 	VAR = GPS_TIME_SECONDS
+}
+
+ProcessConfig = uXMS_target-sim
+{
+	AppTick = 1
+	CommsTick = 1
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR = TARGET_RANGE_REQUEST
+	VAR = TARGET_RANGE_RETURN_$(LEADER)
+	VAR = TARGET_RANGE_RETURN_$(FOLLOWER)
+	VAR = VIEW_MARKER
+	VAR = VIEW_SEGLIST
+}
+
+ProcessConfig = pTargetRangeSensorSim
+{
+	AppTick = 5
+	CommsTick = 5
 }
 
 #include plug_pHostInfo.moos

@@ -24,6 +24,20 @@ public:
 	bool OnStartUp();
 
 protected:
+	class TargetSim {
+	public:
+		TargetSim();
+
+		void getPosition( double time, double & x, double & y );
+		void reset();
+		void pause( bool paused );
+
+	private:
+		double current_x, current_y;
+		bool m_paused;
+	};
+	TargetSim m_sim;
+
 	std::pair<double,double> getTargetPos();
 	double getRange( double nav_x, double nav_y );
 	double getRange( double nav_x, double nav_y, double & target_x, double & target_y );
@@ -41,6 +55,7 @@ protected:
 	void handleRangeRequest ( std::string msg );
 
 	double m_LastTargetMarkTime;
+
 };
 
 #endif 
