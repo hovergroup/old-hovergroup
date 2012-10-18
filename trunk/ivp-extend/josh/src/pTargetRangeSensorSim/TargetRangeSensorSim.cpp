@@ -78,7 +78,7 @@ bool TargetRangeSensorSim::OnStartUp()
 
 void TargetRangeSensorSim::drawTarget( double x, double y ) {
 	std::stringstream ss;
-	ss << "Target: " << (int) x << ", " << (int) y;
+	ss << "Target: " << (int) x << " " << (int) y;
 	drawMarker( "diamond", x, y, "target", ss.str(), "orange" );
 }
 
@@ -122,7 +122,9 @@ void TargetRangeSensorSim::drawSeglist( std::string label, std::string msg,
 }
 
 std::pair<double, double> TargetRangeSensorSim::getTargetPos() {
-
+	std::pair<double, double> pos;
+	m_sim.getPosition( MOOSTime(), pos.first, pos.second );
+	return pos;
 }
 
 double TargetRangeSensorSim::getRange( double nav_x, double nav_y ) {
@@ -153,4 +155,20 @@ void TargetRangeSensorSim::handleRangeRequest( std::string msg ) {
 			target_x, target_y,
 			range, request.vname );
 
+}
+
+TargetRangeSensorSim::TargetSim::TargetSim () {
+	m_paused = true;
+	current_x = 0;
+	current_y = 0;
+}
+
+void TargetRangeSensorSim::TargetSim::getPosition( double time, double & x, double & y ) {
+	if ( m_paused ) {
+		x = current_x;
+		y = current_y;
+		return;
+	} else  {
+
+	}
 }
