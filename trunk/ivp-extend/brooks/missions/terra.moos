@@ -49,7 +49,7 @@ ProcessConfig = pMOOSBridge
 	
 	//SHARE = [MPC_STR] -> kassandra@192.168.1.101:9001
 	SHARE = [MPC_STR] -> nostromo@192.168.1.103:9003
-	
+	SHARE = [MPC_PARAMS] -> nostromo@192.168.1.103:9003
 }
 
 //----------------------------------------------
