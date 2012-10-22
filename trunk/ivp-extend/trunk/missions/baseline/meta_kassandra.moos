@@ -22,6 +22,7 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = kayak_interface	   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
+  Run = iAltimeter			@ NewConsole = false
 }
 
 #include plug_pMOOSBridgeV.moos
@@ -37,3 +38,4 @@ Processconfig = ANTLER
 #include plug_iRemote.moos
 #include plug_kayak_interface.moos
 #include plug_iAcommsDriver.moos
+#include plug_iAltimeter.moos
