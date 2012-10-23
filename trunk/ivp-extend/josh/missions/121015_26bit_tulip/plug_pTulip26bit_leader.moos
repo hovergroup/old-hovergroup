@@ -1,5 +1,6 @@
 //------------------------------------------------------
 // pTulip26bit Configuration Block  (Created from plugin)
+// leader
 
 ProcessConfig = pTulip26bit
 {
@@ -11,10 +12,10 @@ ProcessConfig = pTulip26bit
   y_min = -290
   y_max = 20
   
-  receive_period = 10
-  receive_offset = 8
+  receive_period = 6
+  receive_offset = 4.5
   
-  transmit_period = 10
+  transmit_period = 6
   transmit_offset = 0
   
   receive_extension = .5
