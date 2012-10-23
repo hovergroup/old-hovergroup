@@ -20,8 +20,8 @@ Processconfig = ANTLER
 	//Run = uFldShoreBroker @ NewConsole = true,XConfig=2
 	//Run = uFldNodeComms   @ NewConsole = true,XConfig=1
 	
-	Run = uXMS			  @ NewConsole = true,XConfig=3 ~ --alias=uXMS_tulip-acomms
-	Run = uXMS			  @ NewConsole = true,XConfig=4 ~ --alias=uXMS_target-sim
+	Run = uXMS              @ NewConsole = true,XConfig=3 ~uXMS_tulip-acomms
+	Run = uXMS              @ NewConsole = true,XConfig=4 ~uXMS_target-sim
 	
 	Run = pTargetRangeSensorSim @ NewConsole = false
 
