@@ -143,7 +143,8 @@ if [ "${VEHICLE}" = "kassandra" ]; then
         SHOREIP=$SHOREHOST                              \
         ACOMMSID=$ID2                                   \
         MODEMPORT="/dev/ttyUSB1"                        \
-        OS5000PORT="/dev/ttyUSB2"
+        OS5000PORT="/dev/ttyUSB2"                       \
+        ALTIMETERPORT="/dev/ttyUSB0"				
 
     nsplug meta_vehicle.bhv targ_kassandra.bhv -f       \
         VNAME=$VNAME2                                   \
