@@ -79,7 +79,6 @@ bool Tulip26bit::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
 	m_MissionReader.GetConfigurationParam("y_min", m_osy_minimum);
 	m_MissionReader.GetConfigurationParam("y_max", m_osy_maximum);
-	std::cout << "got ymin: " << m_osy_minimum << std::endl;
 
 	double receive_period, receive_offset;
 	m_MissionReader.GetConfigurationParam("receive_period", receive_period);
