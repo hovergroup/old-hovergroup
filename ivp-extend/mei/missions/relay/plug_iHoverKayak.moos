@@ -1,0 +1,8 @@
+ProcessConfig = iHoverKayak
+{
+	AppTick = 20
+	CommsTick = 20
+	
+	INVERT_RUDDER = false
+	RUDDER_OFFSET = $(RUDDER_OFFSET)
+}
