@@ -9,7 +9,7 @@ ProcessConfig = uFldNodeBroker
   TRY_SHORE_HOST = hostip=$(SHOREIP), port_udp=9001
 
   BRIDGE = src=VIEW_POLYGON
-  BRIDGE = scr=VIEW_POINT
+  BRIDGE = src=VIEW_POINT
   BRIDGE = src=VIEW_SEGLIST
   BRIDGE = src=VIEW_RANGE_PULSE
   
