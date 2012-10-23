@@ -113,7 +113,7 @@ bool Tulip26bit::OnConnectToServer() {
 				boost::bind( &Tulip26bit::onGoodReceive_follower, this, _1) );
 
 	} else {
-		std::cout << "Invalid vehicle mode - exiting." << std::endl;
+		std::cout << "Exiting on invalid vehicle mode: " << vehicle_mode << std::endl;
 		exit(0);
 	}
 
