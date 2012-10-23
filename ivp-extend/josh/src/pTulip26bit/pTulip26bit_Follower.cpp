@@ -16,7 +16,7 @@ void Tulip26bit::onTransmit_follower() {
 	data[1] = transmit_y<<3 + range;
 	data[0] = transmit_x;
 
-	m_Comms.Notify("ACOMMS_TRANSMIT_DATA", &data[0], 2);
+	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &data[0], 2);
 }
 
 void Tulip26bit::onGoodReceive_follower( const std::string data ) {

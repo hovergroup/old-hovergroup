@@ -20,7 +20,7 @@ void Tulip26bit::onTransmit_leader() {
 
 	std::cout << "Transmitting: " << std::hex << (int) data[0] << " " << (int) data[1] << std::endl;
 
-	m_Comms.Notify("ACOMMS_TRANSMIT_DATA", &data[0], 2);
+	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &data[0], 2);
 }
 
 void Tulip26bit::onGoodReceive_leader( const std::string data ) {
