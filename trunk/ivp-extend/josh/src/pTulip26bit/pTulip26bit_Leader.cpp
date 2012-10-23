@@ -12,7 +12,7 @@ void Tulip26bit::onTransmit_leader() {
 	unsigned char transmit_y = LinearEncode( m_set_y, m_osy_minimum, m_osy_maximum, 5);
 	unsigned char range = 1;
 
-	std::cout << "x-bin: " << (int) transmit_x << "  y-bin: " << (int) transmit_y << std::endl;
+	std::cout << std::dec << "x-bin: " << (int) transmit_x << "  y-bin: " << (int) transmit_y << std::endl;
 
 	std::vector<unsigned char> data (2, 0);
 	data[1] = transmit_y<<3 + range;
