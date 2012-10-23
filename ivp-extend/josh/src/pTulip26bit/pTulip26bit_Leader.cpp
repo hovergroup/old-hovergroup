@@ -16,6 +16,8 @@ void Tulip26bit::onTransmit_leader() {
 	data[1] = transmit_y<<3 + range;
 	data[0] = transmit_x;
 
+	std::cout << "Transmitting: " << std::hex << (int) data[0] << " " << (int) data[1] << std::endl;
+
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA", &data[0], 2);
 }
 
