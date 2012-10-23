@@ -120,7 +120,7 @@ bool Tulip26bit::OnConnectToServer() {
 	goby::acomms::connect( &m_AcommsTimer.signal_debug,
 			boost::bind( &Tulip26bit::handleDebug, this, _1) );
 	goby::acomms::connect( &m_AcommsTimer.signal_updates,
-			boost::bind( &Tulip26bit::handleDebug, this, _1) );
+			boost::bind( &Tulip26bit::handleUpdate, this, _1) );
 
 	m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
