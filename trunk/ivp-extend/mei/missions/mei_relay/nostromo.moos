@@ -19,7 +19,7 @@ ProcessConfig = ANTLER
 	Run = pMarinePID_Hover		@ NewConsole = false
 	Run = pHelmIvP		@ NewConsole = false
 	Run = pEchoVar		@ NewConsole = false
-	Run = iOS5000_filtered		@ NewConsole = false
+	Run = iOS5000_Hover		@ NewConsole = false
 	Run = iGPS_Hover	@ NewConsole = false
 
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
@@ -38,6 +38,7 @@ ProcessConfig = pSearchRelay
 	Lookback = 5    //observations per result
 	Epsilon = 5		//percent
 	Rate = 2
+	WaitTime = 15	//s
 }
 
 ProcessConfig = pRelayEnd
