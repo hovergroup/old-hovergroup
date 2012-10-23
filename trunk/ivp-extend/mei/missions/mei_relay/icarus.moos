@@ -41,20 +41,11 @@ ProcessConfig = pMOOSBridge
 	// Destination is shore station	terra@YOURIP:9000
 	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9200 [NODE_REPORT]
 	SHARE = [VIEW_RANGE_PULSE]	-> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
+	//SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
 	
 	//Relay Shares
-	SHARE = [START_TRANSMITTED] -> kassandra@192.168.1.101:9001
+	SHARE = [START_TRANSMITTED] -> nostromo@192.168.1.103:9003
 	}
-
-ProcessConfig = simple_gps
-{
-	AppTick = 2
-	CommsTick = 2
-	
-	PORT_NAME = /dev/ttyUSB1	
-	BAUD_RATE = 9600
-}
 
 ProcessConfig = uXMS
 {
@@ -62,27 +53,40 @@ ProcessConfig = uXMS
 	VAR = ACOMMS_DRIVER_STATUS, ACOMMS_WARNING, ACOMMS_TRANSMIT_SIMPLE
 }
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iGPS_Hover
+{
+	AppTick = 10
+	CommsTick = 10
+	
+	PORT_NAME = /dev/ttyUSB0
+	BAUD_RATE = 57600
+}
+
+ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+	PortName = /dev/ttyUSB2
 	ID = 2
+	
+	PSK_minipackets = false
+	enable_ranging = false
+	show_range_pulses = true
 }
 
 ProcessConfig = pLogger
 {
-  AppTick       = 10
-  CommsTick     = 10
-  
-  File          = LOG_ICARUS
-  PATH          = ./logs
-  AsyncLog      = true
-  FileTimeStamp = true
+	AppTick 	= 10
+	CommsTick 	= 10
 
-  // Log it all!!!!!
-  WildCardLogging = true 
+	File		= LOG_ICARUS
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
 }
 
 ProcessConfig = pNodeReporter
@@ -106,7 +110,6 @@ ProcessConfig = pEchoVar
 }
 
 
-//
 ProcessConfig = iMatlab
 {
 
