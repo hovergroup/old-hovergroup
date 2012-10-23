@@ -14,11 +14,11 @@ ProcessConfig = ANTLER
 	Run = kayak_interface 	@ NewConsole = false
 	Run = pNodeReporter		@ NewConsole = false
 	Run = pMOOSBridge		@ NewConsole = false
-	Run = pMarinePID		@ NewConsole = false
+	Run = pMarinePID_Hover		@ NewConsole = false
 	Run = pHelmIvP			@ NewConsole = false
 	Run = pEchoVar			@ NewConsole = false
 	
-	Run = iOS5000_filtered		@ NewConsole = false
+	Run = iOS5000_Hover		@ NewConsole = false
 	Run = pLogger		@ NewConsole = false	// Logs messages to disk
 	Run = iAcommsDriver @ NewConsole = false
 	Run = iAltimeter	@ NewConsole = false
@@ -32,7 +32,7 @@ ProcessConfig = pRelayEnd
 	RelayID = 3	
 	OuterRadius = 15 //m
 	InnerRadius = 3 //m
-	Endx = 700
+	Endx = 516.6
 	Endy = -300
 }
 
@@ -80,11 +80,10 @@ ProcessConfig = pMOOSBridge
 
 ProcessConfig = iAltimeter
 {
-	AppTick = 2
-	CommsTick = 2
-	
-	PORT_NAME = /dev/ttyUSB0
-//	BAUD_RATE = 9600
+        AppTick = 10
+        CommsTick = 10
+
+        PORT_NAME = /dev/ttyUSB2
 }
 
 ProcessConfig = uXMS
@@ -125,16 +124,16 @@ ProcessConfig = kayak_interface
 	RUDDER_OFFSET = 0
 }
 
-ProcessConfig = iOS5000_filtered
+ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 40
+	CommsTick	= 40
 
-	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
-	Speed		= 19200			// Always set to 19200 (OS5000 baud rate)
+	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
+	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
-	UpdateFraction = .05
+	UpdateFraction = .025
 }
 
 ProcessConfig = pNodeReporter
@@ -147,10 +146,10 @@ ProcessConfig = pNodeReporter
 	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
 	}
 
-ProcessConfig = pMarinePID
+ProcessConfig = pMarinePID_Hover
 {
-	AppTick		= 20
-	CommsTick	= 20
+	AppTick		= 5
+	CommsTick	= 5
 
 	Verbose		= false
 	DEPTH_CONTROL	= false
@@ -162,14 +161,15 @@ ProcessConfig = pMarinePID
 	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
 	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
 	SPEED_FACTOR	= 50
+	// 25-30 for no modem
+	// 40 with modem
 
 	// Yaw PID controller
-//	YAW_PID_KP		= 0.3
-//	YAW_PID_KD		= 0.2
-	YAW_PID_KP		= 0.4
-	YAW_PID_KD		= 0.2
-	YAW_PID_KI		= 0.005
+	YAW_PID_KP		= 0.45
+	YAW_PID_KD 		= 0
+	YAW_PID_KI		= 0
 	YAW_PID_INTEGRAL_LIMIT = 0.25
+	YAW_PID_TAU		= 1
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
@@ -177,7 +177,6 @@ ProcessConfig = pMarinePID
 	SPEED_PID_KI				= 0.0
 	SPEED_PID_INTEGRAL_LIMIT		= 0.07
 }
-
 ProcessConfig = pHelmIvP
 {
 	AppTick		= 2
@@ -205,15 +204,16 @@ ProcessConfig = iRemote
 
 ProcessConfig = pLogger
 {
-	AppTick			= 20
-	CommsTick		= 20
+	AppTick 	= 10
+	CommsTick 	= 10
 
-	File			= LOG_KASSANDRA
-	PATH			= ./logs/
-	AsyncLog		= true
-	FileTimeStamp		= true
+	File		= LOG_KASSANDRA
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
 	WildCardLogging		= true
 
+	WildCardOmitPattern = PLOGGER_STATUS
 }
 
 
