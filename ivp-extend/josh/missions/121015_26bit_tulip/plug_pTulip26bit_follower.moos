@@ -13,7 +13,7 @@ ProcessConfig = pTulip26bit
   y_max = 0
   
   receive_period = 6
-  receive_offset = 1.5
+  receive_offset = 2
   
   transmit_period = 6
   transmit_offset = 3
