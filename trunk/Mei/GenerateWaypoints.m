@@ -82,6 +82,8 @@ yy = linspace(y(3),y(4),n);
 
 for i=1:n
     xpts{i} = linspace(rx(i),yx(n+1-i),n);
+    xpts{i} = (xpts{i}-pavx)*xmperpix*0.738;
+    xpts{i} = xpts{i}/xmperpix+pavx;
     ypts{i} = linspace(ry(i),yy(n+1-i),n);
     scatter(xpts{i},ypts{i},50);
 end

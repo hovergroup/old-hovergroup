@@ -67,7 +67,7 @@ ProcessConfig = iAcommsDriver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB2
+	PortName = /dev/ttyUSB1
 	ID = 2
 	
 	PSK_minipackets = false
