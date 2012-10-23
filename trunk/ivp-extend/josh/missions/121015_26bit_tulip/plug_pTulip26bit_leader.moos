@@ -8,8 +8,8 @@ ProcessConfig = pTulip26bit_leader
   
   x_min = 0
   x_max = 310
-  y_min = -310
-  y_max = 0
+  y_min = -300
+  y_max = 10
   
   receive_period = 10
   receive_offset = 8
