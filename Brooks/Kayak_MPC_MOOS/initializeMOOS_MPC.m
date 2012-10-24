@@ -32,9 +32,6 @@ u = 0;
 lenMPC_STR=5+T*10+19+14;
 MPC_STR = char(97*ones(1,lenMPC_STR));
 
-TX = 'wifi';
-%TX = 'acomms';
-
 % configure MOOS/iMatlab parameters
 
 moosDB = 'terra.moos';
@@ -137,3 +134,11 @@ startSettings.x0 = x0;
 startSettings.y0 = y0;
 startSettings.h0 = h0;
 startSettings.bearing = bearing;
+
+
+if(strcmp(TX,'acomms'))
+    
+   % SET ACOMMS TRANSMIT RATE
+   iMatlab('MOOS_MAIL_TX','ACOMMS_TRANSMIT_RATE',acommsRate)
+   
+end
