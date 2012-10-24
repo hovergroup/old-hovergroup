@@ -128,7 +128,7 @@ ProcessConfig = iOS5000_Hover
 
 	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
 	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
-	PreRotation	= -15			// -15 for Boston (magnetic declination)
+	PreRotation	= -21			// -15 for Boston (magnetic declination)       // -6 added for 80-degree heading
 
 	//UpdateFraction = .05
 	// tau = dt*(1-updatefraction)/update_fraction
@@ -168,9 +168,9 @@ ProcessConfig = pMarinePID_Hover
 //	YAW_PID_KD		= 0.2
 	YAW_PID_KD = 0.1
 //	YAW_PID_KI		= 0.005
-	YAW_PID_KI = 0.1
-	YAW_PID_INTEGRAL_LIMIT = 10;
-	YAW_PID_UPDATE_FRACTION = 0.05
+	YAW_PID_KI = 0.05
+	YAW_PID_INTEGRAL_LIMIT = 100
+	YAW_PID_TAU = 1
 
 	// Speed PID controller
 	SPEED_PID_KP				= 0.4
