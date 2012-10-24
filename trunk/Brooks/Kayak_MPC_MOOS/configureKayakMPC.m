@@ -258,3 +258,25 @@ generateTracklinesMPC
 %}
 
 
+%
+[yd,td] = step(sysd,30);
+[yc,tc] = step(sysCss,30);
+figure
+subplot(2,1,1)
+stairs(td,yd(:,1))
+hold on
+plot(tc,yc(:,1),'r')
+ylabel('deg')
+title('Heading Error')
+
+subplot(2,1,2)
+stairs(td,yd(:,2))
+hold on
+plot(tc,yc(:,2),'r')
+legend('discrete','continuous')
+ylabel('meters')
+xlabel('Time [sec]')
+title('Cross-Track Error')
+
+%
+
