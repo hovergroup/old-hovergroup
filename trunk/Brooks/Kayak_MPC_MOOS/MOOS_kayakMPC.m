@@ -33,6 +33,9 @@ close all
 clc
 format compact
 
+TX = 'wifi';
+%TX = 'acomms';
+acommsRate = 2; % {0,1,2,3,4,5,100}
 
 configureKayakMPC;
 initializeMOOS_MPC;
@@ -46,6 +49,8 @@ XSave = cell(1,N+1);
 xEstSave = zeros(n+1,N+1);
 ifPLossSave = zeros(1,N+1);
 uSave = zeros(1,N+1);
+
+eEst = zeros(n+1,1)+0.0001;
 
 diary on
 % start loop  (breaks when MPC_STOP==1)
@@ -76,13 +81,14 @@ while(~mpc_stop)
                 eEst(2:n) = eEstKF(2:5);
                 eEst(n) = KF_cross*eEst(n);
         end
-        
-        if(0)
+
+        %{
             fprintf('State estimate (all outputs)\n')
             fprintf('%s %f\n','ehddot', eEst(2), 'ehdot ', ...
                 eEst(3), 'eh    ', eEst(4), 'ex    ', eEst(5),...
                 'intx   ',eEst(6))
-        end
+        %}
+        
         hEst = eEst(n-1) + desBearing(loopIt);
         fprintf('actual est heading: %f [deg]\n',hEst)
         
@@ -102,16 +108,48 @@ while(~mpc_stop)
     % solve MPC - xEst and previous control are inputs
     [uPlan tMPC X] = solveKayakMPC(sys,eEst,MPCparams,uPrev);
     
-    % SIM PACKET LOSS (WITH DELAY)
+    
+    % Wifi and/or acomms packet loss:
+    switch TX
+        case 'wifi'
+            ifPLoss = (rand<probPLoss);
+            % DELAY (simulate acomms...)
+            while(toc(loopStart)<(dt-.01))
+                pause(0.005)
+            end
+            
+        case 'acomms'
+            % send acomms
+            switch acommsRate
+                case 1
+                    data = num2str(loopIt);
+                    numFrames = 1;
+                case 2
+                    data{1} = num2str(loopIt);
+                    data{2} = num2str(loopIt);
+                    data{3} = num2str(loopIt);
+                    numFrames = 3;
+            end
+            [send frames] = constructAcommsTX(acommsRate,data);
+            iMatlab('MOOS_MAIL_TX','ACOMMS_TRANSMIT_DATA',send) 
+            
+            % look at driver for reception (with TIMEOUT)
+            acommsTimeout = 5.99;
+            neededFrames = 3;   % all good PSK frames
+            %neededFrames = 1;   % FSK, or PSK without all good
+            checkData = frames{1}; % pick out 1 frame to check
+            
+            ifPLoss = parsePLoss(acommsTimeout,checkData,neededFrames,numFrames);
+            
+    end
+    
     % buffer works on RECEIVED PLAN AT THIS TIME STEP (delayed)
-    [uPlanBuffered kPlan ifPLoss] = simPacketLossMPC...
-        (uPlan,uPlanBuffered,kPlan,probPLoss);
+    [uPlanBuffered kPlan] = simPacketLossMPC...
+        (uPlan,uPlanBuffered,kPlan,ifPLoss);
     u = uPlanBuffered(:,kPlan);     % send appropriate control action
     
     fprintf('Computed plan: \n')
     disp(uPlan)
-    %fprintf('Buffered plan: \n')
-    %disp(uPlanBuffered)
     
     %%%% ACTUAL CONTROL TO SEND IS HEADING SETPOINT
     uBearing = eEst(1) + desBearing(loopIt) + u;
@@ -124,22 +162,11 @@ while(~mpc_stop)
     fprintf('MPC predicted next state (from uPrev):\n')
     X(:,2)
     
-    switch TX
-        case 'wifi'
-            
-            % DELAY (simulate acomms...)
-            while(toc(loopStart)<(dt-.005))
-                pause(0.005)
-            end
-            send = sprintf('heading = %0.1f',uBearing);
-            iMatlab('MOOS_MAIL_TX','CONST_HEADING_UPDATES',send);
-            fprintf('\n\nSend des heading = %f \n\n\n',uBearing);
-            
-        case 'acomms'
-            
-            %
-            
-    end
+    % SEND COMMAND (always over wifi)
+    send = sprintf('heading = %0.1f',uBearing);
+    iMatlab('MOOS_MAIL_TX','CONST_HEADING_UPDATES',send);
+    fprintf('\n\nSend des heading = %f \n\n\n',uBearing);
+    
     
     % matlab save
     uPlanSave{loopIt} = uPlan;
