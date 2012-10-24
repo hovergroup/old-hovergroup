@@ -33,6 +33,9 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 
+	void updateMeString(string, string);
+	void updateMeDouble(string, double);
+
 	void ComputeIndex(int);
 	int Decision();
 	void GetWaypoints();
@@ -57,7 +60,7 @@ protected:
 
 	void Confess(RelayStat stats);
 
-	string mode, mail;
+	string mode, mail, my_name;
 	int discount,min_obs,total_points,num_lookback, rate;
 	map<double, vector<double> > data;
 	vector<double> mean, stdev,indices;

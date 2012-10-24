@@ -39,7 +39,7 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 		ofstream gittins_stats_output;
 		gittins_stats_output.open("gittins_stats.txt",ios::app);
 		vector< pair<double,string> > gittins_stats;
-		gittins_stats = string_data["kassandra"]["SEARCH_RELAY_STAT"];
+		gittins_stats = string_data["nostromo"]["SEARCH_RELAY_STAT"];
 
 		for(int i=0;i<gittins_stats.size();i++){
 			gittins_stats_output << gittins_stats[i].first;
@@ -126,6 +126,19 @@ void ACOMMS_ALOG_PARSER::outputResults() {
 				vector< pair<double,double> > receiver_thrust;
 				sender_thrust = double_data[my_node]["DESIRED_THRUST"];
 				receiver_thrust = double_data[rv]["DESIRED_THRUST"];
+				map<string,map<string,vector<pair<double,double> > > >::iterator it =
+						double_data.find(my_node);
+				bool found_sender = !(it==double_data.end());
+				it = double_data.find(rv);
+				bool found_receiver = !(it==double_data.end());
+				if ( !found_sender ) cout << "failed to find sender: " << my_node << endl;
+				if ( !found_receiver ) cout << "failed to find receiver: " << rv << endl;
+
+
+				map<string,vector<pair<double,double> > >::iterator iter = double_data[my_node].find("DESIRED_THRUST");
+				if ( iter==double_data[my_node].end() ) cout << "failed to find thrust for: " << my_node << endl;
+				iter = double_data[rv].find("DESIRED_THRUST");
+				if ( iter==double_data[rv].end() ) cout << "failed to find thrust for: " << rv << endl;
 
 				log_output << delim;
 				pair<int,double> temp = findNearest(sender_thrust,te.transmission_time);
