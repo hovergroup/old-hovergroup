@@ -34,14 +34,14 @@ scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
 %endx = 1000*deg2km(endlon-pavlon)/xmperpix;
 %endy = 1000*deg2km(endlat-pavlat)/ymperpix;
 
-endx = 700/xmperpix;
+endx = 550/xmperpix;
 endy = -300/ymperpix;
 
 line([pavx,endx+pavx],[pavy,endy+pavy]);
 
 n=3;
 total = 150;
-fac = 200/n;
+fac = 180/n;
 x(1) = endx/2-fac;
 x(2) = endx/2+fac;
 x(3) = endx/2+fac;
@@ -57,11 +57,11 @@ y = y+pavy;
 
 plot(pavx,pavy,'ro');
 plot(endx+pavx,endy+pavy,'ro');
-
-line([x(1),x(2)],[y(1),y(2)],'Color','r');
-line([x(2),x(3)],[y(2),y(3)],'Color','g');
-line([x(3),x(4)],[y(3),y(4)],'Color','c');
-line([x(1),x(4)],[y(1),y(4)],'Color','y');
+% 
+% line([x(1),x(2)],[y(1),y(2)],'Color','r');
+% line([x(2),x(3)],[y(2),y(3)],'Color','g');
+% line([x(3),x(4)],[y(3),y(4)],'Color','c');
+% line([x(1),x(4)],[y(1),y(4)],'Color','y');
 
 rx = linspace(x(1),x(2),n);
 ry = linspace(y(1),y(2),n);
@@ -82,8 +82,6 @@ yy = linspace(y(3),y(4),n);
 
 for i=1:n
     xpts{i} = linspace(rx(i),yx(n+1-i),n);
-    xpts{i} = (xpts{i}-pavx)*xmperpix*0.738;
-    xpts{i} = xpts{i}/xmperpix+pavx;
     ypts{i} = linspace(ry(i),yy(n+1-i),n);
     scatter(xpts{i},ypts{i},50);
 end
