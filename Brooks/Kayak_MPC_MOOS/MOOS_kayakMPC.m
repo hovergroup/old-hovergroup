@@ -92,7 +92,7 @@ while(~mpc_stop)
         hEst = eEst(n-1) + desBearing(loopIt);
         fprintf('actual est heading: %f [deg]\n',hEst)
         
-        % convert to internal state scaling
+        % convert to MPC internal state scaling 
         eEst(2:n+1) = sys.CdAll\eEst(2:n+1);
         
         
