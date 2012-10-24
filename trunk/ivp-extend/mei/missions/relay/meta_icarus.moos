@@ -19,6 +19,7 @@ Processconfig = ANTLER
   Run = iGPS_Hover         	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
+  Run = pRelayStart		@ NewConsole = false
 }
 
 #include plug_pMOOSBridgeV.moos
@@ -30,3 +31,4 @@ Processconfig = ANTLER
 #include plug_pEchoVar.moos
 #include plug_iGPS_Hover.moos
 #include plug_iAcommsDriver.moos
+#include plug_pRelayStart.moos

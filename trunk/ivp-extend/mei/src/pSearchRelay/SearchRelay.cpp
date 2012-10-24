@@ -14,12 +14,13 @@
 SearchRelay::SearchRelay()
 {
 	normal_indices = std::vector<double> (18, 0);
+
 	fudge_factor = 10; 	//m outer diameter
-	station_factor = 3; //m inner diameter
-	min_obs = 10;
+
+	first_obs = 10;
 	discount = 5;
 	num_lookback = 1;
-	wait_time = 20; //s
+	wait_time = 15; //s
 
 	length = 0;
 
@@ -29,10 +30,6 @@ SearchRelay::SearchRelay()
 	connected = 0;
 	end_thrust = 0;
 
-	//Update variables
-	update_time = 7;
-	last_update = 0;
-	voltage = 0;
 	srand (time(NULL));
 }
 
@@ -59,12 +56,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="NAV_Y"){
 			myy = msg.GetDouble();
-		}
-		else if(key=="DESIRED_THRUST"){
-			mythrust = msg.GetDouble();
-		}
-		else if(key=="SEARCH_RELAY_WAIT_TIME"){
-			wait_time = msg.GetDouble();
 		}
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
@@ -143,9 +134,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				}
 			}
 		}
-		else if(key=="VOLTAGE")	{
-			voltage = msg.GetDouble();
-		}
+
 		else if(key=="RELAY_MODE"){
 			relay_mode = msg.GetString();
 		}
@@ -168,12 +157,14 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Notify("START_TRANSMITTED","reset");
 	m_Comms.Notify("RELAY_SUCCESS","reset");
 
+	m_MissionReader.GetValue("Community", my_name);
 	m_MissionReader.GetConfigurationParam("Mode",mode);
 	m_MissionReader.GetConfigurationParam("Discount",discount);
-	m_MissionReader.GetConfigurationParam("MinObs",min_obs);
+	m_MissionReader.GetConfigurationParam("MinObs",first_obs);
 	m_MissionReader.GetConfigurationParam("FudgeFactor",fudge_factor);
 	m_MissionReader.GetConfigurationParam("Lookback",num_lookback);
 	m_MissionReader.GetConfigurationParam("Rate",rate);
+	m_MissionReader.GetConfigurationParam("WaitTime",wait_time);
 
 	switch(rate){
 	case 0:
@@ -207,8 +198,6 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("SEARCH_RELAY_GOTO_POINT",0);
 	m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
 	m_Comms.Register("RELAY_PAUSE",0);
-	m_Comms.Register("DESIRED_THRUST",0);
-	m_Comms.Register("VOLTAGE",0);
 	m_Comms.Register("RELAY_MODE",0);
 
 	m_Comms.Register("START_TRANSMITTED",0);
@@ -264,36 +253,13 @@ bool SearchRelay::Iterate()
 		connected++;
 	}
 
-	//Thruster control
-	double closest_dist = sqrt(pow((targetx-myx),2) + pow((targety-myy),2));
-
-	if(closest_dist < station_factor){
-		if(mythrust != 0){
-			cout << "Turning thruster off" << endl;
-			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
-			m_Comms.Notify("RELAY_MODE","KEEP");
-		}
-	}
-	else if(closest_dist > fudge_factor){
-		if(relay_mode == "GOTO"){
-			if(mythrust == 0){
-				cout << "Turning thruster on" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
-			}
-		}
-		else if(relay_mode == "KEEP"){
-			if(mythrust == 0 && action!="ticking"){
-				cout << "Turning thruster on" << endl;
-				m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
-			}
-		}
-	}
+	updateMeString("RELAY_ACTION",action);
 
 	//Acoustics
 	if(action == "ticking"){
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
-			if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
+			ComputeSuccessRates(0);
 			cout << "Missed sync" << endl << endl;
 			action = "start_transmit_now";
 		}
@@ -338,18 +304,6 @@ bool SearchRelay::Iterate()
 		action = "start_transmit_now";
 	}
 
-	//Update me!
-	if(MOOSTime() - last_update >= update_time){
-		stringstream print_me;
-		print_me << "Action: " << action << endl;
-		print_me << "Distance: " << closest_dist << endl;
-		print_me << "Thrust: " << mythrust << endl;
-		print_me << "Voltage: " << voltage << endl;
-		cout << print_me.str() << endl;
-		cout << endl;
-		last_update = MOOSTime();
-	}
-
 	return(true);
 }
 
@@ -361,6 +315,22 @@ bool SearchRelay::OnStartUp()
 	// happens before connection is open
 
 	return(true);
+}
+
+//---------------------------------------------------------
+// Misc
+
+void SearchRelay::updateMeDouble(string msg_name, double msg){
+	stringstream ss;
+	ss<<msg;
+	ss.flush();
+	string sendme = "src_node="+my_name+",dest_node=terra,src_var="+msg_name+",double_val="+ss.str();
+	m_Comms.Notify("NODE_MESSAGE",sendme);
+}
+
+void SearchRelay::updateMeString(string msg_name, string msg){
+	string sendme = "src_node="+my_name+",dest_node=terra,src_var="+msg_name+",string_val="+msg;
+	m_Comms.Notify("NODE_MESSAGE",sendme);
 }
 
 //---------------------------------------------------------

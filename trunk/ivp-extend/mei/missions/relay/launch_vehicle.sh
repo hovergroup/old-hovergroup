@@ -94,7 +94,7 @@ ID3=3
 
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld.moos targ_nostromo.moos -f  \
+    nsplug meta_nostromo.moos targ_nostromo.moos -f  \
         VHOST=$VHOST3                                   \
         VNAME=$VNAME3                                   \
         VPORT=$VPORT3                                   \

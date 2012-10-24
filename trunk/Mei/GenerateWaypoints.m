@@ -87,8 +87,10 @@ for i=1:n
     ypts{i} = linspace(ry(i),yy(n+1-i),n);
     scatter(xpts{i},ypts{i},50);
 end
+set(gca,'ydir','normal');
 
 hold on
+set(gca,'ydir','normal');
 
 fileID = fopen('relay_waypoints.txt','w');
 
