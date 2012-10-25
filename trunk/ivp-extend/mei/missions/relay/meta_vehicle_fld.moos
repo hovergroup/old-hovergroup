@@ -58,3 +58,4 @@ ProcessConfig = uXMS
 #include plug_iRemote.moos
 #include plug_iHoverKayak.moos
 #include plug_iAcommsDriver.moos
+#include plug_pSearchRelay.moos
