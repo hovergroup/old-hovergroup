@@ -6,6 +6,6 @@ ProcessConfig = pRelayEnd
 	RelayID = 3	
 	OuterRadius = 15 //m
 	InnerRadius = 3 //m
-	Endx = 570
+	Endx = 400
 	Endy = -300
 }
