@@ -34,7 +34,7 @@ scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
 %endx = 1000*deg2km(endlon-pavlon)/xmperpix;
 %endy = 1000*deg2km(endlat-pavlat)/ymperpix;
 
-endx = 550/xmperpix;
+endx = 570/xmperpix;
 endy = -300/ymperpix;
 
 line([pavx,endx+pavx],[pavy,endy+pavy]);
