@@ -346,7 +346,7 @@ void SearchRelay::sendDouble(string dest, string msg_name, double msg){
 
 void SearchRelay::sendString(string dest, string msg_name, string msg){
 	string sendme = "src_node="+my_name+",dest_node="+dest+",src_var="+msg_name+",string_val="+msg;
-	m_Comms.Notify("NODE_MESSAGE",sendme);
+	m_Comms.Notify("NODE_MESSAGE_LOCAL",sendme);
 }
 
 //---------------------------------------------------------
