@@ -135,10 +135,12 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				if(msg.GetString()=="good"){
 					action = "compute_success";
 					m_Comms.Notify("RELAY_ACK",1);
+					sendString("terra","RELAY_ACTION",action);
 				}
 				else if(msg.GetString()=="bad"){
 					action = "compute_failure";
 					m_Comms.Notify("RELAY_ACK",1);
+					sendString("terra","RELAY_ACTION",action);
 				}
 			}
 		}
