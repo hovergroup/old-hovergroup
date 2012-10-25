@@ -61,7 +61,7 @@ protected:
 	void Confess(RelayStat stats);
 
 	string mode, mail, my_name;
-	int discount,min_obs,total_points,num_lookback, rate;
+	int discount,total_points,num_lookback, rate;
 	map<double, vector<double> > data;
 	vector<double> mean, stdev,indices;
 	vector<double> normal_indices;
@@ -75,6 +75,7 @@ protected:
 	double mythrust, voltage, end_thrust;
 	string end_status, relay_mode;
 	double length;
+	double first_obs, last_report, report_age;
 
 	string action;
 

@@ -14,7 +14,6 @@ RelayEnd::RelayEnd()
 {
 	station_factor = 3; //m
 	fudge_factor = 15; //m
-	update_time = 7; //s
 	mythrust = 0;
 	heard = "nothing";
 }

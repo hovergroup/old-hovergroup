@@ -78,7 +78,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 		}
 		else if(key=="ACOMMS_TRANSMIT_RATE"){
-			rate = msg.getDouble();
+			rate = msg.GetDouble();
 			sendDouble("icarus","ACOMMS_TRANSMIT_RATE",rate);
 		}
 		else if(key=="START_TRANSMITTED"){
@@ -110,7 +110,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 					action = "compute_success";
 					m_Comms.Notify("RELAY_ACK",1);
 				}
-				else if(msg.GetString()="bad"){
+				else if(msg.GetString()=="bad"){
 					action = "compute_failure";
 					m_Comms.Notify("RELAY_ACK",1);
 				}
@@ -367,7 +367,7 @@ void SearchRelay::ComputeSuccessRates(int packet_got){
 		cout << "Transmissions sent: " << data[closest_ind].size() << endl;
 		cout<<"Number of Observations: "<<data[closest_ind].size()/num_lookback<<endl;
 
-		if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < min_obs/num_lookback || data[closest_ind].size()%num_lookback != 0){
+		if(data[closest_ind].size() < num_lookback || data[closest_ind].size()/num_lookback < first_obs || data[closest_ind].size()%num_lookback != 0){
 			std::cout<<"--->Holding Station"<<std::endl<<std::endl;
 		}
 		else{
