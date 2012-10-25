@@ -19,12 +19,14 @@ Processconfig = ANTLER
 	Run = pHostInfo       @ NewConsole = false
 	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
 	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+  	Run = uFldMessageHandler @ NewConsole = false
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
 }
 
 #include plug_pHostInfo.moos
+#include plug_uFldMessageHandler.moos
 
 //--------------------------------------------------
 // uFldShoreBroker Configuration Block
@@ -58,7 +60,7 @@ ProcessConfig = uFldNodeComms
   AppTick       = 2
   CommsTick     = 2
 
-  COMMS_RANGE      = 0
+  COMMS_RANGE      = 10000
   CRITICAL_RANGE   = 0
   
   MIN_MSG_INTERVAL = 0
