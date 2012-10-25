@@ -80,6 +80,31 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 		else if(key=="ACOMMS_TRANSMIT_RATE"){
 			rate = msg.GetDouble();
 			sendDouble("icarus","ACOMMS_TRANSMIT_RATE",rate);
+
+			switch(rate){
+				case 0:
+					length = 32;
+					break;
+				case 1:
+					length = 192;
+					break;
+				case 2:
+					length = 192;
+					break;
+				case 3:
+					length = 512;
+					break;
+				case 4:
+					length = 512;
+					break;
+				case 5:
+					length = 2048;
+					break;
+				case 6:
+					length = 192;
+					break;
+				}
+
 		}
 		else if(key=="START_TRANSMITTED"){
 			if(msg.GetString()!="reset"){
@@ -176,30 +201,6 @@ bool SearchRelay::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Rate",rate);
 	m_MissionReader.GetConfigurationParam("WaitTime",wait_time);
 
-	switch(rate){
-	case 0:
-		length = 32;
-		break;
-	case 1:
-		length = 192;
-		break;
-	case 2:
-		length = 192;
-		break;
-	case 3:
-		length = 512;
-		break;
-	case 4:
-		length = 512;
-		break;
-	case 5:
-		length = 2048;
-		break;
-	case 6:
-		length = 192;
-		break;
-	}
-
 	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 
 	m_Comms.Register("NAV_X",0);
@@ -277,7 +278,8 @@ bool SearchRelay::Iterate()
 			if(time_elapsed > wait_time){
 				ComputeSuccessRates(0);
 				m_Comms.Notify("RELAY_ACK",1);
-				sendString("terra","RELAY_MSG","Relay Sync Loss");
+				sendString("terra","RELAY_MSG","Start Sync Loss");
+				m_Comms.Notify("RELAY_MSG","Start Sync Loss");
 				action = "start_transmit_now";
 			}
 		}
@@ -307,10 +309,12 @@ bool SearchRelay::Iterate()
 			}
 			else{
 				sendString("terra","RELAY_MSG","Wait: End Driver");
+				m_Comms.Notify("RELAY_MSG","Wait: End Driver");
 			}
 		}
 		else{
 			sendString("terra","RELAY_MSG","Wait: End Thruster");
+			m_Comms.Notify("RELAY_MSG","Wait: End Thruster");
 		}
 	}
 	else if(action == "compute_success"){
