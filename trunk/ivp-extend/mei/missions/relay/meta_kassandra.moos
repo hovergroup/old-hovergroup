@@ -22,8 +22,22 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = kayak_interface	   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
-  Run = iAltimeter		@ NewConsole = false
-  Run = pRelayEnd		@ NewConsole = false
+  Run = iAltimeter			@ NewConsole = false
+  Run = pRelayEnd			@ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+
+	VAR = DESIRED_THRUST
+	VAR = VOLTAGE
+	VAR = ACOMMS_DRIVER_STATUS
+	VAR = ACOMMS_RECEIVED_SIMPLE
+	VAR = END_OFFSET
+	VAR = END_STATUS
+	VAR = RELAY_ACK
 }
 
 #include plug_pMOOSBridgeV.moos

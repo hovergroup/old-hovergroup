@@ -14,7 +14,6 @@
 SearchRelay::SearchRelay()
 {
 	normal_indices = std::vector<double> (18, 0);
-
 	fudge_factor = 10; 	//m outer diameter
 
 	first_obs = 10;
@@ -29,7 +28,9 @@ SearchRelay::SearchRelay()
 
 	connected = 0;
 	end_thrust = 0;
-
+	last_report = 0;
+	report_age = 0;
+	
 	srand (time(NULL));
 }
 
@@ -68,12 +69,17 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 					}
 					else{
 						action = "relay";
+						m_Comms.Notify("RELAY_ACK",0);
 					}
 				}
 				else{
 					cout << "Heard erroneous message: " << msg.GetString() << endl;
 				}
 			}
+		}
+		else if(key=="ACOMMS_TRANSMIT_RATE"){
+			rate = msg.getDouble();
+			sendDouble("icarus","ACOMMS_TRANSMIT_RATE",rate);
 		}
 		else if(key=="START_TRANSMITTED"){
 			if(msg.GetString()!="reset"){
@@ -85,26 +91,31 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				}
 			}
 		}
-
 		else if(key=="END_STATUS"){
 			end_status = msg.GetString();
+			if(last_report==0){
+				last_report = MOOSTime();
+			}
+			else{
+			report_age = MOOSTime()-last_report;
+			}
 		}
-
 		else if(key=="END_THRUST"){
 			end_thrust = msg.GetDouble();
 		}
-
 		else if(key=="RELAY_SUCCESS"){
 			if(msg.GetString()!="reset"){
-				if(msg.GetString()=="true"){
+			
+				if(msg.GetString()=="good"){
 					action = "compute_success";
+					m_Comms.Notify("RELAY_ACK",1);
 				}
-				else{
+				else if(msg.GetString()="bad"){
 					action = "compute_failure";
+					m_Comms.Notify("RELAY_ACK",1);
 				}
 			}
 		}
-
 		//RELAY MAINTENANCE
 		else if(key=="SEARCH_RELAY_GOTO_POINT"){
 			if(msg.GetDouble() != 99){
@@ -123,7 +134,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				m_Comms.Notify("RELAY_MODE","GOTO");
 			}
 		}
-
 		else if(key=="RELAY_PAUSE"){
 			if(msg.GetString() != "reset"){
 				if(msg.GetString() == "false"){
@@ -134,7 +144,6 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 				}
 			}
 		}
-
 		else if(key=="RELAY_MODE"){
 			relay_mode = msg.GetString();
 		}
@@ -199,7 +208,7 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("SEARCH_RELAY_WAIT_TIME",0);
 	m_Comms.Register("RELAY_PAUSE",0);
 	m_Comms.Register("RELAY_MODE",0);
-
+	m_Comms.Register("ACOMMS_TRANSMIT_RATE",0);
 	m_Comms.Register("START_TRANSMITTED",0);
 	m_Comms.Register("END_STATUS",0);
 	m_Comms.Register("END_THRUST",0);
@@ -223,7 +232,6 @@ bool SearchRelay::OnConnectToServer()
 	}
 
 	connected++;
-	cout << "Connected to server "<<connected<<" times"<<endl;
 
 	m_Comms.Notify("RELAY_MODE","GOTO");
 	m_Comms.Notify("MISSION_MODE","RELAY");
@@ -253,15 +261,23 @@ bool SearchRelay::Iterate()
 		connected++;
 	}
 
-	updateMeString("RELAY_ACTION",action);
+	sendString("terra","RELAY_ACTION",action);
 
 	//Acoustics
 	if(action == "ticking"){
-		double time_elapsed = MOOSTime() - start_time;
-		if(time_elapsed > wait_time){
-			ComputeSuccessRates(0);
-			cout << "Missed sync" << endl << endl;
-			action = "start_transmit_now";
+		if(report_age > 0.75*wait_time){
+			sendString("terra","RELAY_MSG","NO REPORT FROM END!");
+			sendDouble("terra","WIFI_TIMEOUT",report_age);
+			m_Comms.Notify("RELAY_PAUSE","true");
+		}
+		else{
+			double time_elapsed = MOOSTime() - start_time;
+			if(time_elapsed > wait_time){
+				ComputeSuccessRates(0);
+				m_Comms.Notify("RELAY_ACK",1);
+				sendString("terra","RELAY_MSG","Relay Sync Loss");
+				action = "start_transmit_now";
+			}
 		}
 	}
 	else if(action == "start_transmit_now"){
@@ -276,7 +292,7 @@ bool SearchRelay::Iterate()
 	else if(action == "waiting"){
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
-			cout << "Missed Wifi Sync with Start" << endl;
+			sendString("terra","RELAY_MSG","Start Sync Loss");
 			action = "start_transmit_now";
 		}
 	}
@@ -288,19 +304,19 @@ bool SearchRelay::Iterate()
 				start_time = MOOSTime();
 			}
 			else{
-				cout << "Waiting for end driver" << endl;
+				sendString("terra","RELAY_MSG","Wait: End Driver");
 			}
 		}
 		else{
-			cout << "Waiting for end to stop moving" << endl;
+			sendString("terra","RELAY_MSG","Wait: End Thruster");
 		}
 	}
 	else if(action == "compute_success"){
-		if(relay_mode=="KEEP"){ComputeSuccessRates(1);}
+		ComputeSuccessRates(1);
 		action = "start_transmit_now";
 	}
 	else if(action == "compute_failure"){
-		if(relay_mode=="KEEP"){ComputeSuccessRates(0);}
+		ComputeSuccessRates(0);
 		action = "start_transmit_now";
 	}
 
@@ -320,16 +336,16 @@ bool SearchRelay::OnStartUp()
 //---------------------------------------------------------
 // Misc
 
-void SearchRelay::updateMeDouble(string msg_name, double msg){
+void SearchRelay::sendDouble(string dest, string msg_name, double msg){
 	stringstream ss;
 	ss<<msg;
 	ss.flush();
-	string sendme = "src_node="+my_name+",dest_node=terra,src_var="+msg_name+",double_val="+ss.str();
+	string sendme = "src_node="+my_name+",dest_node="+dest+",src_var="+msg_name+",double_val="+ss.str();
 	m_Comms.Notify("NODE_MESSAGE",sendme);
 }
 
-void SearchRelay::updateMeString(string msg_name, string msg){
-	string sendme = "src_node="+my_name+",dest_node=terra,src_var="+msg_name+",string_val="+msg;
+void SearchRelay::sendString(string dest, string msg_name, string msg){
+	string sendme = "src_node="+my_name+",dest_node="+dest+",src_var="+msg_name+",string_val="+msg;
 	m_Comms.Notify("NODE_MESSAGE",sendme);
 }
 

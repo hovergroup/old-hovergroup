@@ -23,6 +23,7 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = iHoverKayak		   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
+  Run = pSearchRelay		@ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -30,6 +31,9 @@ ProcessConfig = uXMS
 	DISPLAY_TIME = true
 	DISPLAY_SOURCE = true
 	
+	VAR=RELAY_ACTION
+	VAR=RELAY_MSG
+	VAR=SEARCH_RELAY_STAT
 	VAR=VOLTAGE
 	VAR=CPU_BOX_TEMP
 	VAR=ROBOTEQ_HEATSINK_TEMP
