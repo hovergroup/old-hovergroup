@@ -15,8 +15,8 @@ RelayEnd::RelayEnd()
 	station_factor = 3; //m
 	fudge_factor = 15; //m
 	update_time = 7; //s
-	voltage = 0;
 	mythrust = 0;
+	heard = "nothing";
 }
 
 //---------------------------------------------------------
@@ -49,10 +49,10 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			if(receive_info.source==relay_id){
 				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
 				if(receive_info.num_good_frames==receive_info.num_frames){
-					m_Comms.Notify("RELAY_SUCCESS","true");
+					heard = "good";
 				}
 				else{
-					m_Comms.Notify("RELAY_SUCCESS","false");
+					heard = "bad";
 				}
 			}
 		}
@@ -61,11 +61,11 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			driver_status = msg.GetString();
 			m_Comms.Notify("END_STATUS",driver_status);
 		}
-		else if(key=="VOLTAGE"){
-			voltage = msg.GetDouble();
-		}
 		else if(key=="DESIRED_THRUST"){
 			mythrust = msg.GetDouble();
+		}
+		else if(key=="RELAY_ACK"){
+			relay_status = msg.GetDouble();
 		}
 	}
 
@@ -92,8 +92,8 @@ bool RelayEnd::OnConnectToServer()
 	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
-	m_Comms.Register("VOLTAGE",0);
 	m_Comms.Register("DESIRED_THRUST",0);
+	m_Comms.Register("RELAY_ACK",0);
 
 	stringstream ss;
 	ss<<"points="<<end_x<<","<<end_y;
@@ -104,11 +104,6 @@ bool RelayEnd::OnConnectToServer()
 	m_Comms.Notify("RELAY_MODE","GOTO");
 	m_Comms.Notify("MISSION_MODE","RELAY");
 
-	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",100);
-
-	now = MOOSTime();
-	last = 0;
-
 	return(true);
 }
 
@@ -118,33 +113,28 @@ bool RelayEnd::OnConnectToServer()
 bool RelayEnd::Iterate()
 {
 	double offset = sqrt(pow((myx-end_x),2) + pow((myy-end_y),2));
-
+	m_Comms.Notify("END_OFFSET",offset);
+	
 	if(offset < station_factor){
 		if(mythrust != 0){
-			cout << "Turning thruster off" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
 			m_Comms.Notify("END_THRUST",0);
 		}
 	}
 	else if(offset > fudge_factor){
 		if(mythrust == 0){
-			cout << "Turning thruster on" << endl;
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 			m_Comms.Notify("END_THRUST",30);
 		}
 	}
 
-	now = MOOSTime();
-	if(now - last >= update_time){
-		cout << "Voltage: " << voltage << endl;
-		cout << "Driver: " << driver_status << endl;
-		cout << "Thrust: " << mythrust << endl;
-		cout << "Offset: " << offset << endl;
-
-		last = MOOSTime();
-		cout << endl;
+	if(relay_status==0){
+		m_Comms.Notify("RELAY_SUCCESS",heard);
 	}
-
+	else if(relay_status==1){
+		heard == "nothing";
+	}
+	
 	return(true);
 }
 

@@ -33,8 +33,8 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 
-	void updateMeString(string, string);
-	void updateMeDouble(string, double);
+	void sendString(string, string, string);
+	void sendDouble(string, string, double);
 
 	void ComputeIndex(int);
 	int Decision();

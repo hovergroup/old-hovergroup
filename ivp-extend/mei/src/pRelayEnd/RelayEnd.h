@@ -29,9 +29,11 @@ public:
 protected:
 	int relay_id;
 	double end_x,end_y,myx,myy;
-	double fudge_factor, station_factor,now,last,update_time;
+	double fudge_factor, station_factor;
 	string driver_status;
-	double voltage, mythrust;
+	double mythrust;
+	double relay_status;
+	string heard;
 };
 
 #endif 

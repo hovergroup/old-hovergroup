@@ -74,21 +74,21 @@ fi
 
 VNAME1="icarus"  # The first vehicle Community
 VHOST1="192.168.1.102"
-VPORT1="9300"
-LPORT1="9301"
+VPORT1="9200"
+LPORT1="9201"
 ID1=1
 
 VNAME2="kassandra"  # The second vehicle Community
 VHOST2="192.168.1.101"
-VPORT2="9200"
-LPORT2="9201"
+VPORT2="9100"
+LPORT2="9101"
 RETURN_PT2="10,-20"
 ID2=2
 
 VNAME3="nostromo"  # The third vehicle Community
 VHOST3="192.168.1.103"
-VPORT3="9100"
-LPORT3="9101"
+VPORT3="9300"
+LPORT3="9301"
 RETURN_PT3="30,-10"
 ID3=3
 
