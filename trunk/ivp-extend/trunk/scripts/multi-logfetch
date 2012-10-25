@@ -18,6 +18,8 @@ for (( i=0; i<${#VEHICLES}; i++ )) ; do
 		   	logfetch --vehicle=NOSTROMO ;;
 		[tT] )	echo "Terra"
 			logfetch --vehicle=TERRA --local ;;
+		[kK] )  echo "Kassandra"
+			logfetch --vehicle=KASSANDRA;;
 		*) echo "Invalid: $LETTER" ;;
 	esac
 
