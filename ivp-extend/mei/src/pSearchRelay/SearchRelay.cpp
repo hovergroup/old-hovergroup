@@ -233,6 +233,7 @@ bool SearchRelay::OnConnectToServer()
 
 	connected++;
 
+	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
 	m_Comms.Notify("RELAY_MODE","GOTO");
 	m_Comms.Notify("MISSION_MODE","RELAY");
 
