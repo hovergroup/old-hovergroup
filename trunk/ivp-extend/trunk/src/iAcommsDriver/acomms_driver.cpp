@@ -432,6 +432,10 @@ void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmissi
 			if ( i<numbad-1 ) ss << ",";
 		}
 		m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str());
+	} else {
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", "");
+		m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
+		publishWarning("Found no frames when trying to publish received data.");
 	}
 }
 
