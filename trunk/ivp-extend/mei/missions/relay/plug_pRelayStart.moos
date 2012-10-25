@@ -1,0 +1,6 @@
+ProcessConfig = pRelayStart
+{
+	AppTick = 5
+	CommsTick = 5
+	
+}
