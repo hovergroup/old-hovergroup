@@ -16,6 +16,7 @@ cd ${FOLDERDATE}
 
 LOCAL="no"
 VEHICLE=""
+HELP="no"
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -40,12 +41,21 @@ for ARGI; do
     fi
 done
 
+if [ "${HELP}" = "yes" ] ; then
+	printf "Usage: logfetch --vehicle=[VEHICLE] [options]  \n"
+	printf "Options:                                       \n"
+	printf "   --local     Specify for fetching locally,   \n"
+	printf "               without ssh.                    \n"
+	exit 0
+fi
+
 if [ "${VEHICLE}" = "" ] ; then
     printf "Must define a vehicle\n"
     exit 0
 fi
 
 if [ "${LOCAL}" = "no" ] ; then
+
 #-------------------------------------------------------
 #  Part 2: Remote fetch
 #-------------------------------------------------------
