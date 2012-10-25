@@ -53,6 +53,7 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 				else{
 					heard = "bad";
 				}
+				m_Comms.Notify("RELAY_SUCCESS",heard);
 			}
 		}
 
@@ -128,7 +129,7 @@ bool RelayEnd::Iterate()
 	}
 
 	if(relay_status==0){
-		m_Comms.Notify("RELAY_SUCCESS",heard);
+
 	}
 	else if(relay_status==1){
 		heard == "nothing";
