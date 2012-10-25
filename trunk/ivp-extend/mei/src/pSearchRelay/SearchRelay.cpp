@@ -98,6 +98,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 			else{
 			report_age = MOOSTime()-last_report;
+			last_report = MOOSTime();
 			}
 		}
 		else if(key=="END_THRUST"){
