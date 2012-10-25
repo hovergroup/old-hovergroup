@@ -13,11 +13,15 @@ ProcessConfig = pMOOSBridge_%(VNAME)
 	SHARE = [RELAY_SUCCESS] -> nostromo@192.168.1.103:9300
 	SHARE = [END_STATUS] -> nostromo@192.168.1.103:9300
 	SHARE = [END_THRUST] -> nostromo@192.168.1.103:9300
-	#elseif VNAME nostromo
+	#endif
+	
+	#ifdef VNAME nostromo
 	SHARE = [RELAY_ACK] -> kassandra@192.168.1.101:9100
 	SHARE = [START_TRANSMIT_NOW] -> icarus@192.168.1.102:9200
-	#else
+	#endif
+	
+	#ifdef VNAME icarus
 	SHARE = [START_TRANSMITTED] -> nostromo@192.168.1.103:9300
 	#endif
-  
+
 }
