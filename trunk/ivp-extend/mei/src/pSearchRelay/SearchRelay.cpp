@@ -126,9 +126,9 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 			last_report = MOOSTime();
 			}
 		}
-		else if(key=="END_THRUST"){
-			end_thrust = msg.GetDouble();
-		}
+		//else if(key=="END_THRUST"){
+		////	end_thrust = msg.GetDouble();
+		//}
 		else if(key=="RELAY_SUCCESS"){
 			if(msg.GetString()!="reset"){
 			
@@ -213,7 +213,7 @@ bool SearchRelay::OnConnectToServer()
 	m_Comms.Register("ACOMMS_TRANSMIT_RATE",0);
 	m_Comms.Register("START_TRANSMITTED",0);
 	m_Comms.Register("END_STATUS",0);
-	m_Comms.Register("END_THRUST",0);
+	//m_Comms.Register("END_THRUST",0);
 	m_Comms.Register("RELAY_SUCCESS",0);
 
 	if(mode=="normal"){
@@ -264,8 +264,6 @@ bool SearchRelay::Iterate()
 		connected++;
 	}
 
-	sendString("terra","RELAY_ACTION",action);
-
 	//Acoustics
 	if(action == "ticking"){
 		if(report_age > 0.75*wait_time){
@@ -278,9 +276,10 @@ bool SearchRelay::Iterate()
 			if(time_elapsed > wait_time){
 				ComputeSuccessRates(0);
 				m_Comms.Notify("RELAY_ACK",1);
-				sendString("terra","RELAY_MSG","Start Sync Loss");
+				sendString("terra","RELAY_MSG","End Sync Loss");
 				m_Comms.Notify("RELAY_MSG","Start Sync Loss");
 				action = "start_transmit_now";
+				sendString("terra","RELAY_ACTION",action);
 			}
 		}
 	}
@@ -288,42 +287,48 @@ bool SearchRelay::Iterate()
 		m_Comms.Notify("START_TRANSMIT_NOW","true");
 		start_time = MOOSTime();
 		action = "waiting";
+		sendString("terra","RELAY_ACTION",action);
 	}
 	else if(action == "sync_with_start"){
 		start_time = MOOSTime();
 		action = "ticking";
+		sendString("terra","RELAY_ACTION",action);
 	}
 	else if(action == "waiting"){
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > wait_time){
 			sendString("terra","RELAY_MSG","Start Sync Loss");
 			action = "start_transmit_now";
+			sendString("terra","RELAY_ACTION",action);
 		}
 	}
 	else if(action == "relay"){
-		if(end_thrust == 0){
+		//if(end_thrust == 0){
 			if(end_status=="ready"){
 				m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 				action = "ticking";
 				start_time = MOOSTime();
+				sendString("terra","RELAY_ACTION",action);
 			}
 			else{
 				sendString("terra","RELAY_MSG","Wait: End Driver");
 				m_Comms.Notify("RELAY_MSG","Wait: End Driver");
 			}
-		}
-		else{
-			sendString("terra","RELAY_MSG","Wait: End Thruster");
-			m_Comms.Notify("RELAY_MSG","Wait: End Thruster");
-		}
+		//}
+		//else{
+		//	sendString("terra","RELAY_MSG","Wait: End Thruster");
+		//	m_Comms.Notify("RELAY_MSG","Wait: End Thruster");
+		//}
 	}
 	else if(action == "compute_success"){
 		ComputeSuccessRates(1);
 		action = "start_transmit_now";
+		sendString("terra","RELAY_ACTION",action);
 	}
 	else if(action == "compute_failure"){
 		ComputeSuccessRates(0);
 		action = "start_transmit_now";
+		sendString("terra","RELAY_ACTION",action);
 	}
 
 	return(true);
