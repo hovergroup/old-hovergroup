@@ -213,7 +213,8 @@ ProcessConfig = pLogger
 	AppTick			= 20
 	CommsTick		= 20
 
- 	File          = LOG_NOSTROMO
+ 	File          	= LOG_NOSTROMO
+	PATH		= /home/josh/logs/
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
