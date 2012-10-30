@@ -20,14 +20,52 @@ SIMPLE_GPS::SIMPLE_GPS() : port(io), timeout(io) {
 	my_port_name = "/dev/ttyUSB0";
 
 	string_buffer = "";
+
+	driver_initialized = false;
 }
 
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
-bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail)
-{
-	return(true);
+bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
+	MOOSMSG_LIST::iterator p;
+	return (true);
+
+	for (p = NewMail.begin(); p != NewMail.end(); p++) {
+		CMOOSMsg &msg = *p;
+		string key = msg.GetKey();
+
+		if ( key == "LOGGER_DIRECTORY" && !driver_initialized ) {
+			std::string logDirectory = msg.GetString();
+
+			cout << "opening gps log file..." << endl;
+			int file_index = 0;
+			std::string filename = logDirectory + "/gps_log_" +
+					boost::lexical_cast<string>( file_index ) + ".txt";
+			while ( file_exists( filename ) ) {
+				cout << filename << " already exists." << endl;
+				file_index ++;
+				filename = logDirectory + "/gps_log_" +
+						boost::lexical_cast<string>( file_index ) + ".txt";
+			}
+			m_gps_log.open( filename.c_str() );
+
+			// get log directory from plogger that we will also use
+			open_port( my_port_name, my_baud_rate );
+		}
+	}
+}
+
+// check if a file exists
+bool SIMPLE_GPS::file_exists( std::string filename ) {
+	ifstream my_file(filename.c_str());
+	if ( my_file.good() ) {
+		my_file.close();
+		return true;
+	} else {
+		my_file.close();
+		return false;
+	}
 }
 
 //---------------------------------------------------------
@@ -63,7 +101,7 @@ bool SIMPLE_GPS::OnConnectToServer()
 
 	RegisterVariables();
 
-	open_port( my_port_name, my_baud_rate );
+//	open_port( my_port_name, my_baud_rate );
 	//serial_thread = boost::thread(boost::bind(&SIMPLE_GPS::serialLoop, this));
 
 	return(true);
@@ -75,6 +113,7 @@ bool SIMPLE_GPS::OnConnectToServer()
 
 void SIMPLE_GPS::RegisterVariables()
 {
+    m_Comms.Register( "LOGGER_DIRECTORY", 1 );
 }
 
 

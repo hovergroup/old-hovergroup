@@ -7,6 +7,7 @@
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <fstream>
 
 #include "MOOSGeodesy.h"
 #include "MOOSInstrument.h"
@@ -29,6 +30,9 @@ public:
 	void writeData( unsigned char *ptr, int length );
 
 private:
+	std::ofstream m_gps_log;
+	bool driver_initialized;
+
 	CMOOSGeodesy m_Geodesy;
 
 	// basic serial port components
@@ -58,13 +62,17 @@ private:
 	int bytesToWrite;
 
 	// parsing operations
-	void parseGPRMC( std::string msg );
-	void parseGPGGA( std::string msg );
+	void parseGPRMC( std::string sNMEAString );
+	void parseGPGGA( std::string sNMEAString );
+	void parseGPGST( std::string sNMEAString );
 	void parseLine( std::string msg );
 
 	// the background loop responsible for interacting with the serial port
 	void serialLoop();
 	void processWriteBuffer();
+
+	bool file_exists( std::string filename );
+
 };
 
 #endif
