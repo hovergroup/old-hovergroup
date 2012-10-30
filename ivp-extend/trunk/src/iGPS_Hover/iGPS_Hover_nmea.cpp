@@ -70,6 +70,44 @@ void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 	}
 }
 
+void SIMPLE_GPS::parseGPGST(string sNMEAString) {
+	string sTmp;
+
+	// field 1 - UTC time
+	sTmp = MOOSChomp(sNMEAString, ",");
+
+	// field 2 - rms of std. devs
+	sTmp = MOOSChomp(sNMEAString, ",");
+	if ( sTmp.size() == 0 ) return;
+	double range_rms = atof( sTmp.c_str() );
+	m_Comms.Notify( "GPS_RANGE_RMS", range_rms );
+
+	// field 3 - not supported
+	sTmp = MOOSChomp(sNMEAString, ",");
+
+	// field 4 - not supported
+	sTmp = MOOSChomp(sNMEAString, ",");
+
+	// field 5 - not supported
+	sTmp = MOOSChomp(sNMEAString, ",");
+
+	// field 6 - std dev of latitude
+	sTmp = MOOSChomp(sNMEAString, ",");
+	if ( sTmp.size() == 0 ) return;
+	double std_lat = atof( sTmp.c_str() );
+
+	// filed 7 - std dev of longitude
+	sTmp = MOOSChomp(sNMEAString, ",");
+	if ( sTmp.size() == 0 ) return;
+	double std_long = atof( sTmp.c_str() );
+
+
+	// field 8 - std dev of altitude
+	sTmp = MOOSChomp(sNMEAString, ",");
+	if ( sTmp.size() == 0 ) return;
+	double std_alt = atof( sTmp.c_str() );
+}
+
 void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 //	cout << "gga: " << sNMEAString << endl;
 	bool bGood = true;
