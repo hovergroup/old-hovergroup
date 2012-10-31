@@ -34,14 +34,14 @@ scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
 %endx = 1000*deg2km(endlon-pavlon)/xmperpix;
 %endy = 1000*deg2km(endlat-pavlat)/ymperpix;
 
-endx = 570/xmperpix;
+endx = 400/xmperpix;
 endy = -300/ymperpix;
 
 line([pavx,endx+pavx],[pavy,endy+pavy]);
 
 n=3;
 total = 150;
-fac = 180/n;
+fac = 160/n;
 x(1) = endx/2-fac;
 x(2) = endx/2+fac;
 x(3) = endx/2+fac;

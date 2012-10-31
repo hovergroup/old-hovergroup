@@ -92,6 +92,7 @@ while((~gotState))
             i = i+1;
         else
             continue
+            % break???
         end
         
         % check timeout on reading state

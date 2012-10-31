@@ -33,9 +33,9 @@ close all
 clc
 format compact
 
-TX = 'wifi';
-%TX = 'acomms';
-acommsRate = 2; % {0,1,2,3,4,5,100}
+%TX = 'wifi';
+TX = 'acomms';
+acommsRate = 0; % {0,1,2,3,4,5,100}
 
 configureKayakMPC;
 initializeMOOS_MPC;
@@ -133,13 +133,25 @@ while(~mpc_stop)
             [send frames] = constructAcommsTX(acommsRate,data);
             iMatlab('MOOS_MAIL_TX','ACOMMS_TRANSMIT_DATA',send) 
             
+            aStart = tic;
+            while(toc(aStart)<(3))
+                pause(0.005)
+            end
+            
             % look at driver for reception (with TIMEOUT)
             acommsTimeout = 5.99;
-            neededFrames = 3;   % all good PSK frames
-            %neededFrames = 1;   % FSK, or PSK without all good
+            switch acommsRate
+                case 2
+                    neededFrames = 3;   % all good PSK frames
+                case 0
+                    neededFrames = 1;   % FSK, or PSK without all good
+            end
+                    
             checkData = frames{1}; % pick out 1 frame to check
             
             ifPLoss = parsePLoss(acommsTimeout,checkData,neededFrames,numFrames);
+            fprintf('pLoss = %d \n',ifPLoss);
+            
             
     end
     
@@ -161,6 +173,11 @@ while(~mpc_stop)
         uBearing,u,eEst(1),uPrev)
     fprintf('MPC predicted next state (from uPrev):\n')
     X(:,2)
+    
+%     
+%     while(toc(loopStart)<(dt-.01))
+%         pause(0.005)
+%     end
     
     % SEND COMMAND (always over wifi)
     send = sprintf('heading = %0.1f',uBearing);

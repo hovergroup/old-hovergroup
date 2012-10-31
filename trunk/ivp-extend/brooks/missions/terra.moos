@@ -50,6 +50,9 @@ ProcessConfig = pMOOSBridge
 	//SHARE = [MPC_STR] -> kassandra@192.168.1.101:9001
 	SHARE = [MPC_STR] -> nostromo@192.168.1.103:9003
 	SHARE = [MPC_PARAMS] -> nostromo@192.168.1.103:9003
+	
+	SHARE = [ACOMMS_TRANSMIT_DATA] -> icarus@192.168.1.102:9002
+	
 }
 
 //----------------------------------------------
@@ -168,4 +171,7 @@ SUBSCRIBE = MPC_STOP @ 0.0
 SUBSCRIBE = GPS_X @ 1.0
 SUBSCRIBE = GPS_Y @ 1.0
 SUBSCRIBE = COMPASS_HEADING_FILTERED @ 1.0
+SUBSCRIBE = ACOMMS_RECEIVED_DATA @ 0.0
+SUBSCRIBE = ACOMMS_BAD_FRAMES @ 0.0
+
 }
