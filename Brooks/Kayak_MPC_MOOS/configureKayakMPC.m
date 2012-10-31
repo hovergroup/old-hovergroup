@@ -73,7 +73,7 @@ oy = 50;
 %oy = 0;
 
 % pavHeading = 73;
-startHeading = 190;
+startHeading = 80;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % CL heading model order:
@@ -255,7 +255,7 @@ generateTracklinesMPC
     figure;subplot(1,2,1)
     step(sysCss*15,tmax)
     hold on;step(sysd*15,tmax);subplot(1,2,2);step(sysd*15,tmax)
-%}
+%
 
 
 %
@@ -278,5 +278,5 @@ ylabel('meters')
 xlabel('Time [sec]')
 title('Cross-Track Error')
 
-%
+%}
 

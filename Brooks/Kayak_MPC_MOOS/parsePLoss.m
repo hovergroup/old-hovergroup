@@ -31,7 +31,8 @@ checkTimeout = timeout;
 %
 while((~checkPacket))
     mail=iMatlab('MOOS_MAIL_RX');
-    messages=length(mail);if messages==0;continue;end
+    messages=length(mail);
+    if messages==0;continue;end
     
     key = cell(1,messages);
     val = cell(1,messages);
@@ -40,7 +41,7 @@ while((~checkPacket))
     
     i = 1;
     while(~checkPacket)
-                
+               
         key{i}=mail(i).KEY;  
         val{i}=mail(i).DBL;
         str{i}=mail(i).STR;
@@ -50,12 +51,14 @@ while((~checkPacket))
             
             case 'ACOMMS_RECEIVED_DATA'
                 rxdata = str{i};
+                disp(rxdata)
                 test = strfind(rxdata,data);
                 % if pattern matches at all
                 if(~isempty(test))
                     checkPacket = 1;
                 end
                 numGoodFrames = length(test);
+                
                 
             case 'ACOMMS_BAD_FRAMES'
                 % currently just prints out, doesn't affect while loop
@@ -79,11 +82,13 @@ while((~checkPacket))
         if(i<messages)
             i = i+1;
         else
-            continue
+            break
         end
         
+        toc(checkStart)
+        
         % check timeout on reading state
-        if(toc(checkStart)>checkTimeout)
+        if(toc(checkStart) > checkTimeout)
             disp('TIMEOUT - LOST PACKET')
             checkPacket = 1;
             numGoodFrames = 0;
