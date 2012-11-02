@@ -14,6 +14,7 @@
 
 Tulip26bit::Tulip26bit() {
     m_WaitingForData = false;
+    m_lastRangeRequestTime = 0;
 }
 
 //---------------------------------------------------------
@@ -94,6 +95,8 @@ bool Tulip26bit::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("transmit_offset", transmit_offset);
     m_AcommsTimer.setTransmitTiming(transmit_period, transmit_offset);
 
+    m_MissionReader.GetValue("Community", m_name);
+
     double receive_extension;
     m_MissionReader.GetConfigurationParam("receive_extension",
             receive_extension);
@@ -154,6 +157,14 @@ void Tulip26bit::handleUpdate(const std::string msg) {
 
 bool Tulip26bit::Iterate() {
     m_AcommsTimer.doWork();
+
+    if (MOOSTime() - m_lastRangeRequestTime > .5) {
+        RangeSensorTypes::RangeRequest request;
+        request.vname = m_name;
+        request.nav_x = m_osx;
+        request.nav_y = m_osy;
+        m_Comms.Notify("TARGET_RANGE_REQUEST", request.toString());
+    }
 
     return (true);
 }
