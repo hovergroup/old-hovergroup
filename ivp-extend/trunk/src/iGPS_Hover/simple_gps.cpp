@@ -30,7 +30,6 @@ SIMPLE_GPS::SIMPLE_GPS() :
 
 bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
     MOOSMSG_LIST::iterator p;
-    return (true);
 
     for (p = NewMail.begin(); p != NewMail.end(); p++) {
         CMOOSMsg &msg = *p;
@@ -56,6 +55,8 @@ bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
             open_port(my_port_name, my_baud_rate);
         }
     }
+
+    return true;
 }
 
 // check if a file exists
