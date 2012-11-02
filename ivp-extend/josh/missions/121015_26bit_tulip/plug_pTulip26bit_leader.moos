@@ -4,8 +4,8 @@
 
 ProcessConfig = pTulip26bit
 {
-  AppTick   = 10
-  CommsTick  = 10
+  AppTick   = 20
+  CommsTick  = 20
   
   x_min = -20
   x_max = 290
@@ -16,12 +16,12 @@ ProcessConfig = pTulip26bit
   follower_range_divs = 29,41,47,50,53,59,71
   
   receive_period = 6
-  receive_offset = 5
+  receive_offset = 4.75
   
   transmit_period = 6
   transmit_offset = 0
   
-  receive_extension = 1
+  receive_extension = .5
   
   vehicle_mode = leader
 }
