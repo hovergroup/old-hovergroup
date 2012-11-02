@@ -32,7 +32,9 @@ void Tulip26bit::onGoodReceive_leader( const std::string data ) {
 
 	double received_x = LinearDecode( data[0], m_osx_minimum, m_osx_maximum, 5);
 	double received_y = LinearDecode( data[1]>>3, m_osy_minimum, m_osy_maximum, 5);
+	unsigned char received_range = data[1] & 0x07;
 
+	m_Comms.Notify("FOLLOWER_RANGE", (int)received_range);
 	m_Comms.Notify("FOLLOWER_X", received_x);
 	m_Comms.Notify("FOLLOWER_Y", received_y);
 	publishLeaderPos();
