@@ -5,7 +5,7 @@ initialize   TULIP_STATION = false
 
 Behavior = BHV_Waypoint
 {
-	name 		= tulip
+	name 		= tulip_goto
 	pwt       	= 100
 	condition	= MISSION_MODE = TULIP
 	condition	= TULIP_STATION = false
@@ -27,7 +27,7 @@ Behavior = BHV_Waypoint
 
 Behavior = BHV_StationKeep
 {
-	name			= tulip_station
+	name			= tulip_stationkeep
 	pwt				= 100
 	condition		= MISSION_MODE = TULIP
 	condition		= TULIP_STATION = true
