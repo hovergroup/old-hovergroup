@@ -13,7 +13,7 @@ ProcessConfig = pTulip26bit
   y_max = 20
   
   // should be 7 range divs in increasing order
-  follower_range_divs = 20,30,40,50,60,70,80
+  follower_range_divs = 29,41,47,50,53,59,71
   
   receive_period = 6
   receive_offset = 5
