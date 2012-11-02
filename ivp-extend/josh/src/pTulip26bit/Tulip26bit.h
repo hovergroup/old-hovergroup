@@ -43,6 +43,9 @@ protected:
 	unsigned char LinearEncode( double val, double min, double max, int bits );
 	double LinearDecode( unsigned char val, double min, double max, int bits );
 
+    unsigned char FlexibleEncode(double val, std::vector<double> & range_divs,
+            int bits);
+
 	std::string m_AcommsStatus;
 	std::string m_ReceivedData;
 	bool m_WaitingForData;
@@ -53,6 +56,8 @@ protected:
 
 	double m_lastRangeRequestTime;
 	std::string m_name;
+
+	std::vector<double> m_follower_range_divs;
 };
 
 #endif 
