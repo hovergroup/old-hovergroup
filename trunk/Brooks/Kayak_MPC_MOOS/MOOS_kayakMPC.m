@@ -33,8 +33,8 @@ close all
 clc
 format compact
 
-%TX = 'wifi';
-TX = 'acomms';
+TX = 'wifi';
+%TX = 'acomms';
 acommsRate = 0; % {0,1,2,3,4,5,100}
 
 configureKayakMPC;

@@ -29,7 +29,7 @@ ifQuiet = 1;          % if cvx is run in quiet mode
 uDelay = 1;
 
 % packet loss probability:
-probPLoss = .8;
+probPLoss = 0;
 %probPLoss = 0;
 
 
