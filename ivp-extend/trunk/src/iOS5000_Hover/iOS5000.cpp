@@ -209,7 +209,7 @@ void iOS5000_Hover::parseLine( string msg ) {
 void iOS5000_Hover::serialLoop() {
 	while (!stop_requested) {
 
-		processWriteBuffer();
+		// processWriteBuffer();
 
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
