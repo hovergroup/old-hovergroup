@@ -58,28 +58,6 @@ iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
 length(garbageMail)
 
-% gotStart = 0;
-% while(gotStart)
-%     
-%     startData = parseObservations();
-%     
-%     if(startData.FOLLOWER_PACKET==0)
-%         
-%         disp('MISSING FOLLOWER PACKET')
-%         continue
-%         
-%     else
-%         
-%         XAgent(1) = startData.LEADER_X;
-%         XAgent(2) = startData.FOLLOWER_X;
-%         YAgent(1) = startData.LEADER_Y;
-%         YAgent(2) = startData.FOLLOWER_Y;
-%         gotStart = 1;
-%         
-%     end
-%     
-% end
-
 it = 0;
 go = 1; % possibly add exitflags to loop?
 while(go)
@@ -98,8 +76,7 @@ while(go)
     readTimeout = 10;
     data = parseObservations(readTimeout)
     
-    % CHECK data.status
-    
+    % CHECK data.status??
     
     if(data.FOLLOWER_PACKET==0)
         disp('MISSING FOLLOWER PACKET')
@@ -130,7 +107,7 @@ while(go)
     fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
         data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
     fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
-    fprintf('LR: %f  FR:  %F \n',data.LEADER_RANGE, z(2));
+    fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
     end
     
     [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
@@ -144,16 +121,7 @@ while(go)
     % Compute desired position for observers (based on initial formation)
     % (could also hardcode formation here)
     XAgentDes = XAgent0 + xhat(2);
-    YAgentDes = YAgent0 + xhat(3);
-    
-    % send WAYPOINT_UPDATES back to MOOS
-    %{
-    lwps = sprintf('points=%f,%f',XAgentDes(1),YAgentDes(1));
-    fwps = sprintf('points=%f,%f',XAgentDes(2),YAgentDes(2));
-    iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_UPDATES',lwps);
-    iMatlab('MOOST_MAIL_TX','FOLLOWER_WAYPOINT_UPDATES',fwps);
-    %}
-    
+    YAgentDes = YAgent0 + xhat(3); 
     
     lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
     fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
@@ -161,8 +129,8 @@ while(go)
     iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT',fwps);
     
     if(PRINTOUTS)
-    fprintf(['leader: ' lwps '\n'])
-    fprintf(['follower: ' fwps '\n'])
+    fprintf(['leader wpt: ' lwps '\n'])
+    fprintf(['follower wpt: ' fwps '\n'])
     end
     
     mloopTime = toc(itStart);
