@@ -159,8 +159,8 @@ void TargetRangeSensorSim::handleRangeRequest( std::string msg ) {
 
 TargetRangeSensorSim::TargetSim::TargetSim () {
 	m_paused = true;
-	current_x = 0;
-	current_y = 0;
+	current_x = 100;
+	current_y = -50;
 }
 
 void TargetRangeSensorSim::TargetSim::getPosition( double time, double & x, double & y ) {

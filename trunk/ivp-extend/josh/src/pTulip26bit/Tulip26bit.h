@@ -49,6 +49,9 @@ protected:
 
 	double m_osx, m_osy, m_target_range;
 	double m_set_x, m_set_y;
+
+	double m_lastRangeRequestTime;
+	std::string m_name;
 };
 
 #endif 
