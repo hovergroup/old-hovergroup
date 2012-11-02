@@ -4,7 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
-		<project>moos</project>
+		<project>MOOS</project>
 		<project>moos-ivp</project>
 	</projects>
 	<buildSpec>

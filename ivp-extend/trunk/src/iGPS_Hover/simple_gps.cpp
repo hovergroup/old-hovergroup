@@ -37,6 +37,7 @@ bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
         string key = msg.GetKey();
 
         if (key == "LOGGER_DIRECTORY" && !driver_initialized) {
+            driver_initialized = true;
             std::string logDirectory = msg.GetString();
 
             cout << "opening gps log file..." << endl;

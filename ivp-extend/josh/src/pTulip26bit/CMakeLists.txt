@@ -12,5 +12,6 @@ TARGET_LINK_LIBRARIES(pTulip26bit
    MOOSGen
    m
    pthread
-   TimedAcomms)
+   TimedAcomms
+   RangeSensorTypes)
 
