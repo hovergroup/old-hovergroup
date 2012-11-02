@@ -80,6 +80,18 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool Tulip26bit::OnConnectToServer() {
+    std::string follower_range_divs;
+    m_MissionReader.GetConfigurationParam("follower_range_divs", follower_range_divs);
+    while ( follower_range_divs.size() > 0 ) {
+        std::string sTmp = MOOSChomp(follower_range_divs,",");
+        m_follower_range_divs.push_back(atof(sTmp.c_str()));
+    }
+    std::stringstream ss;
+    for ( int i=0; i<m_follower_range_divs.size(); i++ ) {
+        ss << m_follower_range_divs[i] << ",";
+    }
+    m_Comms.Notify("TULIP_RANGE_DIVS", ss.str());
+
     m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
     m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
     m_MissionReader.GetConfigurationParam("y_min", m_osy_minimum);
@@ -198,3 +210,27 @@ double Tulip26bit::LinearDecode(unsigned char val, double min, double max,
     double ratio = val / (pow(2.0, bits) - 1.0);
     return min + ratio * (max - min);
 }
+
+unsigned char Tulip26bit::FlexibleEncode(double val,
+        std::vector<double> & range_divs, int bits) {
+
+    if (range_divs.size() != pow(2, bits) - 1) {
+        std::stringstream ss;
+        ss << "Specified number of bits (" << bits;
+        ss << ") does not match vector size (" << range_divs.size();
+        ss << ")";
+        handleDebug(ss.str());
+        return 0x00;
+    }
+
+    unsigned char transmit_val;
+
+    for (int i = 0; i < range_divs.size() - 1; i++) {
+        if ( val < range_divs[i] )
+            return i;
+    }
+    return range_divs.size()-1;
+}
+
+
+

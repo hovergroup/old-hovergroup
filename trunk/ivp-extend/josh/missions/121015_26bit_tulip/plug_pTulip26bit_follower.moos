@@ -7,10 +7,13 @@ ProcessConfig = pTulip26bit
   AppTick   = 10
   CommsTick  = 10
   
-  x_min = 0
-  x_max = 310
-  y_min = -310
-  y_max = 0
+  x_min = -20
+  x_max = 290
+  y_min = -290
+  y_max = 20
+  
+  // should be 7 range divs in increasing order
+  follower_range_divs = 20,30,40,50,60,70,80
   
   receive_period = 6
   receive_offset = 2
