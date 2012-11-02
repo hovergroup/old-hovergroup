@@ -96,6 +96,7 @@ bool Tulip26bit::OnConnectToServer() {
     m_AcommsTimer.setTransmitTiming(transmit_period, transmit_offset);
 
     m_MissionReader.GetValue("Community", m_name);
+    MOOSToUpper(m_name);
 
     double receive_extension;
     m_MissionReader.GetConfigurationParam("receive_extension",

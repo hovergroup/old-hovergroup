@@ -143,6 +143,7 @@ double TargetRangeSensorSim::getRange( double nav_x, double nav_y,
 void TargetRangeSensorSim::handleRangeRequest( std::string msg ) {
 	double target_x, target_y;
 	RangeSensorTypes::RangeRequest request( msg );
+	MOOSToUpper(request.vname);
 	double range = getRange( request.nav_x, request.nav_y, target_x, target_y );
 
 	RangeSensorTypes::RangeReply reply;
