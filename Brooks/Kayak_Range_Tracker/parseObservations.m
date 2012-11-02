@@ -24,15 +24,24 @@ while(~gotObs)
     
     if(length(mail))==0;continue;end
     
+    disp(length(mail))
+    
     [gotObs,dataOut] = parseMail(mail);
+    
+    if(gotObs)
+        dataOut.status = 'good';
+    end
     
     if(toc(readStart)>readTimeout)
         disp('TIMEOUT READING IN STATES')
         dataOut.status = 'timeout';
         break;
     end
+   
+    pause(0.1)
     
 end
+
 
 end
 
@@ -49,6 +58,7 @@ gotStates = zeros(1,n);
 gotAllObs = 0;
 dataOut = [];
 
+messages = length(mail);
 key = cell(1,messages);
 val = cell(1,messages);
 str = cell(1,messages);
@@ -67,14 +77,14 @@ while(~gotAllObs)
         end
     end
     
+    gotAllObs = min(gotStates);
+    
     % if more messages to look through:
     if(i<messages)
         i = i+1;
     else
         break
     end
-    
-    gotAllObs = min(gotStates);
     
 end
 

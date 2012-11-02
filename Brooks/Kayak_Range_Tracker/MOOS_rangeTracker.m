@@ -13,7 +13,7 @@
 
 %}
 
-clear iMatlab
+clear iMatlab; clc
 
 PRINTOUTS = 1;
 
@@ -32,6 +32,7 @@ Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
 
 P = diag([5 2500 2500]) ;   % INITIAL state covariance
 xhat = [0 0 0]' ; % initial guess
+z = zeros(2,1);
 
 % formation
 legLen = 50;        % meters
@@ -55,6 +56,7 @@ old = cd(pathName);
 % subscribe 
 iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
+length(garbageMail)
 
 % gotStart = 0;
 % while(gotStart)
@@ -93,15 +95,18 @@ while(go)
     
     % set readTimeout short and only call after delay at end of loop?
     % or readTimeout long?
-    readTimeout = 7;
-    data = parseObservations(readTimeout);
+    readTimeout = 10;
+    data = parseObservations(readTimeout)
+    
+    % CHECK data.status
+    
     
     if(data.FOLLOWER_PACKET==0)
         disp('MISSING FOLLOWER PACKET')
         
         XAgent(1) = data.LEADER_X;
         YAgent(1) = data.LEADER_Y;
-        z(1) = data.LEADER_R;
+        z(1) = data.LEADER_RANGE;
         
         % Set follower meas noise to INF
         R = Rmeas;
@@ -114,7 +119,7 @@ while(go)
         XAgent(2) = data.FOLLOWER_X;
         YAgent(1) = data.LEADER_Y;
         YAgent(2) = data.FOLLOWER_Y;
-        z(1) = data.LEADER_R;
+        z(1) = data.LEADER_RANGE;
         z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN);
         
         R = Rmeas;
@@ -125,7 +130,7 @@ while(go)
     fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
         data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
     fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
-    fprintf('LR: %f  FR:  %F \n',data.LEADER_R, z(2));
+    fprintf('LR: %f  FR:  %F \n',data.LEADER_RANGE, z(2));
     end
     
     [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
@@ -153,7 +158,7 @@ while(go)
     lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
     fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
     iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT',lwps);
-    iMatlab('MOOST_MAIL_TX','FOLLOWER_WAYPOINT',fwps);
+    iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT',fwps);
     
     if(PRINTOUTS)
     fprintf(['leader: ' lwps '\n'])
