@@ -135,7 +135,7 @@ fi
 
 # Conditionally Prepare KASSANDRA files
 if [ "${VEHICLE}" = "KASSANDRA" ]; then
-    nsplug meta_KASSANDRA.moos targ_KASSANDRA.moos -f   \
+    nsplug meta_kassandra.moos targ_kassandra.moos -f   \
     	ROLE=$ROLE										\
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
@@ -148,7 +148,7 @@ if [ "${VEHICLE}" = "KASSANDRA" ]; then
         OS5000PORT="/dev/ttyUSB2"                       \
         ALTIMETERPORT="/dev/ttyUSB0"				
 
-    nsplug meta_vehicle.bhv targ_KASSANDRA.bhv -f       \
+    nsplug meta_vehicle.bhv targ_kassandra.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
@@ -156,7 +156,7 @@ fi
 
 # Conditionally Prepare ICARUS files
 if [ "${VEHICLE}" = "ICARUS" ]; then
-    nsplug meta_ICARUS.moos targ_ICARUS.moos -f    \
+    nsplug meta_icarus.moos targ_icarus.moos -f    \
     	ROLE=$ROLE										\
         VHOST=$VHOST1                                   \
         VNAME=$VNAME1                            \
@@ -186,12 +186,12 @@ fi
 # Launch KASSANDRA
 if [ "${VEHICLE}" = "KASSANDRA" ]; then
     printf "Launching KASSANDRA MOOS Community \n"
-    pAntler targ_KASSANDRA.moos >& /dev/null &
+    pAntler targ_kassandra.moos >& /dev/null &
 fi
 # Launch ICARUS
 if [ "${VEHICLE}" = "ICARUS" ]; then
     printf "Launching ICARUS MOOS Community \n"
-    pAntler targ_ICARUS.moos >& /dev/null &
+    pAntler targ_icarus.moos >& /dev/null &
 fi
 
 #-------------------------------------------------------
