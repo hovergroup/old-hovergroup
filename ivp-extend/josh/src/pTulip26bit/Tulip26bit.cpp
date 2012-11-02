@@ -229,7 +229,7 @@ unsigned char Tulip26bit::FlexibleEncode(double val,
         if ( val < range_divs[i] )
             return i;
     }
-    return range_divs.size()-1;
+    return range_divs.size();
 }
 
 
