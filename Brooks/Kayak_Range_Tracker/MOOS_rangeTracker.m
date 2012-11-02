@@ -13,31 +13,31 @@
 
 %}
 
-%global localNoise ; % used to pass a ZOH process noise level (Q) into ode45
+clear iMatlab
 
+PRINTOUTS = 1;
 
 % problem parameters
-dt = 9 ; % time step between samples
+dt = 6 ; % time step between samples
+
 dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % estimator parameters
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .02 ; % target process noise (heading rate of target)
-            % PSD: (deg/s)^2 / Hz?  
+% PSD: (deg/s)^2 / Hz?
 
 Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
 
 P = diag([5 2500 2500]) ;   % INITIAL state covariance
 xhat = [0 0 0]' ; % initial guess
 
-% formation 
+% formation
 legLen = 50;        % meters
 theta = deg2rad(60);    % degrees (total angle between each leg)
 XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'+xhat(2); % sets desired formation
 YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]'+xhat(3);
-
-%options = odeset('RelTol',1e-12,'AbsTol',1e-12);
 
 if dim == 3,
     [s1,s2,s3,w,vol] = getHermite(NaN); % get quadrature points and weights
@@ -46,30 +46,44 @@ else
     break ;
 end;
 
-gotStart = 0;
-while(gotStart)
-    
-    startData = parseObservations();
-    
-    if(startData.FOLLOWER_PACKET==0)
-        
-        disp('MISSING FOLLOWER PACKET')
-        continue
-    
-    else
-        
-        XAgent(1) = startData.LEADER_X;
-        XAgent(2) = startData.FOLLOWER_X;
-        YAgent(1) = startData.LEADER_Y;
-        YAgent(2) = startData.FOLLOWER_Y;
-        gotStart = 1;
-        
-    end
-    
-end
+% INITIALIZE IMATLAB:
+% (note: add process config to meta_shoreside.moos)
+moosDB = 'targ_shoreside.moos';
+pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121015_26bit_tulip/';
+old = cd(pathName);
 
+% subscribe 
+iMatlab('init','CONFIG_FILE',moosDB);
+garbageMail = iMatlab('MOOS_MAIL_RX');
+
+% gotStart = 0;
+% while(gotStart)
+%     
+%     startData = parseObservations();
+%     
+%     if(startData.FOLLOWER_PACKET==0)
+%         
+%         disp('MISSING FOLLOWER PACKET')
+%         continue
+%         
+%     else
+%         
+%         XAgent(1) = startData.LEADER_X;
+%         XAgent(2) = startData.FOLLOWER_X;
+%         YAgent(1) = startData.LEADER_Y;
+%         YAgent(2) = startData.FOLLOWER_Y;
+%         gotStart = 1;
+%         
+%     end
+%     
+% end
+
+it = 0;
 go = 1; % possibly add exitflags to loop?
 while(go)
+    
+    it = it+1;
+    fprintf('\n m IT: %d \n',it)
     
     itStart = tic;
     
@@ -78,7 +92,7 @@ while(go)
     % Follower: x,y,range
     
     % set readTimeout short and only call after delay at end of loop?
-    % or readTimeout long? 
+    % or readTimeout long?
     readTimeout = 7;
     data = parseObservations(readTimeout);
     
@@ -93,7 +107,7 @@ while(go)
         R = Rmeas;
         R(2,2) = 10e10; % Inf meas noise
         % USE OLD FOLLOWER INFO...no changes
-
+        
     else
         
         XAgent(1) = data.LEADER_X;
@@ -105,6 +119,13 @@ while(go)
         
         R = Rmeas;
         
+    end
+    
+    if(PRINTOUTS)
+    fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
+        data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
+    fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
+    fprintf('LR: %f  FR:  %F \n',data.LEADER_R, z(2));
     end
     
     [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
@@ -121,12 +142,26 @@ while(go)
     YAgentDes = YAgent0 + xhat(3);
     
     % send WAYPOINT_UPDATES back to MOOS
+    %{
     lwps = sprintf('points=%f,%f',XAgentDes(1),YAgentDes(1));
     fwps = sprintf('points=%f,%f',XAgentDes(2),YAgentDes(2));
     iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_UPDATES',lwps);
     iMatlab('MOOST_MAIL_TX','FOLLOWER_WAYPOINT_UPDATES',fwps);
+    %}
     
+    
+    lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
+    fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
+    iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT',lwps);
+    iMatlab('MOOST_MAIL_TX','FOLLOWER_WAYPOINT',fwps);
+    
+    if(PRINTOUTS)
+    fprintf(['leader: ' lwps '\n'])
+    fprintf(['follower: ' fwps '\n'])
+    end
     
     mloopTime = toc(itStart);
-
+    
+    fprintf('matlab time: %f \n',mloopTime)
+    
 end
