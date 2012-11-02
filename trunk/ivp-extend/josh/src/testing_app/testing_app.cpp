@@ -49,16 +49,19 @@ unsigned char FlexibleEncode(double val,
 
 
 int main () {
+    unsigned char a = 22;
+    unsigned char b = 4;
+    cout << hex << (int) ( (a<<3) + b ) << endl;
 
-    std::vector<double> range_divs;
-    for ( int i=2; i<9; i++ ) {
-        range_divs.push_back(i*10);
-    }
-
-    unsigned char range =FlexibleEncode(55,range_divs,3);
-    range+=0xf8;
-
-    cout << (int) (range & 0x07)<< endl;
+//    std::vector<double> range_divs;
+//    for ( int i=2; i<9; i++ ) {
+//        range_divs.push_back(i*10);
+//    }
+//
+//    unsigned char range =FlexibleEncode(55,range_divs,3);
+//    range+=0xf8;
+//
+//    cout << (int) (range & 0x07)<< endl;
 
 //	double val = 310;
 //	unsigned char sent = LinearEncode( val, 0, 310, 5 );

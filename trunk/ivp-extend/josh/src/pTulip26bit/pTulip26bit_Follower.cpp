@@ -20,7 +20,7 @@ void Tulip26bit::onTransmit_follower() {
             << " " << (int) range << std::endl;
 
     std::vector<unsigned char> data(2, 0);
-    data[1] = transmit_y << 3 + (int) range;
+    data[1] = (transmit_y<<3) + range;
     data[0] = transmit_x;
 
     std::cout << "sending: " << (int) data[0] << " " << (int) data[1]
