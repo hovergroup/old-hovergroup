@@ -225,7 +225,7 @@ unsigned char Tulip26bit::FlexibleEncode(double val,
 
     unsigned char transmit_val;
 
-    for (int i = 0; i < range_divs.size() - 1; i++) {
+    for (int i = 0; i < range_divs.size(); i++) {
         if ( val < range_divs[i] )
             return i;
     }

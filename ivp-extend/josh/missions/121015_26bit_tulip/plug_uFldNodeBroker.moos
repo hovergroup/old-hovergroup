@@ -27,7 +27,8 @@ ProcessConfig = uFldNodeBroker
   	BRIDGE = src=FOLLOWER_X
   	BRIDGE = src=FOLLOWER_Y
   	BRIDGE = src=LEADER_RANGE
-  	BRIDGE = src=FOLLOWER_RANGE
+  	BRIDGE = src=FOLLOWER_RANGE_BIN
+  	BRIDGE = src=FOLLOWER_PACKET
   	
   	BRIDGE = src=GPS_TIME_SECONDS
   #else
