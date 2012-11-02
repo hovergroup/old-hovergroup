@@ -3,6 +3,8 @@
 # modify path
 # PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
 
+PATH=$PATH:/home/josh/hovergroup-extend/josh/bin:/home/josh/hovergroup/ivp-extend/josh/bin
+
 WARP=1
 HELP="no"
 JUST_BUILD="no"
