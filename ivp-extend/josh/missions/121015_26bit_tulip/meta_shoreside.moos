@@ -22,6 +22,7 @@ Processconfig = ANTLER
 	
 	Run = uXMS              @ NewConsole = true,XConfig=3 ~uXMS_tulip-acomms
 	Run = uXMS              @ NewConsole = true,XConfig=4 ~uXMS_target-sim
+	Run = uXMS		@ NewConsole = true,XConfig=1 ~uXMS_tulip-data
 	
 	Run = pTargetRangeSensorSim @ NewConsole = false
 
@@ -29,6 +30,24 @@ Processconfig = ANTLER
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
 	3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
 	4 = -geometry,80x30+0+460,-bg,blue,-fg,white
+}
+
+ProcessConfig = uXMS_tulip-data
+{
+	AppTick = 1
+	CommsTick = 1
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+  	VAR = LEADER_X
+  	VAR = LEADER_Y
+  	VAR = FOLLOWER_X
+  	VAR = FOLLOWER_Y
+  	VAR = LEADER_RANGE
+  	VAR = FOLLOWER_RANGE
+  	
+  	VAR = GPS_TIME_SECONDS
 }
 
 ProcessConfig = uXMS_tulip-acomms

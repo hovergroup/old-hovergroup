@@ -190,5 +190,7 @@ void SIMPLE_GPS::parseLine(string msg) {
 		parseGPRMC(msg);
 	else if ( cmd == "$GPGGA" )
 		parseGPGGA( msg );
+	else if ( cmd == "$GPGST" )
+	    parseGPGST( msg );
 
 }

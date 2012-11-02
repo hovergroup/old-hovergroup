@@ -52,6 +52,18 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
+if [ "${HELP}" = "yes" ]; then
+    printf "%s [SWITCHES]            \n" $0
+    printf "Switches:                \n"
+    printf "  --nostromo             nostromo vehicle only                 \n"
+    printf "  --kassandra            kassandra vehicle only                \n"
+    printf "  --icarus               icarus vehicle only                   \n"
+    printf "  --ROLE=[follower/leader]\n"
+    printf "  --just_build, -j       \n" 
+    printf "  --help, -h             \n" 
+    exit 0;
+fi
+
 if [ "${ROLE}" = "" ] ; then
 	printf "Must specify a role. \n"
 	exit 0
@@ -70,18 +82,6 @@ fi
 if [ "${BAD_ARGS}" != "" ] ; then
     printf "Bad Argument: %s \n" $BAD_ARGS
     exit 0
-fi
-
-if [ "${HELP}" = "yes" ]; then
-    printf "%s [SWITCHES]            \n" $0
-    printf "Switches:                \n"
-    printf "  --nostromo             nostromo vehicle only                 \n"
-    printf "  --kassandra            kassandra vehicle only                \n"
-    printf "  --icarus               icarus vehicle only                   \n"
-    printf "  --ROLE=[follower/leader]\n"
-    printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
-    exit 0;
 fi
 
 #-------------------------------------------------------

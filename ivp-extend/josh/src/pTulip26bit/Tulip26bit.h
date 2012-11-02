@@ -38,6 +38,7 @@ protected:
 	void onGoodReceive_leader( const std::string data );
 	void onBadReceive_follower();
 	void onBadReceive_leader();
+	void publishLeaderPos();
 
 	unsigned char LinearEncode( double val, double min, double max, int bits );
 	double LinearDecode( unsigned char val, double min, double max, int bits );
