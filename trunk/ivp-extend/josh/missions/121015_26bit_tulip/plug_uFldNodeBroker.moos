@@ -32,6 +32,6 @@ ProcessConfig = uFldNodeBroker
   	
   	BRIDGE = src=GPS_TIME_SECONDS
   #else
-  
+	BRIDGE = src=LEADER_PACKET  
   #endif
 }
