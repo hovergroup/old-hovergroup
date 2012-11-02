@@ -16,7 +16,6 @@ function [dataOut] = parseObservations(readTimeout)
 
 gotObs = 0;
 readStart = tic;
-%readTimeout = 1;
 
 while(~gotObs)
     
