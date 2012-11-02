@@ -42,8 +42,10 @@ void Tulip26bit::onGoodReceive_follower(const std::string data) {
 
     m_Comms.Notify("COMMANDED_X", received_x);
     m_Comms.Notify("COMMANDED_Y", received_y);
+    m_Comms.Notify("LEADER_PACKET",1);
 }
 
 void Tulip26bit::onBadReceive_follower() {
+    m_Comms.Notify("LEADER_PACKET",0);
 
 }
