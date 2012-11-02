@@ -11,6 +11,7 @@ void Tulip26bit::onTransmit_follower() {
 	unsigned char transmit_x = LinearEncode( m_osx, m_osx_minimum, m_osx_maximum, 5);
 	unsigned char transmit_y = LinearEncode( m_osy, m_osy_minimum, m_osy_maximum, 5);
 	unsigned char range = FlexibleEncode( m_target_range, m_follower_range_divs, 3);
+	std::cout << "Follower range encoded as " << (int) range << std::endl;
 
 	std::vector<unsigned char> data (2, 0);
 	data[1] = transmit_y<<3 + range;
