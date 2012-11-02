@@ -75,7 +75,7 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
             std::string sTmp = MOOSChomp(sline,",");
             m_set_x = atof(sTmp.c_str());
             m_set_y = atof(sline.c_str());
-        } else if ( key == "LEADER_WAYPOINT" ){ {
+        } else if ( key == "LEADER_WAYPOINT" ) {
             std::stringstream ss;
             ss << "points=" << m_osx << "," << m_osy << ":" << msg.GetString();
             m_Comms.Notify("TULIP_WAYPOINT_UPDATES", ss.str());
