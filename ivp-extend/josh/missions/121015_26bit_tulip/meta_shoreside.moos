@@ -90,6 +90,15 @@ ProcessConfig = pTargetRangeSensorSim
 	CommsTick = 5
 }
 
+ProcessConfig = pEchoVar
+{
+	AppTick   = 40
+	CommsTick = 40
+
+	Echo = LEADER_WAYPOINT -> LEADER_WAYPOINT_$(LEADER)
+	Echo = FOLLOWER_WAYPOINT -> FOLLOWER_WAYPOINT_$(LEADER)
+}
+
 #include plug_pHostInfo.moos
 
 //--------------------------------------------------
@@ -103,7 +112,7 @@ ProcessConfig = uFldShoreBroker
   QBRIDGE  = MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, GOTO_UPDATES
   QBRIDGE  = NODE_REPORT, NODE_MESSAGE
   
-  QBRIDGE = TARGET_RANGE_RETURN
+  QBRIDGE = TARGET_RANGE_RETURN, LEADER_WAYPOINT, FOLLOWER_WAYPOINT
   //BRIDGE = TARGET_RANGE_RETURN_$V, alias=TARGET_RANGE_RETURN
   
   //BRIDGE   = src=LOITER_UPDATES_$V, alias=LOITER_UPDATES
