@@ -42,6 +42,12 @@ void Tulip26bit::onGoodReceive_follower(const std::string data) {
 
     m_Comms.Notify("COMMANDED_X", received_x);
     m_Comms.Notify("COMMANDED_Y", received_y);
+
+    std::stringstream ss;
+    ss << "points=" << m_osx << "," << m_osy << ":" << received_x << "," << received_y;
+    m_Comms.Notify("TULIP_WAYPOINT_UPDATES",ss.str());
+    m_Comms.Notify("TULIP_STATION", "false");
+
     m_Comms.Notify("LEADER_PACKET",1);
 }
 

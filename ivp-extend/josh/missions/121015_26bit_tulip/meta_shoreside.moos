@@ -47,6 +47,9 @@ ProcessConfig = uXMS_tulip-data
   	VAR = LEADER_RANGE
   	VAR = FOLLOWER_RANGE_BIN
   	VAR = FOLLOWER_PACKET
+  	VAR = LEADER_PACKET
+  	VAR = LEADER_WAYPOINT
+  	VAR = FOLLOWER_WAYPOINT
   	
   	VAR = GPS_TIME_SECONDS
 }
@@ -216,20 +219,23 @@ ProcessConfig = pMarineViewer
 
 ProcessConfig = iMatlab
 {
-AppTick = 10
-Comms Tick = 10
-Port = COM6
-BaudRate = 4800
-Verbose = false
-Streaming = false
-MOOSComms = true
-SerialComms = false
-SERIAL_TIMEOUT = 10.0
-SUBSCRIBE = DB_TIME @ 1.0
-SUBSCRIBE = FOLLOWER_X @ 0.0
-SUBSCRIBE = FOLLOWER_Y @ 0.0
-SUBSCRIBE = LEADER_X @ 0.0
-SUBSCRIBE = LEADER_Y @ 0.0
-SUBSCRIBE = FOLLOWER_RANGE_BIN @ 0.0
-SUBSCRIBE = LEADER_RANGE @ 0.0
+  AppTick = 10
+  Comms Tick = 10
+
+  Port = COM6
+  BaudRate = 4800
+
+  Verbose = false
+  Streaming = false
+  MOOSComms = true
+  SerialComms = false
+  SERIAL_TIMEOUT = 10.0
+
+  SUBSCRIBE = DB_TIME @ 1.0
+  SUBSCRIBE = FOLLOWER_X @ 0.0
+  SUBSCRIBE = FOLLOWER_Y @ 0.0
+  SUBSCRIBE = LEADER_X @ 0.0
+  SUBSCRIBE = LEADER_Y @ 0.0
+  SUBSCRIBE = FOLLOWER_RANGE_BIN @ 0.0
+  SUBSCRIBE = LEADER_RANGE @ 0.0
 }

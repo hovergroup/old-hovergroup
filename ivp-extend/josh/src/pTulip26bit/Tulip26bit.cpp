@@ -70,6 +70,16 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
         } else if ( key == "TARGET_RANGE_RETURN" ) {
             RangeSensorTypes::RangeReply rr(msg.GetString());
             m_target_range = rr.range;
+        } else if ( key == "FOLLOWER_WAYPOINT" ) {
+            std::string sline = msg.GetString();
+            std::string sTmp = MOOSChomp(sline,",");
+            m_set_x = atof(sTmp.c_str());
+            m_set_y = atof(sline.c_str());
+        } else if ( key == "LEADER_WAYPOINT" ){ {
+            std::stringstream ss;
+            ss << "points=" << m_osx << "," << m_osy << ":" << msg.GetString();
+            m_Comms.Notify("TULIP_WAYPOINT_UPDATES", ss.str());
+            m_Comms.Notify("TULIP_STATION", "false");
         }
     }
 
@@ -125,6 +135,9 @@ bool Tulip26bit::OnConnectToServer() {
                 boost::bind(&Tulip26bit::onBadReceive_leader, this));
         goby::acomms::connect(&m_AcommsTimer.signal_receipt,
                 boost::bind(&Tulip26bit::onGoodReceive_leader, this, _1));
+
+        m_Comms.Register("FOLLOWER_WAYPOINT",0);
+        m_Comms.Register("LEADER_WAYPOINT",0);
     } else if (vehicle_mode == "follower") {
         goby::acomms::connect(&m_AcommsTimer.signal_transmit,
                 boost::bind(&Tulip26bit::onTransmit_follower, this));
