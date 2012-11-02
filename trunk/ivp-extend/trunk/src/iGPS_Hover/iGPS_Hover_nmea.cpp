@@ -173,6 +173,8 @@ void SIMPLE_GPS::parseGPGGA(string sNMEAString) {
 }
 
 void SIMPLE_GPS::parseLine(string msg) {
+    writeLine( msg );
+
 	if (!DoNMEACheckSum(msg)) {
 		cout << "checksum failed on: " << msg << endl;
 		for ( int i=0; i<msg.size(); i++ ) {
