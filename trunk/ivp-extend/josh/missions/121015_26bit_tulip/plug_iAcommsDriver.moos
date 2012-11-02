@@ -2,8 +2,8 @@
 
 ProcessConfig = iAcommsDriver
 {
-	AppTick = 5
-	CommsTick = 5
+	AppTick = 20
+	CommsTick = 20
 
 	PortName = $(MODEMPORT)
 	ID = $(ACOMMSID)

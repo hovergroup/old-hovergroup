@@ -3,8 +3,8 @@
 
 ProcessConfig = pMOOSBridge_%(VNAME)
 {
-  AppTick    = 4
-  CommsTick  = 4
+  AppTick    = 20
+  CommsTick  = 20
   
   UDPListen = $(LPORT)
   BridgeFrequency = 0  

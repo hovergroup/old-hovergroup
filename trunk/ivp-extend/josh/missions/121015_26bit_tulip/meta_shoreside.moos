@@ -121,8 +121,8 @@ ProcessConfig = uFldShoreBroker
 //--------------------------------------------------------
 ProcessConfig = pMOOSBridge
 {
-  AppTick   = 4
-  CommsTick = 4
+  AppTick   = 20
+  CommsTick = 20
 
   UDPListen = $(SLPORT)
   BridgeFrequency = 0  
@@ -228,8 +228,8 @@ ProcessConfig = pMarineViewer
 
 ProcessConfig = iMatlab
 {
-  AppTick = 10
-  Comms Tick = 10
+  AppTick = 20
+  Comms Tick = 20
 
   Port = COM6
   BaudRate = 4800
