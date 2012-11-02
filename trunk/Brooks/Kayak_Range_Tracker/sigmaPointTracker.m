@@ -16,13 +16,16 @@
 
 % FSH MIT MechE October 2012
 
-clear all;
+clear all;close all;clc
+
 global localNoise ; % used to pass a ZOH process noise level (Q) into ode45
 
 ifPlot = 1;
 % interval for plotting "triangle"
 plotInt = 10;
 
+probPLossLF = 0.3;
+probPLossFL = 0.3;
 
 % problem parameters
 dt = 7 ; % time step between samples
@@ -37,19 +40,22 @@ WY = 0.5^2*sqrt(dt);
 % Agent dyanamics:
 alpha = [1 1]';
 maxSpeed = [1 2]';
-
-XAgent0 = [-50 50]' ; % Initial Cartesian X-location of the observing agents
-YAgent0 = [ -85 -85]' ; % Initial Cartesian Y-...
-nAgents = length(XAgent0) ;
+nAgents = 2;
 
 R = diag([25 25]) ; % range sensor noise covariance, per agent
-probPLoss = 0.3;
 
 % set the initial conditions
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 xhat = [0 0 0]' ; % guessed
 xtrue = [0 50 25]' ; % true
 P = diag([5 2500 2500]) ; % state covariance
+
+% formation
+legLen = 50;        % meters
+theta = deg2rad(60);    % degrees (total angle between each leg)
+XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'+xhat(2); % sets desired formation
+YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]'+xhat(3);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -79,12 +85,15 @@ else
     break ;
 end;
 
+trueTargetSave = zeros(dim,steps);
 XAgentSave = zeros(nAgents,steps);
 YAgentSave = zeros(nAgents,steps);
+XADSave = zeros(nAgents,steps);
+YADSave = zeros(nAgents,steps);
 xhatSave = zeros(dim,steps);
+
 XAgent = XAgent0;
 YAgent = YAgent0;
-
 
 loopTimes = zeros(1,steps);
 for ind = 1:steps
@@ -101,16 +110,27 @@ for ind = 1:steps
     YAgentDes = YAgent0 + xhat(3);
     
     % position the agents for the NEW measurement based on OLD xhat,
-    % plus some noise (should probably be a low-pass filter)
     dist = sqrt((XAgentDes-XAgent).^2 + (YAgentDes-YAgent).^2);
     stepX = XAgentDes - XAgent;
     stepY = YAgentDes - YAgent;
-    if(dist>(maxSpeed*dt))
-        stepX = maxSpeed*dt.*stepX./dist;
-        stepY = maxSpeed*dt.*stepY./dist;
+    for i = 1:nAgents
+        if(dist(i)>(maxSpeed(i)*dt))
+            stepX(i) = maxSpeed(i)*dt.*stepX(i)./dist(i);
+            stepY(i) = maxSpeed(i)*dt.*stepY(i)./dist(i);
+        end
     end
-    XAgent = XAgent + stepX + randn*sqrt(WX);
-    YAgent = YAgent + stepY + randn*sqrt(WY);
+    
+    % leader-follower (control command) packet loss
+    if(rand<probPLossLF)
+        % pLossLF(ind) = 1;
+        disp('LEADER-FOLLOWER CNTRL PACKET LOST')
+        alpha = [1 0]';
+    else
+        alpha = [1 1]';
+    end
+    
+    XAgent = XAgent + alpha.*stepX + randn*sqrt(WX);
+    YAgent = YAgent + alpha.*stepY + randn*sqrt(WY);
     
     % make the real observation
     z = zeros(nAgents,1);
@@ -121,11 +141,12 @@ for ind = 1:steps
     
     % simulate packet loss (follower-leader)
     RR = R;
-    if(rand<probPLoss)
-        disp('PACKET LOST')
+    if(rand<probPLossFL)
+        % pLossFL(ind) = 1;
+        disp('FOLLOWER-LEADER MEAS PACKET LOST')
         RR(2,2) = 10e10; % Inf meas noise
     end
-        
+    
     
     [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
         dim,s1,s2,s3,w,vol,Q,dt,RR);
@@ -164,9 +185,12 @@ for ind = 1:steps
         end
     end
     
-    
+    trueTargetSave(:,ind) = xtrue;
     XAgentSave(:,ind) = XAgent;
     YAgentSave(:,ind) = YAgent;
+    XADSave(:,ind) = XAgentDes;
+    YADSave(:,ind) = YAgentDes;
+    
     xhatSave(:,ind) = xhat;
     
     if norm(xhat) > 1e6,
@@ -179,4 +203,11 @@ for ind = 1:steps
 end;
 
 
+%%
 
+% compare TRUE FORMATION (true target), X, Y DESIRED, and actual...
+
+figure
+plot(XADSave',YADSave','--')
+hold on
+plot(XAgentSave',YAgentSave')

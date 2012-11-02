@@ -13,7 +13,7 @@
 
 %}
 
-global localNoise ; % used to pass a ZOH process noise level (Q) into ode45
+%global localNoise ; % used to pass a ZOH process noise level (Q) into ode45
 
 
 % problem parameters
@@ -24,15 +24,21 @@ nAgents = 2;
 % estimator parameters
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .02 ; % target process noise (heading rate of target)
-Rmeas = diag([25 25]) ; % range sensor noise covariance, per agent
-P = diag([5 2500 2500]) ; % state covariance
+            % PSD: (deg/s)^2 / Hz?  
 
+Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
 
+P = diag([5 2500 2500]) ;   % INITIAL state covariance
 xhat = [0 0 0]' ; % initial guess
-XAgent0 = [-50 50]+xhat(2); % sets desired formation
-YAgent0 = [-85 -85]+xhat(3);
 
-options = odeset('RelTol',1e-12,'AbsTol',1e-12);
+% formation 
+legLen = 50;        % meters
+theta = deg2rad(60);    % degrees (total angle between each leg)
+XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'+xhat(2); % sets desired formation
+YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]'+xhat(3);
+
+%options = odeset('RelTol',1e-12,'AbsTol',1e-12);
+
 if dim == 3,
     [s1,s2,s3,w,vol] = getHermite(NaN); % get quadrature points and weights
 else
@@ -46,8 +52,10 @@ while(gotStart)
     startData = parseObservations();
     
     if(startData.FOLLOWER_PACKET==0)
+        
         disp('MISSING FOLLOWER PACKET')
         continue
+    
     else
         
         XAgent(1) = startData.LEADER_X;
@@ -77,12 +85,15 @@ while(go)
     if(data.FOLLOWER_PACKET==0)
         disp('MISSING FOLLOWER PACKET')
         
-        % USE OLD STATE INFO...no changes
+        XAgent(1) = data.LEADER_X;
+        YAgent(1) = data.LEADER_Y;
+        z(1) = data.LEADER_R;
         
         % Set follower meas noise to INF
         R = Rmeas;
         R(2,2) = 10e10; % Inf meas noise
-        
+        % USE OLD FOLLOWER INFO...no changes
+
     else
         
         XAgent(1) = data.LEADER_X;
@@ -90,7 +101,7 @@ while(go)
         YAgent(1) = data.LEADER_Y;
         YAgent(2) = data.FOLLOWER_Y;
         z(1) = data.LEADER_R;
-        z(2) = data.FOLLOWER_R;
+        z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN);
         
         R = Rmeas;
         
@@ -116,6 +127,6 @@ while(go)
     iMatlab('MOOST_MAIL_TX','FOLLOWER_WAYPOINT_UPDATES',fwps);
     
     
-    loopTime = toc(itStart);
+    mloopTime = toc(itStart);
 
 end

@@ -40,12 +40,14 @@ end
 function [gotAllObs,dataOut] = parseMail(mail)
 
 % [xL,yL,rL,piL,xF,yF,rF,piF]
-varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_R','FOLLOWER_PACKET',...
-    'LEADER_X','LEADER_Y','LEADER_R'};%,'LEADER_PACKET'};
+varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
+    'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+%,'LEADER_PACKET'};
 n = length(varList);
 
 gotStates = zeros(1,n);
 gotAllObs = 0;
+dataOut = [];
 
 key = cell(1,messages);
 val = cell(1,messages);
@@ -69,7 +71,7 @@ while(~gotAllObs)
     if(i<messages)
         i = i+1;
     else
-        continue
+        break
     end
     
     gotAllObs = min(gotStates);
