@@ -27,7 +27,7 @@ Behavior = BHV_Waypoint
 
 Behavior = BHV_StationKeep
 {
-	name			= Archie_Stationkeep
+	name			= tulip_station
 	pwt				= 100
 	condition		= MISSION_MODE = TULIP
 	condition		= TULIP_STATION = true
