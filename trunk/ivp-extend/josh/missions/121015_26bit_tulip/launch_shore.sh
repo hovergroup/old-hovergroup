@@ -35,6 +35,14 @@ for ARGI; do
     fi
 done
 
+if [ "${HELP}" = "yes" ]; then
+    printf "%s [SWITCHES]            \n" $0
+    printf "Switches:                \n"
+    printf "  --just_build, -j       \n" 
+    printf "  --help, -h             \n" 
+    exit 0;
+fi
+
 if [ "${LEADER} = "" -o "${FOLLOWER} = "" ] ; then
 	printf "Must specify leader and follower.\n"
 	exit 0
@@ -43,14 +51,6 @@ fi
 if [ "${BAD_ARGS}" != "" ] ; then
     printf "Bad Argument: %s \n" $BAD_ARGS
     exit 0
-fi
-
-if [ "${HELP}" = "yes" ]; then
-    printf "%s [SWITCHES]            \n" $0
-    printf "Switches:                \n"
-    printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
-    exit 0;
 fi
 
 #-------------------------------------------------------

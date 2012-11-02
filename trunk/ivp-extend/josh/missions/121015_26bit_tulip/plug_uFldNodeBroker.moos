@@ -22,10 +22,13 @@ ProcessConfig = uFldNodeBroker
   BRIDGE = src=TARGET_RANGE_REQUEST
   
   #ifdef ROLE leader
-  	BRIDGE = src=TULIP_RANGE, alias=TULIP_RANGE_LEADER
-  	BRIDGE = src=TULIP_RANGE_FOLLOWER, alias=TULIP_RANGE_FOLLOWER
-  	BRIDGE = src=NAV_X, alias=NAV_X_LEADER
-  	BRIDGE = src=NAV_Y, alias=NAV_Y_LEADER
+  	BRIDGE = src=LEADER_X
+  	BRIDGE = src=LEADER_Y
+  	BRIDGE = src=FOLLOWER_X
+  	BRIDGE = src=FOLLOWER_Y
+  	BRIDGE = src=LEADER_RANGE
+  	BRIDGE = src=FOLLOWER_RANGE
+  	
   	BRIDGE = src=GPS_TIME_SECONDS
   #else
   
