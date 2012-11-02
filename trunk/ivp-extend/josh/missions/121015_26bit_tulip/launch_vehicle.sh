@@ -29,16 +29,16 @@ for ARGI; do
     JUST_BUILD="yes"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--nostromo" ] ; then
-    VEHICLE="nostromo"
+    if [ "${ARGI}" = "--NOSTROMO" ] ; then
+    VEHICLE="NOSTROMO"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--kassandra" ] ; then
-    VEHICLE="kassandra"
+    if [ "${ARGI}" = "--KASSANDRA" ] ; then
+    VEHICLE="KASSANDRA"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--icarus" ] ; then
-    VEHICLE="icarus"
+    if [ "${ARGI}" = "--ICARUS" ] ; then
+    VEHICLE="ICARUS"
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI:0:6}" = "--role" ] ; then
@@ -57,9 +57,9 @@ done
 if [ "${HELP}" = "yes" ]; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
-    printf "  --nostromo             nostromo vehicle only                 \n"
-    printf "  --kassandra            kassandra vehicle only                \n"
-    printf "  --icarus               icarus vehicle only                   \n"
+    printf "  --NOSTROMO             NOSTROMO vehicle only                 \n"
+    printf "  --KASSANDRA            KASSANDRA vehicle only                \n"
+    printf "  --ICARUS               ICARUS vehicle only                   \n"
     printf "  --ROLE=[follower/leader]\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
@@ -90,29 +90,29 @@ fi
 #  Part 3: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-VNAME1="icarus"  # The first vehicle Community
+VNAME1="ICARUS"  # The first vehicle Community
 VHOST1="192.168.1.102"
 VPORT1="9300"
 LPORT1="9301"
 ID1=1
 
-VNAME2="kassandra"  # The second vehicle Community
+VNAME2="KASSANDRA"  # The second vehicle Community
 VHOST2="192.168.1.101"
 VPORT2="9200"
 LPORT2="9201"
 RETURN_PT2="10,-20"
 ID2=2
 
-VNAME3="nostromo"  # The third vehicle Community
+VNAME3="NOSTROMO"  # The third vehicle Community
 VHOST3="192.168.1.103"
 VPORT3="9100"
 LPORT3="9101"
 RETURN_PT3="30,-10"
 ID3=3
 
-# Conditionally Prepare nostromo files
-if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld.moos targ_nostromo.moos -f  \
+# Conditionally Prepare NOSTROMO files
+if [ "${VEHICLE}" = "NOSTROMO" ]; then
+    nsplug meta_vehicle_fld.moos targ_NOSTROMO.moos -f  \
     	ROLE=$ROLE										\
         VHOST=$VHOST3                                   \
         VNAME=$VNAME3                                   \
@@ -127,15 +127,15 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         GPSPORT="/dev/ttyACM0"							\
 		GPSBAUD="57600"
 
-    nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
+    nsplug meta_vehicle.bhv targ_NOSTROMO.bhv -f        \
         VNAME=$VNAME3                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT3
 fi
 
-# Conditionally Prepare kassandra files
-if [ "${VEHICLE}" = "kassandra" ]; then
-    nsplug meta_kassandra.moos targ_kassandra.moos -f   \
+# Conditionally Prepare KASSANDRA files
+if [ "${VEHICLE}" = "KASSANDRA" ]; then
+    nsplug meta_KASSANDRA.moos targ_KASSANDRA.moos -f   \
     	ROLE=$ROLE										\
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
@@ -148,15 +148,15 @@ if [ "${VEHICLE}" = "kassandra" ]; then
         OS5000PORT="/dev/ttyUSB2"                       \
         ALTIMETERPORT="/dev/ttyUSB0"				
 
-    nsplug meta_vehicle.bhv targ_kassandra.bhv -f       \
+    nsplug meta_vehicle.bhv targ_KASSANDRA.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
 fi
 
-# Conditionally Prepare icarus files
-if [ "${VEHICLE}" = "icarus" ]; then
-    nsplug meta_icarus.moos targ_icarus.moos -f    \
+# Conditionally Prepare ICARUS files
+if [ "${VEHICLE}" = "ICARUS" ]; then
+    nsplug meta_ICARUS.moos targ_ICARUS.moos -f    \
     	ROLE=$ROLE										\
         VHOST=$VHOST1                                   \
         VNAME=$VNAME1                            \
@@ -178,20 +178,20 @@ fi
 #  Part 4: Launch the processes
 #-------------------------------------------------------
 
-# Launch nostromo
-if [ "${VEHICLE}" = "nostromo" ]; then
-    printf "Launching nostromo MOOS Community \n"
-    pAntler targ_nostromo.moos >& /dev/null &
+# Launch NOSTROMO
+if [ "${VEHICLE}" = "NOSTROMO" ]; then
+    printf "Launching NOSTROMO MOOS Community \n"
+    pAntler targ_NOSTROMO.moos >& /dev/null &
 fi
-# Launch kassandra
-if [ "${VEHICLE}" = "kassandra" ]; then
-    printf "Launching kassandra MOOS Community \n"
-    pAntler targ_kassandra.moos >& /dev/null &
+# Launch KASSANDRA
+if [ "${VEHICLE}" = "KASSANDRA" ]; then
+    printf "Launching KASSANDRA MOOS Community \n"
+    pAntler targ_KASSANDRA.moos >& /dev/null &
 fi
-# Launch icarus
-if [ "${VEHICLE}" = "icarus" ]; then
-    printf "Launching icarus MOOS Community \n"
-    pAntler targ_icarus.moos >& /dev/null &
+# Launch ICARUS
+if [ "${VEHICLE}" = "ICARUS" ]; then
+    printf "Launching ICARUS MOOS Community \n"
+    pAntler targ_ICARUS.moos >& /dev/null &
 fi
 
 #-------------------------------------------------------
