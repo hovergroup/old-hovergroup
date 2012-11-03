@@ -86,8 +86,8 @@ ProcessConfig = uXMS_target-sim
 
 ProcessConfig = pTargetRangeSensorSim
 {
-	AppTick = 5
-	CommsTick = 5
+	AppTick = 10
+	CommsTick = 10
 }
 
 ProcessConfig = pEchoVar
