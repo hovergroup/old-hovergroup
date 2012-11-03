@@ -61,7 +61,7 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
             }
 
         } else if (key == "GPS_TIME_SECONDS") {
-            m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble());
+            m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
 
         } else if (key == "NAV_X") {
             m_osx = msg.GetDouble();
@@ -182,7 +182,7 @@ void Tulip26bit::handleUpdate(const std::string msg) {
 // Procedure: Iterate()
 
 bool Tulip26bit::Iterate() {
-    m_AcommsTimer.doWork();
+    m_AcommsTimer.doWork(MOOSTime());
 
     if (MOOSTime() - m_lastRangeRequestTime > .5) {
         RangeSensorTypes::RangeRequest request;
