@@ -23,7 +23,7 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = iHoverKayak		@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
-  Run = pSearchRelay		@ NewConsole = false
+  Run = pRoundRobin		@ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -55,4 +55,4 @@ ProcessConfig = uXMS
 #include plug_iRemote.moos
 #include plug_iHoverKayak.moos
 #include plug_iAcommsDriver.moos
-#include plug_pSearchRelay.moos
+#include plug_pRoundRobin.moos

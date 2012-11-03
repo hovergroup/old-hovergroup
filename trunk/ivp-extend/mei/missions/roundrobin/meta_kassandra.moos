@@ -23,7 +23,6 @@ Processconfig = ANTLER
   Run = kayak_interface	   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
   Run = iAltimeter			@ NewConsole = false
-  Run = pRelayEnd			@ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -54,4 +53,3 @@ ProcessConfig = uXMS
 #include plug_kayak_interface.moos
 #include plug_iAcommsDriver.moos
 #include plug_iAltimeter.moos
-#include plug_pRelayEnd.moos
