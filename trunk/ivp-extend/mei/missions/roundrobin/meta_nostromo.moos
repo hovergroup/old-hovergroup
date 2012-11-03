@@ -1,0 +1,58 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pMarinePID_Hover   	@ NewConsole = false
+  Run = pHelmIvP           	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = iOS5000_Hover      	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iHoverKayak		@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = pSearchRelay		@ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=VOLTAGE
+	VAR=CPU_BOX_TEMP
+	VAR=ROBOTEQ_HEATSINK_TEMP
+	VAR=ROBOTEQ_INTERNAL_TEMP
+	VAR=ROBOTEQ_BATTERY_CURRENT
+	VAR=ROBOTEQ_MOTOR_CURRENT
+	VAR=ARDUINO_THRUST
+	VAR=ARDUINO_RUDDER
+}
+
+#include plug_pMOOSBridgeV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pMarinePID_Hover.moos
+#include plug_pHelmIvP.moos
+#include plug_pHostInfo.moos
+#include plug_uFldNodeBroker.moos
+#include plug_uFldMessageHandler.moos
+#include plug_pEchoVar.moos
+#include plug_iGPS_Hover.moos
+#include plug_iOS5000_Hover.moos
+#include plug_iRemote.moos
+#include plug_iHoverKayak.moos
+#include plug_iAcommsDriver.moos
+#include plug_pSearchRelay.moos
