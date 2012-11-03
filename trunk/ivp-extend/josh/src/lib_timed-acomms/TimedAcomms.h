@@ -16,10 +16,10 @@ class TimedAcomms {
 public:
     TimedAcomms();
 
-    void doWork();
+    void doWork(double moos_time);
 
     // data inputs
-    bool processGpsTimeSeconds(double gps_time_seconds);
+    bool processGpsTimeSeconds(double gps_time_seconds, double moos_time);
     void signalStartOfModemReceiving();
     void signalBadReception();
     void signalGoodReception(std::string data);
@@ -35,9 +35,10 @@ public:
     void setReceiveTiming(double period, double offset);
     void setTransmitTiming(double period, double offset);
     void setReceivingExtension(double extension);
+    void setMaxReceivingError(double error);
 
 private:
-    static const int GPS_TIME_SAMPLES = 5;
+    static const int GPS_TIME_SAMPLES = 10;
 
     enum StateIDs {
         GPS_TIME_CAL = 0, EXITING_TIME_CAL, READY, RECEIVING
@@ -46,8 +47,8 @@ private:
     StateIDs m_State;
     std::map<StateIDs, std::string> m_StateNames;
 
-    double getSysTimeSeconds(); // system clock
-    double getAbsTimeSeconds(); // system clock with gps correction
+//    double getSysTimeSeconds(); // system clock
+//    double getAbsTimeSeconds(); // system clock with gps correction
 
     // clock adjustment
     double m_ClockOffset;
@@ -58,6 +59,7 @@ private:
     double m_TransmitPeriod, m_TransmitOffset;
     double m_ReceivePeriod, m_ReceiveOffset;
     double m_AllowedReceivingExtension;
+    double m_MaxReceivingError;
 
     // timing operations
     int findNextSlot(double current_time, double period, double offset);
@@ -76,7 +78,6 @@ private:
 
     // receiving
     int m_LastReceiveSlot;
-    int m_ExpectedReceiveSlot;
 
     // persistent data
     int m_ExitingTimeCalIterations;

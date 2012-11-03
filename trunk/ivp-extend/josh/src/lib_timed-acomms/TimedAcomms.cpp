@@ -25,8 +25,8 @@ TimedAcomms::TimedAcomms() {
     m_StateNames[RECEIVING] = "RECEIVING";
 }
 
-void TimedAcomms::doWork() {
-    m_ThisRunTime = getAbsTimeSeconds();
+void TimedAcomms::doWork(double moos_time) {
+    m_ThisRunTime = moos_time + m_ClockOffset;
 
     switch (m_State) {
     case GPS_TIME_CAL:
@@ -97,13 +97,7 @@ void TimedAcomms::doReadyState() {
 
     // check if modem has started receiving
     if (m_BeginModemReceive) {
-        // calculate receive slot we expect to fill
-        m_ExpectedReceiveSlot = findNextSlot(m_ThisRunTime, m_ReceivePeriod,
-                m_ReceiveOffset);
-
-        std::stringstream ss;
-        ss << "Entering receive time slot " << m_ExpectedReceiveSlot;
-        signal_updates(ss.str());
+        signal_updates("Entering receiving state");
 
         m_BeginModemReceive = false;
         m_State = RECEIVING;
@@ -114,42 +108,97 @@ void TimedAcomms::doReadyState() {
  * receiving state where we wait for indication of good/bad receipt
  */
 void TimedAcomms::doReceivingState() {
-    // check for bad receive signal
-    if (m_BadReceive) {
-        std::stringstream ss;
-        ss << "Got bad receipt for receive slot " << m_ExpectedReceiveSlot;
-        signal_updates(ss.str());
+	// check for good receive signal
+	if (m_GoodReceive) {
+		// clear flag
+		m_GoodReceive = false;
+		std::stringstream ss;
 
-        m_BadReceive = false;
-        signal_no_receipt();
-        m_State = READY;
-        m_LastReceiveSlot = m_ExpectedReceiveSlot;
-    }
+		// find nearest matching receive slot
+		int slot = findNearestSlot(m_ThisRunTime, m_ReceivePeriod,
+				m_ReceiveOffset);
 
-    // check for good receive signal
-    if (m_GoodReceive) {
-        std::stringstream ss;
-        ss << "Got good receipt for receive slot " << m_ExpectedReceiveSlot;
-        signal_updates(ss.str());
+		// check if this is the last slot we used
+		if (slot == m_LastReceiveSlot) {
+			ss << "Got good receipt for receive slot " << slot
+					<< ", but slot already taken.";
+			signal_updates(ss.str());
+		} else {
+			// calculate time and error for slot
+			double expected_time = slot2Time(slot, m_ReceivePeriod,
+					m_ReceiveOffset);
+			double error = fabs(expected_time - m_ThisRunTime);
 
-        m_GoodReceive = false;
-        signal_receipt(m_ReceivedData);
-        m_State = READY;
-        m_LastReceiveSlot = m_ExpectedReceiveSlot;
-    }
+			// check if error within bounds
+			if (error < m_MaxReceivingError) {
+				ss << "Got good receipt for receive slot " << slot;
+				signal_updates(ss.str());
+				signal_receipt(m_ReceivedData);
+			} else {
+				ss << "Got good receipt for receive slot " << slot
+						<< ", but error was out of bounds (" << error << ")";
+				signal_updates(ss.str());
+			}
+		}
 
-    // check for timeout
-    double expected_receive_time = slot2Time(m_ExpectedReceiveSlot,
-            m_ReceivePeriod, m_ReceiveOffset);
-    if (m_ThisRunTime > expected_receive_time + m_AllowedReceivingExtension) {
-        std::stringstream ss;
-        ss << "Timed out in receive slot " << m_ExpectedReceiveSlot;
-        signal_updates(ss.str());
+		m_State = READY;
+		m_LastReceiveSlot = slot;
 
-        signal_no_receipt();
-        m_State = READY;
-        m_LastReceiveSlot = m_ExpectedReceiveSlot;
-    }
+		return;
+	}
+
+	// check for bad receive signal
+	if (m_BadReceive) {
+		// clear flag
+		m_BadReceive = false;
+		std::stringstream ss;
+
+		// find nearest matching receive slot
+		int slot = findNearestSlot(m_ThisRunTime, m_ReceivePeriod,
+				m_ReceiveOffset);
+
+		// check if this is the last slot we used
+		if (slot == m_LastReceiveSlot) {
+			ss << "Got bad receipt for receive slot " << slot
+					<< ", but slot already taken.";
+			signal_updates(ss.str());
+		} else {
+			// calculate time and error for slot
+			double expected_time = slot2Time(slot, m_ReceivePeriod,
+					m_ReceiveOffset);
+			double error = fabs(expected_time - m_ThisRunTime);
+
+			// check if error within bounds
+			if (error < m_MaxReceivingError) {
+				ss << "Got bad receipt for receive slot " << slot;
+				signal_updates(ss.str());
+				signal_no_receipt();
+			} else {
+				ss << "Got bad receipt for receive slot " << slot
+						<< ", but error was out of bounds (" << error << ")";
+				signal_updates(ss.str());
+			}
+		}
+
+		// return to ready state and update slot
+		m_State = READY;
+		m_LastReceiveSlot = slot;
+
+		return;
+	}
+
+	// check for timeout
+	int slot = findNearestSlot(m_ThisRunTime, m_ReceivePeriod, m_ReceiveOffset);
+	double expected_time = slot2Time(slot, m_ReceivePeriod, m_ReceiveOffset);
+	if ( m_ThisRunTime - expected_time > m_AllowedReceivingExtension ) {
+		std::stringstream ss;
+		ss << "Timed out in receive slot " << slot;
+		signal_updates(ss.str());
+
+		signal_no_receipt();
+		m_State = READY;
+		m_LastReceiveSlot = slot;
+	}
 }
 
 void TimedAcomms::signalStartOfModemReceiving() {
@@ -181,26 +230,26 @@ void TimedAcomms::signalGoodReception(std::string data) {
  * returns seconds from 12am using system clock
  * UTC so should be same as GPS
  */
-double TimedAcomms::getSysTimeSeconds() {
-    boost::posix_time::ptime t(
-            boost::posix_time::microsec_clock::universal_time());
-    return t.time_of_day().total_milliseconds() / 1000.0;
-}
+//double TimedAcomms::getSysTimeSeconds() {
+//    boost::posix_time::ptime t(
+//            boost::posix_time::microsec_clock::universal_time());
+//    return t.time_of_day().total_milliseconds() / 1000.0;
+//}
 
 /**
  * returns seconds from 12am (UTC) using adjusted system clock
  */
-double TimedAcomms::getAbsTimeSeconds() {
-    return getSysTimeSeconds() + m_ClockOffset;
-}
+//double TimedAcomms::getAbsTimeSeconds() {
+//    return getSysTimeSeconds() + m_ClockOffset;
+//}
 
 /**
  * uses gps time posting to find system clock offset
  * can stop providing samples when returns false
  */
-bool TimedAcomms::processGpsTimeSeconds(double gps_time_seconds) {
+bool TimedAcomms::processGpsTimeSeconds(double gps_time_seconds, double moos_time) {
     if (m_ClockSamples < GPS_TIME_SAMPLES) {
-        double this_error = gps_time_seconds - getSysTimeSeconds();
+        double this_error = gps_time_seconds - moos_time;
         m_ClockErrorSum += this_error;
         m_ClockSamples++;
         m_ClockOffset = m_ClockErrorSum / m_ClockSamples;
@@ -240,4 +289,8 @@ void TimedAcomms::setTransmitTiming(double period, double offset) {
 
 void TimedAcomms::setReceivingExtension(double extension) {
     m_AllowedReceivingExtension = extension;
+}
+
+void TimedAcomms::setMaxReceivingError(double error) {
+	m_MaxReceivingError = error;
 }
