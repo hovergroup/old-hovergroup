@@ -10,6 +10,13 @@
 
 #include "MOOSLib.h"
 
+using namespace std;
+
+#include <stdlib.h>
+#include <sstream>
+#include <iostream>
+#include "XYSegList.h"
+
 class RoundRobin : public CMOOSApp
 {
 public:
@@ -21,8 +28,25 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 
+	//Admin
+	void handleDebug(string);
+	void GetWaypoints();
+	void RRGoto(double, double);
+	void setLength(int);
+
 protected:
-	// insert local vars here
+	//Configuration Variables
+	double through_transmission_delay, relay_transmission_delay, wait_time;
+
+	//Local variables
+	string action, mail, waypoints_msg, relay_mode;
+	double connected, transmissions;
+	vector<double> wpx, wpy;
+	XYSegList seglist;
+	double start_time;
+	int current_point, total_points;
+	int rate;
+	double length;
 };
 
 #endif 
