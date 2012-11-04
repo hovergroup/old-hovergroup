@@ -12,5 +12,6 @@ TARGET_LINK_LIBRARIES(pTargetRangeSensorSim
    MOOSGen
    m
    pthread
-   RangeSensorTypes)
+   RangeSensorTypes
+   TargetSim)
 

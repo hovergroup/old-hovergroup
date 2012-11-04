@@ -34,6 +34,15 @@ bool TargetRangeSensorSim::OnNewMail(MOOSMSG_LIST &NewMail)
       std::string key = msg.GetKey();
       if ( key == "TARGET_RANGE_REQUEST" ) {
     	  handleRangeRequest( msg.GetString() );
+      } else if ( key == "TARGET_SIM_COMMAND" ) {
+    	  std::string cmd = msg.GetString();
+    	  MOOSToUpper(cmd);
+    	  if (cmd == "PAUSE")
+    		  m_sim.pause();
+    	  else if (cmd == "RESUME")
+    		  m_sim.resume();
+    	  else if (cmd == "RESET")
+    		  m_sim.reset();
       }
    }
 	
@@ -45,11 +54,18 @@ bool TargetRangeSensorSim::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool TargetRangeSensorSim::OnConnectToServer()
 {
+	std::string sim_type;
+	m_MissionReader.GetConfigurationParam("sim_type", sim_type);
+	if ( sim_type == "circle" ) {
+		m_sim = CircleSim();
+	}
+	m_sim.setConfiguration(m_MissionReader);
    // register for variables here
    // possibly look at the mission file?
-   // m_MissionReader.GetConfigurationParam("Name", <string>);
+//   m_MissionReader.GetConfigurationParam("Name", <string>);
    // m_Comms.Register("VARNAME", is_float(int));
 	m_Comms.Register("TARGET_RANGE_REQUEST", 0);
+	m_Comms.Register("TARGET_SIM_COMMAND", 0);
 	
    return(true);
 }
@@ -59,6 +75,7 @@ bool TargetRangeSensorSim::OnConnectToServer()
 
 bool TargetRangeSensorSim::Iterate()
 {
+	m_sim.doWork(MOOSTime());
 	if ( MOOSTime() - m_LastTargetMarkTime > 1 ) {
 		std::pair<double,double> loc = getTargetPos();
 		drawTarget( loc.first, loc.second );
@@ -123,7 +140,7 @@ void TargetRangeSensorSim::drawSeglist( std::string label, std::string msg,
 
 std::pair<double, double> TargetRangeSensorSim::getTargetPos() {
 	std::pair<double, double> pos;
-	m_sim.getPosition( MOOSTime(), pos.first, pos.second );
+	m_sim.getTargetPos( pos.first, pos.second );
 	return pos;
 }
 
@@ -156,20 +173,4 @@ void TargetRangeSensorSim::handleRangeRequest( std::string msg ) {
 			target_x, target_y,
 			range, request.vname );
 
-}
-
-TargetRangeSensorSim::TargetSim::TargetSim () {
-	m_paused = true;
-	current_x = 100;
-	current_y = -50;
-}
-
-void TargetRangeSensorSim::TargetSim::getPosition( double time, double & x, double & y ) {
-	if ( m_paused ) {
-		x = current_x;
-		y = current_y;
-		return;
-	} else  {
-
-	}
 }
