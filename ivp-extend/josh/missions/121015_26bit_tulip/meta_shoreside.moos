@@ -88,6 +88,15 @@ ProcessConfig = pTargetRangeSensorSim
 {
 	AppTick = 10
 	CommsTick = 10
+  
+	sim_type = circle
+
+	center_x = 0
+	center_y = 0
+	radius = 20
+	speed = 2
+	initial_angle = 0
+	clockwise = true
 }
 
 ProcessConfig = pEchoVar

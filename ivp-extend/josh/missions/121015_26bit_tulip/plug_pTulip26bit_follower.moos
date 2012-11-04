@@ -22,6 +22,7 @@ ProcessConfig = pTulip26bit
   transmit_offset = 3
   
   receive_extension = .5
+  max_receive_error = .5
   
   vehicle_mode = follower
 }
