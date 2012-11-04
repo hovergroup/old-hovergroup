@@ -11,6 +11,7 @@
 #include "MOOSLib.h"
 #include "RangeSensorTypes.h"
 #include "math.h"
+#include "TargetSim.h"
 
 class TargetRangeSensorSim : public CMOOSApp
 {
@@ -24,19 +25,7 @@ public:
 	bool OnStartUp();
 
 protected:
-	class TargetSim {
-	public:
-		TargetSim();
-
-		void getPosition( double time, double & x, double & y );
-		void reset();
-		void pause( bool paused );
-
-	private:
-		double current_x, current_y;
-		bool m_paused;
-	};
-	TargetSim m_sim;
+	BaseSim m_sim;
 
 	std::pair<double,double> getTargetPos();
 	double getRange( double nav_x, double nav_y );

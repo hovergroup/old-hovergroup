@@ -120,10 +120,14 @@ bool Tulip26bit::OnConnectToServer() {
     m_MissionReader.GetValue("Community", m_name);
     MOOSToUpper(m_name);
 
-    double receive_extension;
+    double receive_extension, max_receive_error;
     m_MissionReader.GetConfigurationParam("receive_extension",
             receive_extension);
+    m_MissionReader.GetConfigurationParam("max_receive_error",
+    		max_receive_error);
     m_AcommsTimer.setReceivingExtension(receive_extension);
+    m_AcommsTimer.setMaxReceivingError(max_receive_error);
+
 
     std::string vehicle_mode;
     m_MissionReader.GetConfigurationParam("vehicle_mode", vehicle_mode);
