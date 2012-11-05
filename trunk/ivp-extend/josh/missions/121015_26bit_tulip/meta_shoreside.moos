@@ -39,6 +39,7 @@ ProcessConfig = uTermCommand
 	AppTick = 2
 	CommsTick = 2
 
+	CMD = tulip --> MISSION_MODE_ALL --> TULIP
 	CMD = pause_target --> TARGET_SIM_COMMAND --> pause
 	CMD = resume_target --> TARGET_SIM_COMMAND --> resume
 	CMD = reset_target --> TARGET_SIM_COMMAND --> reset
