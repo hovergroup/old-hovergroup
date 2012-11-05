@@ -105,12 +105,12 @@ ProcessConfig = pTargetRangeSensorSim
   
 	sim_type = circle
 
-	center_x = 50
-	center_y = -50
-	radius = 20
-	speed = 1
+	center_x = 60
+	center_y = -60
+	radius = 40
+	speed = 0.8
 	initial_angle = 0
-	clockwise = true
+	clockwise = false
 }
 
 ProcessConfig = pEchoVar

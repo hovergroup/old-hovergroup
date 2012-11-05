@@ -120,6 +120,9 @@ while(go)
     
     if(PRINTOUTS)
         fprintf('\n Target X: %f   Target Y: %f   Target H: %f \n',xhat(2),xhat(3),xhat(1))
+        view_marker = sprintf('type=square,x=%f,y=%f,label=estimate,COLOR=blue,msg=Est: %f %f', ...
+            xhat(2), xhat(3), xhat(2), xhat(3) );
+        iMatlab('MOOS_MAIL_TX','VIEW_MARKER',view_marker);
     end
     
     % Compute desired position for observers (based on initial formation)
