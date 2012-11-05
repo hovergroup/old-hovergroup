@@ -17,13 +17,13 @@ public:
 	void getTargetPos(double & x, double & y);
 
 	virtual void start() { reset(); resume(); }
-	virtual void pause() {}
-	virtual void resume() {}
-	virtual void reset() {}
+	virtual void pause() = 0;
+	virtual void resume() = 0;
+	virtual void reset() = 0;
 
-	virtual void doWork(double time) {}
+	virtual void doWork(double time) = 0;
 
-	virtual void setConfiguration(CProcessConfigReader & m_MissionReader) {}
+	virtual void setConfiguration(CProcessConfigReader & m_MissionReader) = 0;
 
 protected:
 	double m_osx, m_osy;
@@ -36,6 +36,11 @@ protected:
 
 class CircleSim: public BaseSim {
 public:
+	CircleSim() {
+		m_state = Paused;
+		first_iteration = true;
+	}
+
 	void pause();
 	void resume();
 	void reset();
@@ -49,6 +54,8 @@ private:
 	bool m_clockwise;
 
 	double m_currentAngle;
+
+	bool first_iteration;
 
 	void initialPos();
 	void setPos( double angle );

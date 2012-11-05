@@ -25,7 +25,7 @@ public:
 	bool OnStartUp();
 
 protected:
-	BaseSim m_sim;
+	BaseSim * m_sim;
 
 	std::pair<double,double> getTargetPos();
 	double getRange( double nav_x, double nav_y );

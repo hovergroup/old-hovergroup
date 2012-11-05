@@ -20,6 +20,7 @@ TargetRangeSensorSim::TargetRangeSensorSim()
 
 TargetRangeSensorSim::~TargetRangeSensorSim()
 {
+	delete m_sim;
 }
 
 //---------------------------------------------------------
@@ -38,11 +39,11 @@ bool TargetRangeSensorSim::OnNewMail(MOOSMSG_LIST &NewMail)
     	  std::string cmd = msg.GetString();
     	  MOOSToUpper(cmd);
     	  if (cmd == "PAUSE")
-    		  m_sim.pause();
+    		  m_sim->pause();
     	  else if (cmd == "RESUME")
-    		  m_sim.resume();
+    		  m_sim->resume();
     	  else if (cmd == "RESET")
-    		  m_sim.reset();
+    		  m_sim->reset();
       }
    }
 	
@@ -57,9 +58,11 @@ bool TargetRangeSensorSim::OnConnectToServer()
 	std::string sim_type;
 	m_MissionReader.GetConfigurationParam("sim_type", sim_type);
 	if ( sim_type == "circle" ) {
-		m_sim = CircleSim();
+//		std::cout << "circle sim" << std::endl;
+		m_sim = new CircleSim;
 	}
-	m_sim.setConfiguration(m_MissionReader);
+	std::cout << "setting configuration" << std::endl;
+	m_sim->setConfiguration(m_MissionReader);
    // register for variables here
    // possibly look at the mission file?
 //   m_MissionReader.GetConfigurationParam("Name", <string>);
@@ -75,7 +78,9 @@ bool TargetRangeSensorSim::OnConnectToServer()
 
 bool TargetRangeSensorSim::Iterate()
 {
-	m_sim.doWork(MOOSTime());
+//	std::cout << "iterate" << std::endl;
+	m_sim->doWork(MOOSTime());
+//	std::cout << "did work" << std::endl;
 	if ( MOOSTime() - m_LastTargetMarkTime > 1 ) {
 		std::pair<double,double> loc = getTargetPos();
 		drawTarget( loc.first, loc.second );
@@ -139,8 +144,10 @@ void TargetRangeSensorSim::drawSeglist( std::string label, std::string msg,
 }
 
 std::pair<double, double> TargetRangeSensorSim::getTargetPos() {
+//	std::cout << "fetching target pos" << std::endl;
 	std::pair<double, double> pos;
-	m_sim.getTargetPos( pos.first, pos.second );
+	m_sim->getTargetPos( pos.first, pos.second );
+//	std::cout << "done" << std::endl;
 	return pos;
 }
 

@@ -26,10 +26,22 @@ Processconfig = ANTLER
 	
 	Run = pTargetRangeSensorSim @ NewConsole = false
 
+	Run = uTermCommand	@ NewConsole = true
+
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
 	3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
 	4 = -geometry,80x30+0+460,-bg,blue,-fg,white
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = pause_target --> TARGET_SIM_COMMAND --> pause
+	CMD = resume_target --> TARGET_SIM_COMMAND --> resume
+	CMD = reset_target --> TARGET_SIM_COMMAND --> reset
 }
 
 ProcessConfig = uXMS_tulip-data
@@ -91,10 +103,10 @@ ProcessConfig = pTargetRangeSensorSim
   
 	sim_type = circle
 
-	center_x = 0
-	center_y = 0
-	radius = 20
-	speed = 2
+	center_x = 100
+	center_y = -150
+	radius = 100
+	speed = 20
 	initial_angle = 0
 	clockwise = true
 }
