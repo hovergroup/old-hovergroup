@@ -118,6 +118,10 @@ while(go)
         break ;
     end;
     
+    if(PRINTOUTS)
+        fprintf('\n Target X: %f   Target Y: %f   Target H: %f \n',xhat(2),xhat(3),xhat(1))
+    end
+    
     % Compute desired position for observers (based on initial formation)
     % (could also hardcode formation here)
     XAgentDes = XAgent0 + xhat(2);

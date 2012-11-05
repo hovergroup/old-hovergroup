@@ -19,6 +19,7 @@ Processconfig = ANTLER
 	Run = pHostInfo       @ NewConsole = false
 	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
 	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+	Run = pEchoVar	      @ NewConsole = false
 	
 	Run = uXMS              @ NewConsole = true,XConfig=3 ~uXMS_tulip-acomms
 	Run = uXMS              @ NewConsole = true,XConfig=4 ~uXMS_target-sim
@@ -269,4 +270,5 @@ ProcessConfig = iMatlab
   SUBSCRIBE = LEADER_Y @ 0.0
   SUBSCRIBE = FOLLOWER_RANGE_BIN @ 0.0
   SUBSCRIBE = LEADER_RANGE @ 0.0
+  SUBSCRIBE = FOLLOWER_PACKET @ 0.0
 }
