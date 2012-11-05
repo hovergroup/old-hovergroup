@@ -181,7 +181,7 @@ fi
 # Launch NOSTROMO
 if [ "${VEHICLE}" = "NOSTROMO" ]; then
     printf "Launching NOSTROMO MOOS Community \n"
-    pAntler targ_NOSTROMO.moos >& /dev/null &
+    pAntler targ_nostromo.moos >& /dev/null &
 fi
 # Launch KASSANDRA
 if [ "${VEHICLE}" = "KASSANDRA" ]; then
