@@ -249,6 +249,8 @@ void TimedAcomms::signalGoodReception(std::string data) {
  */
 bool TimedAcomms::processGpsTimeSeconds(double gps_time_seconds, double moos_time) {
     if (m_ClockSamples < GPS_TIME_SAMPLES) {
+        std::cout << "gps: " << gps_time_seconds;
+        std::cout << "  msg: " << moos_time << std::endl;
         double this_error = gps_time_seconds - moos_time;
         m_ClockErrorSum += this_error;
         m_ClockSamples++;
