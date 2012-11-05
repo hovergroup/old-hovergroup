@@ -148,7 +148,7 @@ if [ "${VEHICLE}" = "KASSANDRA" ]; then
         OS5000PORT="/dev/ttyUSB2"                       \
         ALTIMETERPORT="/dev/ttyUSB0"				
 
-    nsplug meta_vehicle.bhv targ_kassandra.bhv -f       \
+    nsplug meta_vehicle.bhv targ_KASSANDRA.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
