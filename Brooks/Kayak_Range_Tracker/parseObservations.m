@@ -23,7 +23,7 @@ while(~gotObs)
     
     if(length(mail))==0;continue;end
     
-    disp(length(mail))
+    %disp(length(mail))
     
     [gotObs,dataOut] = parseMail(mail);
     
@@ -75,6 +75,8 @@ while(~gotAllObs)
             dataOut.(varList{j}) = val{i};
         end
     end
+    
+    %disp(gotStates)
     
     gotAllObs = min(gotStates);
     
