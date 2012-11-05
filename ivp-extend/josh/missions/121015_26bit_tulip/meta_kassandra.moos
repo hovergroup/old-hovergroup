@@ -25,7 +25,7 @@ Processconfig = ANTLER
   
   Run = uTimerScript		@ NewConsole = false ~ uTimerScript_Config
   
-//  Run = pTulip26bit			@ NewConsole = false
+  Run = pTulip26bit			@ NewConsole = false
 }
 
 #ifdef ROLE leader
