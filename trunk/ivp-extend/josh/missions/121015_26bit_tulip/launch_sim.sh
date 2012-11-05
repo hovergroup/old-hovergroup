@@ -1,5 +1,7 @@
 #!/bin/bash 
 
+PATH=$PATH:/home/josh/hovergroup/ivp-extend/josh/bin
+
 WARP=1
 HELP="no"
 JUST_BUILD="no"
