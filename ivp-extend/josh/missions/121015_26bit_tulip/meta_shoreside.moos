@@ -103,10 +103,10 @@ ProcessConfig = pTargetRangeSensorSim
   
 	sim_type = circle
 
-	center_x = 100
-	center_y = -150
-	radius = 100
-	speed = 20
+	center_x = 50
+	center_y = -50
+	radius = 20
+	speed = 1
 	initial_angle = 0
 	clockwise = true
 }
