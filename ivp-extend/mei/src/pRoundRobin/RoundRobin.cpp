@@ -16,7 +16,6 @@ RoundRobin::RoundRobin()
 	transmissions=0;
 	action="paused";
 	current_point=0;
-	in_transit = true;
 }
 
 //---------------------------------------------------------
