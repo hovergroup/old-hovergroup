@@ -87,7 +87,7 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 			}
 		}
 		else if(key=="RELAY_MODE"){
-			relay_mode == msg.GetString();
+			relay_mode = msg.GetString();
 		}
 	}
 
