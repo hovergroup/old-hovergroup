@@ -13,8 +13,8 @@ Processconfig = ANTLER
   Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
   Run = pLogger            	@ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
-  Run = pMarinePID_Hover   	@ NewConsole = false
-  Run = pHelmIvP           	@ NewConsole = false
+  //Run = pMarinePID_Hover   	@ NewConsole = false
+  //Run = pHelmIvP           	@ NewConsole = false
   Run = pHostInfo          	@ NewConsole = false
   Run = uFldNodeBroker     	@ NewConsole = false
   Run = uFldMessageHandler 	@ NewConsole = false
@@ -22,7 +22,7 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = kayak_interface	   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
-  Run = iAltimeter			@ NewConsole = false
+  //Run = iAltimeter			@ NewConsole = false
 }
 
 ProcessConfig = uXMS
