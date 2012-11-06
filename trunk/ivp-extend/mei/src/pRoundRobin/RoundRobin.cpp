@@ -260,6 +260,7 @@ void RoundRobin::RRGoto(double x, double y){
 	ss<<"station_pt="<<x<<","<<y;
 	m_Comms.Notify("STATION_RR_UPDATES",ss.str());
 
+	m_Comms.Notify("MISSION_MODE","ROUNDROBIN");
 	m_Comms.Notify("RR_MODE","GOTO");
 }
 
