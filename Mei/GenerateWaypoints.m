@@ -12,7 +12,7 @@ boxeast = -71.07262;
 pavx = 262; %pixel
 pavy = 425; %pixel
 
-xmperpix= abs((1000*deg2km(boxeast-boxwest))/size(img,2));
+xmperpix= abs((1000*deg2km(boxeast-boxwest)*0.74)/size(img,2));
 ymperpix = abs((1000*deg2km(boxnorth-boxsouth))/size(img,1));
 
 endlat = 42.357459;
@@ -34,14 +34,14 @@ scaley = 1000*deg2km(scalelat-pavlat)/ymperpix+pavy;
 %endx = 1000*deg2km(endlon-pavlon)/xmperpix;
 %endy = 1000*deg2km(endlat-pavlat)/ymperpix;
 
-endx = 400/xmperpix;
-endy = -300/ymperpix;
+endx = 479.5/xmperpix;
+endy = -316/ymperpix;
 
 line([pavx,endx+pavx],[pavy,endy+pavy]);
 
 n=3;
 total = 150;
-fac = 160/n;
+fac = 175/n;
 x(1) = endx/2-fac;
 x(2) = endx/2+fac;
 x(3) = endx/2+fac;
@@ -96,8 +96,8 @@ myx = xpts{1};
 myy = ypts{1};       
 
 for j=1:n
-        mylon = (myx(j)-pavx)*xmperpix
-        mylat = (myy(j)-pavy)*ymperpix
+        mylon = (myx(j)-pavx)*xmperpix;
+        mylat = (myy(j)-pavy)*ymperpix;
        % scatter(myx(j),myy(j));
         fprintf(fileID,'%g,%g\n',mylon,mylat);
 end
@@ -123,11 +123,11 @@ end
 
     mylon = (xpts{2}(1)-pavx)*xmperpix;
         mylat = (ypts{2}(1)-pavy)*ymperpix;
-        scatter(xpts{2}(1),ypts{2}(1));
+       % scatter(xpts{2}(1),ypts{2}(1));
         fprintf(fileID,'%g,%g\n',mylon,mylat);
         mylon = (xpts{2}(2)-pavx)*xmperpix;
         mylat = (ypts{2}(2)-pavy)*ymperpix;
-        scatter(xpts{2}(2),ypts{2}(2));
+       % scatter(xpts{2}(2),ypts{2}(2));
         fprintf(fileID,'%g,%g\n',mylon,mylat);
 
 set(gca,'ydir','normal');
