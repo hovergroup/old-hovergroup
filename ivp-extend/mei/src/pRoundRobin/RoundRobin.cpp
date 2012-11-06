@@ -16,6 +16,7 @@ RoundRobin::RoundRobin()
 	transmissions=0;
 	action="paused";
 	current_point=0;
+	in_transit = true;
 }
 
 //---------------------------------------------------------
@@ -53,7 +54,9 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 
 					if(mail.size()!=length){
 						handleDebug("Bad Receive from Start");
+						if(relay_mode=="KEEP"){
 						transmissions++;
+						}
 						action = "start_transmit_now";
 					}
 					else{
@@ -132,22 +135,16 @@ bool RoundRobin::Iterate(){
 	}
 
 	//Position State
-	if(transmissions==0){
-		if(relay_mode=="KEEP"){
-			//action = "start_transmit_now";
-		}
-	}
-	else if((int)transmissions % transmissions_per_segment == 0){
-	    if(relay_mode=="KEEP"){
-            if(current_point<total_points){
-                current_point++;
-            }
-            else{
-                current_point=0;
-            }
-            RRGoto(wpx[current_point],wpy[current_point]);
+        if((int)transmissions % transmissions_per_segment == 0){
+                if(current_point<total_points-1){
+                    current_point++;
+                }
+                else{
+                    current_point=0;
+                }
+                RRGoto(wpx[current_point],wpy[current_point]);
+                transmissions = 0;
         }
-	}
 
 	//Acoustic State
 	if(action == "start_transmit_now"){
@@ -174,7 +171,9 @@ bool RoundRobin::Iterate(){
 		if(time_elapsed > wait_time){
 			handleDebug("No Sync with Start");
 			action = "start_transmit_now";
+			if(relay_mode=="KEEP"){
 			transmissions++;
+			}
 		}
 	}
 
@@ -190,7 +189,9 @@ bool RoundRobin::Iterate(){
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 		action = "start_transmit_wait";
 		start_time = MOOSTime();
+		if(relay_mode=="KEEP"){
 		transmissions++;
+		}
 	}
 
 	else if(action == "start_transmit_wait"){
