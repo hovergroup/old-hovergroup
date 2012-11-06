@@ -107,7 +107,6 @@ bool RoundRobin::OnConnectToServer()
 
 	setLength(rate);
 
-	m_Comms.Notify("ACOMMS_RECEIVED_DATA","reset");
 	m_Comms.Notify("RR_PAUSE","reset");
 	m_Comms.Notify("START_TRANSMITTED","reset");
 	m_Comms.Notify("RR_ACTION","reset");
