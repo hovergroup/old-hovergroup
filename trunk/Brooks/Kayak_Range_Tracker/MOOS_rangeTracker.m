@@ -31,7 +31,8 @@ Q = .02 ; % target process noise (heading rate of target)
 Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
 
 P = diag([5 2500 2500]) ;   % INITIAL state covariance
-xhat = [0 0 0]' ; % initial guess
+%xhat = [0 0 0]' ; % initial guess
+xhat = [0 0 -30]';	% [heading metersN metersS] from origin (pavilion)
 z = zeros(2,1);
 
 % formation
@@ -56,7 +57,7 @@ old = cd(pathName);
 % subscribe 
 iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
-length(garbageMail)
+%length(garbageMail)
 
 it = 0;
 go = 1; % possibly add exitflags to loop?
@@ -71,8 +72,6 @@ while(go)
     % Leader: x,y,range
     % Follower: x,y,range
     
-    % set readTimeout short and only call after delay at end of loop?
-    % or readTimeout long?
     readTimeout = 10;
     data = parseObservations(readTimeout)
     
@@ -120,10 +119,11 @@ while(go)
     
     if(PRINTOUTS)
         fprintf('\n Target X: %f   Target Y: %f   Target H: %f \n',xhat(2),xhat(3),xhat(1))
-        view_marker = sprintf('type=square,x=%f,y=%f,label=estimate,COLOR=blue,msg=Est: %f %f', ...
-            xhat(2), xhat(3), xhat(2), xhat(3) );
-        iMatlab('MOOS_MAIL_TX','VIEW_MARKER',view_marker);
     end
+
+    view_marker = sprintf('type=square,x=%f,y=%f,label=estimate,COLOR=blue,msg=Est: %f %f', ...
+        xhat(2), xhat(3), xhat(2), xhat(3) );
+    iMatlab('MOOS_MAIL_TX','VIEW_MARKER',view_marker);	
     
     % Compute desired position for observers (based on initial formation)
     % (could also hardcode formation here)
