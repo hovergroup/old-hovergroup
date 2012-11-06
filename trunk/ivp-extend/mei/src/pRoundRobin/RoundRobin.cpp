@@ -138,7 +138,7 @@ bool RoundRobin::Iterate(){
 			action = "start_transmit_now";
 		}
 	}
-	else if(transmissions % transmissions_per_segment == 0){
+	else if((int)transmissions % transmissions_per_segment == 0){
 		if(current_point<total_points){
 			current_point++;
 		}
