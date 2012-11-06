@@ -134,7 +134,7 @@ bool RoundRobin::Iterate(){
 	//Position State
 	if(transmissions==0){
 		if(relay_mode=="KEEP"){
-			action = "start_transmit_now";
+			//action = "start_transmit_now";
 		}
 	}
 	else if((int)transmissions % transmissions_per_segment == 0){
