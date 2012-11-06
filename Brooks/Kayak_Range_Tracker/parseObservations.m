@@ -6,6 +6,9 @@ function [dataOut] = parseObservations(readTimeout)
     
 % BR, 10/11/2012
 
+% could probably replace key{i} with key = (etc) near bottom
+% put in defaults to avoid crash and warn if missing some types of packets
+
 % changelog:
 %{
 -
