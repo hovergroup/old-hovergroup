@@ -63,6 +63,9 @@ ProcessConfig = pMOOSBridge
 
   UDPListen = $(SLPORT)
   BridgeFrequency = 0  
+  
+  SHARE = [RR_PAUSE] -> nostromo@192.168.1.103:9300
+   SHARE = [RR_ACTION] -> nostromo@192.168.1.103:9300
 }
 
 //--------------------------------------------------

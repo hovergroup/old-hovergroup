@@ -139,13 +139,15 @@ bool RoundRobin::Iterate(){
 		}
 	}
 	else if((int)transmissions % transmissions_per_segment == 0){
-		if(current_point<total_points){
-			current_point++;
-		}
-		else{
-			current_point=0;
-		}
-		RRGoto(wpx[current_point],wpy[current_point]);
+	    if(relay_mode=="KEEP"){
+            if(current_point<total_points){
+                current_point++;
+            }
+            else{
+                current_point=0;
+            }
+            RRGoto(wpx[current_point],wpy[current_point]);
+        }
 	}
 
 	//Acoustic State
@@ -243,6 +245,7 @@ void RoundRobin::GetWaypoints(){
 		}
 	}
 
+	waypoints_msg = seglist.get_spec("waypoints");
 	stringstream ss;
 	ss<<"Read "<<total_points<<" points";
 	handleDebug(ss.str());
