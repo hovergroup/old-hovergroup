@@ -78,7 +78,7 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 		}
 		else if(key=="RR_ACTION"){
 			if(msg.GetString()=="redraw"){
-				m_Comms.Notify("VIEW_MARKER",waypoints_msg);
+				m_Comms.Notify("VIEW_SEGLIST",waypoints_msg);
 			}
 			else if(msg.GetString()=="tellme"){
 				stringstream ss;
@@ -183,7 +183,7 @@ bool RoundRobin::Iterate(){
 		handleDebug("Through Transmission Wait");
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > through_transmission_delay){
-			action == "relay";
+			action = "relay";
 		}
 	}
 
@@ -198,7 +198,7 @@ bool RoundRobin::Iterate(){
 		handleDebug("Relay Transmission Wait");
 		double time_elapsed = MOOSTime() - start_time;
 		if(time_elapsed > relay_transmission_delay){
-			action == "start_transmit_now";
+			action = "start_transmit_now";
 		}
 	}
 
