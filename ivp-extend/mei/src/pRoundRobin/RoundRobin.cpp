@@ -86,7 +86,7 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 				handleDebug(ss.str());
 			}
 		}
-		else if(key=="RR_MODE"){
+		else if(key=="RELAY_MODE"){
 			relay_mode == msg.GetString();
 		}
 	}
@@ -115,7 +115,7 @@ bool RoundRobin::OnConnectToServer()
 	m_Comms.Register("START_TRANSMITTED",0);
 	m_Comms.Register("RR_PAUSE",0);
 	m_Comms.Register("RR_ACTION",0);
-	m_Comms.Register("RR_MODE",0);
+	m_Comms.Register("RELAY_MODE",0);
 
 	return(true);
 }
