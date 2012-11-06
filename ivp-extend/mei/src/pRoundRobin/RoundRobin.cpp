@@ -134,16 +134,16 @@ bool RoundRobin::Iterate(){
 	}
 
 	//Position State
-        if((int)transmissions % transmissions_per_segment == 0){
-                if(current_point<total_points-1){
-                    current_point++;
-                }
-                else{
-                    current_point=0;
-                }
-                RRGoto(wpx[current_point],wpy[current_point]);
-                transmissions = 0;
-        }
+    if(transmissions != 0 && (int)transmissions % transmissions_per_segment == 0){
+            if(current_point<total_points-1){
+                current_point++;
+            }
+            else{
+                current_point=0;
+            }
+            RRGoto(wpx[current_point],wpy[current_point]);
+            transmissions = 0;
+    }
 
 	//Acoustic State
 	if(action == "start_transmit_now"){
