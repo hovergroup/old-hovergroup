@@ -103,6 +103,7 @@ bool RoundRobin::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("RelayDelay", relay_transmission_delay);
 	m_MissionReader.GetConfigurationParam("WaitTime", wait_time);
 	m_MissionReader.GetConfigurationParam("Rate", rate);
+	m_MissionReader.GetConfigurationParam("Transmissions",transmissions_per_segment);
 
 	setLength(rate);
 
@@ -137,7 +138,7 @@ bool RoundRobin::Iterate(){
 			action = "start_transmit_now";
 		}
 	}
-	else if(transmissions % 5 == 0){
+	else if(transmissions % transmissions_per_segment == 0){
 		if(current_point<total_points){
 			current_point++;
 		}
@@ -261,7 +262,7 @@ void RoundRobin::RRGoto(double x, double y){
 	m_Comms.Notify("STATION_RR_UPDATES",ss.str());
 
 	m_Comms.Notify("MISSION_MODE","ROUNDROBIN");
-	m_Comms.Notify("RR_MODE","GOTO");
+	m_Comms.Notify("RELAY_MODE","GOTO");
 }
 
 void RoundRobin::setLength(int rate_in){
