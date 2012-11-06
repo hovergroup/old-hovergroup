@@ -20,7 +20,7 @@ Processconfig = ANTLER
 	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
 	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
   	Run = uFldMessageHandler @ NewConsole = false
-  	Run = uTermCommand    @ NewConsole = false
+  	Run = uTermCommand    @ NewConsole = true
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
