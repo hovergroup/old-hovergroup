@@ -7,5 +7,6 @@ ProcessConfig = pRoundRobin
 	RelayDelay = 5		//relay to end
 	WaitTime = 5		//start sync
 	Rate = 2
+	Transmissions = 5
 	
 }

@@ -45,7 +45,7 @@ protected:
 	XYSegList seglist;
 	double start_time;
 	int current_point, total_points;
-	int rate;
+	int rate, transmissions_per_segment;
 	double length;
 };
 
