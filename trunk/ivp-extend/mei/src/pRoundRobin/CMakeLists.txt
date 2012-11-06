@@ -11,5 +11,7 @@ TARGET_LINK_LIBRARIES(pRoundRobin
    MOOS
    MOOSGen
    m
-   pthread)
+   pthread
+   geometry
+   mbutil)
 
