@@ -1,50 +1,56 @@
 #include <iostream>
-#include <gsl/gsl_blas.h>
+//#include <gsl/gsl_blas.h>
 #include <vector>
 #include <stdio.h>
-#include "goby/acomms/protobuf/mm_driver.pb.h"
-#include "goby/acomms/acomms_helpers.h"
-#include "goby/acomms/acomms_constants.h"
-#include "goby/acomms/protobuf/modem_message.pb.h"
-#include "goby/acomms/protobuf/driver_base.pb.h"
-#include "MOOSLib.h"
+//#include "goby/acomms/protobuf/mm_driver.pb.h"
+//#include "goby/acomms/acomms_helpers.h"
+//#include "goby/acomms/acomms_constants.h"
+//#include "goby/acomms/protobuf/modem_message.pb.h"
+//#include "goby/acomms/protobuf/driver_base.pb.h"
+//#include "MOOSLib.h"
+#include "JoshUtils.h"
 
 using namespace std;
 
 int main () {
+	std::vector<std::string> paths;
+	JoshUtil::searchForFiles(paths, "/home/josh/Desktop", 0, "*.alog");
+	for ( int i=0; i<paths.size(); i++ ) {
+		cout << paths[i] << endl;
+	}
 
-//	string sNMEA = "$GPRMC,183923.50,A,4221.51338,N,07105.25272,W,0.010,,151012,,,D*6D\r\n";
-	string sNMEA = "$GPRMC,144354.50,A,4221.51534,N,07105.25329,W,0.479,,161012,,,A*64";
-
-
-    unsigned char xCheckSum=0;
-
-    string sToCheck;
-    MOOSChomp(sNMEA,"$");
-    sToCheck = MOOSChomp(sNMEA,"*");
-    string sRxCheckSum = sNMEA;
-
-    //now calculate what we think check sum should be...
-    string::iterator p;
-    for(p = sToCheck.begin();p!=sToCheck.end();p++)
-    {
-        xCheckSum^=*p;
-    }
-
-    ostringstream os;
-
-    os.flags(ios::hex);
-    os<<(int)xCheckSum;//<<ends;
-    string sExpected = os.str();
-
-    if (sExpected.length() < 2)
-    {
-        sExpected = "0" + sExpected;
-    }
-
-    ///now compare to what we recived..
-
-    cout << MOOSStrCmp(sExpected,sRxCheckSum) << endl;
+////	string sNMEA = "$GPRMC,183923.50,A,4221.51338,N,07105.25272,W,0.010,,151012,,,D*6D\r\n";
+//	string sNMEA = "$GPRMC,144354.50,A,4221.51534,N,07105.25329,W,0.479,,161012,,,A*64";
+//
+//
+//    unsigned char xCheckSum=0;
+//
+//    string sToCheck;
+//    MOOSChomp(sNMEA,"$");
+//    sToCheck = MOOSChomp(sNMEA,"*");
+//    string sRxCheckSum = sNMEA;
+//
+//    //now calculate what we think check sum should be...
+//    string::iterator p;
+//    for(p = sToCheck.begin();p!=sToCheck.end();p++)
+//    {
+//        xCheckSum^=*p;
+//    }
+//
+//    ostringstream os;
+//
+//    os.flags(ios::hex);
+//    os<<(int)xCheckSum;//<<ends;
+//    string sExpected = os.str();
+//
+//    if (sExpected.length() < 2)
+//    {
+//        sExpected = "0" + sExpected;
+//    }
+//
+//    ///now compare to what we recived..
+//
+//    cout << MOOSStrCmp(sExpected,sRxCheckSum) << endl;
 }
 
 ///*

@@ -9,4 +9,7 @@
 ADD_LIBRARY(JoshUtils SHARED
    JoshUtils.cpp)
 TARGET_LINK_LIBRARIES(JoshUtils
+  boost_system
+	boost_filesystem
+	mbutil
    )
