@@ -130,71 +130,71 @@ void ACOMMS_ALOG_PARSER::outputResults() {
             sender_gps_lock_vector = string_data[my_node]["GPS_LOCK"];
             receiver_gps_lock_vector = string_data[rv]["GPS_LOCK"];
 
-            map<string,map<string,vector<pair<double,double> > > >::iterator it =
-                    string_data.find(my_node);
-            bool found_sender = !(it==string_data.end());
-            it = string_data.find(rv);
-            bool found_receiver = !(it==string_data.end());
-            if ( !found_sender ) cout << "failed to find sender: " << my_node << endl;
-            if ( !found_receiver ) cout << "failed to find receiver: " << rv << endl;
-
-
-            map<string,vector<pair<double,double> > >::iterator iter = string_data[my_node].find("GPS_LOCK");
-            if ( iter==string_data[my_node].end() ) cout << "failed to find gps lock for: " << my_node << endl;
-            iter = string_data[rv].find("GPS_LOCK");
-            if ( iter==string_data[rv].end() ) cout << "failed to find gps lock for: " << rv << endl;
-
-            log_output << delim;
-            pair<int,string> temp = findNearest(sender_gps_lock_vector,te.transmission_time);
-            if(temp.first>=0){
-                log_output << sender_gps_lock_vector[temp.first].second;}
-            else{
-                log_output << "notfound";
-            }
-
-            log_output << delim;
-            temp = findNearest(receiver_gps_lock_vector,re.receive_time);
-            if(temp.first>=0){
-                log_output << receiver_gps_lock_vector[temp.first].second;}
-            else{
-                log_output << "notfound";
-            }
-
-
-            //Report Thrust
-            vector< pair<double,double> > sender_thrust;
-            vector< pair<double,double> > receiver_thrust;
-            sender_thrust = double_data[my_node]["DESIRED_THRUST"];
-            receiver_thrust = double_data[rv]["DESIRED_THRUST"];
-            map<string,map<string,vector<pair<double,double> > > >::iterator it =
-                    double_data.find(my_node);
-            bool found_sender = !(it==double_data.end());
-            it = double_data.find(rv);
-            bool found_receiver = !(it==double_data.end());
-            if ( !found_sender ) cout << "failed to find sender: " << my_node << endl;
-            if ( !found_receiver ) cout << "failed to find receiver: " << rv << endl;
-
-
-            map<string,vector<pair<double,double> > >::iterator iter = double_data[my_node].find("DESIRED_THRUST");
-            if ( iter==double_data[my_node].end() ) cout << "failed to find thrust for: " << my_node << endl;
-            iter = double_data[rv].find("DESIRED_THRUST");
-            if ( iter==double_data[rv].end() ) cout << "failed to find thrust for: " << rv << endl;
-
-            log_output << delim;
-            pair<int,double> temp = findNearest(sender_thrust,te.transmission_time);
-            if(temp.first>=0){
-                log_output << sender_thrust[temp.first].second;}
-            else{
-                log_output << -1;
-            }
-
-            log_output << delim;
-            temp = findNearest(receiver_thrust,re.receive_time);
-            if(temp.first>=0){
-                log_output << receiver_thrust[temp.first].second;}
-            else{
-                log_output << -1;
-            }
+//            map<string,map<string,vector<pair<double,double> > > >::iterator it =
+//                    string_data.find(my_node);
+//            bool found_sender = !(it==string_data.end());
+//            it = string_data.find(rv);
+//            bool found_receiver = !(it==string_data.end());
+//            if ( !found_sender ) cout << "failed to find sender: " << my_node << endl;
+//            if ( !found_receiver ) cout << "failed to find receiver: " << rv << endl;
+//
+//
+//            map<string,vector<pair<double,double> > >::iterator iter = string_data[my_node].find("GPS_LOCK");
+//            if ( iter==string_data[my_node].end() ) cout << "failed to find gps lock for: " << my_node << endl;
+//            iter = string_data[rv].find("GPS_LOCK");
+//            if ( iter==string_data[rv].end() ) cout << "failed to find gps lock for: " << rv << endl;
+//
+//            log_output << delim;
+//            pair<int,string> temp = findNearest(sender_gps_lock_vector,te.transmission_time);
+//            if(temp.first>=0){
+//                log_output << sender_gps_lock_vector[temp.first].second;}
+//            else{
+//                log_output << "notfound";
+//            }
+//
+//            log_output << delim;
+//            temp = findNearest(receiver_gps_lock_vector,re.receive_time);
+//            if(temp.first>=0){
+//                log_output << receiver_gps_lock_vector[temp.first].second;}
+//            else{
+//                log_output << "notfound";
+//            }
+//
+//
+//            //Report Thrust
+//            vector< pair<double,double> > sender_thrust;
+//            vector< pair<double,double> > receiver_thrust;
+//            sender_thrust = double_data[my_node]["DESIRED_THRUST"];
+//            receiver_thrust = double_data[rv]["DESIRED_THRUST"];
+//            map<string,map<string,vector<pair<double,double> > > >::iterator it =
+//                    double_data.find(my_node);
+//            bool found_sender = !(it==double_data.end());
+//            it = double_data.find(rv);
+//            bool found_receiver = !(it==double_data.end());
+//            if ( !found_sender ) cout << "failed to find sender: " << my_node << endl;
+//            if ( !found_receiver ) cout << "failed to find receiver: " << rv << endl;
+//
+//
+//            map<string,vector<pair<double,double> > >::iterator iter = double_data[my_node].find("DESIRED_THRUST");
+//            if ( iter==double_data[my_node].end() ) cout << "failed to find thrust for: " << my_node << endl;
+//            iter = double_data[rv].find("DESIRED_THRUST");
+//            if ( iter==double_data[rv].end() ) cout << "failed to find thrust for: " << rv << endl;
+//
+//            log_output << delim;
+//            pair<int,double> temp = findNearest(sender_thrust,te.transmission_time);
+//            if(temp.first>=0){
+//                log_output << sender_thrust[temp.first].second;}
+//            else{
+//                log_output << -1;
+//            }
+//
+//            log_output << delim;
+//            temp = findNearest(receiver_thrust,re.receive_time);
+//            if(temp.first>=0){
+//                log_output << receiver_thrust[temp.first].second;}
+//            else{
+//                log_output << -1;
+//            }
 
             log_output << endl;
             log_output.close();

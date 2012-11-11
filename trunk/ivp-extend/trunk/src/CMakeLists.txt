@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # libraries
 ADD_SUBDIRECTORY(lib_acomms_messages)
+ADD_SUBDIRECTORY(lib_JoshUtils)
 
 # programs?
 ADD_SUBDIRECTORY(plossRate)

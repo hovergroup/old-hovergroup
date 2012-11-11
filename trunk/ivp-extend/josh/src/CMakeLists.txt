@@ -23,6 +23,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(testing_app)
 	ADD_SUBDIRECTORY(simple_acomms_parser)
 	ADD_SUBDIRECTORY(pTargetRangeSensorSim)
+	ADD_SUBDIRECTORY(acomms_debugger)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
