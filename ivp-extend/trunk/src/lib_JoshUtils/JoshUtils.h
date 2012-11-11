@@ -23,7 +23,7 @@ namespace JoshUtil {
 	bool wildCardMatch( std::string wild, std::string key );
 
 	void searchForFiles( std::vector<std::string> & paths,
-			boost::filesystem::path directory_path,
+			std::string directory_path,
 			int max_depth,
 			std::string wild );
 };

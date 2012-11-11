@@ -18,4 +18,5 @@ TARGET_LINK_LIBRARIES(testing_app
     MOOSUtility
 	mbutil
 	goby_common
-	goby_acomms)
+	goby_acomms
+	JoshUtils)

@@ -24,7 +24,6 @@ void subSearchForFiles( std::vector<std::string> & paths,
 
 		try {
 			// if file, check file extension
-			// NEEDS TO BE TESTED
 			if (boost::filesystem::is_regular_file(dir_itr->status())) {
 				if (JoshUtil::wildCardMatch(wild, dir_itr->path().filename().string())) {
 					paths.push_back(
@@ -179,6 +178,8 @@ bool JoshUtil::wildCardMatch( std::string wild, std::string key ) {
  * will search in sub folders up to max_depth, starting at 0
  */
 void JoshUtil::searchForFiles(std::vector<std::string> & paths,
-		boost::filesystem::path directory_path, int max_depth, std::string wild) {
-	subSearchForFiles(paths, directory_path, max_depth, wild, 0);
+		std::string directory_path, int max_depth, std::string wild) {
+	subSearchForFiles(paths,
+			boost::filesystem::system_complete(boost::filesystem::path(directory_path)),
+			max_depth, wild, 0);
 }
