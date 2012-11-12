@@ -31,7 +31,7 @@ Q = .02 ; % target process noise (heading rate of target)
 
 % z(1) = leader, z(2) = follower
 %Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
-Rmeas = diag([4 36]);
+Rmeas = diag([9 49]);
 
 % initial covariance and state
 P = diag([5 2500 2500]) ; 
