@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <sstream>
 
+#include "config.h"
+
 namespace JoshUtil {
 	ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
 	bool wildCardMatch( std::string wild, std::string key );

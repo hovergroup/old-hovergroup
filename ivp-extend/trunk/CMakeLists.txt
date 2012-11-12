@@ -20,6 +20,7 @@ OPTION (BOOST_146 "boost v. at least 1.46" TRUE)
 if ( BOOST_146 )
   set (BOOST_OVER_146 1)
 endif()
+CONFIGURE_FILE(src/lib_JoshUtils/config.h.in src/lib_JoshUtils/config.h)
 
 #=============================================================================
 # Find the "moos-ivp-anrp" base directory
