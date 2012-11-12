@@ -113,7 +113,7 @@ ProcessConfig = pTargetRangeSensorSim
 	center_x = 60
 	center_y = -60
 	radius = 40
-	speed = 0.8
+	speed = 1.5
 	initial_angle = 0
 	clockwise = false
 }
