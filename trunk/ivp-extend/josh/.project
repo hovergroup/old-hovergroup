@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
+		<project>hovergroup</project>
 		<project>MOOS</project>
 		<project>moos-ivp</project>
 	</projects>
