@@ -8,7 +8,7 @@
 
 % changelog:
 %{
--
+- added targetSpeed, added MOOS logging of estimate
 -
 
 %}
@@ -24,16 +24,21 @@ dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % estimator parameters
+targetSpeed = 1;    % m/s
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .02 ; % target process noise (heading rate of target)
 % PSD: (deg/s)^2 / Hz?
 
-Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
+% z(1) = leader, z(2) = follower
+%Rmeas = diag([25 25]) ;     % range sensor noise covariance, per agent
+Rmeas = diag([4 36]);
 
-P = diag([5 2500 2500]) ;   % INITIAL state covariance
-%xhat = [0 0 0]' ; % initial guess
-xhat = [0 0 -30]';	% [heading metersN metersS] from origin (pavilion)
-z = zeros(2,1);
+% initial covariance and state
+P = diag([5 2500 2500]) ; 
+% [heading metersN metersS] from origin (pavilion)
+%xhat = [0 0 0]' ; 
+xhat = [0 0 -30]';	
+z = zeros(2,1); % preallocate
 
 % formation
 legLen = 50;        % meters
@@ -73,10 +78,8 @@ while(go)
     % Follower: x,y,range
     
     readTimeout = 10;
-    data = parseObservations(readTimeout)
-    
-    % CHECK data.status??
-    
+    data = parseObservations(readTimeout);
+        
     if(data.FOLLOWER_PACKET==0)
         disp('MISSING FOLLOWER PACKET')
         
@@ -110,7 +113,7 @@ while(go)
     end
     
     [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
-        dim,s1,s2,s3,w,vol,Q,dt,R);
+        dim,s1,s2,s3,w,vol,Q,dt,R,targetSpeed);
     
     if norm(xhat) > 1e6,
         disp('xhat appears unstable -- Stop.');
