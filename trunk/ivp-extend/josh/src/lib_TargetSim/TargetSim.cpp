@@ -93,21 +93,28 @@ void CircleSim::doWork(double time) {
 
 void AcceleratingCircleSim::reset() {
 	m_state = Paused;
-	m_currentVelocity = m_initialVelocity;
+	initialVel();
 	initialPos();
+}
+
+void AcceleratingCircleSim::initialVel() {
+	if ( m_acceleration > 0 )
+		m_currentVelocity = m_minVelocity;
+	else
+		m_currentVelocity = m_maxVelocity;
 }
 
 /**
  * acceleration can be negative or positive, units of m/s^2
- * if negative, max_speed will be treated as minimum speed
+ * will start at min or max speed appropriately
  */
 void AcceleratingCircleSim::setConfiguration(CProcessConfigReader & m_MissionReader) {
 	m_MissionReader.GetConfigurationParam("center_x", m_centerX);
 	m_MissionReader.GetConfigurationParam("center_y", m_centerY);
 	m_MissionReader.GetConfigurationParam("radius", m_radius);
 	double speed;
-	m_MissionReader.GetConfigurationParam("intial_speed", speed);
-	m_initialVelocity = speed/m_radius * 180.0/M_PI;
+	m_MissionReader.GetConfigurationParam("min_speed", speed);
+	m_minVelocity = speed/m_radius * 180.0/M_PI;
 	m_MissionReader.GetConfigurationParam("max_speed", speed);
 	m_maxVelocity = speed/m_radius * 180.0/M_PI;
 	m_MissionReader.GetConfigurationParam("acceleration", speed);
@@ -121,7 +128,7 @@ void AcceleratingCircleSim::setConfiguration(CProcessConfigReader & m_MissionRea
 //	std::cout << m_angularSpeed << " ";
 //	std::cout << m_clockwise << std::endl;
 
-	m_currentVelocity = m_initialVelocity;
+	initialVel();
 	initialPos();
 
 //	std::cout << m_osx << " " << m_osy << std::endl;
@@ -146,8 +153,8 @@ void AcceleratingCircleSim::doWork(double time) {
 	m_currentVelocity += m_acceleration * timeDiff;
 	if ( m_acceleration > 0 && m_currentVelocity > m_maxVelocity ) {
 		m_currentVelocity = m_maxVelocity;
-	} else if ( m_acceleration < 0 && m_currentVelocity < m_maxVelocity ) {
-		m_currentVelocity = m_maxVelocity;
+	} else if ( m_acceleration < 0 && m_currentVelocity < m_minVelocity ) {
+		m_currentVelocity = m_minVelocity;
 	}
 
 	double angleDiff = timeDiff * m_currentVelocity;

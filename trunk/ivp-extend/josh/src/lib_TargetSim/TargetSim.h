@@ -74,8 +74,10 @@ public:
 	void setConfiguration(CProcessConfigReader & m_MissionReader);
 
 protected:
-	double m_currentVelocity, m_maxVelocity, m_initialVelocity,
+	double m_currentVelocity, m_maxVelocity, m_minVelocity,
 		m_acceleration;
+
+	void initialVel();
 };
 
 #endif /* TARGETSIM_H_ */
