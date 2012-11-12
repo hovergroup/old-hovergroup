@@ -49,7 +49,7 @@ public:
 
 	void setConfiguration(CProcessConfigReader & m_MissionReader);
 
-private:
+protected:
 	double m_centerX, m_centerY, m_radius, m_angularSpeed, m_initial_angle;
 	bool m_clockwise;
 
@@ -59,6 +59,23 @@ private:
 
 	void initialPos();
 	void setPos( double angle );
+};
+
+class AcceleratingCircleSim : public CircleSim {
+public:
+	AcceleratingCircleSim() {
+		m_state = Paused;
+		first_iteration = true;
+	}
+
+	void reset();
+	void doWork(double time);
+
+	void setConfiguration(CProcessConfigReader & m_MissionReader);
+
+protected:
+	double m_currentVelocity, m_maxVelocity, m_initialVelocity,
+		m_acceleration;
 };
 
 #endif /* TARGETSIM_H_ */

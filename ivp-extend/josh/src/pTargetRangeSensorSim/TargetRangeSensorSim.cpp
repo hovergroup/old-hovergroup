@@ -60,6 +60,8 @@ bool TargetRangeSensorSim::OnConnectToServer()
 	if ( sim_type == "circle" ) {
 //		std::cout << "circle sim" << std::endl;
 		m_sim = new CircleSim;
+	} else if ( sim_type == "accelerating_circle" ) {
+		m_sim = new AcceleratingCircleSim;
 	}
 	std::cout << "setting configuration" << std::endl;
 	m_sim->setConfiguration(m_MissionReader);
