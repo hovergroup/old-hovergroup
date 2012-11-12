@@ -15,6 +15,12 @@ PROJECT( IVP_EXTEND )
 
 SET(BUILD_SHORE_APPS TRUE CACHE BOOL "Build shore apps")
 
+set (BOOST_OVER_146 0)
+OPTION (BOOST_146 "boost v. at least 1.46" TRUE)
+if ( BOOST_146 )
+  set (BOOST_OVER_146 1)
+endif()
+
 #=============================================================================
 # Find the "moos-ivp-anrp" base directory
 #=============================================================================

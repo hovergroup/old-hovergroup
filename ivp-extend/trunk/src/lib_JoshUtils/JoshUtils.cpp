@@ -8,6 +8,7 @@
 #include "JoshUtils.h"
 
 #define MAX_LINE_LENGTH 10000
+#define BOOST_OVER_146 @ BOOST_OVER_146@
 
 void subSearchForFiles( std::vector<std::string> & paths,
 			boost::filesystem::path directory_path,
@@ -25,7 +26,11 @@ void subSearchForFiles( std::vector<std::string> & paths,
 		try {
 			// if file, check file extension
 			if (boost::filesystem::is_regular_file(dir_itr->status())) {
+#ifdef BOOST_OVER_146 1
 				if (JoshUtil::wildCardMatch(wild, dir_itr->path().filename().string())) {
+#else
+                if (JoshUtil::wildCardMatch(wild, dir_itr->path().filename())) {
+#endif
 					std::string this_path = boost::filesystem::system_complete(dir_itr->path()).string();
 					if (std::find(paths.begin(),paths.end(),this_path)==
 							(std::vector<std::string>::const_iterator) paths.end() )
