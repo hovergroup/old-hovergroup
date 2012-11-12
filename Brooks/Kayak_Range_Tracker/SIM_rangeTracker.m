@@ -19,6 +19,7 @@
 clear all;close all;clc
 
 global localNoise ; % used to pass a ZOH process noise level (Q) into ode45
+global targetSpeed;
 
 ifPlot = 1;
 % interval for plotting "triangle"
@@ -28,7 +29,8 @@ probPLossLF = 0.3;
 probPLossFL = 0.3;
 
 % problem parameters
-dt = 7 ; % time step between samples
+targetSpeed = 1;    % m/s
+dt = 6 ; % time step between samples
 dim = 3 ; % dimension of the state space - should match getHermite below
 steps = 100 ; % time steps to simulate
 Q = .02 ; % target process noise (heading rate of target)
@@ -42,7 +44,8 @@ alpha = [1 1]';
 maxSpeed = [1 2]';
 nAgents = 2;
 
-R = diag([25 25]) ; % range sensor noise covariance, per agent
+%R = diag([25 25]) ; % range sensor noise covariance, per agent
+R = diag([4 36]);
 
 % set the initial conditions
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
@@ -169,6 +172,7 @@ for ind = 1:steps
         plot(xhat(2),xhat(3),'v',...
             xtrue(2),xtrue(3),'k.',...
             'LineWidth',2,'MarkerSize',10);
+        hold on
         %plot(XAgent,YAgent,'r.','LineWidth',2);
         plot(XAgentDes(1),YAgentDes(1),'r.','MarkerSize',10);
         plot(XAgentDes(2),YAgentDes(2),'g.','MarkerSize',10);

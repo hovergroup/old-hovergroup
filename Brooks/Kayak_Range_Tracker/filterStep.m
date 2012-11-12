@@ -8,10 +8,18 @@
 
 % FSH MIT MechE October 2012
 
+% changelog (BR)
+%{
+- added global targetSpeed
+-
+%}
+
 function [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
     dim,s1,s2,s3,w,vol,Q,dt,R)
 
 global localNoise; % used to pass process noise into ode45
+%global targetSpeed; % speed of target (in filterDeriv)
+
 options = odeset('RelTol',1e-12,'AbsTol',1e-12);
 n = length(s1) ; % how many quadrature points in each direction
 nAgents = length(XAgent) ; % number of agents
@@ -71,8 +79,8 @@ for i = 1:nAgents,
     Hk(i,1:3) = [0 1/2/zhat(i)*2*(xhat(2)-XAgent(i)) ...
         1/2/zhat(i)*2*(xhat(3)-YAgent(i))] ;
 end;
-Kk = P*Hk'*inv(Hk*P*Hk'+R) 
-xhat = xhat + Kk*(z-zhat) ;
+Kk = P*Hk'*inv(Hk*P*Hk'+R); 
+xhat = xhat + Kk*(z-zhat);
 P = (eye(dim,dim)-Kk*Hk)*P;
 
 % end
