@@ -50,7 +50,7 @@ void TimedAcomms::doWork(double moos_time) {
  * check if we have enough gps time samples
  */
 void TimedAcomms::doGpsTimeCalState() {
-    if (m_ClockSamples == GPS_TIME_SAMPLES)
+    if (m_ClockSamples >= GPS_TIME_SAMPLES)
         m_State = EXITING_TIME_CAL;
 }
 
