@@ -141,7 +141,15 @@ bool acomms_driver::Iterate()
 	}
 
 	// transmit status timeout
-	if ( status=="transmitting" && MOOSTime()-transmit_set_time > 8 ) {
+	double transmit_timeout;
+	switch ( transmission_rate ) {
+	case 100:
+		transmit_timeout = 2;
+		break;
+	default:
+		transmit_timeout = 8;
+	}
+	if ( status=="transmitting" && MOOSTime()-transmit_set_time > transmit_timeout ) {
 		publishWarning("Timed out in transmitting state.");
 		driver_ready = true;
 		publishStatus("ready");

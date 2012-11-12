@@ -17,9 +17,11 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <exception>
+#include <algorithm>
+#include <sstream>
 
 namespace JoshUtil {
-	ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings);
+	ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
 	bool wildCardMatch( std::string wild, std::string key );
 
 	void searchForFiles( std::vector<std::string> & paths,

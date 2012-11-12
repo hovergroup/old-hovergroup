@@ -26,8 +26,10 @@ void subSearchForFiles( std::vector<std::string> & paths,
 			// if file, check file extension
 			if (boost::filesystem::is_regular_file(dir_itr->status())) {
 				if (JoshUtil::wildCardMatch(wild, dir_itr->path().filename().string())) {
-					paths.push_back(
-							boost::filesystem::system_complete(dir_itr->path()).string());
+					std::string this_path = boost::filesystem::system_complete(dir_itr->path()).string();
+					if (std::find(paths.begin(),paths.end(),this_path)==
+							(std::vector<std::string>::const_iterator) paths.end() )
+						paths.push_back(this_path);
 				}
 				// if directory, search in that directory after incrementing depth
 			} else if (boost::filesystem::is_directory(dir_itr->status()))
@@ -124,13 +126,12 @@ ALogEntry JoshUtil::getNextRawALogEntry_josh(FILE *fileptr, bool allstrings) {
 	val = stripBlankEnds(val);
 
 	//	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
-
-	if ((time != "") && (var != "") && (src != "") && (val != "")
+	if (((time != "") && (var != "") && (src != "") && isNumber(time)) &&
+			( allstrings || !isNumber(val) ) ) {
+		entry.set(atof(time.c_str()), var, src, srcaux, val);
+	} else if ((time != "") && (var != "") && (src != "") && (val != "")
 			&& isNumber(time)) {
-		if (allstrings || !isNumber(val))
-			entry.set(atof(time.c_str()), var, src, srcaux, val);
-		else
-			entry.set(atof(time.c_str()), var, src, srcaux, atof(val.c_str()));
+		entry.set(atof(time.c_str()), var, src, srcaux, atof(val.c_str()));
 	} else {
 		if (EOFile)
 			entry.setStatus("eof");

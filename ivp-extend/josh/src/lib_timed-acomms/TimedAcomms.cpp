@@ -191,11 +191,18 @@ void TimedAcomms::doReceivingState() {
 	int slot = findNearestSlot(m_ThisRunTime, m_ReceivePeriod, m_ReceiveOffset);
 	double expected_time = slot2Time(slot, m_ReceivePeriod, m_ReceiveOffset);
 	if ( m_ThisRunTime - expected_time > m_AllowedReceivingExtension ) {
-		std::stringstream ss;
-		ss << "Timed out in receive slot " << slot;
-		signal_updates(ss.str());
 
-		signal_no_receipt();
+		std::stringstream ss;
+		// check if this is the last slot we used
+		if (slot == m_LastReceiveSlot) {
+			ss << "Timed out in receive slot " << slot
+					<< ", but slot already taken.";
+			signal_updates(ss.str());
+		} else {
+			ss << "Timed out in receive slot " << slot;
+			signal_updates(ss.str());
+			signal_no_receipt();
+		}
 		m_State = READY;
 		m_LastReceiveSlot = slot;
 	}
