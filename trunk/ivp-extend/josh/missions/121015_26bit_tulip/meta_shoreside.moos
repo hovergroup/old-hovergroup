@@ -104,6 +104,11 @@ ProcessConfig = pTargetRangeSensorSim
 	CommsTick = 10
   
 	sim_type = circle
+	#sim_type = accelerating_circle
+	
+	#initial_speed = 0
+	#max_speed = 1
+	#acceleration = .01
 
 	center_x = 60
 	center_y = -60
