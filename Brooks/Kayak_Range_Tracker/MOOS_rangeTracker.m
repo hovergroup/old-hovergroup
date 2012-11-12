@@ -24,7 +24,8 @@ dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % estimator parameters
-targetSpeed = 1;    % m/s
+global targetSpeed
+targetSpeed = 0.8;    % m/s
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .02 ; % target process noise (heading rate of target)
 % PSD: (deg/s)^2 / Hz?
