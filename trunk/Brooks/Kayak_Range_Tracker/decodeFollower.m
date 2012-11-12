@@ -5,7 +5,7 @@ function R = decodeFollower(bin)
 
 % changelog
 %{
-- hardcoded new centers for u0 = 3
+- 11/12/2012 hardcoded new centers for u0 = 3
 
 %}
 
