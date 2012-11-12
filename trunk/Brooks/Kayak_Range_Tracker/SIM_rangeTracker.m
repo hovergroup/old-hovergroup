@@ -33,7 +33,8 @@ targetSpeed = 1;    % m/s
 dt = 6 ; % time step between samples
 dim = 3 ; % dimension of the state space - should match getHermite below
 steps = 100 ; % time steps to simulate
-Q = .02 ; % target process noise (heading rate of target)
+%Q = .02 ; % target process noise (heading rate of target)
+Q = 0.5;
 
 % Agent process noise (current)
 WX = 0.5^2*sqrt(dt);
@@ -104,6 +105,7 @@ for ind = 1:steps
     
     % evolve the true state (note there is no noise as written)
     localNoise = sqrt(Q)*randn ;
+    
     [time,dum] = ode45('filterDeriv',[0 dt],xtrue,options);
     xtrue = dum(end,:)';
     
