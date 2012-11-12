@@ -7,8 +7,8 @@ ProcessConfig = pTulip26bit
   AppTick   = 20
   CommsTick  = 20
   
-  x_min = -20
-  x_max = 290
+  x_min = -30
+  x_max = 280
   y_min = -290
   y_max = 20
   
