@@ -3,38 +3,35 @@ function R = decodeFollower(bin)
 
 % BR, 11/2/2012
 
+% changelog
+%{
+- hardcoded new centers for u0 = 3
+
+%}
+
 % bin endpoints:
 
-% (base 2, smallest increment 3)
-b = [29 41 47 50 53 59 71];
-min = 0;
-max = 300;
+b = [27.6 40.7 47 50 53 59.3 72.4];
 
 %%% LATER: make fcn more flexible, find mid of logspace properly...
+% (encode formula)
 
 switch bin
     case 0
-        R = 10;  
+        R = 18.7;
     case 1
-        R = mean([b(1) b(2)]);
-        
+        R = 36.5;
     case 2
-        R = mean([b(2) b(3)]);
-        
+        R = 45;
     case 3
-        R = mean([b(3) b(4)]);
-        
+        R = 49;
     case 4
-        R = mean([b(4) b(5)]);
-        
+        R = 51;
     case 5
-        R = mean([b(5) b(6)]);
-        
+        R = 55;
     case 6
-        R = mean([b(6) b(7)]);
-        
+        R = 63.5;
     case 7
-        R = 100;
-        
+        R = 81.3;
 end
 
