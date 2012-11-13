@@ -50,10 +50,11 @@ int main(int argc, char *argv[]) {
     while ( entry.getStatus() != "eof" ) {
         iteration ++;
         std::string key = entry.getVarName();
-        if ( iteration > 10 && key != "VIEW_SEGLIST" ) {
+        if ( iteration > 10 /*&& key != "VIEW_SEGLIST" */) {
             new_data.push_back(entry);
         }
-        if ( key == "VIEW_SEGLIST" && entry.getStringVal().find("label=")!=std::string::npos ) {
+        if ( key == "VIEW_SEGLIST" && entry.getStringVal().find("label=")!=std::string::npos &&
+                entry.getStringVal().find("station")==std::string::npos ) {
 //            std::cout << entry.getStringVal() << std::endl;
             int label_index = entry.getStringVal().find("label=",0);
             int label_end = entry.getStringVal().find(",",label_index);
@@ -72,16 +73,16 @@ int main(int argc, char *argv[]) {
             XYVector vec;
             vec.set_label(label);
             vec.setPosition(x1,y1);
-            vec.setVectorXY(x2-x1,y2-y1);
+            vec.setVectorXY((x2-x1)/2.0,(y2-y1)/2.0);
 //            if ( label.find("tulip",0) != std::string::npos ) {
-                vec.setHeadSize(10);
+                vec.setHeadSize(3);
 //            } else {
 //                vec.setHeadSize(10);
 //            }
 
             label += "v";
 
-            vec.color_set("red");
+//            vec.color_set("red");
 
             std::string vec_s = vec.get_spec();
 
@@ -110,7 +111,7 @@ int main(int argc, char *argv[]) {
             XYVector vec;
             vec.set_label(label);
             vec.setPosition(x1,y1);
-            vec.setVectorXY(x2-x1,y2-y1);
+            vec.setVectorXY((x2-x1)/2.0,(y2-y1)/2.0);
 //            if ( label.find("tulip",0) != std::string::npos ) {
 //                vec.setHeadSize(10);
 //            } else {
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]) {
 
             label += "v";
 
-            vec.color_set("yellow");
+//            vec.color_set("yellow");
 
             std::string vec_s = vec.get_spec();
 
