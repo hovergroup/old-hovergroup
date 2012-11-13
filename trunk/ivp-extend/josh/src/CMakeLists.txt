@@ -24,6 +24,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(simple_acomms_parser)
 	ADD_SUBDIRECTORY(pTargetRangeSensorSim)
 	ADD_SUBDIRECTORY(acomms_debugger)
+	ADD_SUBDIRECTORY(seglistToVector)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
