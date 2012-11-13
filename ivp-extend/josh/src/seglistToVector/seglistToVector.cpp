@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     while ( entry.getStatus() != "eof" ) {
         iteration ++;
         std::string key = entry.getVarName();
-        if ( iteration > 10 ) {
+        if ( iteration > 10 && key != "VIEW_SEGLIST" ) {
             new_data.push_back(entry);
         }
         if ( key == "VIEW_SEGLIST" && entry.getStringVal().find("label=")!=std::string::npos ) {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
             int points_start = entry.getStringVal().find("{",0);
             int points_end = entry.getStringVal().find("}",0);
-            std::string points = entry.getStringVal().substr(points_start,points_end-points_start);
+            std::string points = entry.getStringVal().substr(points_start+1,points_end-points_start-1);
 //            std::cout << points << std::endl;
             double x1 = atof(MOOSChomp(points,",").c_str());
             double y1 = atof(MOOSChomp(points,":").c_str());
@@ -152,7 +152,8 @@ int main(int argc, char *argv[]) {
     infile.open(argv[1]);
 
     std::ofstream outfile;
-    outfile.open("out.alog");
+    std::string filename = "vectored_" + std::string(argv[1]);
+    outfile.open(filename.c_str());
 
     for ( int i=0; i<5; i++ ) {
         std::string sline;
@@ -167,7 +168,11 @@ int main(int argc, char *argv[]) {
         ss << new_entry.getTimeStamp() << "\t";
         ss << new_entry.getVarName() << "\t";
         ss << new_entry.getSource() << "\t";
-        ss << new_entry.getStringVal() << "\n";
+        if ( new_entry.isNumerical() ) {
+            ss << new_entry.getDoubleVal() << "\n";
+        } else {
+            ss << new_entry.getStringVal() << "\n";
+        }
 
         outfile << ss.str();
     }
