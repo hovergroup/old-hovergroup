@@ -37,17 +37,20 @@ ofstream output;
 
 double last_print_time = -100;
 
-int mfd_pow;
+int mfd_pow, mfd_ratio, status, spl, stdev_noise;
 //int snr_in, snr_out, spl, stddev_noise, mse_equalizer;
 
 void printLine(double time_stamp) {
 	output << time_stamp << ",";
-	output << mfd_pow << endl;
+	output << mfd_ratio << ",";
+	output << status << ",";
+	output << spl << ",";
+	output << stdev_noise << endl;
 }
 
 void printHeader() {
 	//output << "gps_x, gps_y, snr_in, snr_out, spl, noise, mse" << endl;
-	output << "time_stamp, mfd_power" << endl;
+	output << "time_stamp, mfd_ratio, status, spl, stdev_noise" << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -96,7 +99,15 @@ int main(int argc, char *argv[]) {
 				//				stat = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
 				if (numstats == 1) {
 					stat = trans.GetExtension(micromodem::protobuf::receive_stat, 0);
-					mfd_pow = stat.mfd_power();
+//					mfd_pow = stat.mfd_power();
+					mfd_ratio = stat.mfd_ratio();
+					spl = stat.spl();
+					stdev_noise=stat.stddev_noise();
+					if ( stat.mode() == micromodem::protobuf::RECEIVE_GOOD ) {
+						status = 1;
+					} else {
+						status = 0;
+					}
 
 					// here we print a line whenever we get an acomms reception
 					printLine(msg_time);
