@@ -424,7 +424,7 @@ ProcessConfig = pHelmIvP
 	VERBOSE		= false
 	Behaviors	= kayak_brooks.bhv
 	OK_SKEW		= ANY
-	Domain		= course,0:359:36
+	Domain		= course,0:359:360
 	Domain		= speed,0:2.0:21
 }
 
