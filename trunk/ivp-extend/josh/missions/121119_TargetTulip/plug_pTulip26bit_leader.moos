@@ -18,7 +18,7 @@ ProcessConfig = pTulip26bit
   //receive_period = 9
   //receive_offset = 7.75
   receive_period = 30
-  receive_offset = 21.75
+  receive_offset = 22
   
   //transmit_period = 9
   transmit_period = 30
