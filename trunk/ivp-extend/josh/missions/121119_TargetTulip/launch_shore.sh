@@ -7,6 +7,7 @@ JUST_BUILD="no"
 BAD_ARGS=""
 LEADER=""
 FOLLOWER=""
+TARGET=""
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -30,6 +31,10 @@ for ARGI; do
         FOLLOWER="${ARGI#--follower=*}"
         UNDEFINED_ARG=""
     fi
+    if [ "${ARGI:0:8}" = "--target" ] ; then
+        FOLLOWER="${ARGI#--target=*}"
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
 	BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -40,10 +45,13 @@ if [ "${HELP}" = "yes" ]; then
     printf "Switches:                \n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
+    printf "  --leader=[leader]      \n"
+    printf "  --follower=[follower]  \n" 
+    printf "  --target=[target]      \n"  
     exit 0;
 fi
 
-if [ "${LEADER} = "" -o "${FOLLOWER} = "" ] ; then
+if [ "${LEADER}" = "" -o "${FOLLOWER}" = "" -o "${TARGET}" = "" ] ; then
 	printf "Must specify leader and follower.\n"
 	exit 0
 fi
@@ -67,7 +75,8 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
     LOITER_PT1=$LOITER_PT1                              \
-    LOITER_PT2=$LOITER_PT2
+    LOITER_PT2=$LOITER_PT2                              \
+	TARGET=$TARGET
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0

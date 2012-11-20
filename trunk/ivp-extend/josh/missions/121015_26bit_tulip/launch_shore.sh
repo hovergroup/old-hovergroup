@@ -43,7 +43,7 @@ if [ "${HELP}" = "yes" ]; then
     exit 0;
 fi
 
-if [ "${LEADER} = "" -o "${FOLLOWER} = "" ] ; then
+if [ "${LEADER}" = "" -o "${FOLLOWER}" = "" ] ; then
 	printf "Must specify leader and follower.\n"
 	exit 0
 fi

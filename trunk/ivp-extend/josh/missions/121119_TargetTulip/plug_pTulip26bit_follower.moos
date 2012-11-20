@@ -25,4 +25,6 @@ ProcessConfig = pTulip26bit
   max_receive_error = .5
   
   vehicle_mode = follower
+  
+  range_source = acomms
 }

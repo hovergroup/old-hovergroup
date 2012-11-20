@@ -60,7 +60,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --NOSTROMO             NOSTROMO vehicle only                 \n"
     printf "  --KASSANDRA            KASSANDRA vehicle only                \n"
     printf "  --ICARUS               ICARUS vehicle only                   \n"
-    printf "  --ROLE=[follower/leader]\n"
+    printf "  --ROLE=[follower/leader/target]\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -71,8 +71,8 @@ if [ "${ROLE}" = "" ] ; then
 	exit 0
 fi
 
-if [ "${ROLE}" != "leader" -a "${ROLE}" != "follower" ] ; then
-	printf "Role must be leader or follower.\n"
+if [ "${ROLE}" != "leader" -a "${ROLE}" != "follower" -a "${ROLE}" != "target" ] ; then
+	printf "Role must be leader, follower, or target.\n"
 	exit 0
 fi 
 

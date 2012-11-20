@@ -26,13 +26,21 @@ Processconfig = ANTLER
   
   Run = uTimerScript		@ NewConsole = false ~ uTimerScript_Config
   
-  Run = pTulip26bit			@ NewConsole = false
+#ifdef ROLE target
+    Run = pTulip26bit			@ NewConsole = false
+#else
+    Run = pTulipTarget			@ NewConsole = false
+#endif
 }
 
 #ifdef ROLE leader
-	#include plug_pTulip26bit_leader.moos
-#else
-	#include plug_pTulip26bit_follower.moos
+    #include plug_pTulip26bit_leader.moos
+#endif
+#ifdef ROLE follower
+    #include plug_pTulip26bit_follower.moos
+#endif
+#ifdef ROLE target
+    #include plug_pTulipTarget.moos
 #endif
 
 ProcessConfig = uXMS
