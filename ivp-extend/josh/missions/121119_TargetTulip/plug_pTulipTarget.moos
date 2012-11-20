@@ -2,7 +2,7 @@
 // pTulip26bit Configuration Block  (Created from plugin)
 // leader
 
-ProcessConfig = pTulip26bit
+ProcessConfig = pTulipTarget
 {
   AppTick   = 20
   CommsTick  = 20
