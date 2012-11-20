@@ -8,5 +8,5 @@ ProcessConfig = pTulip26bit
   CommsTick  = 20
   
   transmit_period = 9
-  transmit_offset = 3
+  transmit_offset = 2.75
 }
