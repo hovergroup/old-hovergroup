@@ -196,7 +196,7 @@ void TimedAcomms::doReceivingState() {
 	}
 
 	// check for timeout
-	int slot = findNearestSlot(m_ThisRunTime, m_ReceivePeriod, m_ReceiveOffset);
+	int slot = findNextSlot(m_ReceivingStartTime, m_ReceivePeriod, m_ReceiveOffset);
 	double expected_time = slot2Time(slot, m_ReceivePeriod, m_ReceiveOffset);
 	if ( m_ThisRunTime - expected_time > m_AllowedReceivingExtension ) {
 
@@ -216,8 +216,9 @@ void TimedAcomms::doReceivingState() {
 	}
 }
 
-void TimedAcomms::signalStartOfModemReceiving() {
+void TimedAcomms::signalStartOfModemReceiving(double moos_time) {
     m_BeginModemReceive = true;
+    m_ReceivingStartTime = moos_time + m_ClockOffset;
 }
 
 void TimedAcomms::signalBadReception() {
