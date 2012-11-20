@@ -16,6 +16,7 @@ TimedAcomms::TimedAcomms() {
     m_BeginModemReceive = false;
     m_BadReceive = false;
     m_GoodReceive = false;
+    m_IgnoreReceive = false;
 
     m_LastTransmitSlot = -1;
     m_LastReceiveSlot = -1;
@@ -109,6 +110,12 @@ void TimedAcomms::doReadyState() {
  * receiving state where we wait for indication of good/bad receipt
  */
 void TimedAcomms::doReceivingState() {
+    if (m_IgnoreReceive) {
+        m_IgnoreReceive = false;
+        m_State = READY;
+        return;
+    }
+
 	// check for good receive signal
 	if (m_GoodReceive) {
 		// clear flag
@@ -234,6 +241,15 @@ void TimedAcomms::signalGoodReception(std::string data) {
     }
 }
 
+void TimedAcomms::signalBreakFromReceiving() {
+    if (m_State == RECEIVING) {
+        m_IgnoreReceive = true;
+        signal_updates("Breaking from receiving state.");
+    } else {
+        signal_debug("Tried to break from receiving state during state "
+                + m_StateNames[m_State]);
+    }
+}
 /**
  * returns seconds from 12am using system clock
  * UTC so should be same as GPS

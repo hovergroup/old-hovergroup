@@ -13,13 +13,14 @@
 // Constructor
 
 Tulip26bit::Tulip26bit() {
-    m_WaitingForData = false;
     m_lastRangeRequestTime = 0;
     m_range_source = "sim";
     m_target_acomms_id = -1;
 
     m_gotSource = false;
     m_gotRange = false;
+    m_gotFrames = false;
+    m_gotData = false;
 }
 
 //---------------------------------------------------------
@@ -47,23 +48,13 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
         } else if (key == "ACOMMS_RECEIVED_DATA") {
             m_ReceivedData = msg.GetString();
             m_ReceivedDataTime = msg.GetTime();
-            if (m_WaitingForData
-                    && abs(m_BadFramesTime - m_ReceivedDataTime) < 0.25) {
-                m_AcommsTimer.signalGoodReception(m_ReceivedData);
-                m_WaitingForData = false;
-            }
+            m_gotData = true;
 
         } else if (key == "ACOMMS_BAD_FRAMES") {
-            std::string frame_status = msg.GetString();
+            m_FrameStatus = msg.GetString();
             m_BadFramesTime = msg.GetTime();
-            if (frame_status == "") {
-                if (abs(m_BadFramesTime - m_ReceivedDataTime) < 0.25)
-                    m_AcommsTimer.signalGoodReception(m_ReceivedData);
-                else
-                    m_WaitingForData = true;
-            } else {
-                m_AcommsTimer.signalBadReception();
-            }
+            m_gotFrames = true;
+
         } else if (key == "ACOMMS_SOURCE_ID") {
             m_sourceID = msg.GetDouble();
             m_gotSource = true;
@@ -100,15 +91,24 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
         }
     }
 
-    if ( m_gotSource && m_gotRange ) {
+    if ( m_gotSource && m_gotRange && m_gotFrames && m_gotData ) {
         if ( m_sourceID == m_target_acomms_id ) {
             m_target_range = m_acommsRange;
             std::stringstream ss;
             ss << "range to target: " << m_target_range;
             handleUpdate( ss.str() );
+            m_AcommsTimer.signalBreakFromReceiving();
+        } else {
+            if (m_FrameStatus == "" )
+                m_AcommsTimer.signalGoodReception(m_ReceivedData);
+            else
+                m_AcommsTimer.signalBadReception();
         }
+
         m_gotSource = false;
         m_gotRange = false;
+        m_gotFrames = false;
+        m_gotData = false;
     }
 
     return (true);
