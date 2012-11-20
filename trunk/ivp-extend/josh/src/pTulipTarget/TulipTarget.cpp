@@ -35,18 +35,18 @@ bool TulipTarget::OnNewMail(MOOSMSG_LIST &NewMail) {
 
         if (key == "ACOMMS_DRIVER_STATUS") {
             std::string status = msg.GetString();
-            if (m_AcommsStatus != "receiving" && status == "receiving")
-                m_AcommsTimer.signalStartOfModemReceiving();
+//            if (m_AcommsStatus != "receiving" && status == "receiving")
+//                m_AcommsTimer.signalStartOfModemReceiving();
             m_AcommsStatus = status;
 
-        } else if (key == "ACOMMS_RECEIVED_DATA") {
-            m_ReceivedData = msg.GetString();
-            m_ReceivedDataTime = msg.GetTime();
-            if (m_WaitingForData
-                    && abs(m_BadFramesTime - m_ReceivedDataTime) < 0.25) {
-                m_AcommsTimer.signalGoodReception(m_ReceivedData);
-                m_WaitingForData = false;
-            }
+//        } else if (key == "ACOMMS_RECEIVED_DATA") {
+//            m_ReceivedData = msg.GetString();
+//            m_ReceivedDataTime = msg.GetTime();
+//            if (m_WaitingForData
+//                    && abs(m_BadFramesTime - m_ReceivedDataTime) < 0.25) {
+//                m_AcommsTimer.signalGoodReception(m_ReceivedData);
+//                m_WaitingForData = false;
+//            }
 
         } else if (key == "ACOMMS_BAD_FRAMES") {
             std::string frame_status = msg.GetString();
@@ -62,6 +62,9 @@ bool TulipTarget::OnNewMail(MOOSMSG_LIST &NewMail) {
 
         } else if (key == "GPS_TIME_SECONDS") {
             m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
+            std::stringstream ss;
+            ss << "gps time: " << msg.GetDouble() << " " << msg.GetTime();
+            handleDebug( ss.str() );
 
         } else if (key == "NAV_X") {
             m_osx = msg.GetDouble();
@@ -127,7 +130,6 @@ void TulipTarget::handleUpdate(const std::string msg) {
 void TulipTarget::onTransmit() {
 	std::string data = "T";
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void *) data.data(), 1);
-	handleDebug("transmitting");
 }
 
 //---------------------------------------------------------
