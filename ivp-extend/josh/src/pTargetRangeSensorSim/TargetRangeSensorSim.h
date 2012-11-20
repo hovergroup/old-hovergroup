@@ -44,7 +44,6 @@ protected:
 	void handleRangeRequest ( std::string msg );
 
 	double m_LastTargetMarkTime;
-
 };
 
 #endif 

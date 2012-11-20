@@ -27,4 +27,5 @@ ProcessConfig = pTulip26bit
   vehicle_mode = follower
   
   range_source = acomms
+  target_id = 1
 }

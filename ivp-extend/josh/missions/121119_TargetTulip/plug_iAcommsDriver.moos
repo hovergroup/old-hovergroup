@@ -6,7 +6,11 @@ ProcessConfig = iAcommsDriver
 	CommsTick = 20
 
 	PortName = $(MODEMPORT)
+#ifdef ROLE target
+        ID = 1
+#else
 	ID = $(ACOMMSID)
+#endif
 	
 	PSK_minipackets = true
 	enable_ranging = true

@@ -94,21 +94,21 @@ VNAME1="ICARUS"  # The first vehicle Community
 VHOST1="192.168.1.102"
 VPORT1="9300"
 LPORT1="9301"
-ID1=1
+ID1=2
 
 VNAME2="KASSANDRA"  # The second vehicle Community
 VHOST2="192.168.1.101"
 VPORT2="9200"
 LPORT2="9201"
 RETURN_PT2="10,-20"
-ID2=2
+ID2=3
 
 VNAME3="NOSTROMO"  # The third vehicle Community
 VHOST3="192.168.1.103"
 VPORT3="9100"
 LPORT3="9101"
 RETURN_PT3="30,-10"
-ID3=3
+ID3=4
 
 # Conditionally Prepare NOSTROMO files
 if [ "${VEHICLE}" = "NOSTROMO" ]; then
@@ -146,7 +146,7 @@ if [ "${VEHICLE}" = "KASSANDRA" ]; then
         ACOMMSID=$ID2                                   \
         MODEMPORT="/dev/ttyUSB1"                        \
         OS5000PORT="/dev/ttyUSB2"                       \
-        ALTIMETERPORT="/dev/ttyUSB0"				
+        ALTIMETERPORT="/dev/ttyUSB0"
 
     nsplug meta_vehicle.bhv targ_KASSANDRA.bhv -f       \
         VNAME=$VNAME2                                   \
