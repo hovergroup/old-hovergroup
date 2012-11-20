@@ -24,8 +24,6 @@ Processconfig = ANTLER
 	Run = uXMS              @ NewConsole = true,XConfig=3 ~uXMS_tulip-acomms
 	Run = uXMS              @ NewConsole = true,XConfig=4 ~uXMS_target-sim
 	Run = uXMS		@ NewConsole = true,XConfig=1 ~uXMS_tulip-data
-	
-	Run = pTargetRangeSensorSim @ NewConsole = false
 
 	Run = uTermCommand	@ NewConsole = true
 
@@ -78,8 +76,10 @@ ProcessConfig = uXMS_tulip-acomms
 	
 	VAR = TULIP_UPDATES_$(LEADER)
 	VAR = TULIP_UPDATES_$(FOLLOWER)
+	VAR = TULIP_UPDATES_$(TARGET)
 	VAR = TULIP_DEBUG_$(LEADER)
 	VAR = TULIP_DEBUG_$(FOLLOWER)
+	VAR = TULIP_DEBUG_$(TARGET)
 	VAR = GPS_TIME_SECONDS
 }
 
@@ -94,28 +94,9 @@ ProcessConfig = uXMS_target-sim
 	VAR = TARGET_RANGE_REQUEST
 	VAR = TARGET_RANGE_RETURN_$(LEADER)
 	VAR = TARGET_RANGE_RETURN_$(FOLLOWER)
-	VAR = VIEW_MARKER
-	VAR = VIEW_SEGLIST
-}
-
-ProcessConfig = pTargetRangeSensorSim
-{
-	AppTick = 10
-	CommsTick = 10
-  
-	sim_type = circle
-	#sim_type = accelerating_circle
-	
-	#min_speed = 0
-	#max_speed = 1
-	#acceleration = .01
-
-	center_x = 60
-	center_y = -60
-	radius = 40
-	speed = 1.5
-	initial_angle = 0
-	clockwise = false
+	VAR = TARGET_RANGE_RETURN_$(TARGET)
+	//VAR = VIEW_MARKER
+	//VAR = VIEW_SEGLIST
 }
 
 ProcessConfig = pEchoVar
