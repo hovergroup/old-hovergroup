@@ -1,0 +1,12 @@
+//------------------------------------------------------
+// pTulip26bit Configuration Block  (Created from plugin)
+// leader
+
+ProcessConfig = pTulip26bit
+{
+  AppTick   = 20
+  CommsTick  = 20
+  
+  transmit_period = 9
+  transmit_offset = 3
+}

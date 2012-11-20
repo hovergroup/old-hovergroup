@@ -1,0 +1,11 @@
+ProcessConfig = kayak_interface
+{
+	AppTick = 20
+	CommsTick = 20
+	
+	STARTUP_THRUST = 40
+	THRUST_CUTOFF = 0
+	MIN_UPDATE_PERIOD = .25
+	INVERT_RUDDER = 1
+	RUDDER_OFFSET = 2
+}
