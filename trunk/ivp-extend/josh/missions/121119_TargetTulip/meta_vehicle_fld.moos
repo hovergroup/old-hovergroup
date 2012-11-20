@@ -12,7 +12,6 @@ Processconfig = ANTLER
   Run = MOOSDB             	@ NewConsole = false
   Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
   Run = pLogger            	@ NewConsole = false
-  Run = pNodeReporter      	@ NewConsole = false
   Run = pMarinePID_Hover   	@ NewConsole = false
   Run = pHelmIvP           	@ NewConsole = false
   Run = pHostInfo          	@ NewConsole = false
@@ -30,6 +29,7 @@ Processconfig = ANTLER
     Run = pTulipTarget			@ NewConsole = false
 #else
     Run = pTulip26bit			@ NewConsole = false
+    Run = pNodeReporter      	@ NewConsole = false
 #endif
 }
 
