@@ -16,7 +16,7 @@ ProcessConfig = pTulip26bit
   follower_range_divs = 27.6,40.7,47,50,53,59.3,72.4
   
   receive_period = 9
-  receive_offset = 1.5
+  receive_offset = 1.75
   
   transmit_period = 9
   transmit_offset = 5.75
