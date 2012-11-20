@@ -200,6 +200,9 @@ bool Tulip26bit::OnConnectToServer() {
         m_range_source = "acomms";
         m_Comms.Register("ACOMMS_ONE_WAY_TRAVEL_TIME", 0);
         m_Comms.Register("ACOMMS_SOURCE_ID", 0);
+    } else {
+        std::cout << "invalid range source: " << range_source << std::endl;
+        return false;
     }
 
     m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);

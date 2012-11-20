@@ -127,6 +127,7 @@ void TulipTarget::handleUpdate(const std::string msg) {
 void TulipTarget::onTransmit() {
 	std::string data = "T";
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", data.data(), 1);
+	handleDebug("transmitting");
 }
 
 //---------------------------------------------------------
