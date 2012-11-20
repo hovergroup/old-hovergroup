@@ -32,7 +32,7 @@ for ARGI; do
         UNDEFINED_ARG=""
     fi
     if [ "${ARGI:0:8}" = "--target" ] ; then
-        FOLLOWER="${ARGI#--target=*}"
+        TARGET="${ARGI#--target=*}"
         UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
@@ -52,7 +52,7 @@ if [ "${HELP}" = "yes" ]; then
 fi
 
 if [ "${LEADER}" = "" -o "${FOLLOWER}" = "" -o "${TARGET}" = "" ] ; then
-	printf "Must specify leader and follower.\n"
+	printf "Must specify leader, follower, and target.\n"
 	exit 0
 fi
 	
