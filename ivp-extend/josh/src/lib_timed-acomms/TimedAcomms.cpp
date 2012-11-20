@@ -316,8 +316,10 @@ void TimedAcomms::setTransmitTiming(double period, double offset) {
 
 void TimedAcomms::setReceivingExtension(double extension) {
     m_AllowedReceivingExtension = extension;
+    std::cout << "receive extension " << m_AllowedReceivingExtension << std::endl;
 }
 
 void TimedAcomms::setMaxReceivingError(double error) {
 	m_MaxReceivingError = error;
+	std::cout << "max error " << m_MaxReceivingError << std::endl;
 }
