@@ -62,9 +62,9 @@ bool TulipTarget::OnNewMail(MOOSMSG_LIST &NewMail) {
 
         } else if (key == "GPS_TIME_SECONDS") {
             m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
-            std::stringstream ss;
-            ss << "gps time: " << msg.GetDouble() << " " << msg.GetTime();
-            handleDebug( ss.str() );
+//            std::stringstream ss;
+//            ss << "gps time: " << msg.GetDouble() << " " << msg.GetTime();
+//            handleDebug( ss.str() );
 
         } else if (key == "NAV_X") {
             m_osx = msg.GetDouble();

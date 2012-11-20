@@ -9,6 +9,7 @@
 
 TimedAcomms::TimedAcomms() {
     m_ClockSamples = 0;
+    m_ClockErrorSum = 0;
     m_ExitingTimeCalIterations = 0;
     m_State = GPS_TIME_CAL;
 
