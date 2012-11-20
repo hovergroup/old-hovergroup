@@ -15,6 +15,11 @@
 Tulip26bit::Tulip26bit() {
     m_WaitingForData = false;
     m_lastRangeRequestTime = 0;
+    m_range_source = "sim";
+    m_target_acomms_id = -1;
+
+    m_gotSource = false;
+    m_gotRange = false;
 }
 
 //---------------------------------------------------------
@@ -59,28 +64,51 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
             } else {
                 m_AcommsTimer.signalBadReception();
             }
+        } else if (key == "ACOMMS_SOURCE_ID") {
+            m_sourceID = msg.GetDouble();
+            m_gotSource = true;
+
+        } else if (key == "ACOMMS_ONE_WAY_TRAVEL_TIME") {
+            m_acommsRange = msg.GetDouble() * 1450.0;
+            m_gotRange = true;
 
         } else if (key == "GPS_TIME_SECONDS") {
             m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
 
         } else if (key == "NAV_X") {
             m_osx = msg.GetDouble();
+
         } else if (key == "NAV_Y") {
             m_osy = msg.GetDouble();
+
         } else if ( key == "TARGET_RANGE_RETURN" ) {
             RangeSensorTypes::RangeReply rr(msg.GetString());
             m_target_range = rr.range;
+
         } else if ( key == "FOLLOWER_WAYPOINT" ) {
             std::string sline = msg.GetString();
             std::string sTmp = MOOSChomp(sline,",");
             m_set_x = atof(sTmp.c_str());
             m_set_y = atof(sline.c_str());
+
         } else if ( key == "LEADER_WAYPOINT" ) {
             std::stringstream ss;
             ss << "points=" << m_osx << "," << m_osy << ":" << msg.GetString();
             m_Comms.Notify("TULIP_WAYPOINT_UPDATES", ss.str());
             m_Comms.Notify("TULIP_STATION", "false");
+
         }
+    }
+
+    if ( m_gotSource && m_gotRange ) {
+        if ( m_sourceID == m_target_acomms_id ) {
+            m_target_range = m_acommsRange;
+            std::stringstream ss;
+            ss << "range to target: " << m_target_range;
+            handleUpdate( ss.str() );
+        }
+        m_gotSource = false;
+        m_gotRange = false;
     }
 
     return (true);
@@ -132,6 +160,10 @@ bool Tulip26bit::OnConnectToServer() {
     std::string vehicle_mode;
     m_MissionReader.GetConfigurationParam("vehicle_mode", vehicle_mode);
 
+    std::string range_source = "sim";
+    m_MissionReader.GetConfigurationParam("range_source", range_source);
+    m_MissionReader.GetConfigurationParam("target_id", m_target_acomms_id);
+
     if (vehicle_mode == "leader") {
         goby::acomms::connect(&m_AcommsTimer.signal_transmit,
                 boost::bind(&Tulip26bit::onTransmit_leader, this));
@@ -161,6 +193,15 @@ bool Tulip26bit::OnConnectToServer() {
     goby::acomms::connect(&m_AcommsTimer.signal_updates,
             boost::bind(&Tulip26bit::handleUpdate, this, _1));
 
+    if ( range_source == "sim" ) {
+        m_range_source = "sim";
+        m_Comms.Register("TARGET_RANGE_RETURN", 0);
+    } else if ( range_source == "acomms" ) {
+        m_range_source = "acomms";
+        m_Comms.Register("ACOMMS_ONE_WAY_TRAVEL_TIME", 0);
+        m_Comms.Register("ACOMMS_SOURCE_ID", 0);
+    }
+
     m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
     m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
     m_Comms.Register("ACOMMS_BAD_FRAMES", 0);
@@ -168,8 +209,6 @@ bool Tulip26bit::OnConnectToServer() {
 
     m_Comms.Register("NAV_X", 0);
     m_Comms.Register("NAV_Y", 0);
-
-    m_Comms.Register("TARGET_RANGE_RETURN", 0);
 
     return (true);
 }
@@ -188,7 +227,7 @@ void Tulip26bit::handleUpdate(const std::string msg) {
 bool Tulip26bit::Iterate() {
     m_AcommsTimer.doWork(MOOSTime());
 
-    if (MOOSTime() - m_lastRangeRequestTime > .5) {
+    if (MOOSTime() - m_lastRangeRequestTime > .5 && m_range_source == "sim") {
         RangeSensorTypes::RangeRequest request;
         request.vname = m_name;
         request.nav_x = m_osx;

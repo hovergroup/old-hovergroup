@@ -57,6 +57,11 @@ protected:
 	double m_lastRangeRequestTime;
 	std::string m_name;
 
+	std::string m_range_source;
+	int m_target_acomms_id;
+	bool m_gotSource, m_gotRange;
+	int m_sourceID, m_acommsRange;
+
 	std::vector<double> m_follower_range_divs;
 };
 

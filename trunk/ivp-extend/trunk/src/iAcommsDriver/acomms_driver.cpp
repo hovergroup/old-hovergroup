@@ -406,6 +406,9 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 }
 
 void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmission & trans ) {
+    m_Comms.Notify("ACOMMS_SOURCE_ID", trans.src());
+    m_Comms.Notify("ACOMMS_DEST_ID", trans.dest());
+
 	if ( trans.HasExtension( micromodem::protobuf::ranging_reply ) ) {
 		micromodem::protobuf::RangingReply ranging =
 				trans.GetExtension(micromodem::protobuf::ranging_reply);

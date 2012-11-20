@@ -39,13 +39,15 @@ protected:
 	bool m_WaitingForData;
 	double m_ReceivedDataTime, m_BadFramesTime;
 
-	double m_osx, m_osy, m_target_range;
-	double m_set_x, m_set_y;
+	double m_osx, m_osy;
 
-	double m_lastRangeRequestTime;
-	std::string m_name;
+	double m_lastMarkerPostTime;
 
 	std::vector<double> m_follower_range_divs;
+
+    void drawTarget( double x, double y );
+    void drawMarker( std::string type, double x, double y,
+            std::string label, std::string msg, std::string color );
 };
 
 #endif 

@@ -14,7 +14,7 @@
 
 TulipTarget::TulipTarget() {
     m_WaitingForData = false;
-    m_lastRangeRequestTime = 0;
+    m_lastMarkerPostTime = 0;
 }
 
 //---------------------------------------------------------
@@ -62,6 +62,12 @@ bool TulipTarget::OnNewMail(MOOSMSG_LIST &NewMail) {
 
         } else if (key == "GPS_TIME_SECONDS") {
             m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
+
+        } else if (key == "NAV_X") {
+            m_osx = msg.GetDouble();
+
+        } else if (key == "NAV_Y") {
+            m_osy = msg.GetDouble();
         }
     }
 
@@ -81,9 +87,6 @@ bool TulipTarget::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("transmit_period", transmit_period);
     m_MissionReader.GetConfigurationParam("transmit_offset", transmit_offset);
     m_AcommsTimer.setTransmitTiming(transmit_period, transmit_offset);
-
-    m_MissionReader.GetValue("Community", m_name);
-    MOOSToUpper(m_name);
 
 //    double receive_extension, max_receive_error;
 //    m_MissionReader.GetConfigurationParam("receive_extension",
@@ -105,6 +108,10 @@ bool TulipTarget::OnConnectToServer() {
     m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
     m_Comms.Register("ACOMMS_BAD_FRAMES", 0);
     m_Comms.Register("GPS_TIME_SECONDS", 0);
+
+    m_Comms.Register("NAV_X", 0);
+    m_Comms.Register("NAV_Y", 0);
+
 
     return (true);
 }
@@ -128,6 +135,11 @@ void TulipTarget::onTransmit() {
 bool TulipTarget::Iterate() {
     m_AcommsTimer.doWork(MOOSTime());
 
+    if ( MOOSTime() - m_lastMarkerPostTime > 1 ) {
+        drawTarget(m_osx,m_osy);
+        m_lastMarkerPostTime = MOOSTime();
+    }
+
     return (true);
 }
 
@@ -138,5 +150,25 @@ bool TulipTarget::OnStartUp() {
     // happens before connection is open
 
     return (true);
+}
+
+void TulipTarget::drawTarget( double x, double y ) {
+    std::stringstream ss;
+    ss << "Target: " << (int) x << " " << (int) y;
+    drawMarker( "diamond", x, y, "target", ss.str(), "orange" );
+}
+
+void TulipTarget::drawMarker( std::string type, double x, double y,
+        std::string label, std::string msg, std::string color ) {
+
+    std::stringstream ss;
+    ss << "type=" << type;
+    ss << ",x=" << x;
+    ss << ",y=" << y;
+    ss << ",label=" << label;
+    ss << ",COLOR=" << color;
+    ss << ",msg=" << msg;
+
+    m_Comms.Notify("VIEW_MARKER", ss.str() );
 }
 
