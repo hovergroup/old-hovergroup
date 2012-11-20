@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 ADD_SUBDIRECTORY(lib_timed-acomms)
 ADD_SUBDIRECTORY(pTulip26bit)
+ADD_SUBDIRECTORY(pTulipTarget)
 ADD_SUBDIRECTORY(lib_RangeSensorTypes)
 
 IF(BUILD_SHORE_APPS)
