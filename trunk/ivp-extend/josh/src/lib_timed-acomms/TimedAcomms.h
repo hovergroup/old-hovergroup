@@ -23,6 +23,7 @@ public:
     void signalStartOfModemReceiving();
     void signalBadReception();
     void signalGoodReception(std::string data);
+    void signalBreakFromReceiving();
 
     // output signals - use goby methods to connect
     boost::signals2::signal<void()> signal_no_receipt;
@@ -84,7 +85,7 @@ private:
     double m_ThisRunTime, m_LastRunTime;
 
     // incoming data
-    bool m_BeginModemReceive, m_BadReceive, m_GoodReceive;
+    bool m_BeginModemReceive, m_BadReceive, m_GoodReceive, m_IgnoreReceive;
     std::string m_ReceivedData;
 };
 

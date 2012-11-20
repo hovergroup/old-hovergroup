@@ -48,7 +48,8 @@ protected:
 
 	std::string m_AcommsStatus;
 	std::string m_ReceivedData;
-	bool m_WaitingForData;
+	std::string m_FrameStatus;
+	bool m_gotFrames, m_gotData;
 	double m_ReceivedDataTime, m_BadFramesTime;
 
 	double m_osx, m_osy, m_target_range;
