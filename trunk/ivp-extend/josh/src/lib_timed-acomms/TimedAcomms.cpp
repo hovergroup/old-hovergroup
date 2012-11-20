@@ -142,6 +142,7 @@ void TimedAcomms::doReceivingState() {
 				ss << "Got good receipt for receive slot " << slot;
 				signal_updates(ss.str());
 				signal_receipt(m_ReceivedData);
+		        m_LastReceiveSlot = slot;
 			} else {
 				ss << "Got good receipt for receive slot " << slot
 						<< ", but error was out of bounds (" << error << ")";
@@ -150,7 +151,6 @@ void TimedAcomms::doReceivingState() {
 		}
 
 		m_State = READY;
-		m_LastReceiveSlot = slot;
 
 		return;
 	}
@@ -181,6 +181,7 @@ void TimedAcomms::doReceivingState() {
 				ss << "Got bad receipt for receive slot " << slot;
 				signal_updates(ss.str());
 				signal_no_receipt();
+		        m_LastReceiveSlot = slot;
 			} else {
 				ss << "Got bad receipt for receive slot " << slot
 						<< ", but error was out of bounds (" << error << ")";
@@ -190,7 +191,6 @@ void TimedAcomms::doReceivingState() {
 
 		// return to ready state and update slot
 		m_State = READY;
-		m_LastReceiveSlot = slot;
 
 		return;
 	}
@@ -210,9 +210,9 @@ void TimedAcomms::doReceivingState() {
 			ss << "Timed out in receive slot " << slot;
 			signal_updates(ss.str());
 			signal_no_receipt();
+	        m_LastReceiveSlot = slot;
 		}
 		m_State = READY;
-		m_LastReceiveSlot = slot;
 	}
 }
 
