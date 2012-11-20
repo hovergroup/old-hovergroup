@@ -20,7 +20,7 @@ public:
 
     // data inputs
     bool processGpsTimeSeconds(double gps_time_seconds, double moos_time);
-    void signalStartOfModemReceiving();
+    void signalStartOfModemReceiving(double moos_time);
     void signalBadReception();
     void signalGoodReception(std::string data);
     void signalBreakFromReceiving();
@@ -87,6 +87,7 @@ private:
     // incoming data
     bool m_BeginModemReceive, m_BadReceive, m_GoodReceive, m_IgnoreReceive;
     std::string m_ReceivedData;
+    double m_ReceivingStartTime;
 };
 
 #endif /* TIMEDACOMMS_H_ */

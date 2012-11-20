@@ -42,7 +42,7 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
         if (key == "ACOMMS_DRIVER_STATUS") {
             std::string status = msg.GetString();
             if (m_AcommsStatus != "receiving" && status == "receiving")
-                m_AcommsTimer.signalStartOfModemReceiving();
+                m_AcommsTimer.signalStartOfModemReceiving(msg.GetTime());
             m_AcommsStatus = status;
 
         } else if (key == "ACOMMS_RECEIVED_DATA") {
