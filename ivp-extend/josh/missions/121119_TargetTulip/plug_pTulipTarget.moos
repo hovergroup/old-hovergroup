@@ -7,6 +7,8 @@ ProcessConfig = pTulipTarget
   AppTick   = 20
   CommsTick  = 20
   
-  transmit_period = 9
-  transmit_offset = 2.75
+  //transmit_period = 9
+  //transmit_offset = 2.75
+  transmit_period = 30
+  transmit_offset = 9.75
 }
