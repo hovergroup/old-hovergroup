@@ -126,11 +126,11 @@ ProcessConfig = iHoverKayak
 
 ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 40
-	CommsTick	= 40
+	AppTick		= 10
+	CommsTick	= 10
 
 	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
-	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
+	Speed		= 57600			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -21			// -15 for Boston (magnetic declination)
 
 	//UpdateFraction = .05
