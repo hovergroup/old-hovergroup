@@ -62,6 +62,10 @@ ProcessConfig = iAcommsDriver
 
 	PortName = /dev/ttyUSB1
 	ID = 2
+	
+	PSK_minipackets = false
+	enable_ranging = false
+	show_range_pulses = true
 }
 
 ProcessConfig = pLogger
