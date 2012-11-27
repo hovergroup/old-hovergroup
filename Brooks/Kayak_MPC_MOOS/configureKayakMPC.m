@@ -49,7 +49,7 @@ hspeed = 2;KF_cross = 0.0349;    % 2 m/s
 
 % Time step (sec)
 %dt = 6;    % WIFI
-dt = 7;     % true acomms
+dt = 8;     % true acomms
 
 
 % Planning horizon (steps)
@@ -110,7 +110,7 @@ epsimax = 30;   % MAIN CONSTRAINT: commanded heading within linear regime
 umax = 30*ones(m,1); umin = -umax;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Qcross = 100;
+Qcross = 10;
 Qheading = 0.1;
 Qint = 0;   %.1;
 Pfac = 10;
