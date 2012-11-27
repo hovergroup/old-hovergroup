@@ -131,7 +131,7 @@ ProcessConfig = iOS5000_Hover
 
 	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
 	Speed		= 57600			// Always set to 19200 (OS5000 baud rate)
-	PreRotation	= -23			// -15 for Boston (magnetic declination)
+	PreRotation	= -19			// -15 for Boston (magnetic declination)
 
 	//UpdateFraction = .05
 	// tau = dt*(1-updatefraction)/update_fraction
