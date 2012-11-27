@@ -24,7 +24,7 @@ ProcessConfig = ANTLER
 	Run = iOS5000_Hover			@ NewConsole = false
 	Run = iGPS_Hover			@ NewConsole = false
 	Run = iAcommsDriver 		@ NewConsole = false
-//	Run = pLogger				@ NewConsole = false	// Logs messages to disk
+
 }
 
 ProcessConfig = pKalmanFilter

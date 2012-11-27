@@ -24,6 +24,8 @@ off though).
     Added some more logging
 - 10/15/2012: fixed issues with internal state vs output (phys units)
 scaling (added KF_cross)
+- 10/24/2012: changed parsePloss (include real acomms)
+- 11/12/2012: added generation of acomms data, checking, etc.  
 
 %}
 
@@ -33,9 +35,9 @@ close all
 clc
 format compact
 
-TX = 'wifi';
-%TX = 'acomms';
-acommsRate = 0; % {0,1,2,3,4,5,100}
+%TX = 'wifi';
+TX = 'acomms';
+acommsRate = 0; % IMPLEMENTED: 0 or 2.   {0,1,2,3,4,5,100}
 
 configureKayakMPC;
 initializeMOOS_MPC;
@@ -108,7 +110,6 @@ while(~mpc_stop)
     % solve MPC - xEst and previous control are inputs
     [uPlan tMPC X] = solveKayakMPC(sys,eEst,MPCparams,uPrev);
     
-    
     % Wifi and/or acomms packet loss:
     switch TX
         case 'wifi'
@@ -121,25 +122,24 @@ while(~mpc_stop)
         case 'acomms'
             % send acomms
             switch acommsRate
-                case 1
+                case 0  % FSK - one 32 byte frame
                     data = num2str(loopIt);
-                    numFrames = 1;
-                case 2
+                case 2  % PSK 2 - 3 64 byte frames
                     data{1} = num2str(loopIt);
                     data{2} = num2str(loopIt);
                     data{3} = num2str(loopIt);
-                    numFrames = 3;
             end
             [send frames] = constructAcommsTX(acommsRate,data);
             iMatlab('MOOS_MAIL_TX','ACOMMS_TRANSMIT_DATA',send) 
             
             aStart = tic;
-            while(toc(aStart)<(3))
+            txPause = 3;
+            while(toc(aStart)<(txPause))
                 pause(0.005)
             end
             
             % look at driver for reception (with TIMEOUT)
-            acommsTimeout = 5.99;
+            acommsTimeout = dt - 0.1 - txPause;
             switch acommsRate
                 case 2
                     neededFrames = 3;   % all good PSK frames
@@ -174,10 +174,9 @@ while(~mpc_stop)
     fprintf('MPC predicted next state (from uPrev):\n')
     X(:,2)
     
-%     
-%     while(toc(loopStart)<(dt-.01))
-%         pause(0.005)
-%     end
+    while(toc(loopStart)<(dt-.01))
+        pause(0.005)
+    end
     
     % SEND COMMAND (always over wifi)
     send = sprintf('heading = %0.1f',uBearing);
