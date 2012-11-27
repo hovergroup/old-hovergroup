@@ -58,7 +58,8 @@ while((~checkPacket))
                     checkPacket = 1;
                 end
                 numGoodFrames = length(test);
-                
+                %checkPacket
+                %data
                 
             case 'ACOMMS_BAD_FRAMES'
                 % currently just prints out, doesn't affect while loop
@@ -85,7 +86,7 @@ while((~checkPacket))
             break
         end
         
-        toc(checkStart)
+        %toc(checkStart)
         
         % check timeout on reading state
         if(toc(checkStart) > checkTimeout)
