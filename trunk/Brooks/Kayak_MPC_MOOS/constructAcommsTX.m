@@ -11,6 +11,7 @@ function [send,frames] = constructAcommsTX(acommsRate,data)
 % numFrames/frameSize:
 % 1: 1/32, 2: 3/64, 3: 2/256, 4: 2/256, 5: 8/256, 100: 1/13 BITS
 
+% BR, 11/12/2012
 
 % (later make binary option?)
 

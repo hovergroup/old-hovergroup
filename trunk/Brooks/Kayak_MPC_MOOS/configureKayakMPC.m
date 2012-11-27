@@ -48,7 +48,10 @@ hspeed = 2;KF_cross = 0.0349;    % 2 m/s
 %%%
 
 % Time step (sec)
-dt = 6;
+%dt = 6;    % WIFI
+dt = 7;     % true acomms
+
+
 % Planning horizon (steps)
 T=32;
 
