@@ -18,7 +18,7 @@ clear iMatlab; clc
 PRINTOUTS = 1;
 
 % problem parameters
-dt = 6 ; % time step between samples
+dt = 12 ; % time step between samples
 
 dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
@@ -27,8 +27,8 @@ nAgents = 2;
 global targetSpeed
 targetSpeed = 1.5;    % m/s
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
-%Q = .02 ; % target process noise (heading rate of target)
-Q = 0.1;
+Q = .02 ; % target process noise (heading rate of target)
+%Q = 0.1;
 % PSD: (deg/s)^2 / Hz?
 
 % z(1) = leader, z(2) = follower
@@ -81,7 +81,7 @@ while(go)
     % Leader: x,y,range
     % Follower: x,y,range
     
-    readTimeout = 10;
+    readTimeout = 15;
     data = parseObservations(readTimeout);
     
     if(strcmp(data.status,'timeout'))
