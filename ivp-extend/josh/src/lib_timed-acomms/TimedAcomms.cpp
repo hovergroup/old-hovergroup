@@ -18,6 +18,8 @@ TimedAcomms::TimedAcomms() {
     m_GoodReceive = false;
     m_IgnoreReceive = false;
 
+    m_TransmitSlotLength = .2;
+
     m_LastTransmitSlot = -1;
     m_LastReceiveSlot = -1;
 
@@ -77,12 +79,20 @@ void TimedAcomms::doReadyState() {
     int transmit_slot = findPreviousSlot(m_LastRunTime, m_TransmitPeriod,
             m_TransmitOffset);
     if (transmit_slot > m_LastTransmitSlot) {
-        std::stringstream ss;
-        ss << "Beginning transmission for slot " << transmit_slot;
-        signal_updates(ss.str());
+    	double transmit_time = slot2Time(transmit_slot, m_TransmitPeriod, m_TransmitOffset);
+    	if ( m_ThisRunTime > transmit_time + m_TransmitSlotLength ) {
+            std::stringstream ss;
+            ss << "Missed transmission slot " << transmit_slot;
+            signal_updates(ss.str());
+    	} else {
+			std::stringstream ss;
+			ss << "Beginning transmission for slot " << transmit_slot;
+			signal_updates(ss.str());
+
+			signal_transmit();
+    	}
 
         m_LastTransmitSlot = transmit_slot;
-        signal_transmit();
     }
 
     // check if past receive time

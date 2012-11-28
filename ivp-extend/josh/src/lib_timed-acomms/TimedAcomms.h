@@ -58,6 +58,7 @@ private:
 
     // timing configuration
     double m_TransmitPeriod, m_TransmitOffset;
+    double m_TransmitSlotLength;
     double m_ReceivePeriod, m_ReceiveOffset;
     double m_AllowedReceivingExtension;
     double m_MaxReceivingError;
