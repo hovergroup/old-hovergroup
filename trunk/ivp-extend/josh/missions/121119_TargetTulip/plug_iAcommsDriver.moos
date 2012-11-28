@@ -12,6 +12,6 @@ ProcessConfig = iAcommsDriver
 	ID = $(ACOMMSID)
 #endif
 	
-	PSK_minipackets = false
+	PSK_minipackets = true
 	enable_ranging = true
 }
