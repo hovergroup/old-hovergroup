@@ -14,7 +14,7 @@ endif (${WIN32})
 
 SET(SRC alogParse.cpp)
 
-ADD_EXECUTABLE(alogParse ${SRC})
+ADD_EXECUTABLE(alogParseGPSTime ${SRC})
    
-TARGET_LINK_LIBRARIES(alogParse
+TARGET_LINK_LIBRARIES(alogParseGPSTime
 	)
