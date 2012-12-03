@@ -5,7 +5,7 @@
 	<projects>
 		<project>goby</project>
 		<project>MOOS</project>
-		<project>moos-ivp</project>
+		<project>MOOS-IvP</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

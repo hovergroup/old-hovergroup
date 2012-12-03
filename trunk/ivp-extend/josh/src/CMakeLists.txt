@@ -26,6 +26,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(pTargetRangeSensorSim)
 	ADD_SUBDIRECTORY(acomms_debugger)
 	ADD_SUBDIRECTORY(seglistToVector)
+	ADD_SUBDIRECTORY(extractWaypoints)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################

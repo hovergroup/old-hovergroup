@@ -92,6 +92,7 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
     }
 
     if ( m_gotSource && m_gotRange && m_gotFrames && m_gotData ) {
+        // may have to adjust to support original simulated target
         if ( m_sourceID == m_target_acomms_id ) {
             m_target_range = m_acommsRange;
             std::stringstream ss;
