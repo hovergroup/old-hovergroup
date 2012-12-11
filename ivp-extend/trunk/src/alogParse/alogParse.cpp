@@ -267,22 +267,30 @@ int main (	int argc, char *argv[] ) {
 			current_value[variables[i]] = "-1";
 			current_times[variables[i]] = -100000000;
 		}
-		for ( int i=0; i<entries.size(); i++ ) {
-			ALogEntry entry = entries[i];
-			string key = entry.getVarName();
-			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
-				last_post_time+=sync_period;
-				output << last_post_time;
-				for ( int j=0; j<variables.size(); j++ ) {
-					output << delimiter << current_value[variables[j]];
-					output << delimiter << last_post_time-current_times[variables[j]];
-				}
-				output << endl;
-			}
-			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-				current_value[key] = entry.getStringVal();
-				current_times[key] = entry.getTimeStamp();
-			}
+		ALogEntry entry = entries[0];
+        string key = entry.getVarName();
+        if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+            current_value[key] = entry.getStringVal();
+            current_times[key] = entry.getTimeStamp();
+        }
+		for ( int i=1; i<entries.size(); i++ ) {
+		    entry = entries[i];
+            if ( entry.getTimeStamp()-last_post_time > sync_period ) {
+                last_post_time+=sync_period;
+                output << last_post_time;
+                for ( int j=0; j<variables.size(); j++ ) {
+                    output << delimiter << current_value[variables[j]];
+                    output << delimiter << last_post_time-current_times[variables[j]];
+                }
+                output << endl;
+                i--;
+            } else {
+                key = entry.getVarName();
+                if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+                    current_value[key] = entry.getStringVal();
+                    current_times[key] = entry.getTimeStamp();
+                }
+            }
 		}
 	} else {
 		// sync period and full search
@@ -295,28 +303,30 @@ int main (	int argc, char *argv[] ) {
 			current_value[variables[i]] = "-1";
 			current_times[variables[i]] = -100000000;
 		}
-		for ( int i=0; i<entries.size(); i++ ) {
+		for ( int i=1; i<entries.size(); i++ ) {
 			ALogEntry entry = entries[i];
 			string key = entry.getVarName();
-			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-				current_value[key] = entry.getStringVal();
-				current_times[key] = entry.getTimeStamp();
-			}
-			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
-				last_post_time+=sync_period;
-				partials.push_back( PartialEntry(
-						variables, current_value, current_times, last_post_time ) );
-			}
-			for ( int j=0; j<partials.size(); j++ ) {
-				partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
-			}
-			if ( !partials.empty() ) {
-				while ( partials.front().checkComplete() ) {
-					output << partials.front().serialize() << endl;
-					partials.pop_front();
-					if ( partials.empty() ) break;
-				}
-			}
+            if ( entry.getTimeStamp()-last_post_time > sync_period ) {
+                last_post_time+=sync_period;
+                partials.push_back( PartialEntry(
+                        variables, current_value, current_times, last_post_time ) );
+                i--;
+            } else {
+                if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+                    current_value[key] = entry.getStringVal();
+                    current_times[key] = entry.getTimeStamp();
+                }
+                for ( int j=0; j<partials.size(); j++ ) {
+                    partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+                }
+                if ( !partials.empty() ) {
+                    while ( partials.front().checkComplete() ) {
+                        output << partials.front().serialize() << endl;
+                        partials.pop_front();
+                        if ( partials.empty() ) break;
+                    }
+                }
+            }
 		}
 		while ( !partials.empty() ) {
 			output << partials.front().serialize() << endl;
