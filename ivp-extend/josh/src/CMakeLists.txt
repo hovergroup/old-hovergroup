@@ -27,6 +27,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(acomms_debugger)
 	ADD_SUBDIRECTORY(seglistToVector)
 	ADD_SUBDIRECTORY(extractWaypoints)
+	ADD_SUBDIRECTORY(markerRelabel)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
