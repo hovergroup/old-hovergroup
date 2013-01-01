@@ -28,6 +28,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(seglistToVector)
 	ADD_SUBDIRECTORY(extractWaypoints)
 	ADD_SUBDIRECTORY(markerRelabel)
+	ADD_SUBDIRECTORY(drawTriangle)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
