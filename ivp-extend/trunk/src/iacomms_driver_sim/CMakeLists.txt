@@ -14,8 +14,8 @@ TARGET_LINK_LIBRARIES(iacomms_driver_sim
 	boost_signals
 	protobuf
 	geometry
-	MOOS
-	MOOSGen
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
 	mbutil
 	acomms_messages
 	goby_util)

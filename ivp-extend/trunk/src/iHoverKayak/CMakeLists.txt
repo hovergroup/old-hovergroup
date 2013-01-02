@@ -3,6 +3,7 @@ target_link_libraries(iHoverKayak
 	boost_system
 	boost_thread
 	boost_date_time
-	MOOS
-	MOOSGen
-	mbutil)
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
+    mbutil
+    )

@@ -8,8 +8,8 @@ FILE(GLOB SRC *.cpp)
 ADD_EXECUTABLE(pacomms_timer ${SRC})
 
 TARGET_LINK_LIBRARIES(pacomms_timer
-   MOOS
-   MOOSGen
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
    m
    pthread
    acomms_messages)

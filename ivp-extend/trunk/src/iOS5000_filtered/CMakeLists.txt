@@ -6,8 +6,8 @@
 ADD_EXECUTABLE(iOS5000_filtered CiOS5000_filtered.cpp CiOS5000_filteredMain.cpp)
    
 TARGET_LINK_LIBRARIES(iOS5000_filtered
-   MOOS
-   MOOSGen
-   anrp_util
+    mbutil
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
    m
    pthread)

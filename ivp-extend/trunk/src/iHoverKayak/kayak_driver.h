@@ -2,7 +2,7 @@
 #define __SERIAL_H
 
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>

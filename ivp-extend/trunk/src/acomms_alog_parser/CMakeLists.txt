@@ -27,6 +27,7 @@ TARGET_LINK_LIBRARIES(acomms_alog_parser
   boost_system
   boost_filesystem
   boost_date_time
-  MOOSGen
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
   acomms_messages
   ${SYSTEM_LIBS})

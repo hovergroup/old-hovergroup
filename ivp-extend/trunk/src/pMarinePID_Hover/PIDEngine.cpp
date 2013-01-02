@@ -28,7 +28,7 @@
 #include "PIDEngine.h"
 #include "MBUtils.h"
 #include "AngleUtils.h"
-#include "MOOSGenLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 
 using namespace std;
 
