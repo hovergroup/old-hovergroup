@@ -3,6 +3,6 @@ target_link_libraries(iOS5000_Hover
 	boost_system
 	boost_thread
 	boost_date_time
-	MOOS
-	MOOSGen
-	mbutil)
+	mbutil
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES})

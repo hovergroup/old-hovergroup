@@ -21,7 +21,7 @@
 /*****************************************************************/
 
 #include <string>
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <string.h>
 
 class PokeDB : public CMOOSApp  

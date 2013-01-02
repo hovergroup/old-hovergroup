@@ -11,5 +11,7 @@ ADD_LIBRARY(JoshUtils SHARED
 TARGET_LINK_LIBRARIES(JoshUtils
   boost_system
 	boost_filesystem
-	mbutil
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
+    mbutil
    )

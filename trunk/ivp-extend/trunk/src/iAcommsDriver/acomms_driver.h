@@ -9,7 +9,7 @@
 #ifndef acomms_driver_HEADER
 #define acomms_driver_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "goby/acomms/modem_driver.h"
 #include "goby/acomms/protobuf/mm_driver.pb.h"
 #include "goby/util/binary.h"

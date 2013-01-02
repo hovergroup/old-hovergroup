@@ -15,7 +15,7 @@ using namespace std;
 #include <google/protobuf/text_format.h>
 #include "LogUtils.h"
 #include "MBUtils.h"
-#include "ProcessConfigReader.h"
+#include "MOOS/libMOOS/Utils/ProcessConfigReader.h"
 #include <stdio.h>
 #include <vector>
 #include <time.h>

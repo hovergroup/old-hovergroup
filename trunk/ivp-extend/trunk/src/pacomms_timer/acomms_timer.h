@@ -8,7 +8,7 @@
 #ifndef acomms_timer_HEADER
 #define acomms_timer_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <sstream>
 #include <acomms_messages.h>
 

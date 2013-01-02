@@ -8,7 +8,7 @@
 #ifndef acomms_driver_sim_HEADER
 #define acomms_driver_sim_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "goby/acomms/modem_driver.h"
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"

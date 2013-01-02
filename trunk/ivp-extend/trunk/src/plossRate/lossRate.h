@@ -8,7 +8,7 @@
 #ifndef lossRate_HEADER
 #define lossRate_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <acomms_messages.h>
 #include <map>
 #include <vector>

@@ -6,8 +6,7 @@
 /************************************************************/
 
 #include <string>
-#include "MOOSLib.h"
-#include "MOOSGenLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "acomms_driver.h"
 
 using namespace std;

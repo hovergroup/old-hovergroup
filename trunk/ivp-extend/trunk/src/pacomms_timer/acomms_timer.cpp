@@ -147,7 +147,7 @@ bool acomms_timer::Iterate()
 			else if(mode=="switchtransmit"){
 
 				if(rate==2){
-					m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0);
+					m_Comms.Notify("ACOMMS_TRANSMIT_RATE",0.0);
 					std::stringstream ss;
 					ss << counter;
 					data_out = ss.str()+"---"+getRandomString(getPacketSize(rate));

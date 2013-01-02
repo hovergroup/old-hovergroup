@@ -1,15 +1,15 @@
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <fstream>
 
-#include "MOOSGeodesy.h"
-#include "MOOSInstrument.h"
+#include "MOOS/libMOOSGeodesy/MOOSGeodesy.h"
+#include "MOOS/libMOOS/App/MOOSInstrument.h"
 
 class SIMPLE_GPS: public CMOOSInstrument {
 public:

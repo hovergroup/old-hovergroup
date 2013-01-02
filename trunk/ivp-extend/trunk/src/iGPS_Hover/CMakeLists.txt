@@ -3,7 +3,7 @@ target_link_libraries(iGPS_Hover
 	boost_system
 	boost_thread
 	boost_date_time
-	MOOS
-	MOOSGen
-    MOOSUtility
-	mbutil)
+	mbutil
+	${MOOSGeodesy_LIBRARIES}
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES})

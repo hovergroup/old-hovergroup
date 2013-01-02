@@ -3,6 +3,6 @@ target_link_libraries(iAltimeter
 	boost_system
 	boost_thread
 	boost_date_time
-	MOOS
-	MOOSGen
-	mbutil)
+	mbutil
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES})
