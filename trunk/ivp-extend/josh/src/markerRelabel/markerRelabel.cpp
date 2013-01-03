@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    if ( std::string(argv[1]).find("ICARUS",0) != std::string::npos ) {
+    if ( std::string(argv[1]).find("icarus",0) != std::string::npos ) {
         icarus = true;
     }
 
@@ -83,21 +83,23 @@ int main(int argc, char *argv[]) {
                     int index1 = msg.find("msg=",0);
                     msg = msg.substr(0,index1+10);
 
+                    MOOSChomp(msg, "x=");
+                    std::string sline = MOOSChomp(msg,",y=");
+                    target_x = atof(sline.c_str())+4;
+                    sline = MOOSChomp(msg,",");
+                    target_y = atof(sline.c_str())+5;
+
+                    std::stringstream ss;
+                    ss << "type=diamond,label=target,msg=target,x=" << target_x <<",y=" << target_y<<",color=orange";
                     ALogEntry new_entry;
                     new_entry.set(
                             entry.getTimeStamp(),
                             "VIEW_MARKER",
                             entry.getSource(),
                             entry.getSrcAux(),
-                            msg);
+                            ss.str());
 
                     new_data.push_back(new_entry);
-
-                    MOOSChomp(msg, "x=");
-                    std::string sline = MOOSChomp(msg,",y=");
-                    target_x = atof(sline.c_str())+4;
-                    sline = MOOSChomp(msg,",");
-                    target_y = atof(sline.c_str())+5;
 
                     std::cout << "target: " << target_x << ", " << target_y << std::endl;
                 } else if ( msg.find("label=estimate", 0) != std::string::npos ) {
@@ -150,9 +152,9 @@ int main(int argc, char *argv[]) {
                 if ( msg.find("label=target", 0) != std::string::npos ) {
                     MOOSChomp(msg, "x=");
                     std::string sline = MOOSChomp(msg,",y=");
-                    target_x = atof(sline.c_str());
+                    target_x = atof(sline.c_str())+4;
                     sline = MOOSChomp(msg,",");
-                    target_y = atof(sline.c_str());
+                    target_y = atof(sline.c_str())+5;
 
                     std::cout << "target: " << target_x << ", " << target_y << std::endl;
 
