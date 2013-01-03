@@ -8,7 +8,7 @@
 #ifndef Tulip26bit_HEADER
 #define Tulip26bit_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "TimedAcomms.h"
 #include "goby/acomms/connect.h"
 #include "RangeSensorTypes.h"

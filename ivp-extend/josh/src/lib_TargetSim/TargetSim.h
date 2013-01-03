@@ -6,7 +6,7 @@
  */
 
 #include <string>
-#include <MOOSLib.h>
+#include <MOOS/libMOOS/MOOSLib.h>
 
 #ifndef TARGETSIM_H_
 #define TARGETSIM_H_

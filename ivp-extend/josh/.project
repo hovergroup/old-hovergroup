@@ -5,8 +5,9 @@
 	<projects>
 		<project>goby</project>
 		<project>hovergroup</project>
-		<project>MOOS</project>
 		<project>MOOS-IvP</project>
+		<project>MOOSCore</project>
+		<project>MOOSGeodesy</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

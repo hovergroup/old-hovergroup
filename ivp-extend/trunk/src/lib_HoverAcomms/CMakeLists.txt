@@ -6,6 +6,13 @@
 #--------------------------------------------------------
 #                                      BHV_SimpleWaypoint
 #--------------------------------------------------------
-ADD_LIBRARY(RangeSensorTypes SHARED
-   RangeSensorTypes.cpp)
-TARGET_LINK_LIBRARIES(RangeSensorTypes)
+ADD_LIBRARY(HoverAcomms SHARED
+   HoverAcomms.cpp)
+TARGET_LINK_LIBRARIES(HoverAcomms
+    goby_common
+    goby_acomms
+    protobuf
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
+    mbutil
+   )

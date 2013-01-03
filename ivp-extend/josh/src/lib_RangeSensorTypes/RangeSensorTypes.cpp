@@ -6,7 +6,7 @@
  */
 
 #include "RangeSensorTypes.h"
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 
 using namespace RangeSensorTypes;
 

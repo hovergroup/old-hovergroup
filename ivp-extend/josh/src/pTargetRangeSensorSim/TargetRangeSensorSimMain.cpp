@@ -6,8 +6,7 @@
 /************************************************************/
 
 #include <string>
-#include "MOOSLib.h"
-#include "MOOSGenLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "TargetRangeSensorSim.h"
 
 using namespace std;

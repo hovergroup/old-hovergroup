@@ -38,15 +38,15 @@ void Tulip26bit::onGoodReceive_leader( const std::string data ) {
 	m_Comms.Notify("FOLLOWER_X", received_x);
 	m_Comms.Notify("FOLLOWER_Y", received_y);
 	publishLeaderPos();
-    m_Comms.Notify("FOLLOWER_PACKET",1);
+    m_Comms.Notify("FOLLOWER_PACKET",1.0);
 }
 
 void Tulip26bit::onBadReceive_leader() {
     publishLeaderPos();
-    m_Comms.Notify("FOLLOWER_PACKET",0);
-    m_Comms.Notify("FOLLOWER_X", 0);
-    m_Comms.Notify("FOLLOWER_Y", 0);
-    m_Comms.Notify("FOLLOWER_RANGE_BIN", -1);
+    m_Comms.Notify("FOLLOWER_PACKET",0.0);
+    m_Comms.Notify("FOLLOWER_X", 0.0);
+    m_Comms.Notify("FOLLOWER_Y", 0.0);
+    m_Comms.Notify("FOLLOWER_RANGE_BIN", -1.0);
 }
 
 void Tulip26bit::publishLeaderPos() {
