@@ -8,7 +8,7 @@
 #ifndef TargetRangeSensorSim_HEADER
 #define TargetRangeSensorSim_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "RangeSensorTypes.h"
 #include "math.h"
 #include "TargetSim.h"

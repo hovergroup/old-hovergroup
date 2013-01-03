@@ -13,6 +13,4 @@ geometry
   boost_system
 	boost_filesystem 
 	MOOS
-	MOOSGen
-    MOOSUtility 
    mbutil)

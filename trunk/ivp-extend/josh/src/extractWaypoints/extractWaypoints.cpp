@@ -13,7 +13,7 @@ using namespace std;
 #include <fstream>
 #include <map>
 //#include "MBUtils.h"
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "XYVector.h"
 //#include "LogUtils.h"
 

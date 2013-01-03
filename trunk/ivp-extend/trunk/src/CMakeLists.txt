@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 # libraries
 ADD_SUBDIRECTORY(lib_acomms_messages)
 ADD_SUBDIRECTORY(lib_JoshUtils)
+ADD_SUBDIRECTORY(lib_HoverAcomms)
 
 # programs
 ADD_SUBDIRECTORY(pMarinePID_Hover)

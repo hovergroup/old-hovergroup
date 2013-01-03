@@ -9,7 +9,6 @@ ADD_EXECUTABLE(pTargetRangeSensorSim ${SRC})
 
 TARGET_LINK_LIBRARIES(pTargetRangeSensorSim
    MOOS
-   MOOSGen
    m
    pthread
    RangeSensorTypes

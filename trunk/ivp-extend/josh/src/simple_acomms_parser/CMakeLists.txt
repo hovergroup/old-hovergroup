@@ -27,6 +27,5 @@ TARGET_LINK_LIBRARIES(simple_acomms_parser_josh
 	boost_system
 	boost_filesystem
 	boost_date_time
-	MOOSGen
 	acomms_messages
 	${SYSTEM_LIBS} )

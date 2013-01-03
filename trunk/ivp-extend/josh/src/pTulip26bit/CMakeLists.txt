@@ -9,7 +9,6 @@ ADD_EXECUTABLE(pTulip26bit ${SRC})
 
 TARGET_LINK_LIBRARIES(pTulip26bit
    MOOS
-   MOOSGen
    m
    pthread
    TimedAcomms

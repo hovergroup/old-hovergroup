@@ -13,6 +13,4 @@ TARGET_LINK_LIBRARIES(extractWaypoints
 	boost_system
 	boost_filesystem 
 	MOOS
-	MOOSGen
-	MOOSUtility 
 	mbutil)
