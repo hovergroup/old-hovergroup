@@ -95,9 +95,9 @@ int main(int argc, char *argv[]) {
 
                     MOOSChomp(msg, "x=");
                     std::string sline = MOOSChomp(msg,",y=");
-                    target_x = atof(sline.c_str());
+                    target_x = atof(sline.c_str())+4;
                     sline = MOOSChomp(msg,",");
-                    target_y = atof(sline.c_str());
+                    target_y = atof(sline.c_str())+5;
 
                     std::cout << "target: " << target_x << ", " << target_y << std::endl;
                 } else if ( msg.find("label=estimate", 0) != std::string::npos ) {
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
             "NAV_Y",
             "josh",
             "josh",
-            1000);
+            10001);
     new_data.insert(new_data.begin(), new_entry);
 
     fclose(logfile);
