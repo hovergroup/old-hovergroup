@@ -24,9 +24,6 @@ acomms_driver::acomms_driver()
     port_name = "/dev/ttyUSB0";
     my_name = "default_name";
 
-	transmission_rate = 0;
-	transmission_dest = 0;
-
 	receive_set_time = 0;
 	status_set_time = 0;
 
@@ -55,20 +52,18 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
       string key = msg.GetKey();
 
       if ( key == "ACOMMS_TRANSMIT_RATE" ) {
-    	  // set transmission rate
-    	  transmission_rate = (int) msg.GetDouble();
+    	  if (!m_transmission.setRate(msg.GetDouble())) {
+    		  publishWarning("Transmit rate not supported.");
+    	  }
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
-    	  // set transmission destination
-    	  transmission_dest = (int) msg.GetDouble();
+    	  m_transmission.setDest(msg.GetDouble());
       } else if ( key == "ACOMMS_TRANSMIT_DATA" &&
     		  msg.GetSource() != GetAppName() ) {
-    	  // transmission data, excluding our own
-    	  transmission_data = msg.GetString();
+    	  m_transmission.fillData(msg.GetString());
     	  new_transmit = true;
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" &&
     		  msg.GetSource() != GetAppName() ) {
-    	  // transmission data, excluding our own
-    	  transmission_data = msg.GetString();
+    	  m_transmission.fillData(msg.GetString());
     	  new_transmit = true;
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized && connect_complete ) {
     	  // get log directory from plogger that we will also use
@@ -77,6 +72,9 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  m_navx = msg.GetDouble();
       } else if ( key == "NAV_Y" ) {
     	  m_navy = msg.GetDouble();
+      } else if ( key == "ACOMMS_TRANSMIT" ){
+    	  m_transmission.parseFromString(msg.GetString());
+    	  new_transmit=true;
       }
    }
 
@@ -95,6 +93,7 @@ void acomms_driver::RegisterVariables() {
     m_Comms.Register( "LOGGER_DIRECTORY", 1 );
     m_Comms.Register( "NAV_X", 1 );
     m_Comms.Register( "NAV_Y", 1 );
+    m_Comms.Register( "ACOMMS_TRANSMIT", 0 );
 }
 
 //---------------------------------------------------------
@@ -114,6 +113,7 @@ bool acomms_driver::OnConnectToServer()
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
    m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
+   m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
 
    RegisterVariables();
 
@@ -142,8 +142,8 @@ bool acomms_driver::Iterate()
 
 	// transmit status timeout
 	double transmit_timeout;
-	switch ( transmission_rate ) {
-	case 100:
+	switch ( m_transmission.getRate() ) {
+	case HoverAcomms::MINI:
 		transmit_timeout = 2;
 		break;
 	default:
@@ -171,48 +171,6 @@ bool acomms_driver::OnStartUp()
 	return(true);
 }
 
-// pack data into frames
-vector<unsigned char> acomms_driver::packMessage( int max_frames, int frame_size,
-		goby::acomms::protobuf::ModemTransmission * msg ) {
-	vector<unsigned char> packed_data;
-
-	// something's wrong
-	if ( transmission_data.size()==0 || max_frames<=0 || frame_size<=0 ) {
-		publishWarning("Fatal error in call to packMessage.");
-		exit(1);
-		return packed_data;
-	}
-
-	// just a single frame
-	if ( transmission_data.size() <= frame_size ) {
-		msg->add_frame( transmission_data.data(), transmission_data.size() );
-		packed_data = vector<unsigned char> (transmission_data.size(), 0);
-		memcpy( &packed_data[0], transmission_data.data(), transmission_data.size() );
-	} else { // multiple frames
-		int filled_size = 0;
-		// pack in full frames
-		while ( transmission_data.size() > frame_size && msg->frame_size()<max_frames ) {
-			msg->add_frame( transmission_data.data(), frame_size );
-			transmission_data = transmission_data.substr( frame_size,
-					transmission_data.size()-frame_size );
-			filled_size+=frame_size;
-		}
-		// fill up last frame or use remaining data
-		if ( transmission_data.size()>0 && msg->frame_size()<max_frames ) {
-			int leftover = min( frame_size, (int) transmission_data.size() );
-			msg->add_frame( transmission_data.data(), leftover );
-			filled_size+=leftover;
-		}
-		// copy out what made it in
-		packed_data = vector<unsigned char> (filled_size, 0);
-		for ( int i=0; i<msg->frame_size(); i++ ) {
-			memcpy( &packed_data[i*frame_size], msg->frame(i).data(), msg->frame(i).size() );
-		}
-	}
-	transmission_data == "";
-	return packed_data;
-}
-
 // new data transmission
 void acomms_driver::transmit_data() {
 	// check driver status
@@ -222,85 +180,8 @@ void acomms_driver::transmit_data() {
 	}
 
 	// check that we have transmission data
-	if ( transmission_data.size() == 0 ) {
+	if ( m_transmission.getData().size() == 0 ) {
 		publishWarning("No transmission data");
-		return;
-	}
-
-	// construct new goby modem transmission
-	goby::acomms::protobuf::ModemTransmission transmit_message;
-
-	// set transmission type
-	if ( transmission_rate == 100 ) {
-		// send mini data transmission
-		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
-		transmit_message.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
-	} else {
-		// send normal fsk or psk
-		transmit_message.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
-		transmit_message.set_rate( transmission_rate );
-	}
-
-	// set source to be our id
-	transmit_message.set_src(goby::util::as<unsigned>(my_id));
-
-	// set tranmission destination, 0 is broadcast
-	if ( transmission_dest == 0 )
-		transmit_message.set_dest(goby::acomms::BROADCAST_ID);
-	else
-		transmit_message.set_dest( transmission_dest );
-
-	// pack in data based on transmission type
-	// transmitted_data = packMessage(num_frames, frame_size, ModemTransmission)
-	vector<unsigned char> transmitted_data;
-	switch ( transmission_rate ) {
-	case 0:
-		transmitted_data = packMessage(1, 32, &transmit_message);
-		break;
-
-	case 1:
-		transmitted_data = packMessage(3, 64, &transmit_message);
-		break;
-
-	case 2:
-		transmitted_data = packMessage(3, 64, &transmit_message);
-		break;
-
-	case 3:
-		transmitted_data = packMessage(2, 256, &transmit_message);
-		break;
-
-	case 4:
-		transmitted_data = packMessage(2, 256, &transmit_message);
-		break;
-
-	case 5:
-		transmitted_data = packMessage(8, 256, &transmit_message);
-		break;
-
-	case 6:
-		transmitted_data = packMessage(6, 32, &transmit_message);
-		break;
-
-	case 100:
-        // if mini packet, just take up to the first two bytes
-        // truncating done in goby
-        if ( transmission_data.size() == 1 ) {
-                char filler = 0x00;
-                transmission_data.insert(0,&filler, 1);
-                publishWarning("Only passed one byte for minipacket, packing with 0x00.");
-        }
-        transmit_message.add_frame( transmission_data.data(), 2 );
-        transmit_message.mutable_frame(0)->at(0) &= 0x1f;
-        transmitted_data = vector<unsigned char> (2,0);
-        memcpy( &transmitted_data[0], transmit_message.frame(0).data(), 2 );
-        break;
-
-	default:
-		stringstream ss;
-		ss << "Requested rate " << transmission_rate << " is not supported.";
-		publishWarning(ss.str());
-		// unhandled rate
 		return;
 	}
 
@@ -309,28 +190,14 @@ void acomms_driver::transmit_data() {
 	transmit_set_time = MOOSTime();
 	driver_ready = false;
 
-	// ack not requested
-	transmit_message.set_ack_requested(false);
+	goby::acomms::protobuf::ModemTransmission trans = m_transmission.getProtobuf();
 
-	// send transmission to modem
-	driver->handle_initiate_transmission( transmit_message );
+	trans.set_ack_requested(false);
 
-	// publish transmit information to moosdb
-    lib_acomms_messages::SIMPLIFIED_TRANSMIT_INFO transmit_info;
-    transmit_info.vehicle_name = my_name;
-    transmit_info.rate = transmission_rate;
-    transmit_info.dest = transmit_message.dest();
-    transmit_info.num_frames = transmit_message.frame_size();
-    m_Comms.Notify("ACOMMS_TRANSMIT_SIMPLE", transmit_info.serializeToString());
+	driver->handle_initiate_transmission( trans );
 
-    // publish transmitted data in hexadecimal format
-    stringstream ss;
-    for ( int i=0; i<transmitted_data.size(); i++ ) {
-    	ss << hex << (int) transmitted_data[i];
-		if ( i < transmitted_data.size()-1 )
-			ss << ":";
-    }
-    m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", ss.str() );
+    m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
+    m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
 
     // post transmission range pulse
     postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );

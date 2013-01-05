@@ -96,17 +96,23 @@ public:
 	AcommsTransmission(std::string data, Rate rate, int dest=0);
 
 	std::string Serialize() { return m_protobuf.SerializeAsString(); }
-	bool parseFromString(std::string & msg);
+	bool parseFromString(std::string msg);
 
-	void setRate(Rate r);
+	std::string getLoggableString() const;
+
+	bool setRate(Rate r);
+	bool setRate(int r);
 	void setDest(int d) { m_protobuf.set_dest(d); }
 
 	int fillData(char * data, int length);
 	int fillData(std::string data);
+	std::string getHexData() const;
 
 	std::string 	getData() const	{ return m_data; }
 	Rate 			getRate() const	{ return m_rate; }
 	int				getDest() const { return m_protobuf.dest(); }
+
+	const goby::acomms::protobuf::ModemTransmission & getProtobuf() const {return m_protobuf;}
 
 protected:
 	goby::acomms::protobuf::ModemTransmission m_protobuf;
@@ -117,6 +123,8 @@ protected:
 
 	int frameSize() { return FrameSizeMap.find(m_rate)->second; }
 	int frameCount() { return FrameCountMap.find(m_rate)->second; }
+
+	Rate reverseRate(int i) const { return ReverseRateMap.find(i)->second; }
 };
 
 };
