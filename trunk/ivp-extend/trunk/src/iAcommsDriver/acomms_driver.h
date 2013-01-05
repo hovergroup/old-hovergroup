@@ -16,6 +16,7 @@
 #include "goby/common/logger.h"
 #include "goby/acomms/connect.h"
 #include "XYRangePulse.h"
+#include "HoverAcomms.h"
 
 class acomms_driver : public CMOOSApp
 {
@@ -41,16 +42,9 @@ protected:
 	static const double receive_pulse_duration = 2;
 	double m_navx, m_navy;
 
-	// data for transmissions
-	int transmission_rate, transmission_dest;
-	std::string transmission_data;
-
 	goby::acomms::ModemDriverBase* driver;
 	goby::acomms::protobuf::DriverConfig cfg;
 
-	// construct and transmit message
-	std::vector<unsigned char> packMessage( int max_frames, int frame_size,
-			goby::acomms::protobuf::ModemTransmission * msg );
 	void transmit_data();
 
 	// on incoming receptions
@@ -76,6 +70,8 @@ protected:
 	bool file_exists( std::string filename );
 
 	std::ofstream verbose_log;
+
+	HoverAcomms::AcommsTransmission m_transmission;
 };
 
 #endif 

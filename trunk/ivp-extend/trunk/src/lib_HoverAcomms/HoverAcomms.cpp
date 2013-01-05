@@ -9,7 +9,7 @@
 
 using namespace HoverAcomms;
 
-void AcommsTransmission::setRate(Rate r) {
+bool AcommsTransmission::setRate(Rate r) {
 	m_rate = r;
 	if (r==MINI) {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
@@ -18,6 +18,22 @@ void AcommsTransmission::setRate(Rate r) {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 		m_protobuf.set_rate(r);
 	}
+	return true;
+}
+
+bool AcommsTransmission::setRate(int r) {
+	if (r == 100) {
+		m_rate = MINI;
+		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
+		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
+	} else if (r<0 || r>6) {
+		return false;
+	} else {
+		m_rate = reverseRate(r);
+		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
+		m_protobuf.set_rate(m_rate);
+	}
+	return true;
 }
 
 // pack data into frames
@@ -71,13 +87,31 @@ int AcommsTransmission::fillData(std::string data) {
 	}
 }
 
+std::string AcommsTransmission::getLoggableString() const {
+	std::string publish_me = m_protobuf.DebugString();
+	while (publish_me.find("\n") != std::string::npos) {
+		publish_me.replace(publish_me.find("\n"), 1, "<|>");
+	}
+	return publish_me;
+}
+
+std::string AcommsTransmission::getHexData() const {
+    std::stringstream ss;
+    for ( int i=0; i<m_data.size(); i++ ) {
+    	ss << std::hex << (int) m_data[i];
+		if ( i < m_data.size()-1 )
+			ss << ":";
+    }
+    return ss.str();
+}
+
 AcommsTransmission::AcommsTransmission(std::string data, Rate rate, int dest) {
 	setDest(dest);
 	setRate(rate);
 	fillData(data);
 }
 
-bool AcommsTransmission::parseFromString(std::string & msg) {
+bool AcommsTransmission::parseFromString(std::string msg) {
 	m_protobuf.Clear();
 	return m_protobuf.ParseFromString(msg);
 }
