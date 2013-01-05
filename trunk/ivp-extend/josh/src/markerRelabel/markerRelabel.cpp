@@ -192,13 +192,35 @@ int main(int argc, char *argv[]) {
 
             if ( pulses > 5 ) pulses=0;
 
+            std::string s = msg;
+            std::string sline = MOOSChomp(s,"x=");
+            sline = MOOSChomp(s,",y=");
+            double x = atof(sline.c_str());
+            sline = MOOSChomp(s,",");
+            double y = atof(sline.c_str());
+
             ALogEntry new_entry;
-            new_entry.set(
-                    entry.getTimeStamp(),
-                    "VIEW_RANGE_PULSE",
-                    entry.getSource(),
-                    entry.getSrcAux(),
-                    msg);
+            if ((fabs(x+4-target_x) < 2.0) && (fabs(y+5-target_y) < 2.0)) {
+            	x+=4;
+            	y+=5;
+            	std::stringstream ss1;
+            	ss1 << "x=" << x << ",y=" << y << "," << s;
+				new_entry.set(
+						entry.getTimeStamp(),
+						"VIEW_RANGE_PULSE",
+						entry.getSource(),
+						entry.getSrcAux(),
+						ss1.str());
+				std::cout << ss1.str() << std::endl;
+            } else {
+
+				new_entry.set(
+						entry.getTimeStamp(),
+						"VIEW_RANGE_PULSE",
+						entry.getSource(),
+						entry.getSrcAux(),
+						msg);
+            }
 
             new_data.push_back(new_entry);
 

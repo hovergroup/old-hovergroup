@@ -63,8 +63,8 @@ int main(int argc, char *argv[]) {
 
         if ( key == "VIEW_MARKER" ) {
             if ( msg.find("label=target", 0) != std::string::npos ) {
-                int index1 = msg.find("msg=",0);
-                msg = msg.substr(0,index1+10);
+//                int index1 = msg.find("msg=",0);
+//                msg = msg.substr(0,index1+10);
 
                 ALogEntry new_entry;
                 new_entry.set(
