@@ -1,11 +1,14 @@
-// MOOS file
 
-ServerHost = localhost
-ServerPort = 9000
 
-ProcessConfig = iacomms_driver
+ProcessConfig = iAcommsDriver
 {
-   AppTick   = 4
-   CommsTick = 4
-}
+    AppTick = 5
+    IterateMode = 0 // regular iterate and mail
 
+    PortName = /dev/ttyUSB0
+    ID = 1
+    
+    PSK_minipackets = false
+    enable_ranging = false
+    show_range_pulses = true
+}

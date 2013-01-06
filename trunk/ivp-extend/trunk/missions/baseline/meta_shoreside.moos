@@ -12,14 +12,14 @@ Processconfig = ANTLER
 {
 	MSBetweenLaunches = 200
 
-	Run = MOOSDB          @ NewConsole = false
-	Run = pMOOSBridge     @ NewConsole = false
-	Run = pMarineViewer   @ NewConsole = false
-	Run = pLogger         @ NewConsole = false
-	Run = pHostInfo       @ NewConsole = false
-	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
-	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
-  	Run = uFldMessageHandler @ NewConsole = false
+	Run = MOOSDB               @ NewConsole = false
+	Run = pShare               @ NewConsole = false
+	Run = pMarineViewer        @ NewConsole = false
+	//Run = pLogger              @ NewConsole = false
+	Run = pHostInfo            @ NewConsole = false
+	Run = uFldShoreBroker      @ NewConsole = false,XConfig=2
+	Run = uFldNodeComms        @ NewConsole = false,XConfig=1
+  	Run = uFldMessageHandler   @ NewConsole = false
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
@@ -34,7 +34,7 @@ Processconfig = ANTLER
 ProcessConfig = uFldShoreBroker
 {
   AppTick       = 1
-  CommsTick     = 1
+  IterateMode = 0
 
   QBRIDGE  = MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, GOTO_UPDATES
   QBRIDGE  = NODE_REPORT, NODE_MESSAGE
@@ -43,13 +43,14 @@ ProcessConfig = uFldShoreBroker
 }
 
 //--------------------------------------------------------
-ProcessConfig = pMOOSBridge
+ProcessConfig = pShare
 {
-  AppTick   = 4
-  CommsTick = 4
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
 
-  UDPListen = $(SLPORT)
-  BridgeFrequency = 0  
+  input = route =  localhost:$(SLPORT)
+  //input = route =  192.168.197.139:9001
 }
 
 //--------------------------------------------------

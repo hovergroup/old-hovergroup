@@ -23,8 +23,10 @@ iOS5000_Hover::iOS5000_Hover() : port(io), timeout(io) {
 
 	current_x_estimate = 0;
 	current_y_estimate = 0;
-	update_fraction = 1;
+	filter_constant = 1;
 	prerotation = 0;
+
+	last_msg_time = 0;
 }
 
 //---------------------------------------------------------
@@ -48,7 +50,7 @@ bool iOS5000_Hover::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("Speed", my_baud_rate);
 	m_MissionReader.GetConfigurationParam("Port", my_port_name);
 	m_MissionReader.GetConfigurationParam("PreRotation", prerotation);
-	m_MissionReader.GetConfigurationParam("UpdateFraction", update_fraction);
+	m_MissionReader.GetConfigurationParam("FilterTimeConstant", filter_constant);
 
 	RegisterVariables();
 
@@ -165,10 +167,14 @@ void iOS5000_Hover::processLine( double heading, double pitch, double roll, doub
 
 	m_Comms.Notify("COMPASS_HEADING_UNFILTERED", heading);
 
+	double dT = MOOSTime() - last_msg_time;
+	last_msg_time = MOOSTime();
+	double alpha = 1.0/(1.0 + filter_constant/dT);
+
 	double new_x = sin( heading*M_PI/180.0 );
 	double new_y = cos( heading*M_PI/180.0 );
-	current_x_estimate = update_fraction*new_x + (1-update_fraction)*current_x_estimate;
-	current_y_estimate = update_fraction*new_y + (1-update_fraction)*current_y_estimate;
+	current_x_estimate = alpha*new_x + (1-alpha)*current_x_estimate;
+	current_y_estimate = alpha*new_y + (1-alpha)*current_y_estimate;
 	double heading_estimate = atan2(current_x_estimate, current_y_estimate) * 180.0/M_PI;
 
 	while (heading_estimate>360) heading_estimate-=360.0;

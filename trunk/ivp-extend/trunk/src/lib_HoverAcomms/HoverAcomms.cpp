@@ -39,7 +39,6 @@ bool AcommsTransmission::setRate(int r) {
 // pack data into frames
 void AcommsTransmission::packMessage(std::string data) {
 	m_protobuf.clear_frame();
-	m_data.clear();
 
 	int frame_size = frameSize();
 	int frame_count = frameCount();
@@ -47,7 +46,6 @@ void AcommsTransmission::packMessage(std::string data) {
 	// just a single frame
 	if ( data.size() <= frame_size ) {
 		m_protobuf.add_frame(data);
-		m_data = data;
 	} else { // multiple frames
 		int filled_size = 0;
 		// pack in full frames
@@ -60,34 +58,30 @@ void AcommsTransmission::packMessage(std::string data) {
 			int leftover = std::min(frame_size, (int) data.size());
 			m_protobuf.add_frame(data.data(), leftover);
 		}
-
-		for (int i=0; i<m_protobuf.frame_size(); i++) {
-			m_data += m_protobuf.frame(i);
-		}
 	}
 }
 
-int AcommsTransmission::fillData(char * data, int length) {
+int AcommsTransmission::fillData(const char * data, int length) {
 	return fillData(std::string(data, length));
 }
 
-int AcommsTransmission::fillData(std::string data) {
+int AcommsTransmission::fillData(const std::string & data) {
 	if (m_rate==MINI) {
-		if (data.size()==1) {
+		std::string data_copy = data;
+		if (data_copy.size()==1) {
 			char filler = 0x00;
-			data.insert(0,&filler,1);
+			data_copy.insert(0,&filler,1);
 		}
-		m_protobuf.add_frame(data.data(),2);
+		m_protobuf.add_frame(data_copy.data(),2);
 		m_protobuf.mutable_frame(0)->at(0) &= 0x1f;
-		m_data = m_protobuf.frame(0);
 		return 2;
 	} else {
 		packMessage(data);
-		return m_data.size();
+		return getData().size();
 	}
 }
 
-std::string AcommsTransmission::getLoggableString() const {
+std::string AcommsBase::getLoggableString() const {
 	std::string publish_me = m_protobuf.DebugString();
 	while (publish_me.find("\n") != std::string::npos) {
 		publish_me.replace(publish_me.find("\n"), 1, "<|>");
@@ -95,11 +89,20 @@ std::string AcommsTransmission::getLoggableString() const {
 	return publish_me;
 }
 
-std::string AcommsTransmission::getHexData() const {
+std::string AcommsBase::getData() const {
+	std::string s;
+	for (int i=0; i<getNumFrames(); i++) {
+		s += m_protobuf.frame(i);
+	}
+	return s;
+}
+
+std::string AcommsBase::getHexData() const {
     std::stringstream ss;
-    for ( int i=0; i<m_data.size(); i++ ) {
-    	ss << std::hex << (int) m_data[i];
-		if ( i < m_data.size()-1 )
+    std::string data = getData();
+    for ( int i=0; i<data.size(); i++ ) {
+    	ss << std::hex << (int) data[i];
+		if ( i < data.size()-1 )
 			ss << ":";
     }
     return ss.str();
@@ -111,17 +114,12 @@ AcommsTransmission::AcommsTransmission(std::string data, Rate rate, int dest) {
 	fillData(data);
 }
 
-bool AcommsTransmission::parseFromString(std::string msg) {
+bool AcommsBase::parseFromString(const std::string & msg) {
 	m_protobuf.Clear();
 	return m_protobuf.ParseFromString(msg);
 }
 
-bool AcommsReception::parseFromString(std::string & msg) {
-	m_protobuf.Clear();
-	return m_protobuf.ParseFromString(msg);
-}
-
-void AcommsReception::copyFromProtobuf(goby::acomms::protobuf::ModemTransmission & proto) {
+void AcommsBase::copyFromProtobuf(const goby::acomms::protobuf::ModemTransmission & proto) {
 	m_protobuf.Clear();
 	m_protobuf.CopyFrom(proto);
 }
@@ -181,9 +179,27 @@ std::string AcommsReception::getFrame(unsigned int i) const {
 		return m_protobuf.frame(i);
 }
 
+ReceiptStatus AcommsReception::getStatus() const {
+	if (getNumFrames()>0 && getNumBadFrames()<getNumFrames()) {
+		return PARTIAL;
+	} else if (getNumFrames()>0 && getNumBadFrames()==0) {
+		return GOOD;
+	} else {
+		return BAD;
+	}
+}
+
+std::string AcommsReception::getBadFrameListing() const {
+	std::stringstream ss;
+	for (int i=0; i<getNumBadFrames(); i++) {
+		ss << m_protobuf.GetExtension(micromodem::protobuf::frame_with_bad_crc,i);
+		if (i<getNumBadFrames()-1) ss << ",";
+	}
+	return ss.str();
+}
+
 bool AcommsReception::frameOkay(unsigned int i) const {
-	int numbad = m_protobuf.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
-	for (int j=0; j<numbad; j++) {
+	for (int j=0; j<getNumBadFrames(); j++) {
 		if (i == m_protobuf.GetExtension(micromodem::protobuf::frame_with_bad_crc, j))
 			return false;
 	}

@@ -29,6 +29,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(extractWaypoints)
 	ADD_SUBDIRECTORY(markerRelabel)
 	ADD_SUBDIRECTORY(drawTriangle)
+    ADD_SUBDIRECTORY(quickAlogEditor)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################

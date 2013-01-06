@@ -66,7 +66,8 @@ SLPORT="9001"
 # Prepare nostromo files
 nsplug meta_vehicle_sim.moos targ_nostromo.moos -f		\
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
-    START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost
+    START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost  \
+    VHOST=localhost
 
 nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
     VNAME=$VNAME1                                       \
@@ -76,7 +77,8 @@ nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
 # Prepare kassandra files
 nsplug meta_vehicle_sim.moos targ_kassandra.moos -f		\
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
-    START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost
+    START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost \
+    VHOST=localhost
 
 nsplug meta_vehicle.bhv targ_kassandra.bhv -f            \
     VNAME=$VNAME2                                       \
