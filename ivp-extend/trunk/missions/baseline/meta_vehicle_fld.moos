@@ -10,7 +10,7 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pShare          	@ NewConsole = false
   Run = pLogger            	@ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
   Run = pMarinePID_Hover   	@ NewConsole = false
@@ -40,7 +40,7 @@ ProcessConfig = uXMS
 	VAR=ARDUINO_RUDDER
 }
 
-#include plug_pMOOSBridgeV.moos
+#include plug_pShareV.moos
 #include plug_pLogger.moos
 #include plug_pNodeReporter.moos
 #include plug_pMarinePID_Hover.moos

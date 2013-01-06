@@ -23,6 +23,7 @@ public:
 					double time );
 	bool checkComplete();
 	void process( std::string var, std::string val, double time );
+	void process( std::string var, std::string val, double time, double max_forward );
 	std::string serialize();
 
 private:

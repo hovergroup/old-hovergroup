@@ -16,14 +16,13 @@ ProcessConfig = ANTLER
 
 ProcessConfig = iOS5000_Hover
 {
-	AppTick   = 4
-	CommsTick = 4
+	AppTick   = 1
 
 	Port = /dev/ttyUSB2
 	Speed = 115200
 	
 	PreRotation = 0
-	UpdateFraction = .2
+	FilterTimeConstant = 1
 }
 
 ProcessConfig = uXMS

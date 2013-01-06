@@ -200,7 +200,8 @@ void acomms_driver::transmit_data() {
     m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
 
     // post transmission range pulse
-    postRangePulse( "transmit", transmission_pulse_range, transmission_pulse_duration );
+    postRangePulse( "transmit", transmission_pulse_range,
+    		transmission_pulse_duration, "cyan");
 }
 
 // post range pulse for pMarineViewer
@@ -224,30 +225,46 @@ void acomms_driver::postRangePulse( string label, double range, double duration,
 // handle incoming data received or statistics from the modem
 void acomms_driver::handle_data_receive(
 		const goby::acomms::protobuf::ModemTransmission& data_msg) {
-	// take out endlines and publish the received protobuf
-	string publish_me = data_msg.DebugString();
-	while (publish_me.find("\n") != string::npos) {
-		publish_me.replace(publish_me.find("\n"), 1, "<|>");
-	}
-	m_Comms.Notify("ACOMMS_RECEIVED_ALL", publish_me);
+	HoverAcomms::AcommsReception reception;
+	reception.copyFromProtobuf(data_msg);
 
-	// look at the number of receive statistics in the message
-	int num_stats = data_msg.ExtensionSize(micromodem::protobuf::receive_stat);
-	if (num_stats == 1) {
-		// psk or mini only
-		publishReceivedInfo(data_msg, 0);
-	} else if (num_stats == 2) {
-		// fsk with mini packet in front - publish the fsk statistics
-		publishReceivedInfo(data_msg, 1);
+	bool ok = true;
+	std::string debug_msg = reception.verify(ok);
+	if (!ok) {
+		publishWarning(debug_msg);
 	} else {
-		// should not have been
-		stringstream ss;
-		ss << "Error handling ModemTransmission - contained " << num_stats
-				<< " statistics.";
-		publishWarning(ss.str());
+		std::string serialized = reception.serialize();
+		m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
+		m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
-		// try to just publish what we can
-		publishReceivedInfo( data_msg, -1 );
+		m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
+		m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
+		m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
+		m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
+		std::string data = reception.getData();
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
+		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
+		m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
+
+		micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
+		m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
+		m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
+		m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
+		m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
+		m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
+
+		HoverAcomms::ReceiptStatus status = reception.getStatus();
+		m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+		if (status==HoverAcomms::GOOD) {
+			postRangePulse(my_name+"_receipt_good", receive_pulse_range,
+					receive_pulse_duration, "green");
+		} else if (status==HoverAcomms::PARTIAL) {
+			postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
+					receive_pulse_duration, "yellow");
+		} else {
+			postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
+					receive_pulse_duration, "red");
+		}
 	}
 	driver_ready = true;
 	publishStatus("ready");
@@ -271,146 +288,6 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
 	}
 }
-
-void acomms_driver::publishReceivedData( goby::acomms::protobuf::ModemTransmission & trans ) {
-    m_Comms.Notify("ACOMMS_SOURCE_ID", trans.src());
-    m_Comms.Notify("ACOMMS_DEST_ID", trans.dest());
-
-	if ( trans.HasExtension( micromodem::protobuf::ranging_reply ) ) {
-		micromodem::protobuf::RangingReply ranging =
-				trans.GetExtension(micromodem::protobuf::ranging_reply);
-		for ( int i=0; i<ranging.one_way_travel_time_size(); i++ ) {
-			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", ranging.one_way_travel_time(i) );
-		}
-	}
-
-	if ( trans.frame_size() > 0 ) {
-		// notify data received in ascii format
-		string frame_string = trans.frame(0);
-		for ( int i=1; i<trans.frame_size(); i++ ) {
-			frame_string += trans.frame(i);
-		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*)frame_string.data(), frame_string.size() );
-
-		// notify data received in hex format
-		vector<unsigned char> received_data (frame_string.size(), 0);
-		memcpy( &received_data[0], frame_string.data(), frame_string.size() );
-		stringstream ss;
-		for ( int i=0; i<received_data.size(); i++ ) {
-			ss << hex << (int) received_data[i];
-			if ( i < received_data.size()-1 )
-				ss << ":";
-		}
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", ss.str() );
-
-		ss.str("");
-		int numbad = trans.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
-		for ( 	int i=0; i<numbad; i++ ) {
-			ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc, i);
-			if ( i<numbad-1 ) ss << ",";
-		}
-		m_Comms.Notify("ACOMMS_BAD_FRAMES", ss.str());
-	} else {
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", "");
-		m_Comms.Notify("ACOMMS_BAD_FRAMES", "-1");
-		publishWarning("Found no frames when trying to publish received data.");
-	}
-}
-
-// publish the info we want on received statistics
-void acomms_driver::publishReceivedInfo( goby::acomms::protobuf::ModemTransmission trans, int index ) {
-	if ( index == -1 ) {
-		// wrong number of receive statistics
-
-		// construct simple receive info
-		lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-		receive_info.num_frames = trans.frame_size();
-		receive_info.num_bad_frames = receive_info.num_frames;
-		receive_info.num_good_frames = 0;
-		receive_info.rate = trans.rate();
-		receive_info.source = trans.src();
-		receive_info.vehicle_name = my_name;
-
-		string frame_string = trans.frame(0);
-		for ( int i=1; i<trans.frame_size(); i++ ) {
-			frame_string += trans.frame(i);
-			if ( trans.frame(i).empty() ) {
-				receive_info.num_bad_frames--;
-				receive_info.num_good_frames++;
-			}
-		}
-
-		m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
-
-		publishReceivedData( trans );
-	} else {
-		// get statistics out of the transmission
-		micromodem::protobuf::ReceiveStatistics stat = trans.GetExtension( micromodem::protobuf::receive_stat, index );
-
-		// file simplified receive info
-		lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info;
-		if ( stat.psk_error_code() == micromodem::protobuf::BAD_CRC_DATA_HEADER ||
-				stat.psk_error_code() == micromodem::protobuf::BAD_MODULATION_HEADER ||
-				stat.psk_error_code() == micromodem::protobuf::MISSED_START_OF_PSK_PACKET ) {
-			receive_info.num_frames = stat.number_frames();
-			receive_info.num_bad_frames = receive_info.num_frames;
-			receive_info.num_good_frames = 0;
-		} else {
-			receive_info.num_frames = stat.number_frames();
-			receive_info.num_bad_frames = stat.number_bad_frames();
-			receive_info.num_good_frames = receive_info.num_frames - receive_info.num_bad_frames;
-		}
-		// for debugging, not sure if this is ever a problem
-		if( receive_info.num_good_frames > 0 && trans.frame_size() != stat.number_frames() ) {
-//			stat.set_number_frames(stat.number_frames()-1);
-			receive_info.num_frames--;
-			receive_info.num_good_frames--;
-			publishWarning( "Statistics found an extra frame - decrementing." );
-		}
-
-		receive_info.vehicle_name = my_name;
-		receive_info.source = stat.source();
-		// check for mini data type to set custom rate, otherwise use reported rate
-		if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC ) {
-			if ( trans.HasExtension( micromodem::protobuf::type ) ) {
-				micromodem::protobuf::TransmissionType type = trans.GetExtension( micromodem::protobuf::type );
-				if ( type == micromodem::protobuf::MICROMODEM_MINI_DATA ) {
-					// mini packet - set rate manually
-					receive_info.rate = 100;
-				} else {
-					publishWarning( "unrecognized transmission type" );
-					receive_info.rate = -1;
-				}
-			} else {
-				publishWarning( "missing driver specific transmission type extension" );
-				receive_info.rate = -1;
-			}
-		} else {
-			receive_info.rate = stat.rate();
-		}
-		m_Comms.Notify("ACOMMS_RECEIVED_SIMPLE", receive_info.serializeToString());
-
-		// notify individual statistics that are considered useful to know about or convienient to
-		// see outside ACOMMS_RECEIVED_ALL
-		m_Comms.Notify("ACOMMS_SNR_OUT", stat.snr_out());
-		m_Comms.Notify("ACOMMS_SNR_IN",stat.snr_in());
-		m_Comms.Notify("ACOMMS_DQF",stat.data_quality_factor());
-		m_Comms.Notify("ACOMMS_STDDEV_NOISE", stat.stddev_noise());
-		m_Comms.Notify("ACOMMS_MSE", stat.mse_equalizer());
-
-		publishReceivedData( trans );
-
-		// create a range pulse
-		if ( receive_info.num_frames > 0 && receive_info.num_bad_frames == 0 ) {
-			// for believed good receipts, green pulse
-			postRangePulse( "receipt good", receive_pulse_range, receive_pulse_duration, "green" );
-		} else {
-			// red pulse for receipts we think are bad
-			postRangePulse( "receipt bad", receive_pulse_range, receive_pulse_duration, "red" );
-		}
-	}
-}
-
 
 // publish warning
 void acomms_driver::publishWarning( std::string message ) {

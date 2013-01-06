@@ -45,7 +45,8 @@ void printHelp() {
     cout << "Synopsis:                                                        " << endl;
     cout << "  Creates a comma delimited synchronous log file from an alog    " << endl;
     cout << "  file for importing into Matlab, Excel, or similar.  Age of each" << endl;
-    cout << "  variable is also reported (may be negative).                   " << endl;
+    cout << "  variable is also reported (may be negative).  Time is synced   " << endl;
+    cout << "  using gps postings to and is measured from 12am.               " << endl;
     cout << "                                                                 " << endl;
     cout << "Standard Arguments:                                              " << endl;
     cout << "  in.alog  - The input logfile.                                  " << endl;
@@ -62,6 +63,8 @@ void printHelp() {
     cout << "  -b,--backsearch  When printing a line, look only backards for  " << endl;
     cout << "                   the latest posting of each variable. (Age will" << endl;
     cout << "                   always be positive).                          " << endl;
+    cout << "  --backsearch=X   Allow searching up to X seconds in the future " << endl;
+    cout << "                   for the nearest posting of each variable.     " << endl;
     cout << "  --delimiter=X    Set the delimiter string to X.  Default is ,  " << endl;
     cout << "                                                                 " << endl;
     cout << "                                                                 " << endl;
@@ -320,6 +323,7 @@ int main (	int argc, char *argv[] ) {
 					output << delimiter << last_post_time-current_times[variables[j]];
 				}
 				output << endl;
+				i--;
 			}
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
 				current_value[key] = entry.getStringVal();
@@ -340,27 +344,29 @@ int main (	int argc, char *argv[] ) {
 		for ( int i=0; i<gpsed_entries.size(); i++ ) {
 			ALogEntry entry = gpsed_entries[i];
 			string key = entry.getVarName();
-			if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-				current_value[key] = entry.getStringVal();
-				current_times[key] = entry.getTimeStamp();
-			}
 			if ( entry.getTimeStamp()-last_post_time > sync_period ) {
 				last_post_time+=sync_period;
 				partials.push_back( PartialEntry(
 						variables, current_value, current_times, last_post_time ) );
-			}
-			for ( int j=0; j<partials.size(); j++ ) {
-                if ( backsearch_range == 0 ) {
-                    partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
-                } else {
-                    partials[j].process( key, entry.getStringVal(), entry.getTimeStamp(), backsearch_range );
-                }
-			}
-			if ( !partials.empty() ) {
-				while ( partials.front().checkComplete() ) {
-					output << partials.front().serialize() << endl;
-					partials.pop_front();
-					if ( partials.empty() ) break;
+				i--;
+			} else {
+				if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
+					current_value[key] = entry.getStringVal();
+					current_times[key] = entry.getTimeStamp();
+				}
+				for ( int j=0; j<partials.size(); j++ ) {
+					if ( backsearch_range == 0 ) {
+						partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+					} else {
+						partials[j].process( key, entry.getStringVal(), entry.getTimeStamp(), backsearch_range );
+					}
+				}
+				if ( !partials.empty() ) {
+					while ( partials.front().checkComplete() ) {
+						output << partials.front().serialize() << endl;
+						partials.pop_front();
+						if ( partials.empty() ) break;
+					}
 				}
 			}
 		}

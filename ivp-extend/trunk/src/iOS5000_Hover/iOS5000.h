@@ -30,7 +30,8 @@ private:
 	boost::asio::io_service io;
 	boost::asio::serial_port port;
 
-	double current_x_estimate, current_y_estimate, update_fraction, prerotation;
+	double current_x_estimate, current_y_estimate, filter_constant, prerotation,
+		last_msg_time;
 
 	boost::thread serial_thread;
 	bool stop_requested;

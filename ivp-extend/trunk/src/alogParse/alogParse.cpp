@@ -62,6 +62,8 @@ void printHelp() {
     cout << "  -b,--backsearch  When printing a line, look only backards for  " << endl;
     cout << "                   the latest posting of each variable. (Age will" << endl;
     cout << "                   always be positive).                          " << endl;
+    cout << "  --backsearch=X   Allow searching up to X seconds in the future " << endl;
+    cout << "                   for the nearest posting of each variable.     " << endl;
     cout << "  --delimiter=X    Set the delimiter string to X.  Default is ,  " << endl;
     cout << "                                                                 " << endl;
     cout << "                                                                 " << endl;
@@ -85,6 +87,8 @@ void printHeader() {
 	}
 	output << endl;
 }
+
+double backsearch_range = 0;
 
 int main (	int argc, char *argv[] ) {
 	string sync_variable;
@@ -111,6 +115,9 @@ int main (	int argc, char *argv[] ) {
 			sync_period = atof( readCommandArg(string(sarg)).c_str() );
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
+		} else if ( strContains(sarg, "--backsearch=" ) ) {
+		    restrict_to_backsearch = false;
+		    backsearch_range = atof( readCommandArg(string(sarg)).c_str() );
 		} else if ( strContains(sarg, "--delimiter=" ) ) {
 			delimiter = readCommandArg(string(sarg));
 		} else if ( sarg.find("*")!=string::npos ) {
@@ -241,7 +248,11 @@ int main (	int argc, char *argv[] ) {
 			}
 			// process current enry for all partials
 			for ( int j=0; j<partials.size(); j++ ) {
-				partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+                if ( backsearch_range == 0 ) {
+					partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+				} else {
+					partials[j].process( key, entry.getStringVal(), entry.getTimeStamp(), backsearch_range );
+				}
 			}
 			// output complete partials
 			if ( !partials.empty() ) {
@@ -317,7 +328,11 @@ int main (	int argc, char *argv[] ) {
                     current_times[key] = entry.getTimeStamp();
                 }
                 for ( int j=0; j<partials.size(); j++ ) {
-                    partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+                    if ( backsearch_range == 0 ) {
+                        partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
+                    } else {
+                        partials[j].process( key, entry.getStringVal(), entry.getTimeStamp(), backsearch_range );
+                    }
                 }
                 if ( !partials.empty() ) {
                     while ( partials.front().checkComplete() ) {
@@ -379,6 +394,17 @@ void PartialEntry::process( string var, string val, double time ) {
 	}
 	// mark as verified
 	m_verified[var]=true;
+}
+
+// process a new entry
+void PartialEntry::process( string var, string val, double time, double max_forward ) {
+    // replace our value if this one is closer
+    if ( fabs(time-m_time) < fabs(m_times[var]-m_time) && time-m_time < max_forward ) {
+        m_values[var]=val;
+        m_times[var]=time;
+    }
+    // mark as verified
+    m_verified[var]=true;
 }
 
 string PartialEntry::serialize() {
