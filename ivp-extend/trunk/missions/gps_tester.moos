@@ -17,8 +17,8 @@ LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 // Antler configuration  block
 
 ProcessConfig = ANTLER
-{192.168.1.100
-  MSBetweenLaunches = 200
+{
+  MSBetweenLaunches = 500
 
   //crucial processes
   Run = MOOSDB			@ NewConsole = false
@@ -26,8 +26,8 @@ ProcessConfig = ANTLER
   //Run = pMarineViewer		@ NewConsole = false
   Run = pLogger @ NewConsole = false
   Run = iGPS_Hover		@ NewConsole = false ~Lea
-  //Run = iGPS_Hover 		@ NewConsole = false ~Neo
- Run = uXMS            	@ NewConsole = true
+  Run = iGPS_Hover 		@ NewConsole = false ~Neo
+  Run = uXMS            	@ NewConsole = true
 }
 
 //------------------------------------------------------------------
@@ -46,7 +46,7 @@ ProcessConfig = uXMS
   VAR = GPS_PTIME
   VAR = GPS_X
   VAR = GPS_Y
-  source = Lea
+  display_source = true
   refresh_mode = streaming
 }  
 
@@ -59,29 +59,12 @@ ProcessConfig = Lea
 	BAUD_RATE = 57600
 }
 
-ProcessConfig = uXMS
-{
-  AppTick    = 5
-  CommsTick  = 5
-
-  DISPLAY_TIME = true
-
-  VAR  = GPS_LOCK
-  VAR = GPS_SPEED
-  VAR = GPS_HEADING
-  VAR = GPS_PTIME
-  VAR = GPS_X
-  VAR = GPS_Y
-  source = Neo
-  refresh_mode = streaming
-}  
-
 ProcessConfig = Neo
 {
 	AppTick = 10
 	CommsTick = 10
 	
-	PORT_NAME = /dev/ttyACM0
+	PORT_NAME = /dev/ttyACM1
 	BAUD_RATE = 57600
 }
 
@@ -93,5 +76,6 @@ ProcessConfig = pLogger
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
-}
+	PATH		= /home/mei/logs/
 
+}
