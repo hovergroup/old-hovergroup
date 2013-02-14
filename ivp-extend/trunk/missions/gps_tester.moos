@@ -18,15 +18,18 @@ LongOrigin	= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 ProcessConfig = ANTLER
 {
-  MSBetweenLaunches = 500
+  MSBetweenLaunches = 1500
 
   //crucial processes
   Run = MOOSDB			@ NewConsole = false
   //Run = pMOOSBridge     	@ NewConsole = false
   //Run = pMarineViewer		@ NewConsole = false
   Run = pLogger @ NewConsole = false
-  Run = iGPS_Hover		@ NewConsole = false ~Lea
-  Run = iGPS_Hover 		@ NewConsole = false ~Neo
+  
+  Run = iGPS_Hover 		@ NewConsole = false ~Eval
+//  Run = iGPS_Hover 		@ NewConsole = false ~Neo
+//  Run = iGPS_Hover		@ NewConsole = false ~Lea
+
   Run = uXMS            	@ NewConsole = true
 }
 
@@ -50,12 +53,21 @@ ProcessConfig = uXMS
   refresh_mode = streaming
 }  
 
-ProcessConfig = Lea
+ProcessConfig = Eval
 {
 	AppTick = 10
 	CommsTick = 10
 	
 	PORT_NAME = /dev/ttyACM0
+	BAUD_RATE = 57600
+}
+
+ProcessConfig = Lea
+{
+	AppTick = 10
+	CommsTick = 10
+	
+	PORT_NAME = /dev/ttyACM2
 	BAUD_RATE = 57600
 }
 
@@ -76,6 +88,6 @@ ProcessConfig = pLogger
 	AsyncLog		= true
 	FileTimeStamp		= true
 	WildCardLogging		= true
-	PATH		= /home/mei/logs/
+	PATH		= /home/mei/logs/eval
 
 }
