@@ -111,7 +111,7 @@ bool acomms_driver::OnConnectToServer()
    // post these to make sure they are the correct type
    unsigned char c = 0x00;
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
-   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
+//   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
    m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
 
@@ -199,6 +199,10 @@ void acomms_driver::transmit_data() {
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
     m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
 
+    m_transmission.m_vehicleName = my_name;
+    std::string to_publish = m_transmission.serializeWithSource();
+    m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
+
     // post transmission range pulse
     postRangePulse( "transmit", transmission_pulse_range,
     		transmission_pulse_duration, "cyan");
@@ -227,13 +231,14 @@ void acomms_driver::handle_data_receive(
 		const goby::acomms::protobuf::ModemTransmission& data_msg) {
 	HoverAcomms::AcommsReception reception;
 	reception.copyFromProtobuf(data_msg);
+	reception.m_vehicleName = my_name;
 
 	bool ok = true;
 	std::string debug_msg = reception.verify(ok);
 	if (!ok) {
 		publishWarning(debug_msg);
 	} else {
-		std::string serialized = reception.serialize();
+		std::string serialized = reception.serializeWithSource();
 		m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
 		m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 

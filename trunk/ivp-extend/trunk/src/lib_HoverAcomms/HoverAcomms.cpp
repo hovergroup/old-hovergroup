@@ -114,8 +114,13 @@ AcommsTransmission::AcommsTransmission(std::string data, Rate rate, int dest) {
 	fillData(data);
 }
 
-bool AcommsBase::parseFromString(const std::string & msg) {
+bool AcommsBase::parseFromString(std::string msg) {
 	m_protobuf.Clear();
+	m_vehicleName = "";
+	if (msg.find("vname=") != std::string::npos) {
+		MOOSChomp(msg, "=");
+		m_vehicleName = MOOSChomp(msg, ",");
+	}
 	return m_protobuf.ParseFromString(msg);
 }
 

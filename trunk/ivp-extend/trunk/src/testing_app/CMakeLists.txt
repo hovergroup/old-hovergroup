@@ -6,16 +6,5 @@
 ADD_EXECUTABLE(testing_app testing_app.cpp)
    
 TARGET_LINK_LIBRARIES(testing_app
-	acomms_messages
-	boost_date_time
-	gsl
-	gslcblas
-	geometry
-	mbutil
-	protobuf
-    ${MOOS_LIBRARIES}
-    ${MOOS_DEPEND_LIBRARIES}
-	mbutil
-	goby_common
-	goby_acomms
-	JoshUtils)
+    mgl-qt
+)

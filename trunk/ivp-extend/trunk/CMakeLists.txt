@@ -78,7 +78,8 @@ INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
                         ${MOOS_DEPEND_INCLUDE_DIRS}
                         ${MOOSGeodesy_INCLUDE_DIRS}
    						${GOBY_INCLUDE_DIRS}
-   						${IVP_INCLUDE_DIRS}			)
+   						${IVP_INCLUDE_DIRS}
+   						/usr/include/qt4/			)
    						
 LINK_DIRECTORIES( ${IVP_LIBRARY_DIRS}
                   ${GOBY_LIBRARY_PATH} )
