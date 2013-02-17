@@ -13,6 +13,7 @@
 #include <string>
 #include <map>
 #include "boost/assign.hpp"
+#include "MOOS/libMOOS/MOOSLib.h"
 
 namespace HoverAcomms {
 
@@ -62,14 +63,20 @@ static const std::map<Rate,int> FrameCountMap = boost::assign::map_list_of
 class AcommsBase {
 public:
 	std::string getLoggableString() const;
+
 	std::string serialize() { return m_protobuf.SerializeAsString(); }
-	bool parseFromString(const std::string & msg);
+	std::string serializeWithSource() {
+		return "vname=" + m_vehicleName + "," + serialize(); };
+
+	bool parseFromString(std::string msg);
 	void copyFromProtobuf(const goby::acomms::protobuf::ModemTransmission & proto);
 
 	int getNumFrames() const { return m_protobuf.frame_size(); }
 
 	std::string getHexData() const;
 	std::string getData() const;
+
+	std::string m_vehicleName;
 
 protected:
 	goby::acomms::protobuf::ModemTransmission m_protobuf;
