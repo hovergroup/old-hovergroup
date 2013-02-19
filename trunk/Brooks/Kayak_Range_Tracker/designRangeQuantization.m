@@ -18,7 +18,7 @@ domain = max - min;
 % generate bin sizes
 
 % smallest bin set heuristically
-bp(1) = 3;
+bp(1) = 4;
 
 %quantization density (see fu)
 %this set via trial/error 
