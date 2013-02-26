@@ -52,7 +52,8 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    if ( std::string(argv[1]).find("icarus",0) != std::string::npos ) {
+    if ( std::string(argv[1]).find("icarus",0) != std::string::npos ||
+    		std::string(argv[1]).find("ICARUS",0) != std::string::npos) {
         icarus = true;
     }
 
@@ -178,6 +179,8 @@ int main(int argc, char *argv[]) {
                             entry.getSource(),
                             entry.getSrcAux(),
                             vec_s);
+
+                    std::cout << "heading" << std::endl;
 
                     new_data.push_back(new_entry);
                 }
