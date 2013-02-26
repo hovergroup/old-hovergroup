@@ -8,6 +8,8 @@ ProcessConfig = iAcommsDriver
     PortName = /dev/ttyUSB0
     ID = 1
     
+    in_sim = false
+    
     PSK_minipackets = false
     enable_ranging = false
     show_range_pulses = true

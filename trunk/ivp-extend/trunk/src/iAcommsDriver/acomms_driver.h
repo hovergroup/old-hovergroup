@@ -17,6 +17,7 @@
 #include "goby/acomms/connect.h"
 #include "XYRangePulse.h"
 #include "HoverAcomms.h"
+#include "JoshUtils.h"
 
 class acomms_driver : public CMOOSApp
 {
@@ -70,6 +71,16 @@ protected:
 	std::ofstream verbose_log;
 
 	HoverAcomms::AcommsTransmission m_transmission;
+
+	bool in_sim;
+
+	// simulation stuff
+	static const double mini_packet_transmission_length = 1.5;
+	static const double packet_transmission_length = 5;
+
+	HoverAcomms::AcommsReception scheduled_reception;
+
+	void handle_sim_receive( std::string msg );
 };
 
 #endif 

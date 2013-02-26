@@ -86,7 +86,7 @@ nsplug meta_vehicle.bhv targ_kassandra.bhv -f            \
     RETURN_PT=$RETURN_PT2
 
 # Prepare Shoreside files
-nsplug meta_shoreside.moos targ_shoreside.moos -f       \
+nsplug meta_shoreside_sim.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT                                      \
     SPORT=$SPORT                                        \
     SNAME=$SNAME                                        \

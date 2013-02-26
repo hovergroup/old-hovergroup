@@ -188,3 +188,8 @@ void JoshUtil::searchForFiles(std::vector<std::string> & paths,
 			boost::filesystem::system_complete(boost::filesystem::path(directory_path)),
 			max_depth, wild, 0);
 }
+
+double JoshUtil::getSystemTimeSeconds() {
+	boost::posix_time::ptime p(boost::posix_time::microsec_clock::universal_time());
+	return p.time_of_day().total_milliseconds()/1000.0;
+}

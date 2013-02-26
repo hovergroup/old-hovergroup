@@ -19,6 +19,7 @@
 #include <exception>
 #include <algorithm>
 #include <sstream>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "config.h"
 
@@ -30,6 +31,8 @@ namespace JoshUtil {
 			std::string directory_path,
 			int max_depth,
 			std::string wild );
+
+	double getSystemTimeSeconds();
 };
 
 #endif /* LIB_JOSHUTIL_H_ */

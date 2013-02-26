@@ -19,5 +19,6 @@ TARGET_LINK_LIBRARIES(iAcommsDriver
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
 	acomms_messages
-	goby_util)
+	goby_util
+	JoshUtils)
 

@@ -118,8 +118,15 @@ bool AcommsBase::parseFromString(std::string msg) {
 	m_protobuf.Clear();
 	m_vehicleName = "";
 	if (msg.find("vname=") != std::string::npos) {
-		MOOSChomp(msg, "=");
-		m_vehicleName = MOOSChomp(msg, ",");
+		MOOSChomp(msg, "vname=");
+		m_vehicleName = MOOSChomp(msg, ":");
+		MOOSChomp(msg, "time=");
+		m_time = atof(MOOSChomp(msg, ":").c_str());
+		MOOSChomp(msg, "loc=");
+		m_navx = atof(MOOSChomp(msg,",").c_str());
+		MOOSChomp(msg, ",");
+		m_navy = atof(MOOSChomp(msg,":").c_str());
+		MOOSChomp(msg, ":");
 	}
 	return m_protobuf.ParseFromString(msg);
 }
