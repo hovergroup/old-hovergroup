@@ -65,8 +65,14 @@ public:
 	std::string getLoggableString() const;
 
 	std::string serialize() { return m_protobuf.SerializeAsString(); }
-	std::string serializeWithSource() {
-		return "vname=" + m_vehicleName + "," + serialize(); };
+	std::string serializeWithInfo() {
+		std::stringstream ss;
+		ss << "vname=" << m_vehicleName <<
+			  ":time=" << m_time <<
+			  ":loc=" << m_navx << "," << m_navy << ":" <<
+			  serialize();
+		return ss.str();
+	};
 
 	bool parseFromString(std::string msg);
 	void copyFromProtobuf(const goby::acomms::protobuf::ModemTransmission & proto);
@@ -77,10 +83,11 @@ public:
 	std::string getData() const;
 
 	std::string m_vehicleName;
+	double m_time, m_navx, m_navy;
 
-protected:
 	goby::acomms::protobuf::ModemTransmission m_protobuf;
 
+protected:
 	Rate reverseRate(int i) const { return ReverseRateMap.find(i)->second; }
 };
 

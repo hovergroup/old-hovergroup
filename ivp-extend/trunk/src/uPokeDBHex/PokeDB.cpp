@@ -304,6 +304,15 @@ void PokeDB::updateVariable(CMOOSMsg &msg) {
 	m_source_read[ix] = msg.GetSource();
 	m_wrtime_read[ix] = vtime_str;
 
+	std::cout << "Data type: ";
+	if (msg.IsDataType(MOOS_STRING))
+		std::cout << "string";
+	else if (msg.IsDataType(MOOS_BINARY_STRING))
+		std::cout << "binary string";
+	else
+		std::cout << "double";
+	std::cout << std::endl;
+
 	if (msg.IsDataType(MOOS_STRING) || msg.IsDataType(MOOS_BINARY_STRING) ){
 		vector<unsigned char> data ( msg.GetString().size(), 0 );
 		memcpy( &data[0], msg.GetString().data(), data.size() );
