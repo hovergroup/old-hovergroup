@@ -329,10 +329,11 @@ void kayak_driver::parseTemperatures(int index, int stopIndex) {
 
 void kayak_driver::parseCurrents(int index, int stopIndex) {
 	if (readBuffer[index] == 'C' && readBuffer[index + 1] == '=') {
-		int battery_amps, motor_amps;
-		sscanf(&readBuffer[index], "C=%d,%d", &battery_amps, &motor_amps);
+		int battery_amps, motor_amps, cpu_amps;
+		sscanf(&readBuffer[index], "C=%d,%d,%d", &battery_amps, &motor_amps, &cpu_amps);
 		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps/10.0);
 		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps/10.0);
+		m_Comms.Notify("CPU_BOX_CURRENT", cpu_amps/1000.0);
 	} else {
 		cout << "bad parse" << endl;
 	}
