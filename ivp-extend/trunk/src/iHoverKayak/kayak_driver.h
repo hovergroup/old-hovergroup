@@ -78,6 +78,7 @@ private:
 	int roundFloat( double val );
 	void sendMotorCommands();
 	void toggleCompassCalibration();
+	void setRadioPower(bool freewave);
 };
 
 #endif

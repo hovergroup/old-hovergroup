@@ -52,6 +52,12 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 		} else if (key == "DESIRED_THRUST" ) {
 			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
 			newCommand = true;
+		} else if (key == "RADIO_POWER") {
+			if (MOOSToUpper(msg.GetString()) == "FREEWAVE")
+				setRadioPower(true);
+			else
+				setRadioPower(false);
+
 		}
 	}
 
@@ -122,6 +128,12 @@ void kayak_driver::sendMotorCommands() {
 //	writeData( &tmp[0], size );
 
 //	cout << "sending command string: " << ss.str() << endl;
+}
+
+void kayak_driver::setRadioPower(bool freewave) {
+	stringstream ss;
+	ss << "!R=" << freewave << "#";
+	writeData(ss.str().c_str(), ss.str().size());
 }
 
 //---------------------------------------------------------

@@ -1,7 +1,3 @@
-// Archie: Kingfisher simple deployment
-//	Author:	Alon Y
-//	Date:		Mar 31, 2012
-
 Community			= nostromo
 ServerHost			= 192.168.1.103
 ServerPort			= 9003
@@ -9,209 +5,20 @@ ServerPort			= 9003
 //LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
 //LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
-LatOrigin = 42.34345
-LongOrigin = -70.97622
-
 ProcessConfig = ANTLER
 {
 	MSBetweenLaunches	= 500
 
 	Run = MOOSDB			@ NewConsole = false
 	Run = iHoverKayak 		@ NewConsole = false
-	Run = pNodeReporter	@ NewConsole = false
-	Run = pMOOSBridge		@ NewConsole = false
-	Run = pMarinePID_Hover		@ NewConsole = false
-	Run = pHelmIvP		@ NewConsole = false
-	Run = pEchoVar		@ NewConsole = false
-	Run = iOS5000_Hover		@ NewConsole = false
-	Run = iGPS_Hover		@ NewConsole = false
-
-	Run = pLogger			@ NewConsole = false	// Logs messages to disk
-	Run = iAcommsDriver	@ NewConsole = false
-}
-
-ProcessConfig = uTimerScript
-{
-  AppTick = 4
-  CommsTick = 4
-
-  reset_max = nolimit
-  reset_time = all-posted
-
-  event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]-asdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfghjklpasdfgk",time=7
-}
-
-ProcessConfig = uXMS
-{
-	DISPLAY_TIME = true
-	DISPLAY_SOURCE = true
-	
-	VAR=VOLTAGE
-	VAR=CPU_BOX_TEMP
-	VAR=ROBOTEQ_HEATSINK_TEMP
-	VAR=ROBOTEQ_INTERNAL_TEMP
-	VAR=ROBOTEQ_BATTERY_CURRENT
-	VAR=ROBOTEQ_MOTOR_CURRENT
-	VAR=ARDUINO_THRUST
-	VAR=ARDUINO_RUDDER
-}
-
-ProcessConfig = iAcommsDriver
-{
-	AppTick = 5
-	CommsTick = 5
-
-	PortName = /dev/ttyUSB1
-	ID = 1
-}
-
-ProcessConfig = iGPS_Hover
-{
-	AppTick = 10
-	CommsTick = 10
-	
-	PORT_NAME = /dev/ttyUSB0
-	BAUD_RATE = 57600
 }
 
 ProcessConfig = iHoverKayak
 {
-	AppTick = 20
-	CommsTick = 20
-	
-	INVERT_RUDDER = false
-	RUDDER_OFFSET = 2
-}
-
-ProcessConfig = iOS5000_Hover
-{
-	AppTick		= 40
-	CommsTick	= 40
-
-	Port		= /dev/ttyUSB2		// tty port for communicating with the dig compass
-	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
-	PreRotation	= -15			// -15 for Boston (magnetic declination)
-
-	UpdateFraction = .025
-}
-
-ProcessConfig = pNodeReporter
-{
-	// xxxTick	= 5 when using 5hz GPS, 2 when using 1hz GPS 
-	AppTick		= 2
-	CommsTick	= 2
-
-	VESSEL_TYPE	= KAYAK		// Sets the icon in pMarineViewer
-	VESSEL_LENGTH	= 2			// Always = 2 for kingfisher
-}
-
-ProcessConfig = pMOOSBridge
-	{
-	// xxxTick =	5 when using 5hz GPS, 2 when using 1hz GPS 
-	AppTick		= 5
-	CommsTick	= 5
-	
-	UDPListen = 9201
-
-	BridgeFrequency	= 0			// Always set to 0 (bridge on new message available)
-
-	// SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
-	// Destination is shore station	josh@YOURIP:9000
-	UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> uxmsjosh@192.168.1.165:9200 [NODE_REPORT]
-//	SHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y]	-> josh@192.168.1.100:9000 [NODE_REPORT]
-	SHARE = [VIEW_POLYGON]		-> josh@192.168.1.165:9000 [VIEW_POLYGON]
-	SHARE = [VIEW_POINT]		-> josh@192.168.1.165:9000 [VIEW_POINT]
-	SHARE = [VIEW_SEGLIST]		-> josh@192.168.1.165:9000 [VIEW_SEGLIST]
-	SHARE = [VIEW_RANGE_PULSE]	-> josh@192.168.1.165:9000 [VIEW_RANGE_PULSE]
-	SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> josh@192.168.1.165:9000
-	
-	//Search Relay Shares
-	//SHARE = [RELAY_STATUS] -> shore_node@192.168.1.102:9002
-	
-	}
-
-ProcessConfig = pMarinePID_Hover
-{
-	AppTick		= 5
-	CommsTick	= 5
-
-	Verbose		= false
-	DEPTH_CONTROL	= false
-	ACTIVE_START	= true
-	MAXRUDDER	= 45
-	MAXTHRUST	= 100
-
-	// SPEED_FACTOR
-	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
-	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
-	SPEED_FACTOR	= 30
-	// 25-30 for no modem
-	// 40 with modem
-
-	// Yaw PID controller
-	YAW_PID_KP		= 0.45
-	YAW_PID_KD 		= 0
-	YAW_PID_KI		= 0
-	YAW_PID_INTEGRAL_LIMIT = 0.25
-	YAW_PID_TAU		= 1
-
-	// Speed PID controller
-	SPEED_PID_KP				= 0.4
-	SPEED_PID_KD				= 0.0
-	SPEED_PID_KI				= 0.0
-	SPEED_PID_INTEGRAL_LIMIT		= 0.07
-}
-
-ProcessConfig = pHelmIvP
-{
-	AppTick		= 2
-	CommsTick		= 2
-	VERBOSE		= false
-	Behaviors	= kayak_simplest.bhv
-	OK_SKEW		= ANY
-	Domain		= course,0:359:36
-	Domain		= speed,0:2.0:21
-}
-
-ProcessConfig = iRemote
-{
-	AppTick   = 5
-	CommsTick = 5
-
-	CustomKey = 1 : HELM_VERBOSE @ "verbose"
-	CustomKey = 2 : HELM_VERBOSE @ "terse"
-	CustomKey = 3 : HELM_VERBOSE @ "quiet"
-	CustomKey = 4 : DEPLOY @ "true"
-	CustomKey = 5 : DEPLOY @ "false"
-	CustomKey = 6 : RETURN @ "true"
-	CustomKey = 7 : RETURN @ "false"
-}
-
-ProcessConfig = pLogger
-{
-	AppTick			= 20
-	CommsTick		= 20
-
-	File			= LOG_NOSTROMO
-	AsyncLog		= true
-	FileTimeStamp		= true
-	WildCardLogging		= true
-	
-	WildCardOmitPattern = PLOGGER_STATUS
-}
-
-
-//------------------------------------------
-// pEchoVar configuration block
-
-ProcessConfig = pEchoVar
-{
-  AppTick   = 40
-  CommsTick = 40
-
-  Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-  Echo = GPS_X -> NAV_X
-  Echo = GPS_Y -> NAV_Y
-  Echo = GPS_SPEED -> NAV_SPEED
-  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+    AppTick   = 20
+    MaxAppTick = 100
+    IterateMode = 1 // comms driven iterate and mail
+    
+    INVERT_RUDDER = false
+    RUDDER_OFFSET = 0
 }
