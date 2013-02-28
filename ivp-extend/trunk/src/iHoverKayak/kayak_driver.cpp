@@ -114,6 +114,7 @@ void kayak_driver::RegisterVariables()
 {
 	m_Comms.Register("DESIRED_RUDDER", 0);
 	m_Comms.Register("DESIRED_THRUST", 0);
+	m_Comms.Register("RADIO_POWER", 1);
 }
 
 
