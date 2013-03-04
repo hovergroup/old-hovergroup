@@ -2,8 +2,8 @@ Community			= nostromo
 ServerHost			= localhost
 ServerPort			= 9003
 
-//LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
-//LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
 
 ProcessConfig = ANTLER
 {
@@ -13,7 +13,7 @@ ProcessConfig = ANTLER
 	//Run = iHoverKayak 		@ NewConsole = false
 }
 
-ProcessConfig = iGPSHover
+ProcessConfig = iGPS_Hover
 {
 AppTick = 20
 IterateMode = 0
