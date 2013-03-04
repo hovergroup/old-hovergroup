@@ -3,7 +3,7 @@
 #include "MBUtils.h"
 
 using namespace std;
-using namespace boost::asio;
+//using namespace boost::asio;
 using namespace boost::posix_time;
 
 SIMPLE_GPS::SIMPLE_GPS() :
@@ -52,7 +52,7 @@ bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
             m_gps_log.open(filename.c_str());
 
             // get log directory from plogger that we will also use
-            open_port(my_port_name, my_baud_rate);
+//            open_port(my_port_name, my_baud_rate);
         }
     }
 
@@ -108,6 +108,39 @@ bool SIMPLE_GPS::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("BAUD_RATE", my_baud_rate);
     m_MissionReader.GetConfigurationParam("PORT_NAME", my_port_name);
 
+    std::string server_name;
+    int server_port;
+    m_MissionReader.GetConfigurationParam("TCP_SERVER", server_name);
+    m_MissionReader.GetConfigurationParam("TCP_PORT", server_port);
+
+    struct sockaddr_in m_server_address;
+    struct hostent *m_server;
+
+    m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_tcp_sockfd < 0) {
+    	std::cout << "Error opening socket" << std::endl;
+    	return false;
+    }
+
+    m_server = gethostbyname(server_name.c_str());
+    if (m_server == NULL) {
+    	std::cout << "Error, no such host" << std::endl;
+    	return false;
+    }
+
+	bzero((char *) &m_server_address, sizeof(m_server_address));
+	m_server_address.sin_family = AF_INET;
+	bcopy((char *) m_server->h_addr,
+			(char *)&m_server_address.sin_addr.s_addr,
+			m_server->h_length);
+	m_server_address.sin_port = htons(server_port);
+	if (connect(m_tcp_sockfd,
+			(struct sockaddr *) &m_server_address,
+			sizeof(m_server_address)) < 0) {
+		std::cout << "error connecting" << std::endl;
+		return false;
+	}
+
     RegisterVariables();
 
 //	open_port( my_port_name, my_baud_rate );
@@ -127,6 +160,15 @@ void SIMPLE_GPS::RegisterVariables() {
 // Procedure: Iterate()
 
 bool SIMPLE_GPS::Iterate() {
+	std::vector<char> buf(256,0);
+	int n = read(m_tcp_sockfd,&buf[0],256);
+	if (n < 0) {
+		std::cout << "error reading from socket" << std::endl;
+		return false;
+	}
+	std::string s(buf.begin(), buf.end());
+	std::cout << s;
+
     return (true);
 }
 
@@ -147,14 +189,14 @@ void SIMPLE_GPS::open_port(string port_name, int baudRate) {
     port.open(port_name);
 
     // serial port must be configured after being opened
-    port.set_option(serial_port_base::baud_rate(baudRate));
-    port.set_option(
-            serial_port_base::flow_control(
-                    serial_port_base::flow_control::none));
-    port.set_option(serial_port_base::parity(serial_port_base::parity::none));
-    port.set_option(
-            serial_port_base::stop_bits(serial_port_base::stop_bits::one));
-    port.set_option(serial_port_base::character_size(8));
+    port.set_option(boost::asio::serial_port_base::baud_rate(baudRate));
+    port.set_option(boost::asio::serial_port_base::flow_control(
+			boost::asio::serial_port_base::flow_control::none));
+    port.set_option(boost::asio::serial_port_base::parity(
+    		boost::asio::serial_port_base::parity::none));
+    port.set_option(boost::asio::serial_port_base::stop_bits(
+    		boost::asio::serial_port_base::stop_bits::one));
+    port.set_option(boost::asio::serial_port_base::character_size(8));
 
     // start the background thread
     serial_thread = boost::thread(boost::bind(&SIMPLE_GPS::serialLoop, this));
@@ -173,7 +215,7 @@ void SIMPLE_GPS::writeData(unsigned char *ptr, int length) {
     writeBufferMutex.unlock();
 }
 
-void SIMPLE_GPS::read_handler(bool& data_available, deadline_timer& timeout,
+void SIMPLE_GPS::read_handler(bool& data_available, boost::asio::deadline_timer& timeout,
         const boost::system::error_code& error, std::size_t bytes_transferred) {
     if (error || !bytes_transferred) {
         // no data read
@@ -185,7 +227,7 @@ void SIMPLE_GPS::read_handler(bool& data_available, deadline_timer& timeout,
     timeout.cancel();
 }
 
-void SIMPLE_GPS::wait_callback(serial_port& ser_port,
+void SIMPLE_GPS::wait_callback(boost::asio::serial_port& ser_port,
         const boost::system::error_code& error) {
     if (error) {
         // data read, timeout cancelled
@@ -209,7 +251,8 @@ void SIMPLE_GPS::processWriteBuffer() {
                 << endl;
 
         // simple synchronous serial write
-        port.write_some(buffer(localWriteBuffer, localWriteBuffer.size()));
+        port.write_some(boost::asio::buffer(localWriteBuffer,
+        		localWriteBuffer.size()));
     } else {
         // no data to write, release lock
         writeBufferMutex.unlock();
@@ -223,7 +266,7 @@ void SIMPLE_GPS::serialLoop() {
 
         // set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
         // bytes read will be placed into readBuffer starting at index 0
-        port.async_read_some(buffer(&readBuffer[0], 1000),
+        port.async_read_some(boost::asio::buffer(&readBuffer[0], 1000),
                 boost::bind(&SIMPLE_GPS::read_handler, this,
                         boost::ref(data_available), boost::ref(timeout),
                         boost::asio::placeholders::error,
