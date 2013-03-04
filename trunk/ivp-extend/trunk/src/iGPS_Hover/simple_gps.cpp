@@ -124,7 +124,7 @@ bool SIMPLE_GPS::OnConnectToServer() {
 
     m_server = gethostbyname(server_name.c_str());
     if (m_server == NULL) {
-    	std::cout << "Error, no such host" << std::endl;
+    	std::cout << "Error, no such host " << server_name << std::endl;
     	return false;
     }
 
