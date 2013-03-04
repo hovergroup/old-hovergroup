@@ -1,5 +1,5 @@
 Community			= nostromo
-ServerHost			= 192.168.1.103
+ServerHost			= localhost
 ServerPort			= 9003
 
 //LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
@@ -10,7 +10,17 @@ ProcessConfig = ANTLER
 	MSBetweenLaunches	= 500
 
 	Run = MOOSDB			@ NewConsole = false
-	Run = iHoverKayak 		@ NewConsole = false
+	//Run = iHoverKayak 		@ NewConsole = false
+}
+
+ProcessConfig = iGPSHover
+{
+AppTick = 20
+IterateMode = 0
+
+TCP_SERVER = localhost
+TCP_PORT = 50000
+
 }
 
 ProcessConfig = iHoverKayak

@@ -8,6 +8,11 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <fstream>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 #include "MOOS/libMOOSGeodesy/MOOSGeodesy.h"
 #include "MOOS/libMOOS/App/MOOSInstrument.h"
 
@@ -79,6 +84,8 @@ private:
 
     bool file_exists(std::string filename);
     void writeLine(std::string sLine);
+
+    int m_tcp_sockfd;
 
 };
 
