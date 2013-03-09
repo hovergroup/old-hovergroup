@@ -73,6 +73,9 @@ private:
 	double m_last_command_time;
 	bool INVERT_RUDDER;
 
+	bool m_usingFreewave;
+	double m_radioSetTime, m_radioWaitTime;
+
 	int mapThrust( int thrust_command );
 	int mapRudder( int rudder_command );
 	int roundFloat( double val );
