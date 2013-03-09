@@ -26,6 +26,10 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 
 	INVERT_RUDDER = false;
 	RUDDER_OFFSET = 0;
+
+	m_usingFreewave = false;
+	m_radioSetTime = -1;
+	m_radioWaitTime = 120;
 }
 
 int kayak_driver::roundFloat( double val ) {
@@ -53,11 +57,24 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
 			newCommand = true;
 		} else if (key == "RADIO_POWER") {
+			bool freewave = false;
 			if (MOOSToUpper(msg.GetString()) == "FREEWAVE")
-				setRadioPower(true);
-			else
-				setRadioPower(false);
+				freewave = true;
 
+			// not waiting for confirmation message
+			if (m_radioSetTime==-1 ||
+					(m_radioSetTime!=-1 && freewave!=m_usingFreewave)) {
+				if (freewave) {
+					setRadioPower(true);
+					m_usingFreewave = true;
+				} else {
+					setRadioPower(false);
+					m_usingFreewave = false;
+				}
+				m_radioSetTime = MOOSTime();
+			} else {
+				m_radioSetTime = -1;
+			}
 		}
 	}
 
@@ -98,6 +115,7 @@ bool kayak_driver::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam( "PORT_NAME", my_port_name );
 	m_MissionReader.GetConfigurationParam( "INVERT_RUDDER", INVERT_RUDDER );
 	m_MissionReader.GetConfigurationParam( "RUDDER_OFFSET", RUDDER_OFFSET );
+	m_MissionReader.GetConfigurationParam("RADIO_WAIT_TIME", m_radioWaitTime);
 
 	RegisterVariables();
 
@@ -147,6 +165,15 @@ bool kayak_driver::Iterate()
 		sendMotorCommands();
 		m_last_command_time = MOOSTime();
 		newCommand = false;
+	}
+
+	if (m_radioSetTime!=-1 && MOOSTime()>m_radioSetTime+m_radioWaitTime) {
+		if (m_usingFreewave)
+			setRadioPower(false);
+		else
+			setRadioPower(true);
+		m_usingFreewave = !m_usingFreewave;
+		m_radioSetTime = -1;
 	}
 	return(true);
 }

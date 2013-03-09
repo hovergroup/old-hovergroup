@@ -11,6 +11,7 @@ SIMPLE_GPS::SIMPLE_GPS() :
     // initialize buffers with some size larger than should ever be needed
     writeBuffer = vector<unsigned char>(1000, 0);
     readBuffer = vector<unsigned char>(1000, 0);
+    tcpReadBuffer = vector<char>(1000, 0);
 
     bytesToWrite = 0;
     asyncBytesRead = 0;
@@ -23,12 +24,16 @@ SIMPLE_GPS::SIMPLE_GPS() :
     string_buffer = "";
 
     driver_initialized = false;
+    m_use_tcp = false;
 }
 
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
 bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
+	// if using tcp, assume we're logging gps server side
+	if (m_use_tcp) return true;
+
     MOOSMSG_LIST::iterator p;
 
     for (p = NewMail.begin(); p != NewMail.end(); p++) {
@@ -52,7 +57,7 @@ bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
             m_gps_log.open(filename.c_str());
 
             // get log directory from plogger that we will also use
-//            open_port(my_port_name, my_baud_rate);
+            open_port(my_port_name, my_baud_rate);
         }
     }
 
@@ -113,35 +118,39 @@ bool SIMPLE_GPS::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("TCP_SERVER", server_name);
     m_MissionReader.GetConfigurationParam("TCP_PORT", server_port);
 
-    struct sockaddr_in m_server_address;
-    struct hostent *m_server;
+    m_MissionReader.GetConfigurationParam("USE_TCP", m_use_tcp);
 
-    m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_tcp_sockfd < 0) {
-    	std::cout << "Error opening socket" << std::endl;
-    	return false;
+    if (m_use_tcp) {
+		struct sockaddr_in m_server_address;
+		struct hostent *m_server;
+
+		m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+		if (m_tcp_sockfd < 0) {
+			std::cout << "Error opening socket" << std::endl;
+			return false;
+		}
+
+		m_server = gethostbyname(server_name.c_str());
+		if (m_server == NULL) {
+			std::cout << "Error, no such host " << server_name << std::endl;
+			return false;
+		}
+
+		bzero((char *) &m_server_address, sizeof(m_server_address));
+		m_server_address.sin_family = AF_INET;
+		bcopy((char *) m_server->h_addr,
+				(char *)&m_server_address.sin_addr.s_addr,
+				m_server->h_length);
+		m_server_address.sin_port = htons(server_port);
+		if (connect(m_tcp_sockfd,
+				(struct sockaddr *) &m_server_address,
+				sizeof(m_server_address)) < 0) {
+			std::cout << "error connecting" << std::endl;
+			return false;
+		}
+    } else {
+    	RegisterVariables();
     }
-
-    m_server = gethostbyname(server_name.c_str());
-    if (m_server == NULL) {
-    	std::cout << "Error, no such host " << server_name << std::endl;
-    	return false;
-    }
-
-	bzero((char *) &m_server_address, sizeof(m_server_address));
-	m_server_address.sin_family = AF_INET;
-	bcopy((char *) m_server->h_addr,
-			(char *)&m_server_address.sin_addr.s_addr,
-			m_server->h_length);
-	m_server_address.sin_port = htons(server_port);
-	if (connect(m_tcp_sockfd,
-			(struct sockaddr *) &m_server_address,
-			sizeof(m_server_address)) < 0) {
-		std::cout << "error connecting" << std::endl;
-		return false;
-	}
-
-    RegisterVariables();
 
 //	open_port( my_port_name, my_baud_rate );
     //serial_thread = boost::thread(boost::bind(&SIMPLE_GPS::serialLoop, this));
@@ -160,14 +169,18 @@ void SIMPLE_GPS::RegisterVariables() {
 // Procedure: Iterate()
 
 bool SIMPLE_GPS::Iterate() {
-	std::vector<char> buf(256,0);
-	int n = read(m_tcp_sockfd,&buf[0],256);
-	if (n < 0) {
-		std::cout << "error reading from socket" << std::endl;
-		return false;
+	if (m_use_tcp) {
+		int n = read(m_tcp_sockfd,&tcpReadBuffer[0],1000);
+		if (n < 0) {
+			std::cout << "error reading from socket" << std::endl;
+			return false;
+		}
+		if (n > 0) {
+			string_buffer += std::string(tcpReadBuffer.begin(),
+					tcpReadBuffer.begin()+=n);
+		}
+		processReadBuffer();
 	}
-	std::string s(buf.begin(), buf.end());
-	std::cout << s;
 
     return (true);
 }
@@ -287,16 +300,21 @@ void SIMPLE_GPS::serialLoop() {
             string_buffer += string(readBuffer.begin(), readBuffer.begin() +=
                     asyncBytesRead);
 //			cout << string_buffer << endl;
-            int start_index, stop_index;
-            while ((stop_index = string_buffer.find("\r\n", 2)) != string::npos
-                    && (start_index = string_buffer.find("$", 0))
-                            != string::npos) {
-                parseLine(
-                        string_buffer.substr(start_index,
-                                stop_index - start_index));
-                string_buffer = string_buffer.substr(stop_index,
-                        string_buffer.size() - stop_index);
-            }
+            processReadBuffer();
         }
     }
+}
+
+void SIMPLE_GPS::processReadBuffer() {
+    int start_index, stop_index;
+    while ((stop_index = string_buffer.find("\r\n", 2)) != string::npos
+            && (start_index = string_buffer.find("$", 0))
+                    != string::npos) {
+        parseLine(
+                string_buffer.substr(start_index,
+                        stop_index - start_index));
+        string_buffer = string_buffer.substr(stop_index,
+                string_buffer.size() - stop_index);
+    }
+
 }

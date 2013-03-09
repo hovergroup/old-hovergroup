@@ -64,9 +64,7 @@ private:
     void wait_callback(boost::asio::serial_port& ser_port,
             const boost::system::error_code& error);
     void null_handler(const boost::system::error_code& error,
-            std::size_t bytes_transferred) {
-    }
-    ;
+            std::size_t bytes_transferred) {}
 
     std::vector<unsigned char> readBuffer, writeBuffer;
     boost::mutex writeBufferMutex;
@@ -81,11 +79,14 @@ private:
     // the background loop responsible for interacting with the serial port
     void serialLoop();
     void processWriteBuffer();
+    void processReadBuffer();
 
     bool file_exists(std::string filename);
     void writeLine(std::string sLine);
 
     int m_tcp_sockfd;
+    bool m_use_tcp;
+    std::vector<char> tcpReadBuffer;
 
 };
 
