@@ -143,12 +143,12 @@ std::string  AcommsReception::verify(bool & ok) {
 	int num_stats = m_protobuf.ExtensionSize(micromodem::protobuf::receive_stat);
 	if (getRate()==FSK0) {
 		if (num_stats!=2) {
-			ss << "FSK packet had " << num_stats << "receive statistics.";
+			ss << "FSK packet had " << num_stats << " receive statistics.";
 			ok = false;
 			return ss.str();
 		}
 	} else if (num_stats!=1) {
-		ss << "Non-FSK packet had " << num_stats << "receive statistics.";
+		ss << "Non-FSK packet had " << num_stats << " receive statistics.";
 		ok = false;
 		return ss.str();
 	}

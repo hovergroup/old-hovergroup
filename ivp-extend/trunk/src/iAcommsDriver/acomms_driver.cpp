@@ -293,6 +293,8 @@ void acomms_driver::handle_sim_receive(std::string msg) {
 // handle incoming data received or statistics from the modem
 void acomms_driver::handle_data_receive(
 		const goby::acomms::protobuf::ModemTransmission& data_msg) {
+    std::cout << data_msg.DebugString() << std::endl;
+
 	HoverAcomms::AcommsReception reception;
 	reception.copyFromProtobuf(data_msg);
 	reception.m_vehicleName = my_name;
