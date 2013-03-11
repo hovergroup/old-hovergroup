@@ -7,5 +7,5 @@ ProcessConfig = pShare
   MaxAppTick = 20
   IterateMode = 1
   
-  input = route =  $(SHOREIP):$(LPORT) 
+  input = route =  $(VHOST):$(LPORT) 
 }
