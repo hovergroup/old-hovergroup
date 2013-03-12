@@ -66,12 +66,18 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  m_transmission.setDest(msg.GetDouble());
       } else if ( key == "ACOMMS_TRANSMIT_DATA" &&
     		  msg.GetSource() != GetAppName() ) {
-    	  m_transmission.fillData(msg.GetString());
-    	  new_transmit = true;
+    	  if (m_transmission.fillData(msg.GetString())==-1) {
+    		  publishWarning("Cannot fill data because rate is not defined.");
+    	  } else {
+    		  new_transmit = true;
+    	  }
       } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" &&
     		  msg.GetSource() != GetAppName() ) {
-    	  m_transmission.fillData(msg.GetString());
-    	  new_transmit = true;
+    	  if (m_transmission.fillData(msg.GetString())==-1) {
+    		  publishWarning("Cannot fill data because rate is not defined.");
+    	  } else {
+    		  new_transmit = true;
+    	  }
       } else if ( key == "LOGGER_DIRECTORY" && !driver_initialized && connect_complete ) {
     	  // get log directory from plogger that we will also use
           startDriver( msg.GetString() );
@@ -81,8 +87,8 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  m_navy = msg.GetDouble();
       } else if ( key == "ACOMMS_TRANSMIT" &&
     		  msg.GetSource() != GetAppName() ) {
-    	  m_transmission.parseFromString(msg.GetString());
-    	  new_transmit=true;
+    	  if (m_transmission.parseFromString(msg.GetString()))
+    		  new_transmit=true;
       } else if ( key == "ACOMMS_TRANSMITTED_REMOTE") {
     	  if ( !msg.IsBinary() ) {
     		  std::cout << "warning - wasn't binary" << std::endl;
@@ -253,7 +259,7 @@ void acomms_driver::transmit_data() {
     m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
 
     // post transmission range pulse
-    postRangePulse( "transmit", transmission_pulse_range,
+    postRangePulse( my_name + "_transmit", transmission_pulse_range,
     		transmission_pulse_duration, "cyan");
 }
 
