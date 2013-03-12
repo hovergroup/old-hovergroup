@@ -252,9 +252,11 @@ void acomms_driver::transmit_data() {
 	if (!in_sim)
 		driver->handle_initiate_transmission( trans );
 
+	std::cout << "notifying" << std::endl;
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
     m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
 
+    std::cout << "transmitted" << std::endl;
     m_transmission.m_vehicleName = my_name;
     m_transmission.m_navx = m_navx;
     m_transmission.m_navy = m_navy;
@@ -262,6 +264,7 @@ void acomms_driver::transmit_data() {
     std::string to_publish = m_transmission.serializeWithInfo();
     m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
 
+    std::cout << "range pulse" << std::endl;
     // post transmission range pulse
     postRangePulse( my_name + "_transmit", transmission_pulse_range,
     		transmission_pulse_duration, "cyan");
