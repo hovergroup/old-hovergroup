@@ -158,6 +158,7 @@ bool acomms_driver::OnConnectToServer()
 
 bool acomms_driver::Iterate()
 {
+    std::cout << "sim stuff" << std::endl;
 	if (scheduled_reception.m_time != -1 &&
 			JoshUtil::getSystemTimeSeconds() > scheduled_reception.m_time) {
 		std::cout << "scheduled time reached" << std::endl;
@@ -165,10 +166,12 @@ bool acomms_driver::Iterate()
 		handle_data_receive( scheduled_reception.m_protobuf );
 	}
 
+	std::cout << "running driver" << std::endl;
 	// run the driver
 	if (!in_sim)
 		driver->do_work();
 
+	std::cout << "receiving timeout" << std::endl;
 	// receive status timeout
 	if ( status=="receiving" && MOOSTime()-receive_set_time > 8 ) {
 		publishWarning("Timed out in receiving state.");
@@ -176,6 +179,7 @@ bool acomms_driver::Iterate()
 		publishStatus("ready");
 	}
 
+	std::cout << "transmit timeout" << std::endl;
 	// transmit status timeout
 	double transmit_timeout;
 	switch ( m_transmission.getRate() ) {
@@ -191,6 +195,7 @@ bool acomms_driver::Iterate()
 		else
 			transmit_timeout = 8;
 	}
+	std::cout << "more transmit timeout" << std::endl;
 	if ( status=="transmitting" && MOOSTime()-transmit_set_time > transmit_timeout ) {
 		if (!in_sim)
 			publishWarning("Timed out in transmitting state.");
@@ -198,6 +203,7 @@ bool acomms_driver::Iterate()
 		publishStatus("ready");
 	}
 
+	std::cout << "status update" << std::endl;
 	// status gets updated every 5 seconds
 	if ( MOOSTime()-status_set_time > 5 ) {
 		publishStatus( status );
