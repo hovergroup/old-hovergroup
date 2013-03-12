@@ -99,8 +99,16 @@ public:
 
 	int getSource() const { return m_protobuf.src(); }
 	int getDest() const { return m_protobuf.dest(); }
-	int getNumStats() const { return m_protobuf.ExtensionSize(micromodem::protobuf::receive_stat); }
-	int getNumBadFrames() const { return m_protobuf.ExtensionSize(micromodem::protobuf::frame_with_bad_crc); }
+	int getNumStats() const {
+	    if (m_protobuf.HasExtension(micromodem::protobuf::receive_stat))
+	        return m_protobuf.ExtensionSize(micromodem::protobuf::receive_stat);
+	    else
+	        return 0; }
+	int getNumBadFrames() const {
+	    if (m_protobuf.HasExtension(micromodem::protobuf::frame_with_bad_crc))
+	        return m_protobuf.ExtensionSize(micromodem::protobuf::frame_with_bad_crc);
+	    else
+	        return 0; }
 
 	bool hasRanging() const;
 	double getRangingTime() const;
