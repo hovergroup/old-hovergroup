@@ -142,8 +142,16 @@ protected:
 
 	void packMessage(std::string data);
 
-	int frameSize() { return FrameSizeMap.find(m_rate)->second; }
-	int frameCount() { return FrameCountMap.find(m_rate)->second; }
+	int frameSize() {
+		if(FrameSizeMap.find(m_rate)==FrameSizeMap.end())
+			return -1;
+		else
+			return FrameSizeMap.find(m_rate)->second; }
+	int frameCount() {
+		if(FrameCountMap.find(m_rate)==FrameCountMap.end())
+			return -1;
+		else
+			return FrameCountMap.find(m_rate)->second; }
 };
 
 };
