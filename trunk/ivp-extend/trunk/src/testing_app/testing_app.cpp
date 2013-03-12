@@ -18,18 +18,18 @@ int main(int argc,char **argv)
 {
 	goby::acomms::protobuf::ModemTransmission proto;
 	HoverAcomms::AcommsTransmission trans;
-	trans.setRate(2);
-	std::cout << trans.parseFromString("hello") << std::endl;
-	std::cout << trans.m_protobuf.DebugString() << std::endl;
-	std::cout << trans.fillData("hello")<< std::endl;
+	trans.setDest(0);
+	std::cout << trans.serialize() << std::endl;
+	std::string s = trans.serialize();
+	for (int i=0; i<s.size(); i++) {
+		std::cout << std::hex << (int) s[i] << ":";
+	}
+	std::cout << std::endl;
 
-	std::cout << trans.m_protobuf.DebugString() << std::endl;
-
-	trans.setRate(100);
-	std::cout << trans.m_protobuf.DebugString() << std::endl;
-
-	trans.setRate(2);
-	std::cout << trans.m_protobuf.DebugString() << std::endl;
+	std::cout << trans.parseFromString(s) << std::endl;
+	std::cout << trans.getRate() << std::endl;
+	trans.setRate(trans.getRate());
+	std::cout << trans.getRate() << std::endl;
 
 
 	HoverAcomms::AcommsReception reception;

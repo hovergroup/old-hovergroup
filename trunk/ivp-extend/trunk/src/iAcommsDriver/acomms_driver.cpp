@@ -240,6 +240,8 @@ void acomms_driver::transmit_data() {
 	if (m_transmission.m_protobuf.rate() < 0) {
 		publishWarning("Rate not set, assuming default.");
 		m_transmission.setRate(0);
+	} else {
+		m_transmission.setRate(m_transmission.getRate());
 	}
 
 	m_transmission.m_protobuf.set_src(my_id);
