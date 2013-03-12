@@ -158,7 +158,6 @@ bool acomms_driver::OnConnectToServer()
 
 bool acomms_driver::Iterate()
 {
-    std::cout << "sim stuff" << std::endl;
 	if (scheduled_reception.m_time != -1 &&
 			JoshUtil::getSystemTimeSeconds() > scheduled_reception.m_time) {
 		std::cout << "scheduled time reached" << std::endl;
@@ -166,12 +165,10 @@ bool acomms_driver::Iterate()
 		handle_data_receive( scheduled_reception.m_protobuf );
 	}
 
-	std::cout << "running driver" << std::endl;
 	// run the driver
 	if (!in_sim)
 		driver->do_work();
 
-	std::cout << "receiving timeout" << std::endl;
 	// receive status timeout
 	if ( status=="receiving" && MOOSTime()-receive_set_time > 8 ) {
 		publishWarning("Timed out in receiving state.");
@@ -179,7 +176,6 @@ bool acomms_driver::Iterate()
 		publishStatus("ready");
 	}
 
-	std::cout << "transmit timeout" << std::endl;
 	// transmit status timeout
 	double transmit_timeout;
 	switch ( m_transmission.getRate() ) {
@@ -195,7 +191,6 @@ bool acomms_driver::Iterate()
 		else
 			transmit_timeout = 8;
 	}
-	std::cout << "more transmit timeout" << std::endl;
 	if ( status=="transmitting" && MOOSTime()-transmit_set_time > transmit_timeout ) {
 		if (!in_sim)
 			publishWarning("Timed out in transmitting state.");
@@ -203,7 +198,6 @@ bool acomms_driver::Iterate()
 		publishStatus("ready");
 	}
 
-	std::cout << "status update" << std::endl;
 	// status gets updated every 5 seconds
 	if ( MOOSTime()-status_set_time > 5 ) {
 		publishStatus( status );
@@ -258,11 +252,9 @@ void acomms_driver::transmit_data() {
 	if (!in_sim)
 		driver->handle_initiate_transmission( trans );
 
-	std::cout << "notifying" << std::endl;
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
     m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
 
-    std::cout << "transmitted" << std::endl;
     m_transmission.m_vehicleName = my_name;
     m_transmission.m_navx = m_navx;
     m_transmission.m_navy = m_navy;
@@ -270,12 +262,9 @@ void acomms_driver::transmit_data() {
     std::string to_publish = m_transmission.serializeWithInfo();
     m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
 
-    std::cout << "range pulse" << std::endl;
     // post transmission range pulse
     postRangePulse( my_name + "_transmit", transmission_pulse_range,
     		transmission_pulse_duration, "cyan");
-
-    std::cout << "done initiating" << std::endl;
 }
 
 // post range pulse for pMarineViewer
@@ -325,7 +314,6 @@ void acomms_driver::handle_data_receive(
 		const goby::acomms::protobuf::ModemTransmission& data_msg) {
     std::cout << data_msg.DebugString() << std::endl;
 
-    std::cout << "construction reception" << std::endl;
 	HoverAcomms::AcommsReception reception;
 	reception.copyFromProtobuf(data_msg);
 	reception.m_vehicleName = my_name;
@@ -334,14 +322,12 @@ void acomms_driver::handle_data_receive(
 	reception.m_time = JoshUtil::getSystemTimeSeconds();
 
 
-	std::cout << "publishing info" << std::endl;
 	bool ok = true;
 	if (!in_sim) {
 		std::string debug_msg = reception.verify(ok);
 		if (!ok) {
 			publishWarning(debug_msg);
 		} else {
-		    std::cout << "serialize" << std::endl;
 			std::string serialized = reception.serializeWithInfo();
 			m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
@@ -350,13 +336,11 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
 			m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
 			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
-            std::cout << "get data" << std::endl;
 			std::string data = reception.getData();
 			m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
 			m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
 
-            std::cout << "get stats" << std::endl;
 			micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
 			m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
 			m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
@@ -364,7 +348,6 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
 			m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
 
-            std::cout << "get status" << std::endl;
 			HoverAcomms::ReceiptStatus status = reception.getStatus();
 			m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
 			if (status==HoverAcomms::GOOD) {
@@ -405,13 +388,11 @@ void acomms_driver::handle_data_receive(
 		}
 	}
 
-	std::cout << "done handling receipt" << std::endl;
 	driver_ready = true;
 	publishStatus("ready");
 }
 
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
-    std::cout << "handling raw" << std::endl;
 	string descriptor = msg.raw().substr(3,3);
 	if ( descriptor == "TXF") {
 		// end of transmission, change status back to ready
@@ -428,7 +409,6 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		// impulse response, post to moosdb
 		m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
 	}
-	std::cout << "done handling raw" << std::endl;
 }
 
 // publish warning
