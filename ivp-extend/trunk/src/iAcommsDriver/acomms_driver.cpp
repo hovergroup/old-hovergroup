@@ -337,7 +337,7 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
 			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
 			std::string data = reception.getData();
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
+			m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
 			m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
 
