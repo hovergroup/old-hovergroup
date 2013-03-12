@@ -89,6 +89,8 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     		  msg.GetSource() != GetAppName() ) {
     	  if (m_transmission.parseFromString(msg.GetString()))
     		  new_transmit=true;
+    	  else
+    		  publishWarning("Failed to parse protobuf from ACOMMS_TRANSMIT posting.");
       } else if ( key == "ACOMMS_TRANSMITTED_REMOTE") {
     	  if ( !msg.IsBinary() ) {
     		  std::cout << "warning - wasn't binary" << std::endl;

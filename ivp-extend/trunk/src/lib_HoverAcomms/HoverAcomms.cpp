@@ -116,7 +116,8 @@ AcommsTransmission::AcommsTransmission(std::string data, Rate rate, int dest) {
 }
 
 bool AcommsBase::parseFromString(std::string msg) {
-	m_protobuf.Clear();
+	if (msg.empty()) return false;
+
 	m_vehicleName = "";
 	if (msg.find("vname=") != std::string::npos) {
 		MOOSChomp(msg, "vname=");
@@ -129,7 +130,15 @@ bool AcommsBase::parseFromString(std::string msg) {
 		m_navy = atof(MOOSChomp(msg,":").c_str());
 		MOOSChomp(msg, ":");
 	}
-	return m_protobuf.ParseFromString(msg);
+
+	goby::acomms::protobuf::ModemTransmission tmp;
+	if(tmp.ParseFromString(msg)) {
+		m_protobuf.Clear();
+		m_protobuf.CopyFrom(tmp);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void AcommsBase::copyFromProtobuf(const goby::acomms::protobuf::ModemTransmission & proto) {
