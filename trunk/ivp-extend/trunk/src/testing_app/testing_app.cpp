@@ -19,7 +19,9 @@ int main(int argc,char **argv)
 	goby::acomms::protobuf::ModemTransmission proto;
 	HoverAcomms::AcommsTransmission trans;
 	trans.setRate(2);
-	trans.fillData("hello");
+	std::cout << trans.parseFromString("hello") << std::endl;
+	std::cout << trans.m_protobuf.DebugString() << std::endl;
+	std::cout << trans.fillData("hello")<< std::endl;
 
 	std::cout << trans.m_protobuf.DebugString() << std::endl;
 
