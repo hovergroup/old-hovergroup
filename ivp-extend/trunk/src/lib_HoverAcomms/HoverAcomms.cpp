@@ -21,6 +21,7 @@ bool AcommsTransmission::setRate(Rate r) {
 			m_protobuf.ClearExtension(micromodem::protobuf::type);
 		}
 	}
+	fillData(getData());
 	return true;
 }
 
@@ -46,7 +47,7 @@ void AcommsTransmission::packMessage(std::string data) {
 	} else { // multiple frames
 		int filled_size = 0;
 		// pack in full frames
-		while ( data.size() > frame_size && m_protobuf.frame_size()<frame_size ) {
+		while ( data.size() > frame_size && m_protobuf.frame_size()<frame_count ) {
 			m_protobuf.add_frame(data.data(), frame_size);
 			data = data.substr(frame_size, data.size()-frame_size);
 		}
