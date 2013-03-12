@@ -202,10 +202,10 @@ std::string AcommsReception::getFrame(unsigned int i) const {
 }
 
 ReceiptStatus AcommsReception::getStatus() const {
-	if (getNumFrames()>0 && getNumBadFrames()<getNumFrames()) {
-		return PARTIAL;
-	} else if (getNumFrames()>0 && getNumBadFrames()==0) {
+	if (getNumFrames()>0 && getNumBadFrames()==0) {
 		return GOOD;
+	} else if (getNumFrames()>0 && getNumBadFrames()<getNumFrames()) {
+		return PARTIAL;
 	} else {
 		return BAD;
 	}
