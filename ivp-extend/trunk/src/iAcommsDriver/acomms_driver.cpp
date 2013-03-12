@@ -323,6 +323,7 @@ void acomms_driver::handle_data_receive(
 		const goby::acomms::protobuf::ModemTransmission& data_msg) {
     std::cout << data_msg.DebugString() << std::endl;
 
+    std::cout << "construction reception" << std::endl;
 	HoverAcomms::AcommsReception reception;
 	reception.copyFromProtobuf(data_msg);
 	reception.m_vehicleName = my_name;
@@ -330,6 +331,8 @@ void acomms_driver::handle_data_receive(
 	reception.m_navy = m_navy;
 	reception.m_time = JoshUtil::getSystemTimeSeconds();
 
+
+	std::cout << "publishing info" << std::endl;
 	bool ok = true;
 	if (!in_sim) {
 		std::string debug_msg = reception.verify(ok);
@@ -396,11 +399,13 @@ void acomms_driver::handle_data_receive(
 		}
 	}
 
+	std::cout << "done handling receipt" << std::endl;
 	driver_ready = true;
 	publishStatus("ready");
 }
 
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
+    std::cout << "handling raw" << std::endl;
 	string descriptor = msg.raw().substr(3,3);
 	if ( descriptor == "TXF") {
 		// end of transmission, change status back to ready
@@ -417,6 +422,7 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 		// impulse response, post to moosdb
 		m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
 	}
+	std::cout << "done handling raw" << std::endl;
 }
 
 // publish warning
