@@ -191,7 +191,7 @@ Rate AcommsReception::getRate() const {
 	if (m_protobuf.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC)
 		return MINI;
 	else
-		return reverseRate(m_protobuf.rate());
+		return reverseRate(getStatistics(1).rate());
 }
 
 std::string AcommsReception::getFrame(unsigned int i) const {
