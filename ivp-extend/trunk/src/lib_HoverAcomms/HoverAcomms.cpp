@@ -16,30 +16,27 @@ bool AcommsTransmission::setRate(Rate r) {
 		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
 	} else {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
-		m_protobuf.set_rate(r);
+		m_protobuf.set_rate(m_rate);
+		if (m_protobuf.HasExtension(micromodem::protobuf::type)) {
+			m_protobuf.ClearExtension(micromodem::protobuf::type);
+		}
 	}
 	return true;
 }
 
 bool AcommsTransmission::setRate(int r) {
-	if (r == 100) {
-		m_rate = MINI;
-		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
-		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
-	} else if (r<0 || r>6) {
+	if (r==100) {
+		return setRate(MINI);
+	}
+	if (r<0 || r>6) {
 		return false;
 	} else {
-		m_rate = reverseRate(r);
-		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
-		m_protobuf.set_rate(m_rate);
+		return setRate(reverseRate(r));
 	}
-	return true;
 }
 
 // pack data into frames
 void AcommsTransmission::packMessage(std::string data) {
-	m_protobuf.clear_frame();
-
 	int frame_size = frameSize();
 	int frame_count = frameCount();
 
@@ -66,6 +63,7 @@ int AcommsTransmission::fillData(const char * data, int length) {
 }
 
 int AcommsTransmission::fillData(const std::string & data) {
+	m_protobuf.clear_frame();
 	if (m_rate==MINI) {
 		std::string data_copy = data;
 		if (data_copy.size()==1) {
