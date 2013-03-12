@@ -274,6 +274,8 @@ void acomms_driver::transmit_data() {
     // post transmission range pulse
     postRangePulse( my_name + "_transmit", transmission_pulse_range,
     		transmission_pulse_duration, "cyan");
+
+    std::cout << "done initiating" << std::endl;
 }
 
 // post range pulse for pMarineViewer
@@ -339,6 +341,7 @@ void acomms_driver::handle_data_receive(
 		if (!ok) {
 			publishWarning(debug_msg);
 		} else {
+		    std::cout << "serialize" << std::endl;
 			std::string serialized = reception.serializeWithInfo();
 			m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
@@ -347,11 +350,13 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
 			m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
 			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
+            std::cout << "get data" << std::endl;
 			std::string data = reception.getData();
 			m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
 			m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
 
+            std::cout << "get stats" << std::endl;
 			micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
 			m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
 			m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
@@ -359,6 +364,7 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
 			m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
 
+            std::cout << "get status" << std::endl;
 			HoverAcomms::ReceiptStatus status = reception.getStatus();
 			m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
 			if (status==HoverAcomms::GOOD) {
