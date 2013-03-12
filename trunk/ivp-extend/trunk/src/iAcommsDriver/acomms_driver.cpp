@@ -79,7 +79,8 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  m_navx = msg.GetDouble();
       } else if ( key == "NAV_Y" ) {
     	  m_navy = msg.GetDouble();
-      } else if ( key == "ACOMMS_TRANSMIT" ) {
+      } else if ( key == "ACOMMS_TRANSMIT" &&
+    		  msg.GetSource() != GetAppName() ) {
     	  m_transmission.parseFromString(msg.GetString());
     	  new_transmit=true;
       } else if ( key == "ACOMMS_TRANSMITTED_REMOTE") {
@@ -129,17 +130,16 @@ bool acomms_driver::OnConnectToServer()
    // post these to make sure they are the correct type
    unsigned char c = 0x00;
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
-//   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
+   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
-//   m_Comms.Notify("ACOMMS_TRANSMITTED_REMOTE", &c, 1);
-//   m_Comms.Notify("ACOMMS_TRANSMITTED", &c, 1);
+   m_Comms.Notify("ACOMMS_TRANSMITTED_REMOTE", &c, 1);
+   m_Comms.Notify("ACOMMS_TRANSMITTED", &c, 1);
    m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
 
    RegisterVariables();
 
    // driver not started yet
    publishStatus("not running");
-
    connect_complete = true;
 
    return(true);
@@ -224,6 +224,15 @@ void acomms_driver::transmit_data() {
 	publishStatus("transmitting");
 	transmit_set_time = MOOSTime();
 	driver_ready = false;
+
+	if (m_transmission.m_protobuf.dest() < 0) {
+		publishWarning("Destination not set, assuming default.");
+		m_transmission.setDest(0);
+	}
+	if (m_transmission.m_protobuf.rate() < 0) {
+		publishWarning("Rate not set, assuming default.");
+		m_transmission.setRate(0);
+	}
 
 	m_transmission.m_protobuf.set_src(my_id);
 	m_transmission.m_protobuf.set_ack_requested(false);

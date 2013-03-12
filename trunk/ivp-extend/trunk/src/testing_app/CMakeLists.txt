@@ -6,5 +6,9 @@
 ADD_EXECUTABLE(testing_app testing_app.cpp)
    
 TARGET_LINK_LIBRARIES(testing_app
-    mgl-qt
+    HoverAcomms
+    goby_common
+    goby_acomms
+    boost_system
+    boost_signals
 )
