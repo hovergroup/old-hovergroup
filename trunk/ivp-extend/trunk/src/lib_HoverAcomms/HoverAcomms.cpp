@@ -14,6 +14,9 @@ bool AcommsTransmission::setRate(Rate r) {
 	if (r==MINI) {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
 		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
+	} else if (r==REMUS_LBL) {
+		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
+		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_REMUS_LBL_RANGING );
 	} else {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 		m_protobuf.set_rate(m_rate);
@@ -28,6 +31,8 @@ bool AcommsTransmission::setRate(Rate r) {
 bool AcommsTransmission::setRate(int r) {
 	if (r==100) {
 		return setRate(MINI);
+	} else if (r==101) {
+		return setRate(REMUS_LBL);
 	}
 	if (r<0 || r>6) {
 		return false;
