@@ -11,7 +11,7 @@ SHOREHOST="192.168.1.100"
 VEHICLE=""
 CRUISESPEED=2
 RUDDER_OFFSET=2
-TRANSMIT_PERIOD=13
+TRANSMIT_PERIOD=15
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -153,7 +153,7 @@ if [ "${VEHICLE}" = "icarus" ]; then
         GPSPORT="/dev/ttyUSB1"							\
 		GPSBAUD="57600"									\
 		TransmitPeriod=$TRANSMIT_PERIOD					\
-		TransmitOffset=6.5
+		TransmitOffset=7.5
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
