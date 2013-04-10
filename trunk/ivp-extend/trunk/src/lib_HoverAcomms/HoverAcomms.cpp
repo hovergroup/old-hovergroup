@@ -79,6 +79,8 @@ int AcommsTransmission::fillData(const std::string & data) {
 		m_protobuf.add_frame(data_copy.data(),2);
 		m_protobuf.mutable_frame(0)->at(0) &= 0x1f;
 		return 2;
+	} else if (m_rate==REMUS_LBL) {
+		return 1;
 	} else if (FrameSizeMap.find(m_rate)==FrameSizeMap.end()) {
 		return -1; // no rate defined
 	} else {
