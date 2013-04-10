@@ -86,7 +86,7 @@ int AcommsTransmission::fillData(const std::string & data) {
 	} else {
 		packMessage(data);
 		return getData().size();
-	}
+	}		return MINI;
 }
 
 std::string AcommsBase::getLoggableString() const {
@@ -158,6 +158,11 @@ std::string AcommsReception::verify(bool & ok) {
 
 	// verify number of statistics against rate
 	int num_stats = m_protobuf.ExtensionSize(micromodem::protobuf::receive_stat);
+	if (getRate()==REMUS_LBL) {
+		ok = true;
+		return "";
+	}
+
 	if (getRate()==FSK0) {
 		if (num_stats!=2) {
 			ss << "FSK packet had " << num_stats << " receive statistics.";
@@ -195,9 +200,13 @@ std::string AcommsReception::verify(bool & ok) {
 }
 
 Rate AcommsReception::getRate() const {
-	if (m_protobuf.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC)
-		return MINI;
-	else
+	if (m_protobuf.type() == goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC) {
+		if (m_protobuf.GetExtension(micromodem::protobuf::type)==micromodem::protobuf::MICROMODEM_REMUS_LBL_RANGING) {
+			return REMUS_LBL;
+		} else {
+			return MINI;
+		}
+	}else
 		return reverseRate(getStatistics(1).rate());
 }
 
