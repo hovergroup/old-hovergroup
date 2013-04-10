@@ -1,0 +1,73 @@
+ServerHost = localhost
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+   
+  Run = MOOSDB             @ NewConsole = false
+  Run = pShare             @ NewConsole = false
+  Run = uSimMarine         @ NewConsole = false
+  Run = pLogger            @ NewConsole = false
+  Run = pNodeReporter      @ NewConsole = false
+  Run = pMarinePID_Hover   @ NewConsole = false
+  Run = pHelmIvP           @ NewConsole = false
+  Run = pHostInfo          @ NewConsole = false
+  Run = uFldNodeBroker     @ NewConsole = false
+  Run = uFldMessageHandler @ NewConsole = false
+  Run = pEchoVar           @ NewConsole = false
+  //Run = iAcommsDriver      @ NewConsole = false
+  Run = pScheduledTransmit  @ NewConsole = false
+}
+
+ProcessConfig = iAcommsDriver
+{
+    AppTick = 5
+    IterateMode = 0
+
+    PortName = $(MODEMPORT)
+    ID = $(ACOMMSID)
+    
+    in_sim = true
+    
+    PSK_minipackets = false
+    enable_ranging = false
+    show_range_pulses = true
+}
+
+//--------------------------------------------------
+// uFldNodeBroker configuration block from plugin
+
+ProcessConfig = uFldNodeBroker
+{
+  AppTick   = 1
+  CommsTick = 1
+
+  TRY_SHORE_HOST = pshare_route=$(SHOREIP):9001
+
+  BRIDGE = src=VIEW_POLYGON
+  BRIDGE = src=VIEW_POINT
+  BRIDGE = src=VIEW_SEGLIST
+  BRIDGE = src=VIEW_RANGE_PULSE
+  BRIDGE = src=ACOMMS_TRANSMITTED
+  
+  BRIDGE = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
+  BRIDGE = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
+}
+
+
+#include plug_uSimMarine.moos
+
+#include plug_pShareV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pMarinePID_Hover.moos
+#include plug_pHelmIvP.moos
+#include plug_pHostInfo.moos
+#include plug_uFldMessageHandler.moos
+#include plug_pEchoVar.moos
+#include plug_pScheduledTransmit.moos
