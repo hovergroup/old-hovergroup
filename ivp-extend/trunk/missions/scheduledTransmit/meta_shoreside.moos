@@ -30,8 +30,8 @@ ProcessConfig = uTermCommand
 {
 	AppTick = 2
 
-	CMD = enable_transmits --> SCHEDULED_TRANSMITS --> ON
-	CMD = disable_transmits --> SCHEDULED_TRANSMITS --> OFF
+	CMD = enable_transmits --> SCHEDULED_TRANSMITS_ALL --> ON
+	CMD = disable_transmits --> SCHEDULED_TRANSMITS_ALL --> OFF
 }
 
 #include plug_pHostInfo.moos

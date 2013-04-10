@@ -21,9 +21,18 @@ Processconfig = ANTLER
 	Run = uFldNodeComms        @ NewConsole = false,XConfig=1
   	Run = uFldMessageHandler   @ NewConsole = false
   	Run = pEchoVar             @ NewConsole = false
+    Run = uTermCommand         @ NewConsole = true
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+    AppTick = 2
+
+    CMD = enable_transmits --> SCHEDULED_TRANSMITS_ALL --> ON
+    CMD = disable_transmits --> SCHEDULED_TRANSMITS_ALL --> OFF
 }
 
 ProcessConfig = pEchoVar
@@ -48,6 +57,7 @@ ProcessConfig = uFldShoreBroker
 
   QBRIDGE  = MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, GOTO_UPDATES
   QBRIDGE  = NODE_REPORT, NODE_MESSAGE
+  QBRIDGE  = SCHEDULED_TRANSMITS
   
   BRIDGE = src=ACOMMS_TRANSMITTED_INTERMEDIATE, alias=ACOMMS_TRANSMITTED_REMOTE
   
