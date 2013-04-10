@@ -332,33 +332,35 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
-			m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
-			m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
-			m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
-			m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
-			std::string data = reception.getData();
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
-			m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
-			m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
+			if (reception.getRate()!=HoverAcomms::REMUS_LBL) { //investigate potential error sources with REMUS_LBL later
+                m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
+                m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
+                m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
+                m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
+                std::string data = reception.getData();
+                m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
+                m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
+                m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
 
-			micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
-			m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
-			m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
-			m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
-			m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
-			m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
+                micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
+                m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
+                m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
+                m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
+                m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
+                m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
 
-			HoverAcomms::ReceiptStatus status = reception.getStatus();
-			m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
-			if (status==HoverAcomms::GOOD) {
-				postRangePulse(my_name+"_receipt_good", receive_pulse_range,
-						receive_pulse_duration, "green");
-			} else if (status==HoverAcomms::PARTIAL) {
-				postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
-						receive_pulse_duration, "yellow");
-			} else {
-				postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
-						receive_pulse_duration, "red");
+                HoverAcomms::ReceiptStatus status = reception.getStatus();
+                m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+                if (status==HoverAcomms::GOOD) {
+                    postRangePulse(my_name+"_receipt_good", receive_pulse_range,
+                            receive_pulse_duration, "green");
+                } else if (status==HoverAcomms::PARTIAL) {
+                    postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
+                            receive_pulse_duration, "yellow");
+                } else {
+                    postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
+                            receive_pulse_duration, "red");
+                }
 			}
 		}
 	} else {
