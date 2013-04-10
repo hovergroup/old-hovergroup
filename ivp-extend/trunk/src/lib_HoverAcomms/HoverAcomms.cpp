@@ -155,13 +155,13 @@ void AcommsBase::copyFromProtobuf(const goby::acomms::protobuf::ModemTransmissio
 
 std::string AcommsReception::verify(bool & ok) {
 	std::stringstream ss;
+    if (getRate()==REMUS_LBL) {
+        ok = true;
+        return "";
+    }
 
 	// verify number of statistics against rate
 	int num_stats = m_protobuf.ExtensionSize(micromodem::protobuf::receive_stat);
-	if (getRate()==REMUS_LBL) {
-		ok = true;
-		return "";
-	}
 
 	if (getRate()==FSK0) {
 		if (num_stats!=2) {
