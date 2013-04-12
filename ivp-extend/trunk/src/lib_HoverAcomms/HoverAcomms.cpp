@@ -277,3 +277,19 @@ double AcommsReception::getRangingTime() const {
 		return ranging.one_way_travel_time(0);
 	}
 }
+
+std::vector<double> AcommsReception::getRemusLBLTimes() const {
+	std::vector<double> v;
+	if (getRate()!=REMUS_LBL) return v;
+	if (m_protobuf.HasExtension(micromodem::protobuf::ranging_reply)) {
+		micromodem::protobuf::RangingReply rr =
+				m_protobuf.GetExtension(micromodem::protobuf::ranging_reply);
+		if (rr.one_way_travel_time_size()==4) {
+			for (int i=0; i<4; i++) {
+				v.push_back(rr.one_way_travel_time(i));
+			}
+		}
+	}
+
+	return v;
+}
