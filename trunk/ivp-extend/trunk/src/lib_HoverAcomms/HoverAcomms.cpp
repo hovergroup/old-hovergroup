@@ -287,6 +287,7 @@ std::vector<double> AcommsReception::getRemusLBLTimes() const {
 		if (rr.one_way_travel_time_size()==4) {
 			for (int i=0; i<4; i++) {
 				v.push_back(rr.one_way_travel_time(i));
+				if (isnan(v[i])) v[i]=-1;
 			}
 		}
 	}
