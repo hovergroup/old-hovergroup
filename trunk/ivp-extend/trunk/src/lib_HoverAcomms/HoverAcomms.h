@@ -117,6 +117,8 @@ public:
 
 	std::string getBadFrameListing() const;
 
+	std::vector<double> getRemusLBLTimes() const;
+
 	const micromodem::protobuf::ReceiveStatistics & getStatistics(unsigned int i=0) const;
 
 protected:

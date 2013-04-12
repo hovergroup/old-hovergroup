@@ -332,7 +332,15 @@ void acomms_driver::handle_data_receive(
 			m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
-			if (reception.getRate()!=HoverAcomms::REMUS_LBL) { //investigate potential error sources with REMUS_LBL later
+			if (reception.getRate()==HoverAcomms::REMUS_LBL) {
+				std::stringstream ss;
+				std::vector<double> rr = reception.getRemusLBLTimes();
+				for (int i=0; i<rr.size(); i++) {
+					ss << rr[i];
+					if (i!=rr.size()-1) ss << ",";
+				}
+				m_Comms.Notify("REMUS_LBL_TIMES", ss.str());
+			} else {
                 m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
                 m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
                 m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
