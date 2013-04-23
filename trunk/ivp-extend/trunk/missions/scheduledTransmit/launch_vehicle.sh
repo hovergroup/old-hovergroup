@@ -11,7 +11,6 @@ SHOREHOST="192.168.1.100"
 VEHICLE=""
 CRUISESPEED=2
 RUDDER_OFFSET=2
-TRANSMIT_PERIOD=15
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -31,8 +30,8 @@ for ARGI; do
     VEHICLE="nostromo"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--kassandra" ] ; then
-    VEHICLE="kassandra"
+    if [ "${ARGI}" = "--silvana" ] ; then
+    VEHICLE="silvana"
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--icarus" ] ; then
@@ -62,7 +61,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
     printf "  --nostromo             nostromo vehicle only                 \n"
-    printf "  --kassandra            kassandra vehicle only                \n"
+    printf "  --silvana              silvana vehicle only                \n"
     printf "  --icarus               icarus vehicle only                   \n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
@@ -79,8 +78,8 @@ VPORT1="9300"
 LPORT1="9301"
 ID1=1
 
-VNAME2="kassandra"  # The second vehicle Community
-VHOST2="192.168.1.101"
+VNAME2="silvana"  # The second vehicle Community
+VHOST2="192.168.1.104"
 VPORT2="9200"
 LPORT2="9201"
 RETURN_PT2="10,-20"
@@ -107,9 +106,7 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         MODEMPORT="/dev/ttyUSB0"                        \
         OS5000PORT="/dev/ttyUSB2"                       \
         GPSPORT="/dev/ttyUSB1"							\
-		GPSBAUD="57600"									\
-		TransmitPeriod=$TRANSMIT_PERIOD					\
-		TransmitOffset=0
+		GPSBAUD="57600"
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
         VNAME=$VNAME3                                   \
@@ -117,9 +114,9 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         RETURN_PT=$RETURN_PT3
 fi
 
-# Conditionally Prepare kassandra files
-if [ "${VEHICLE}" = "kassandra" ]; then
-    nsplug meta_kassandra.moos targ_kassandra.moos -f   \
+# Conditionally Prepare silvana files
+if [ "${VEHICLE}" = "silvana" ]; then
+    nsplug meta_vehicle_fld.moos targ_silvana.moos -f   \
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
         VPORT=$VPORT2                                   \
@@ -129,11 +126,9 @@ if [ "${VEHICLE}" = "kassandra" ]; then
         ACOMMSID=$ID2                                   \
         MODEMPORT="/dev/ttyUSB1"                        \
         OS5000PORT="/dev/ttyUSB2"                       \
-        ALTIMETERPORT="/dev/ttyUSB0"					\
-		TransmitPeriod=$TRANSMIT_PERIOD					\
-		TransmitOffset=5
+        ALTIMETERPORT="/dev/ttyUSB0"					
 
-    nsplug meta_vehicle.bhv targ_kassandra.bhv -f       \
+    nsplug meta_vehicle.bhv targ_silvana.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
@@ -145,15 +140,13 @@ if [ "${VEHICLE}" = "icarus" ]; then
         VHOST=$VHOST1                                   \
         VNAME=$VNAME1                            \
         VPORT=$VPORT1                            \
-        LPORT=$LPORT1                            		\
-        WARP=$WARP                                		\
-        SHOREIP=$SHOREHOST                        		\
-        ACOMMSID=$ID1                            		\
-        MODEMPORT="/dev/ttyUSB0"                		\
+        LPORT=$LPORT1                            \
+        WARP=$WARP                                \
+        SHOREIP=$SHOREHOST                        \
+        ACOMMSID=$ID1                            \
+        MODEMPORT="/dev/ttyUSB0"                \
         GPSPORT="/dev/ttyUSB1"							\
-		GPSBAUD="57600"									\
-		TransmitPeriod=$TRANSMIT_PERIOD					\
-		TransmitOffset=7.5
+		GPSBAUD="57600"
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
@@ -169,9 +162,9 @@ if [ "${VEHICLE}" = "nostromo" ]; then
     printf "Launching nostromo MOOS Community \n"
     pAntler targ_nostromo.moos >& /dev/null &
 fi
-# Launch kassandra
-if [ "${VEHICLE}" = "kassandra" ]; then
-    printf "Launching kassandra MOOS Community \n"
+# Launch silvana
+if [ "${VEHICLE}" = "silvana" ]; then
+    printf "Launching silvana MOOS Community \n"
     pAntler targ_kassandra.moos >& /dev/null &
 fi
 # Launch icarus
