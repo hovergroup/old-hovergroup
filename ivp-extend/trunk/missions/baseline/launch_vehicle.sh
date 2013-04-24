@@ -123,10 +123,12 @@ if [ "${VEHICLE}" = "silvana" ]; then
         LPORT=$LPORT2                                   \
         WARP=$WARP                                      \
         SHOREIP=$SHOREHOST                              \
+        RUDDER_OFFSET=0                                 \
         ACOMMSID=$ID2                                   \
         MODEMPORT="/dev/ttyUSB0"                        \
         OS5000PORT="/dev/ttyUSB1"                       \
-        GPSPORT="/dev/ttyACM0"							
+        GPSPORT="/dev/ttyACM0"				\
+        GPSBAUD="57600"
 
     nsplug meta_vehicle.bhv targ_silvana.bhv -f       \
         VNAME=$VNAME2                                   \
