@@ -33,8 +33,8 @@ for ARGI; do
     VEHICLE="NOSTROMO"
     UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--KASSANDRA" ] ; then
-    VEHICLE="KASSANDRA"
+    if [ "${ARGI}" = "--SILVANA" ] ; then
+    VEHICLE="SILVANA"
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--ICARUS" ] ; then
@@ -58,7 +58,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
     printf "  --NOSTROMO             NOSTROMO vehicle only                 \n"
-    printf "  --KASSANDRA            KASSANDRA vehicle only                \n"
+    printf "  --SILVANA              SILVANA vehicle only                \n"
     printf "  --ICARUS               ICARUS vehicle only                   \n"
     printf "  --ROLE=[follower/leader/target]\n"
     printf "  --just_build, -j       \n" 
@@ -96,8 +96,8 @@ VPORT1="9300"
 LPORT1="9301"
 ID1=2
 
-VNAME2="KASSANDRA"  # The second vehicle Community
-VHOST2="192.168.1.101"
+VNAME2="SILVANA"  # The second vehicle Community
+VHOST2="192.168.1.104"
 VPORT2="9200"
 LPORT2="9201"
 RETURN_PT2="10,-20"
@@ -133,22 +133,23 @@ if [ "${VEHICLE}" = "NOSTROMO" ]; then
         RETURN_PT=$RETURN_PT3
 fi
 
-# Conditionally Prepare KASSANDRA files
-if [ "${VEHICLE}" = "KASSANDRA" ]; then
-    nsplug meta_kassandra.moos targ_kassandra.moos -f   \
-    	ROLE=$ROLE										\
+# Conditionally Prepare silvana files
+if [ "${VEHICLE}" = "SILVANA" ]; then
+    nsplug meta_vehicle_fld.moos targ_silvana.moos -f   \
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
         VPORT=$VPORT2                                   \
         LPORT=$LPORT2                                   \
         WARP=$WARP                                      \
         SHOREIP=$SHOREHOST                              \
+        RUDDER_OFFSET=0                                 \
         ACOMMSID=$ID2                                   \
-        MODEMPORT="/dev/ttyUSB1"                        \
-        OS5000PORT="/dev/ttyUSB2"                       \
-        ALTIMETERPORT="/dev/ttyUSB0"
+        MODEMPORT="/dev/ttyUSB0"                        \
+        OS5000PORT="/dev/ttyUSB1"                       \
+        GPSPORT="/dev/ttyACM0"				\
+        GPSBAUD="57600"
 
-    nsplug meta_vehicle.bhv targ_KASSANDRA.bhv -f       \
+    nsplug meta_vehicle.bhv targ_silvana.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
@@ -184,9 +185,9 @@ if [ "${VEHICLE}" = "NOSTROMO" ]; then
     pAntler targ_nostromo.moos >& /dev/null &
 fi
 # Launch KASSANDRA
-if [ "${VEHICLE}" = "KASSANDRA" ]; then
-    printf "Launching KASSANDRA MOOS Community \n"
-    pAntler targ_kassandra.moos >& /dev/null &
+if [ "${VEHICLE}" = "SILVANA" ]; then
+    printf "Launching SILVANA MOOS Community \n"
+    pAntler targ_silvana.moos >& /dev/null &
 fi
 # Launch ICARUS
 if [ "${VEHICLE}" = "ICARUS" ]; then
