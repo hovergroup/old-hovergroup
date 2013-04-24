@@ -165,7 +165,7 @@ fi
 # Launch silvana
 if [ "${VEHICLE}" = "silvana" ]; then
     printf "Launching silvana MOOS Community \n"
-    pAntler targ_kassandra.moos >& /dev/null &
+    pAntler targ_silvana.moos >& /dev/null &
 fi
 # Launch icarus
 if [ "${VEHICLE}" = "icarus" ]; then
