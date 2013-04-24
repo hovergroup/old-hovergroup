@@ -136,6 +136,7 @@ fi
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "SILVANA" ]; then
     nsplug meta_vehicle_fld.moos targ_silvana.moos -f   \
+    	ROLE=$ROLE                                      \
         VHOST=$VHOST2                                   \
         VNAME=$VNAME2                                   \
         VPORT=$VPORT2                                   \
