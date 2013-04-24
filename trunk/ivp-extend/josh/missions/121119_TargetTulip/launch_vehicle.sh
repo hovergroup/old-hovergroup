@@ -166,8 +166,8 @@ if [ "${VEHICLE}" = "ICARUS" ]; then
         WARP=$WARP                                \
         SHOREIP=$SHOREHOST                        \
         ACOMMSID=$ID1                            \
-        MODEMPORT="/dev/ttyUSB1"                \
-        GPSPORT="/dev/ttyUSB0"							\
+        MODEMPORT="/dev/ttyUSB0"                \
+        GPSPORT="/dev/ttyUSB1"							\
 		GPSBAUD="57600"
 fi
 
