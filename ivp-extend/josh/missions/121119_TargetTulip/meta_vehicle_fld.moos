@@ -10,7 +10,7 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pShare               @ NewConsole = false
   Run = pLogger            	@ NewConsole = false
   Run = pMarinePID_Hover   	@ NewConsole = false
   Run = pHelmIvP           	@ NewConsole = false
@@ -66,7 +66,7 @@ Processconfig = uTimerScript_Config
     event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
 }
 
-#include plug_pMOOSBridgeV.moos
+#include plug_pShareV.moos
 #include plug_pLogger.moos
 #include plug_pNodeReporter.moos
 #include plug_pMarinePID_Hover.moos
