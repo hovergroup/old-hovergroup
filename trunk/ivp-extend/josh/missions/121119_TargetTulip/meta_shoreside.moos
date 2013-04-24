@@ -13,7 +13,7 @@ Processconfig = ANTLER
 	MSBetweenLaunches = 200
 
 	Run = MOOSDB          @ NewConsole = false
-	Run = pMOOSBridge     @ NewConsole = false
+	Run = pShare               @ NewConsole = false
 	Run = pMarineViewer   @ NewConsole = false
 	Run = pLogger         @ NewConsole = false
 	Run = pHostInfo       @ NewConsole = false
@@ -128,13 +128,14 @@ ProcessConfig = uFldShoreBroker
 }
 
 //--------------------------------------------------------
-ProcessConfig = pMOOSBridge
+ProcessConfig = pShare
 {
-  AppTick   = 20
-  CommsTick = 20
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
 
-  UDPListen = $(SLPORT)
-  BridgeFrequency = 0  
+  input = route =  localhost:$(SLPORT)
+  //input = route =  192.168.197.139:9001
 }
 
 //--------------------------------------------------
