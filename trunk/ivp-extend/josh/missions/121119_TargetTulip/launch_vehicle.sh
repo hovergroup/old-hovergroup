@@ -123,8 +123,8 @@ if [ "${VEHICLE}" = "NOSTROMO" ]; then
         RUDDER_OFFSET=$RUDDER_OFFSET                    \
         ACOMMSID=$ID3                                   \
         MODEMPORT="/dev/ttyUSB0"                        \
-        OS5000PORT="/dev/ttyUSB1"                       \
-        GPSPORT="/dev/ttyACM0"							\
+        OS5000PORT="/dev/ttyUSB2"                       \
+        GPSPORT="/dev/ttyUSB1"							\
 		GPSBAUD="57600"
 
     nsplug meta_vehicle.bhv targ_NOSTROMO.bhv -f        \
