@@ -150,7 +150,7 @@ if [ "${VEHICLE}" = "SILVANA" ]; then
         GPSPORT="/dev/ttyACM0"				\
         GPSBAUD="57600"
 
-    nsplug meta_vehicle.bhv targ_silvana.bhv -f       \
+    nsplug meta_vehicle.bhv targ_SILVANA.bhv -f       \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
