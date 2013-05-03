@@ -73,7 +73,7 @@ end;
 % INITIALIZE IMATLAB:
 % (note: add process config to meta_shoreside.moos)
 moosDB = 'targ_shoreside.moos';
-pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121015_26bit_tulip/';
+pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
 old = cd(pathName);
 
 % subscribe
@@ -167,8 +167,8 @@ while(go)
         
         lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
         fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
-        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT',lwps);
-        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT',fwps);
+        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_NOSTROMO',lwps);
+        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_NOSTROMO',fwps);
         
         if(PRINTOUTS)
             fprintf(['leader wpt: ' lwps '\n'])
