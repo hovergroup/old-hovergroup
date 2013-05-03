@@ -53,15 +53,15 @@ binSet = 75;
 
 % initial covariance and state
 P = diag([5 2500 2500]) ;
-% [heading metersN metersS] from origin (pavilion)
-xhat=[0 60 -20]';
+% [heading metersE metersN] from origin (pavilion)
+xhat=[0 20 -20]';
 z = zeros(2,1); % preallocate
 
 % formation
 legLen = 50;        % meters
 theta = deg2rad(60);    % degrees (total angle between each leg)
-XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'+xhat(2); % sets desired formation
-YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]'+xhat(3);
+XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'; % sets desired formation
+YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]';
 
 if dim == 3,
     [s1,s2,s3,w,vol] = getHermite(NaN); % get quadrature points and weights
