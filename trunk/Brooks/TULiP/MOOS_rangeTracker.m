@@ -27,7 +27,10 @@ nAgents = 2;
 
 % estimator parameters
 global targetSpeed
-targetSpeed = 1.5;    % m/s
+%targetSpeed = 1.5;    % m/s
+%targetSpeed = 2;
+tagetSpeed = 2.2;
+
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 % (held over filter step)
@@ -36,8 +39,9 @@ Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 rateLimit = deg2rad(135/dt);
 
 % z(1) = leader, z(2) = follower
-Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
+%Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
 %Rmeas = diag([9 49]);
+Rmeas = diag([4 9]);
 
 % QUANTIZATION (same settings as 11/2012 exp)
 % binSet = 3;
