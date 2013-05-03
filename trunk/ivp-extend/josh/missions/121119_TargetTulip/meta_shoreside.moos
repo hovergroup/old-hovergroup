@@ -235,44 +235,6 @@ ProcessConfig = pMarineViewer
 	BUTTON_FOUR  = ALLSTOP # MISSION_MODE_NOSTROMO = INACTIVE # MISSION_MODE_SILVANA = INACTIVE # MOOS_MANUAL_OVERRIDE_NOSTROMO = true # MOOS_MANUAL_OVERRIDE_SILVANA = true
 }
 
-//--------------------------------------------------------
-ProcessConfig = WATCHER
-{
-  AppTick    = 4
-  CommsTick  = 4
-
-  TIFF_FILE     = ../../data/pavilion.tif
-  
-    center_view_true = true
-  center_view_sticky = true
-
-  HASH_VIEW     = false
-  HASH_DELTA    = 100
-  HASH_SHADE    = 0.45
-  BACK_SHADE    = 0.70
-
-          trails_viewable = true
-        trails_point_size = 1
-       polygon_edge_color = white
-     polygon_vertex_color = light_green
-       polygon_edge_width = 1
-  polygon_viewable_labels = false
-  
-      seglist_vertex_size = 4
-        point_vertex_size = 8
-
-      vehicle_shape_scale = 3
-  vehicles_name_viewable = names
-                     zoom = 1.7
-                set_pan_x = 0
-                set_pan_y = 80
-
-	scope  = NODE_REPORT
-	scope  = VIEW_POINT
-	scope  = VIEW_SEGLIST
-	scope  = VIEW_POLYGON
-}
-
 
 ProcessConfig = iMatlab
 {
