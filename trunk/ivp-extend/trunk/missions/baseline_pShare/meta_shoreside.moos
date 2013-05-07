@@ -31,8 +31,8 @@ ProcessConfig = pShare
   output = MISSION_MODE_ALL->MISSION_MODE:multicast_1
   output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE:multicast_1
   
-  output = src_name=MISSION_MODE_$(VNAME3), dest_name=MISSION_MODE, route=$(VHOST3):$(LPORT3)
-  output = src_name=MOOS_MANUAL_OVERRIDE_$(VNAME3), dest_name=MOOS_MANUAL_OVERRIDE, route=$(VHOST3):$(LPORT3)
+  output = MISSION_MODE_$(VNAME3)->MISSION_MODE:$(VHOST3):$(LPORT3):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME3)->MOOS_MANUAL_OVERRIDE:$(VHOST3):$(LPORT3):udp
   
   input = route=localhost:$(SLPORT)
 }
