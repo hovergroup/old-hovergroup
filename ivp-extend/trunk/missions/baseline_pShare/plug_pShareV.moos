@@ -11,5 +11,4 @@ ProcessConfig = pShare
   output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
   
   input = route=$(VHOST):$(LPORT) 
-  input = route=multicast_255
 }
