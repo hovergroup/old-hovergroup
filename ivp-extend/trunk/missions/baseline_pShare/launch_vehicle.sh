@@ -133,10 +133,12 @@ if [ "${VEHICLE}" = "silvana" ]; then
         ACOMMSID=$ID2                                   \
         MODEMPORT="/dev/ttyUSB0"                        \
         OS5000PORT="/dev/ttyUSB1"                       \
-        GPSPORT="/dev/ttyACM0"				\
-        GPSBAUD="57600"
+        GPSPORT="/dev/ttyACM0"                          \
+        GPSBAUD="57600"                                 \
+        SHOREHOST=$SHOREHOST                            \
+        SLPORT=$SLPORT
 
-    nsplug meta_vehicle.bhv targ_silvana.bhv -f       \
+    nsplug meta_vehicle.bhv targ_silvana.bhv -f         \
         VNAME=$VNAME2                                   \
         CRUISESPEED=$CRUISESPEED                        \
         RETURN_PT=$RETURN_PT2
@@ -144,17 +146,19 @@ fi
 
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
-    nsplug meta_icarus.moos targ_icarus.moos -f    \
-        VHOST=$VHOST1                                   \
-        VNAME=$VNAME1                            \
-        VPORT=$VPORT1                            \
-        LPORT=$LPORT1                            \
-        WARP=$WARP                                \
-        SHOREIP=$SHOREHOST                        \
-        ACOMMSID=$ID1                            \
-        MODEMPORT="/dev/ttyUSB0"                \
-        GPSPORT="/dev/ttyUSB1"							\
-		GPSBAUD="57600"
+    nsplug meta_icarus.moos targ_icarus.moos -f      \
+        VHOST=$VHOST1                                \
+        VNAME=$VNAME1                                \
+        VPORT=$VPORT1                                \
+        LPORT=$LPORT1                                \
+        WARP=$WARP                                   \
+        SHOREIP=$SHOREHOST                           \
+        ACOMMSID=$ID1                                \
+        MODEMPORT="/dev/ttyUSB0"                     \
+        GPSPORT="/dev/ttyUSB1"                       \
+        GPSBAUD="57600"                              \
+        SHOREHOST=$SHOREHOST                         \
+        SLPORT=$SLPORT
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
