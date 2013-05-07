@@ -109,8 +109,10 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         ACOMMSID=$ID3                                   \
         MODEMPORT="/dev/ttyUSB0"                        \
         OS5000PORT="/dev/ttyUSB2"                       \
-        GPSPORT="/dev/ttyUSB1"							\
-		GPSBAUD="57600"
+        GPSPORT="/dev/ttyUSB1"                          \
+        GPSBAUD="57600"                                 \
+        SHOREHOST=$SHOREHOST                            \
+        SLPORT=$SLPORT
 
     nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
         VNAME=$VNAME3                                   \

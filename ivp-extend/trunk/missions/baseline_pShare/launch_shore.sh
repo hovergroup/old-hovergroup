@@ -69,7 +69,8 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
     LOITER_PT1=$LOITER_PT1                              \
-    LOITER_PT2=$LOITER_PT2
+    LOITER_PT2=$LOITER_PT2                              \
+    VNAME3=$VNAME3     LPORT3=$LPORT3
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0
