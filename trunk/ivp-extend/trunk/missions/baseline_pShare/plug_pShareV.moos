@@ -1,0 +1,14 @@
+//---------------------------------------------------------
+// pMOOSBridge_%(VNAME) Config Block  (Created from Plugin)
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  
+  input = route=(VHOST):$(LPORT) 
+  input = route=multicast_1
+}
