@@ -8,8 +8,8 @@ ProcessConfig = pShare
   IterateMode = 1
   
   output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
-  //output = VIEW_*->VIEW_*:$(SHOREHOST):$(SLPORT):udp
-  output = src_name=VIEW_*, dest_name=, route=$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
+  //output = src_name=VIEW_*, dest_name=, route=$(SHOREHOST):$(SLPORT)
   
   input = route=$(VHOST):$(LPORT) 
   input = route=multicast_1
