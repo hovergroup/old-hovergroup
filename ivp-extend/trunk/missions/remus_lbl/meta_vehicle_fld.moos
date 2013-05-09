@@ -42,7 +42,7 @@ ProcessConfig = uTimerScript_ping
     reset_time = all-posted
     condition = ACOMMS_TRANSMIT_RATE=101
     condition = ENABLE_PINGS=true
-    EVENT = var=ACOMMS_TRANSMIT_DATA, val=ping, time=5
+    EVENT = var=ACOMMS_TRANSMIT_DATA, val=ping, time=3
 }
 
 ProcessConfig = uXMS

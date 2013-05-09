@@ -27,6 +27,29 @@ Processconfig = ANTLER
   Run = pEchoVar           	@ NewConsole = false
   Run = iHoverKayak		   	@ NewConsole = false
   Run = iAcommsDriver		@ NewConsole = false
+  Run = uTimerScript		@ NewConsole = false ~uTimerScript_config
+  Run = uTimerScript		@ NewConsole = false ~uTimerScript_ping
+}
+
+ProcessConfig = uTimerScript_config
+{
+    AppTick = 4
+    IterateMode = 0
+    
+    EVENT = var=ACOMMS_TRANSMIT_RATE, val=101, time=10
+    EVENT = quit, time=11
+}
+
+ProcessConfig = uTimerScript_ping
+{
+    AppTick = 4
+    IterateMode = 0
+    
+    reset_max = nolimit
+    reset_time = all-posted
+    condition = ACOMMS_TRANSMIT_RATE=101
+    condition = ENABLE_PINGS=true
+    EVENT = var=ACOMMS_TRANSMIT_DATA, val=ping, time=5
 }
 
 ProcessConfig = uXMS
