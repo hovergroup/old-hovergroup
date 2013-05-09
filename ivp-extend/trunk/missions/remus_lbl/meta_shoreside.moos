@@ -16,9 +16,18 @@ Processconfig = ANTLER
 	Run = pShare               @ NewConsole = false
 	Run = pMarineViewer        @ NewConsole = false
 	//Run = pLogger              @ NewConsole = false
+	Run = uTermCommand         @ NewConsole = true
 
 	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
 	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+
+	CMD = enable_pings --> ENABLE_PINGS --> ON
+	CMD = disable_pings --> ENABLE_PINGS --> OFF
 }
 
 //--------------------------------------------------------
@@ -38,6 +47,7 @@ ProcessConfig = pShare
   output = MISSION_MODE_$(VNAME2)->MISSION_MODE:$(VHOST2):$(LPORT2):udp
   output = MOOS_MANUAL_OVERRIDE_$(VNAME2)->MOOS_MANUAL_OVERRIDE:$(VHOST2):$(LPORT2):udp
   output = GOTO_UPDATES_$(VNAME2)->GOTO_UPDATES:$(VHOST2):$(LPORT2):udp
+  output = ENABLE_PINGS->$(VHOST2):$(LPORT2):udp
   
   input = route=localhost:$(SLPORT)
 }
