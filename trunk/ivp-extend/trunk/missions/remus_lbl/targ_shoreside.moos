@@ -1,0 +1,134 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = localhost
+ServerPort = 9000
+Community  = terra
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456		
+LongOrigin = -71.087589	
+
+
+
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+	MSBetweenLaunches = 200
+
+	Run = MOOSDB               @ NewConsole = false
+	Run = pShare               @ NewConsole = false
+	Run = pMarineViewer        @ NewConsole = false
+	//Run = pLogger              @ NewConsole = false
+
+	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+//--------------------------------------------------------
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = MISSION_MODE_ALL->MISSION_MODE: 192.168.1.103:9101:udp & 192.168.1.104:9201:udp
+  output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE: 192.168.1.103:9101:udp & 192.168.1.104:9201:udp
+  
+  output = MISSION_MODE_nostromo->MISSION_MODE:192.168.1.103:9101:udp
+  output = MOOS_MANUAL_OVERRIDE_nostromo->MOOS_MANUAL_OVERRIDE:192.168.1.103:9101:udp
+  output = GOTO_UPDATES_nostromo->GOTO_UPDATES:192.168.1.103:9101:udp
+  
+  output = MISSION_MODE_silvana->MISSION_MODE:192.168.1.104:9201:udp
+  output = MOOS_MANUAL_OVERRIDE_silvana->MOOS_MANUAL_OVERRIDE:192.168.1.104:9201:udp
+  output = GOTO_UPDATES_silvana->GOTO_UPDATES:192.168.1.104:9201:udp
+  
+  input = route=localhost:9001
+}
+
+//--------------------------------------------------
+// pLogger Configuration Block
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_TERRA
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 4
+  CommsTick  = 4
+
+  TIFF_FILE     = ../../data/pavilion.tif
+  
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+  
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+  vehicles_name_viewable = names
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+	scope  = NODE_REPORT
+	scope  = VIEW_POINT
+	scope  = VIEW_SEGLIST
+	scope  = VIEW_POLYGON
+
+	ACTION = GOSTAY_nostromo =false
+	ACTION = GOSTAY_silvana =false
+	ACTION = GOSTAY_nostromo =true
+	ACTION+ = GOSTAY_silvana =true
+
+	ACTION = MENU_KEY=STATION_nostromo # MISSION_MODE_nostromo = STATION-KEEP 
+	ACTION+ = MENU_KEY=STATION_nostromo # MOOS_MANUAL_OVERRIDE_nostromo=false
+
+	ACTION = MENU_KEY=ALLSTOP_nostromo # MISSION_MODE_nostromo = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_nostromo # MOOS_MANUAL_OVERRIDE_nostromo=true
+
+	ACTION = MENU_KEY=STATION_silvana # MISSION_MODE_silvana = STATION-KEEP
+	ACTION+ = MENU_KEY=STATION_silvana # MOOS_MANUAL_OVERRIDE_silvana=false
+
+	ACTION = MENU_KEY=ALLSTOP_silvana # MISSION_MODE_silvana = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_silvana # MOOS_MANUAL_OVERRIDE_silvana=true
+
+	right_context[nostromo] = GOTO_UPDATES_nostromo = points=$(XPOS),$(YPOS)
+	right_context[nostromo] = MISSION_MODE_nostromo=GOTO
+	right_context[silvana] = GOTO_UPDATES_silvana = points=$(XPOS),$(YPOS)
+	right_context[silvana] = MISSION_MODE_silvana=GOTO
+
+	BUTTON_ONE   = DEPLOY  # MISSION_MODE_ALL=GOTO # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_TWO   = RETURN  # MISSION_MODE_ALL=RETURN # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_THREE = STATION # MISSION_MODE_ALL=STATION-KEEP # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_FOUR  = ALLSTOP # MISSION_MODE_ALL=INACTIVE # MOOS_MANUAL_OVERRIDE_ALL=true
+}
+
+

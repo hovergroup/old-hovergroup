@@ -1,0 +1,202 @@
+ServerHost = 192.168.1.104
+ServerPort = 9200
+Community  = silvana
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456		
+LongOrigin = -71.087589	
+
+
+
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pShare          	@ NewConsole = false
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pMarinePID_Hover   	@ NewConsole = false
+  Run = pHelmIvP           	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = iOS5000_Hover      	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iHoverKayak		   	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=VOLTAGE
+	VAR=CPU_BOX_TEMP
+	VAR=ROBOTEQ_HEATSINK_TEMP
+	VAR=ROBOTEQ_INTERNAL_TEMP
+	VAR=ROBOTEQ_BATTERY_CURRENT
+	VAR=ROBOTEQ_MOTOR_CURRENT
+	VAR=ARDUINO_THRUST
+	VAR=ARDUINO_RUDDER
+}
+
+//---------------------------------------------------------
+// pMOOSBridge_SILVANA Config Block  (Created from Plugin)
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  output = NODE_REPORT_LOCAL->NODE_REPORT:192.168.1.100:9001:udp
+  output = VIEW_*->:192.168.1.100:9001:udp
+  
+  input = route=192.168.1.104:9201 
+}
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_SILVANA
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+// pNodeReporter Configuration Block (Created from Plugin)
+
+ProcessConfig = pNodeReporter
+{
+  AppTick     = 2
+  CommsTick   = 2
+  
+  VESSEL_TYPE = KAYAK
+}
+
+ProcessConfig = pMarinePID_Hover
+{
+	AppTick		= 5
+	CommsTick	= 5
+
+	Verbose		= false
+	DEPTH_CONTROL	= false
+	ACTIVE_START	= true
+	MAXRUDDER	= 45
+	MAXTHRUST	= 100
+
+	// SPEED_FACTOR
+	//	- A non-zero SPEED_FACTOR overrides use of SPEED_PID
+	//	- Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
+	SPEED_FACTOR	= 30
+	// 25-30 for no modem
+	// 40 with modem
+
+	// Yaw PID controller
+	YAW_PID_KP		= 0.45
+	YAW_PID_KD 		= 0
+	YAW_PID_KI		= 0
+	YAW_PID_INTEGRAL_LIMIT = 0.25
+	YAW_PID_TAU		= 1
+
+	// Speed PID controller
+	SPEED_PID_KP				= 0.4
+	SPEED_PID_KD				= 0.0
+	SPEED_PID_KI				= 0.0
+	SPEED_PID_INTEGRAL_LIMIT		= 0.07
+}
+//----------------------------------------------------
+// pHelmIvP Configuration Block  (Created from Plugin)
+
+ProcessConfig = pHelmIvP
+{
+  AppTick    = 4
+
+  ok_skew      = any
+  
+  Behaviors    = targ_silvana.bhv  
+  Verbose      = true
+  Domain       = course:0:359:360
+  Domain       = speed:0:5:51
+  
+//  IVP_BEHAVIOR_DIR = /home/student/moos-ivp-jleight/ivp-extend/trunk/lib
+}
+
+ProcessConfig = pEchoVar
+{
+	AppTick   = 40
+	MaxAppTick = 100
+	IterateMode = 1 // comms driven iterate and mail
+
+	Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+	Echo = GPS_X -> NAV_X
+	Echo = GPS_Y -> NAV_Y
+	Echo = GPS_SPEED -> NAV_SPEED
+	Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+}
+
+
+ProcessConfig = iGPS_Hover
+{
+	AppTick = 1
+	
+	PORT_NAME = /dev/ttyACM0
+	BAUD_RATE = 57600
+}
+ProcessConfig = iOS5000_Hover
+{
+	AppTick		= 1
+
+	Port		= /dev/ttyUSB1		// tty port for communicating with the dig compass
+	Speed		= 57600			// Always set to 19200 (OS5000 baud rate)
+	PreRotation	= -15			// -15 for Boston (magnetic declination)
+
+	UpdateFraction = .025
+}
+ProcessConfig = iRemote
+{
+	AppTick   = 5
+	CommsTick = 5
+
+	CustomKey = 1 : HELM_VERBOSE @ "verbose"
+	CustomKey = 2 : HELM_VERBOSE @ "terse"
+	CustomKey = 3 : HELM_VERBOSE @ "quiet"
+	CustomKey = 4 : DEPLOY @ "true"
+	CustomKey = 5 : DEPLOY @ "false"
+	CustomKey = 6 : RETURN @ "true"
+	CustomKey = 7 : RETURN @ "false"
+}
+ProcessConfig = iHoverKayak
+{
+    AppTick   = 20
+    MaxAppTick = 100
+    IterateMode = 1 // comms driven iterate and mail
+	
+	INVERT_RUDDER = false
+	RUDDER_OFFSET = 0
+}
+
+
+
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+    IterateMode = 0
+
+	PortName = /dev/ttyUSB0
+	ID = 2
+	
+	PSK_minipackets = false
+	enable_ranging = true
+	show_range_pulses = true
+}
