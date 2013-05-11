@@ -13,10 +13,13 @@ bool AcommsTransmission::setRate(Rate r) {
 	m_rate = r;
 	if (r==MINI) {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
-		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA );
+		m_protobuf.SetExtension(micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_MINI_DATA);
 	} else if (r==REMUS_LBL) {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
-		m_protobuf.SetExtension( micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_REMUS_LBL_RANGING );
+		m_protobuf.SetExtension(micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_REMUS_LBL_RANGING);
+	} else if (r==TWO_WAY_RANGING) {
+		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DRIVER_SPECIFIC);
+		m_protobuf.SetExtension(micromodem::protobuf::type, micromodem::protobuf::MICROMODEM_TWO_WAY_PING);
 	} else {
 		m_protobuf.set_type(goby::acomms::protobuf::ModemTransmission::DATA);
 		m_protobuf.set_rate(m_rate);
@@ -29,11 +32,15 @@ bool AcommsTransmission::setRate(Rate r) {
 }
 
 bool AcommsTransmission::setRate(int r) {
+	// special rates
 	if (r==100) {
 		return setRate(MINI);
 	} else if (r==101) {
 		return setRate(REMUS_LBL);
+	} else if (r==102) {
+		return setRate(TWO_WAY_RANGING);
 	}
+	// standard rates
 	if (r<0 || r>6) {
 		return false;
 	} else {
@@ -79,14 +86,14 @@ int AcommsTransmission::fillData(const std::string & data) {
 		m_protobuf.add_frame(data_copy.data(),2);
 		m_protobuf.mutable_frame(0)->at(0) &= 0x1f;
 		return 2;
-	} else if (m_rate==REMUS_LBL) {
+	} else if (m_rate==REMUS_LBL || m_rate==TWO_WAY_RANGING) {
 		return 1;
 	} else if (FrameSizeMap.find(m_rate)==FrameSizeMap.end()) {
 		return -1; // no rate defined
 	} else {
 		packMessage(data);
 		return getData().size();
-	}		return MINI;
+	}
 }
 
 std::string AcommsBase::getLoggableString() const {
@@ -155,7 +162,7 @@ void AcommsBase::copyFromProtobuf(const goby::acomms::protobuf::ModemTransmissio
 
 std::string AcommsReception::verify(bool & ok) {
 	std::stringstream ss;
-    if (getRate()==REMUS_LBL) {
+    if (getRate()==REMUS_LBL || getRate()==TWO_WAY_RANGING) {
         ok = true;
         return "";
     }
