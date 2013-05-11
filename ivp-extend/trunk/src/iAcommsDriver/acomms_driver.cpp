@@ -134,14 +134,15 @@ bool acomms_driver::OnConnectToServer()
    m_MissionReader.GetConfigurationParam("enable_ranging", enable_one_way_ranging);
    m_MissionReader.GetConfigurationParam("show_range_pulses", enable_range_pulses);
    m_MissionReader.GetConfigurationParam("in_sim", in_sim);
+   m_MissionReader.GetConfigurationParam("enable_legacy", enable_legacy);
 
    // post these to make sure they are the correct type
    unsigned char c = 0x00;
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
    m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
-   m_Comms.Notify("ACOMMS_TRANSMITTED_REMOTE", &c, 1);
-   m_Comms.Notify("ACOMMS_TRANSMITTED", &c, 1);
+//   m_Comms.Notify("ACOMMS_TRANSMITTED_REMOTE", &c, 1);
+//   m_Comms.Notify("ACOMMS_TRANSMITTED", &c, 1);
    m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
 
    RegisterVariables();
@@ -253,14 +254,14 @@ void acomms_driver::transmit_data() {
 		driver->handle_initiate_transmission( trans );
 
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
-    m_Comms.Notify("ACOMMS_TRANSMISSION", m_transmission.getLoggableString());
+    m_Comms.Notify("ACOMMS_TRANSMITTED_ALL", m_transmission.getLoggableString());
 
-    m_transmission.m_vehicleName = my_name;
-    m_transmission.m_navx = m_navx;
-    m_transmission.m_navy = m_navy;
-    m_transmission.m_time = JoshUtil::getSystemTimeSeconds();
-    std::string to_publish = m_transmission.serializeWithInfo();
-    m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
+//    m_transmission.m_vehicleName = my_name;
+//    m_transmission.m_navx = m_navx;
+//    m_transmission.m_navy = m_navy;
+//    m_transmission.m_time = JoshUtil::getSystemTimeSeconds();
+//    std::string to_publish = m_transmission.serializeWithInfo();
+//    m_Comms.Notify("ACOMMS_TRANSMITTED", to_publish.data(), to_publish.size());
 
     // post transmission range pulse
     postRangePulse( my_name + "_transmit", transmission_pulse_range,
@@ -316,14 +317,14 @@ void acomms_driver::handle_data_receive(
 
 	HoverAcomms::AcommsReception reception;
 	reception.copyFromProtobuf(data_msg);
-	reception.m_vehicleName = my_name;
-	reception.m_navx = m_navx;
-	reception.m_navy = m_navy;
-	reception.m_time = JoshUtil::getSystemTimeSeconds();
+//	reception.m_vehicleName = my_name;
+//	reception.m_navx = m_navx;
+//	reception.m_navy = m_navy;
+//	reception.m_time = JoshUtil::getSystemTimeSeconds();
 
 
 	bool ok = true;
-	if (!in_sim) {
+//	if (!in_sim) {
 		std::string debug_msg = reception.verify(ok);
 		if (!ok) {
 			publishWarning(debug_msg);
@@ -341,24 +342,29 @@ void acomms_driver::handle_data_receive(
 				}
 				m_Comms.Notify("REMUS_LBL_TIMES", ss.str());
 			} else {
-                m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
-                m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
-                m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
-                m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
-                std::string data = reception.getData();
-                m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
-                m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
-                m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
-
-                micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
-                m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
-                m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
-                m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
-                m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
-                m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
-
                 HoverAcomms::ReceiptStatus status = reception.getStatus();
-                m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+
+				if (enable_legacy) {
+					m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
+					m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
+					m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
+					m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
+					std::string data = reception.getData();
+					m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
+
+	                micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
+	                m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
+	                m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
+	                m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
+	                m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
+	                m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
+
+	                m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+	                m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
+				}
+
+                m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
+
                 if (status==HoverAcomms::GOOD) {
                     postRangePulse(my_name+"_receipt_good", receive_pulse_range,
                             receive_pulse_duration, "green");
@@ -371,32 +377,32 @@ void acomms_driver::handle_data_receive(
                 }
 			}
 		}
-	} else {
-		std::string serialized = reception.serializeWithInfo();
-		m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
-		m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
-
-		m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
-		m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
-		m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
-		std::string data = reception.getData();
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
-		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
-		m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
-
-		HoverAcomms::ReceiptStatus status = reception.getStatus();
-		m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
-		if (status==HoverAcomms::GOOD) {
-			postRangePulse(my_name+"_receipt_good", receive_pulse_range,
-					receive_pulse_duration, "green");
-		} else if (status==HoverAcomms::PARTIAL) {
-			postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
-					receive_pulse_duration, "yellow");
-		} else {
-			postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
-					receive_pulse_duration, "red");
-		}
-	}
+//	} else {
+//		std::string serialized = reception.serializeWithInfo();
+//		m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
+//		m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
+//
+//		m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
+//		m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
+//		m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
+//		std::string data = reception.getData();
+//		m_Comms.Notify("ACOMMS_RECEIVED_DATA", data.data(), data.size());
+//		m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
+//		m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
+//
+//		HoverAcomms::ReceiptStatus status = reception.getStatus();
+//		m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+//		if (status==HoverAcomms::GOOD) {
+//			postRangePulse(my_name+"_receipt_good", receive_pulse_range,
+//					receive_pulse_duration, "green");
+//		} else if (status==HoverAcomms::PARTIAL) {
+//			postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
+//					receive_pulse_duration, "yellow");
+//		} else {
+//			postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
+//					receive_pulse_duration, "red");
+//		}
+//	}
 
 	driver_ready = true;
 	publishStatus("ready");
@@ -429,8 +435,10 @@ void acomms_driver::publishWarning( std::string message ) {
 // publish status and update locally
 void acomms_driver::publishStatus( std::string status_update ) {
 	status = status_update;
-	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update );
+	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update);
 	status_set_time = MOOSTime();
+
+	m_Comms.Notify("SYSTEM_TIME_SECONDS", JoshUtil::getSystemTimeSeconds());
 }
 
 // check if a file exists

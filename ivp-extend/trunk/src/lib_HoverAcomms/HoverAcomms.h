@@ -26,7 +26,8 @@ enum Rate {
 	PSK5,
 	PSK6,
 	MINI,
-	REMUS_LBL
+	REMUS_LBL,
+	TWO_WAY_RANGING
 };
 
 enum ReceiptStatus {
@@ -44,7 +45,8 @@ static const std::map<int,Rate> ReverseRateMap = boost::assign::map_list_of
 		(5,PSK5)
 		(6,PSK6)
 		(100,MINI)
-		(101,REMUS_LBL);
+		(101,REMUS_LBL)
+		(102,TWO_WAY_RANGING);
 
 static const std::map<Rate,int> FrameSizeMap = boost::assign::map_list_of
 		(FSK0,32)
