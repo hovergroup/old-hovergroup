@@ -25,6 +25,7 @@ ADD_SUBDIRECTORY(pScheduledTransmit)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)
+ADD_SUBDIRECTORY(uPokeRandom)
 
 # interfaces
 ADD_SUBDIRECTORY(iAltimeter)
