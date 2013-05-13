@@ -37,8 +37,8 @@ void showSynopsis()
 {
   blk("SYNOPSIS:                                                       ");
   blk("------------------------------------                            ");
-  blk("  The uPokeDB application is a command-line tool for poking a   ");
-  blk("  MOOSDB with variable-value pairs provided on the command line.");
+  blk("  The uPokeRandom application is a command-line tool for poking a");
+  blk("  MOOS variable with a random string of letters and numbers.     ");
 }
 
 //----------------------------------------------------------------
@@ -71,12 +71,9 @@ void showHelpAndExit()
   mag("  <var=value>                                                   ");
   blk("      Provide one or more MOOS variable-value pairs to poke to  ");
   blk("      the MOOSDB.                                               ");
-  mag("  <var:=value>                                                  ");
-  blk("      Poke the variable-value pair as a string even if the value");
-  blk("      looks like a double.                                      ");
   blk("                                                                ");
   blk("Examples:                                                       ");
-  blk("     $ uPokeDBHex ACOMMS_TRANSMIT_DATA:=a5:61:bc alpha.moos        ");
+  blk("     $ uPokeRandom ACOMMS_TRANSMIT_DATA=14 alpha.moos        ");
   exit(0);
 }
 
