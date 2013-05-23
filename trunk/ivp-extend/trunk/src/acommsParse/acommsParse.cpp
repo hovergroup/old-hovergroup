@@ -5,7 +5,9 @@
  *      Author: josh
  */
 
-#include "alogParse.h"
+#include "goby/acomms/protobuf/mm_driver.pb.h"
+#include <google/protobuf/text_format.h>
+#include "acommsParse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,25 +39,27 @@ vector<string> variables, wilds;
 ofstream output;
 string delimiter = ",";
 
+enum MODE {
+	UNSET,
+	RECEIVE,
+	TRANSMIT
+};
+MODE mode = UNSET;
+
 void printHelp() {
     cout << "Usage: " << endl;
-    cout << "  alogParse in.alog --sync_variable=[SYNC_VAR] [VAR] [OPTIONS]   " << endl;
-    cout << "  alogParse in.alog --sync_period=[period] [VAR] [OPTIONS]       " << endl;
+    cout << "  alogParse in.alog [--receive / --transmit] [VAR] [OPTIONS]     " << endl;
     cout << "                                                                 " << endl;
     cout << "Synopsis:                                                        " << endl;
     cout << "  Creates a comma delimited synchronous log file from an alog    " << endl;
     cout << "  file for importing into Matlab, Excel, or similar.  Age of each" << endl;
-    cout << "  variable is also reported (may be negative).                   " << endl;
+    cout << "  variable is also reported (may be negative).  Variables are    " << endl;
+    cout << "  reported for each acomms transmission or reception.            " << endl;
     cout << "                                                                 " << endl;
     cout << "Standard Arguments:                                              " << endl;
     cout << "  in.alog  - The input logfile.                                  " << endl;
     cout << "  VAR      - The name of a MOOS variable                         " << endl;
     cout << "                                                                 " << endl;
-    cout << "Synchronization Options:                                         " << endl;
-    cout << "  Sync by variable  - a line will be printed everytime the       " << endl;
-    cout << "                      variable [SYNC_VAR] is posted to.          " << endl;
-    cout << "  Sync periodically - a line will be printed every [period]      " << endl;
-    cout << "                      seconds.                                   " << endl;
     cout << "                                                                 " << endl;
     cout << "Options:                                                         " << endl;
     cout << "  -h,--help        Displays this help message                    " << endl;
@@ -69,7 +73,7 @@ void printHelp() {
     cout << "                                                                 " << endl;
     cout << "Further Notes:                                                   " << endl;
     cout << "  (1) The output file will have the same filename as the input,  " << endl;
-    cout << "      but with a .csv extension.                                 " << endl;
+    cout << "      but with \"receive\" or \"transmit\" and a .csv extension. " << endl;
     cout << "  (2) Use * for wildcard logging (e.g. VAR* matches any MOOS     " << endl;
     cout << "      variable starting with VAR)                                " << endl;
     cout << endl;
@@ -80,8 +84,61 @@ bool entry_sort( ALogEntry e1, ALogEntry e2 ) {
 	return e1.getTimeStamp() < e2.getTimeStamp();
 }
 
+string printTransmit(ALogEntry entry) {
+
+}
+
+string printReceive(ALogEntry entry) {
+	string msg_val = entry.getStringVal();
+
+	goby::acomms::protobuf::ModemTransmission trans;
+	string temp;
+	while ( msg_val.find("<|>") != string::npos ) {
+		msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+	}
+	string const* ptr = &msg_val;
+	google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
+
+	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
+		micromodem::protobuf::ReceiveStatistics statistics;
+		int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
+		if (numstats == 1) {
+			statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+		} else if (numstats == 2) {
+			statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+		}
+
+
+
+
+			//					snr_in = stat.snr_in();
+			//					snr_out = stat.snr_out();
+			//					spl = stat.spl();
+			//					stddev_noise = stat.stddev_noise();
+			//					mse_equalizer = stat.mse_equalizer();
+
+			// here we print a line whenever we get an acomms reception
+//				printLine( msg_time );
+
+	}
+}
+
+string printTransmitHeader() {
+	stringstream ss;
+
+}
+
+string printReceiveHeader() {
+	stringstream ss;
+}
+
 void printHeader() {
 	output << "time";
+	if (mode == RECEIVE) {
+		output << delimiter << printReceiveHeader();
+	} else {
+		output << delimiter << printTransmitHeader();
+	}
 	for ( int i=0; i<variables.size(); i++ ) {
 		output << delimiter << variables[i] << delimiter << variables[i] << "_age";
 	}
@@ -92,8 +149,6 @@ double backsearch_range = 0;
 
 int main (	int argc, char *argv[] ) {
 	string sync_variable;
-	bool use_sync_variable = false;
-	double sync_period = 0;
 	bool restrict_to_backsearch = false;
 
 	if( scanArgs(argc, argv, "-h", "--help" ) ) {
@@ -108,11 +163,12 @@ int main (	int argc, char *argv[] ) {
 		if (strContains(sarg, ".alog")) {
 			if (alogfile_in == "")
 				alogfile_in = sarg;
-		} else if ( strContains(sarg, "--sync_variable=" ) ) {
-			use_sync_variable = true;
-			sync_variable = readCommandArg( string(sarg) );
-		} else if ( strContains(sarg, "--sync_period=" ) ) {
-			sync_period = atof( readCommandArg(string(sarg)).c_str() );
+		} else if (sarg == "--receive") {
+			mode = RECEIVE;
+			sync_variable = "ACOMMS_RECEIVED_ALL";
+		} else if (sarg == "--transmit") {
+			mode = TRANSMIT;
+			sync_variable = "ACOMMS_TRANSMIT_ALL";
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
 		} else if ( strContains(sarg, "--backsearch=" ) ) {
@@ -127,26 +183,13 @@ int main (	int argc, char *argv[] ) {
 		}
 	}
 
-	// check if sync variable matches a wildcard
-	if ( use_sync_variable && !wilds.empty()) {
-		for (int i=0; i<wilds.size(); i++ ) {
-			if ( wildCardMatch(wilds[i],sync_variable) ) {
-				variables.push_back(sync_variable);
-				break;
-			}
-		}
-	}
-
 	if (alogfile_in == "") {
 		cout << "No alog file given - exiting" << endl;
 		exit(0);
 	}
-	if ( !use_sync_variable && sync_period==0 ) {
-		cout << "No sync period or variable set - exiting" << endl;
-		exit(0);
-	}
-	if ( use_sync_variable && sync_variable=="" ) {
-		cout << "No sync variable set - exiting" << endl;
+
+	if (mode==UNSET) {
+		cout << "Must specify --transmit or --recieve" << endl;
 		exit(0);
 	}
 
@@ -192,11 +235,11 @@ int main (	int argc, char *argv[] ) {
 
 	// open output file and print header
 	string file_out = alogfile_in;
-	file_out.replace( file_out.size()-4, 4, "csv");
+	file_out.replace( file_out.size()-4, 4, "txt");
 	output.open(file_out.c_str());
 	printHeader();
 
-	if ( use_sync_variable && restrict_to_backsearch ) {
+	if ( restrict_to_backsearch ) {
 		// backsearching with sync variable
 		// latest version of variables and their times
 		map<string,string> current_value;
@@ -216,6 +259,11 @@ int main (	int argc, char *argv[] ) {
 			// output when key is found
 			if ( key == sync_variable ) {
 				output << entry.getTimeStamp();
+				if (mode == RECEIVE) {
+					output << delimiter << printReceive(entry);
+				} else {
+					output << delimiter << printTransmit(entry);
+				}
 				for ( int j=0; j<variables.size(); j++ ) {
 					output << delimiter << current_value[variables[j]];
 					output << delimiter << entry.getTimeStamp()-current_times[variables[j]];
@@ -223,7 +271,7 @@ int main (	int argc, char *argv[] ) {
 				output << endl;
 			}
 		}
-	} else if ( use_sync_variable && !restrict_to_backsearch ) {
+	} else {
 		// full search with sync variable
 		// latest version of variables and their times
 		map<string,string> current_value;
@@ -246,7 +294,15 @@ int main (	int argc, char *argv[] ) {
 				partials.push_back( PartialEntry(
 						variables, current_value, current_times, entry.getTimeStamp() ) );
 			}
-			// process current enry for all partials
+
+			output << entry.getTimeStamp();
+			if (mode == RECEIVE) {
+				output << delimiter << printReceive(entry);
+			} else {
+				output << delimiter << printTransmit(entry);
+			}
+
+			// process current entry for all partials
 			for ( int j=0; j<partials.size(); j++ ) {
                 if ( backsearch_range == 0 ) {
 					partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
@@ -264,85 +320,6 @@ int main (	int argc, char *argv[] ) {
 			}
 		}
 		// clear leftover partials
-		while ( !partials.empty() ) {
-			output << partials.front().serialize() << endl;
-			partials.pop_front();
-		}
-	} else if ( !use_sync_variable && restrict_to_backsearch ) {
-		// sync period and backsearch
-		// latest version of variables and their times
-		map<string,string> current_value;
-		map<string,double> current_times;
-		double last_post_time = entries[0].getTimeStamp();
-		for ( int i=0; i<variables.size(); i++ ) {
-			current_value[variables[i]] = "-1";
-			current_times[variables[i]] = -100000000;
-		}
-		ALogEntry entry = entries[0];
-        string key = entry.getVarName();
-        if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-            current_value[key] = entry.getStringVal();
-            current_times[key] = entry.getTimeStamp();
-        }
-		for ( int i=1; i<entries.size(); i++ ) {
-		    entry = entries[i];
-            if ( entry.getTimeStamp()-last_post_time > sync_period ) {
-                last_post_time+=sync_period;
-                output << last_post_time;
-                for ( int j=0; j<variables.size(); j++ ) {
-                    output << delimiter << current_value[variables[j]];
-                    output << delimiter << last_post_time-current_times[variables[j]];
-                }
-                output << endl;
-                i--;
-            } else {
-                key = entry.getVarName();
-                if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-                    current_value[key] = entry.getStringVal();
-                    current_times[key] = entry.getTimeStamp();
-                }
-            }
-		}
-	} else {
-		// sync period and full search
-		// latest version of variables and their times
-		map<string,string> current_value;
-		map<string,double> current_times;
-		deque<PartialEntry> partials;
-		double last_post_time = entries[0].getTimeStamp();
-		for ( int i=0; i<variables.size(); i++ ) {
-			current_value[variables[i]] = "-1";
-			current_times[variables[i]] = -100000000;
-		}
-		for ( int i=1; i<entries.size(); i++ ) {
-			ALogEntry entry = entries[i];
-			string key = entry.getVarName();
-            if ( entry.getTimeStamp()-last_post_time > sync_period ) {
-                last_post_time+=sync_period;
-                partials.push_back( PartialEntry(
-                        variables, current_value, current_times, last_post_time ) );
-                i--;
-            } else {
-                if ( find(variables.begin(), variables.end(), key) != variables.end() ) {
-                    current_value[key] = entry.getStringVal();
-                    current_times[key] = entry.getTimeStamp();
-                }
-                for ( int j=0; j<partials.size(); j++ ) {
-                    if ( backsearch_range == 0 ) {
-                        partials[j].process( key, entry.getStringVal(), entry.getTimeStamp() );
-                    } else {
-                        partials[j].process( key, entry.getStringVal(), entry.getTimeStamp(), backsearch_range );
-                    }
-                }
-                if ( !partials.empty() ) {
-                    while ( partials.front().checkComplete() ) {
-                        output << partials.front().serialize() << endl;
-                        partials.pop_front();
-                        if ( partials.empty() ) break;
-                    }
-                }
-            }
-		}
 		while ( !partials.empty() ) {
 			output << partials.front().serialize() << endl;
 			partials.pop_front();
@@ -410,7 +387,6 @@ void PartialEntry::process( string var, string val, double time, double max_forw
 string PartialEntry::serialize() {
 	// output to file
 	stringstream ss;
-	ss << m_time;
 	for ( int i=0; i<m_variables.size(); i++ ) {
 		ss << delimiter << m_values[m_variables[i]];
 		ss << delimiter << m_time-m_times[m_variables[i]];
