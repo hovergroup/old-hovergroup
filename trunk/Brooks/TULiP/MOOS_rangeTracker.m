@@ -16,22 +16,23 @@
 %}
 
 clear iMatlab; clc
+global targetSpeed
 
-PRINTOUTS = 1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USER SETTINGS
+
+PRINTOUTS = 1;  % to matlab terminal
 
 % problem parameters
 dt = 12 ; % time step between samples
-
 dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % estimator parameters
-global targetSpeed
 %targetSpeed = 1.5;    % m/s
 %targetSpeed = 2;
 tagetSpeed = 2.2;
 
-% Note state is target's: [heading, Cartesian X, Cartesian Y]
 Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 % (held over filter step)
 
@@ -44,21 +45,26 @@ rateLimit = deg2rad(135/dt);
 Rmeas = diag([4 9]);
 
 % QUANTIZATION (same settings as 11/2012 exp)
+% b(1) = 3, rho = 0.4775
+% bin edges: [27.6 40.7 47 50 53 59.3 72.4];
 % binSet = 3;
 
-% 7.5m smallest bin:
+% LOG - v2
+% b(1) = 7.5, rho = 0.75
+% bin edges: [19.1667 32.5 42.5 50 57.5 67.5 80.8333];
 binSet = 75;
 
 % uniform
+% b(1) = 12.5, rho = 1
+% bin edges: [12.5 25 37.5 50 62.5 75 87.5];
 %binSet = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % initial covariance and state
-P = diag([5 2500 2500]) ;
 % [heading metersE metersN] from origin (pavilion)
 xhat=[0 20 -20]';
+P = diag([5 2500 2500]) ;
 z = zeros(2,1); % preallocate
 
 % formation
@@ -85,9 +91,9 @@ iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
 %length(garbageMail)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 it = 0;
 go = 1; % possibly add exitflags to loop?
-
 while(go)
     
     it = it+1;
@@ -127,11 +133,9 @@ while(go)
             YAgent(2) = data.FOLLOWER_Y;
             z(1) = data.LEADER_RANGE;
             z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
-            
             R = Rmeas;
             
         end
-        
         
         if(PRINTOUTS)
             fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
@@ -140,9 +144,9 @@ while(go)
             fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
         end
         
+        % run SPKF
         [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
             dim,s1,s2,s3,w,vol,Q,dt,R,rateLimit);
-        
         
         if norm(xhat) > 1e6,
             disp('xhat appears unstable -- Stop.');
@@ -179,12 +183,22 @@ while(go)
             fprintf(['follower wpt: ' fwps '\n'])
         end
         
-        
     end
     
-    
     mloopTime = toc(itStart);
-    
     fprintf('matlab time: %f \n',mloopTime)
     
 end
+
+% NOTES ON MODIFIED SPKF from Franz
+
+% Demo a cheap sigma-point filter for range-only tracking in the
+% plane.  "Cheap" because it uses sigma points only for the
+% target state, but NOT for process noise or for sensor noise.
+% Process noise is inserted at random to go with the state
+% sigma point evolutions.  The update step uses the regular
+% EKF formulation for gain and covariance update, based on
+% linearization of the observation, and a single estimated
+% measurement.  On the other hand, this filter allows a user-
+% specified number of Hermite quadrature points, which may be
+% useful.
