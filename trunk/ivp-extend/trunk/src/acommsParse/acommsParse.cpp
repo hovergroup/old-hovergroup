@@ -523,9 +523,8 @@ int main (	int argc, char *argv[] ) {
 			if ( key == sync_variable ) {
 				partials.push_back( PartialEntry(
 						variables, current_value, current_times, entry.getTimeStamp() ) );
+				partials.back().acomms = entry;
 			}
-
-			output << entry.getTimeStamp();
 
 			// process current entry for all partials
 			for ( int j=0; j<partials.size(); j++ ) {
@@ -538,19 +537,11 @@ int main (	int argc, char *argv[] ) {
 			// output complete partials
 			if ( !partials.empty() ) {
 				while ( partials.front().checkComplete() ) {
-					output << partials.front().serialize();
+					output << partials.front().serialize() << endl;
 					partials.pop_front();
 					if ( partials.empty() ) break;
 				}
 			}
-			if (mode == RECEIVE) {
-				output << delimiter << printReceive(entry);
-			} else {
-				output << delimiter << printTransmit(entry);
-			}
-			ALogEntry hex_entry = findNearestHex(entry.getTimeStamp());
-			output << delimiter << hex_entry.getStringVal() << delimiter << entry.getTimeStamp()-hex_entry.getTimeStamp();
-			output << endl;
 		}
 		// clear leftover partials
 		while ( !partials.empty() ) {
@@ -620,10 +611,18 @@ void PartialEntry::process( string var, string val, double time, double max_forw
 string PartialEntry::serialize() {
 	// output to file
 	stringstream ss;
+	ss << m_time;
 	for ( int i=0; i<m_variables.size(); i++ ) {
 		ss << delimiter << m_values[m_variables[i]];
 		ss << delimiter << m_time-m_times[m_variables[i]];
 	}
+	if (mode == RECEIVE) {
+		ss << delimiter << printReceive(acomms);
+	} else {
+		ss << delimiter << printTransmit(acomms);
+	}
+	ALogEntry hex_entry = findNearestHex(acomms.getTimeStamp());
+	ss << delimiter << hex_entry.getStringVal() << delimiter << acomms.getTimeStamp()-hex_entry.getTimeStamp();
 	return ss.str();
 }
 

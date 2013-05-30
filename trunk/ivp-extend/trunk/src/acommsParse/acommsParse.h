@@ -14,27 +14,6 @@
 #include <vector>
 #include <map>
 
-// a class for storing entries when doing full searches
-class PartialEntry {
-public:
-	PartialEntry( 	std::vector<std::string> vars,
-					std::map<std::string,std::string> vals,
-					std::map<std::string,double> times,
-					double time );
-	bool checkComplete();
-	void process( std::string var, std::string val, double time );
-	void process( std::string var, std::string val, double time, double max_forward );
-	std::string serialize();
-
-private:
-	double m_time; // time stamp of the entry
-
-	std::map<std::string,std::string> m_values;	// values of each variable
-	std::map<std::string,double> m_times; // time stamp of each variable
-	std::map<std::string,bool> m_verified;
-	std::vector<std::string> m_variables;
-};
-
 
 class ALogEntry
 {
@@ -100,6 +79,29 @@ protected:
   // is a normal entry. "invalid" means the entry is not normal. "eof"
   // could indicate that a the entry is the tail of normal entries.
   std::string  m_status;
+};
+
+
+// a class for storing entries when doing full searches
+class PartialEntry {
+public:
+	PartialEntry( 	std::vector<std::string> vars,
+					std::map<std::string,std::string> vals,
+					std::map<std::string,double> times,
+					double time );
+	bool checkComplete();
+	void process( std::string var, std::string val, double time );
+	void process( std::string var, std::string val, double time, double max_forward );
+	std::string serialize();
+	ALogEntry acomms;
+
+private:
+	double m_time; // time stamp of the entry
+
+	std::map<std::string,std::string> m_values;	// values of each variable
+	std::map<std::string,double> m_times; // time stamp of each variable
+	std::map<std::string,bool> m_verified;
+	std::vector<std::string> m_variables;
 };
 
 
