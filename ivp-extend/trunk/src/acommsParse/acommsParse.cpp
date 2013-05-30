@@ -85,7 +85,145 @@ bool entry_sort( ALogEntry e1, ALogEntry e2 ) {
 }
 
 string printTransmit(ALogEntry entry) {
+	string msg_val = entry.getStringVal();
 
+	goby::acomms::protobuf::ModemTransmission trans;
+	string temp;
+	while ( msg_val.find("<|>") != string::npos ) {
+		msg_val.replace( msg_val.find("<|>"), 3, "\n" );
+	}
+	string const* ptr = &msg_val;
+	google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
+
+	stringstream ss;
+	ss << trans.src() << delimiter;
+	ss << trans.dest() << delimiter;
+	ss << trans.rate() << delimiter;
+	ss << trans.type() << delimiter;
+	ss << trans.ack_requested() << delimiter;
+	int i;
+	for (i=0; i<trans.frame_size(); i++) {
+		string frame = trans.frame(i);
+		while (frame.find("\n",0) != string::npos) {
+			frame.erase(frame.find("\n",0),1);
+		}
+		while (frame.find("\r",0) != string::npos) {
+			frame.erase(frame.find("\r",0),1);
+		}
+		ss << frame << delimiter;
+	}
+	while (i < 8) {
+		i++;
+		ss << delimiter;
+	}
+	if (trans.HasExtension(micromodem::protobuf::type)) {
+		ss << trans.GetExtension(micromodem::protobuf::type);
+	}
+	ss << delimiter;
+
+	return ss.str();
+}
+
+string printTransmitHeader() {
+	stringstream ss;
+	ss << "src" << delimiter;
+	ss << "dest" << delimiter;
+	ss << "rate" << delimiter;
+	ss << "type" << delimiter;
+	ss << "ack_requested" << delimiter;
+	ss << "frame0" << delimiter;
+	ss << "frame1" << delimiter;
+	ss << "frame2" << delimiter;
+	ss << "frame3" << delimiter;
+	ss << "frame4" << delimiter;
+	ss << "frame5" << delimiter;
+	ss << "frame6" << delimiter;
+	ss << "frame7" << delimiter;
+	ss << "umodem_protobuf_type";
+
+	return ss.str();
+}
+
+string printStats(micromodem::protobuf::ReceiveStatistics &stats) {
+	stringstream ss;
+
+	ss << stats.mode() << delimiter;
+	ss << stats.time() << delimiter;
+	ss << stats.clock_mode() << delimiter;
+	ss << stats.mfd_peak() << delimiter;
+	ss << stats.mfd_power() << delimiter;
+	ss << stats.mfd_ratio() << delimiter;
+	ss << stats.spl() << delimiter;
+	ss << stats.shf_agn() << delimiter;
+	ss << stats.shf_ainpshift() << delimiter;
+	ss << stats.shf_ainshift() << delimiter;
+	ss << stats.shf_mfdshift() << delimiter;
+	ss << stats.shf_p2bshift() << delimiter;
+	ss << stats.rate() << delimiter;
+	ss << stats.source() << delimiter;
+	ss << stats.dest() << delimiter;
+	ss << stats.psk_error_code() << delimiter;
+	ss << stats.packet_type() << delimiter;
+	ss << stats.number_frames() << delimiter;
+	ss << stats.number_bad_frames() << delimiter;
+	ss << stats.snr_rss() << delimiter;
+	ss << stats.snr_in() << delimiter;
+	ss << stats.snr_out() << delimiter;
+	ss << stats.snr_symbols() << delimiter;
+	ss << stats.mse_equalizer() << delimiter;
+	ss << stats.data_quality_factor() << delimiter;
+	ss << stats.doppler() << delimiter;
+	ss << stats.stddev_noise() << delimiter;
+	ss << stats.carrier_freq() << delimiter;
+	ss << stats.bandwidth() << delimiter;
+	ss << stats.version();
+
+	return ss.str();
+}
+
+string printStatHeader() {
+	stringstream ss;
+
+	ss << "mode" << delimiter;
+	ss << "time" << delimiter;
+	ss << "clock_mode" << delimiter;
+	ss << "mfd_peak" << delimiter;
+	ss << "mfd_power" << delimiter;
+	ss << "mfd_ratio" << delimiter;
+	ss << "spl" << delimiter;
+	ss << "shf_agn" << delimiter;
+	ss << "shf_ainpshift" << delimiter;
+	ss << "shf_ainshift" << delimiter;
+	ss << "shf_mfdshift" << delimiter;
+	ss << "shf_p2bshift" << delimiter;
+	ss << "rate" << delimiter;
+	ss << "source" << delimiter;
+	ss << "dest" << delimiter;
+	ss << "psk_error_code" << delimiter;
+	ss << "packet_type" << delimiter;
+	ss << "number_frames" << delimiter;
+	ss << "number_bad_frames" << delimiter;
+	ss << "snr_rss" << delimiter;
+	ss << "snr_in" << delimiter;
+	ss << "snr_out" << delimiter;
+	ss << "snr_symbols" << delimiter;
+	ss << "mse_equalizer" << delimiter;
+	ss << "data_quality_factor" << delimiter;
+	ss << "doppler" << delimiter;
+	ss << "stddev_noise" << delimiter;
+	ss << "carrier_freq" << delimiter;
+	ss << "bandwidth" << delimiter;
+	ss << "version";
+
+	return ss.str();
+}
+
+string printEmptyStats() {
+	stringstream ss;
+	for (int i=0; i<29; i++) {
+		ss << delimiter;
+	}
+	return ss.str();
 }
 
 string printReceive(ALogEntry entry) {
@@ -99,48 +237,112 @@ string printReceive(ALogEntry entry) {
 	string const* ptr = &msg_val;
 	google::protobuf::TextFormat::ParseFromString( *ptr, &trans );
 
-	if ( trans.type() == goby::acomms::protobuf::ModemTransmission::DATA ) {
-		micromodem::protobuf::ReceiveStatistics statistics;
-		int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
-		if (numstats == 1) {
-			statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
-		} else if (numstats == 2) {
-			statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
-		}
 
-
-
-
-			//					snr_in = stat.snr_in();
-			//					snr_out = stat.snr_out();
-			//					spl = stat.spl();
-			//					stddev_noise = stat.stddev_noise();
-			//					mse_equalizer = stat.mse_equalizer();
-
-			// here we print a line whenever we get an acomms reception
-//				printLine( msg_time );
-
-	}
-}
-
-string printTransmitHeader() {
 	stringstream ss;
 
+	ss << trans.src() << delimiter;
+	ss << trans.dest() << delimiter;
+	ss << trans.time() << delimiter;
+	ss << trans.time_source() << delimiter;
+	ss << trans.type() << delimiter;
+	ss << trans.ack_requested() << delimiter;
+	int i;
+	for (i=0; i<trans.frame_size(); i++) {
+		string frame = trans.frame(i);
+		while (frame.find("\n",0) != string::npos) {
+			frame.erase(frame.find("\n",0),1);
+		}
+		while (frame.find("\r",0) != string::npos) {
+			frame.erase(frame.find("\r",0),1);
+		}
+		ss << frame << delimiter;
+	}
+	while (i < 8) {
+		i++;
+		ss << delimiter;
+	}
+	if (trans.HasExtension(micromodem::protobuf::type)) {
+		ss << trans.GetExtension(micromodem::protobuf::type);
+	}
+	ss << delimiter;
+	if (trans.HasExtension(micromodem::protobuf::ranging_reply)) {
+		micromodem::protobuf::RangingReply rr = trans.GetExtension(micromodem::protobuf::ranging_reply);
+		for (i=0; i<rr.one_way_travel_time_size(); i++) {
+			ss << rr.one_way_travel_time(i) << delimiter;
+		}
+		while (i<4) {
+			i++;
+			ss << delimiter;
+		}
+		ss << rr.ambiguity() << delimiter;
+		ss << rr.is_one_way_synchronous() << delimiter;
+		ss << rr.receiver_clk_mode() << delimiter;
+	} else {
+		for (i=0; i<7; i++) {
+			ss << delimiter;
+		}
+	}
+
+	micromodem::protobuf::ReceiveStatistics statistics;
+	int numstats = trans.ExtensionSize( micromodem::protobuf::receive_stat );
+	if (numstats == 1) {
+		statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 0 );
+		ss << printStats(statistics) << delimiter;
+	} else if (numstats == 2) {
+		statistics = trans.GetExtension( micromodem::protobuf::receive_stat, 1 );
+		ss << printStats(statistics) << delimiter;
+	} else {
+		ss << printEmptyStats() << delimiter;
+	}
+
+	for (int i=0; i<trans.ExtensionSize(micromodem::protobuf::frame_with_bad_crc); i++) {
+		ss << trans.GetExtension(micromodem::protobuf::frame_with_bad_crc,i);
+	}
+
+	return ss.str();
 }
 
 string printReceiveHeader() {
 	stringstream ss;
+	ss << "src" << delimiter;
+	ss << "dest" << delimiter;
+	ss << "time" << delimiter;
+	ss << "time_source" << delimiter;
+	ss << "type" << delimiter;
+	ss << "ack_requested" << delimiter;
+	ss << "frame0" << delimiter;
+	ss << "frame1" << delimiter;
+	ss << "frame2" << delimiter;
+	ss << "frame3" << delimiter;
+	ss << "frame4" << delimiter;
+	ss << "frame5" << delimiter;
+	ss << "frame6" << delimiter;
+	ss << "frame7" << delimiter;
+	ss << "umodem_protobuf_type" << delimiter;
+	ss << "one_way_travel_time0" << delimiter;
+	ss << "one_way_travel_time1" << delimiter;
+	ss << "one_way_travel_time2" << delimiter;
+	ss << "one_way_travel_time3" << delimiter;
+	ss << "ambiguity" << delimiter;
+	ss << "is_one_way_synchronous" << delimiter;
+	ss << "receiver_clk_mode" << delimiter;
+
+	ss << printStatHeader() << delimiter;
+
+	ss << "bad_frame_indices";
+
+	return ss.str();
 }
 
 void printHeader() {
 	output << "time";
+	for ( int i=0; i<variables.size(); i++ ) {
+		output << delimiter << variables[i] << delimiter << variables[i] << "_age";
+	}
 	if (mode == RECEIVE) {
 		output << delimiter << printReceiveHeader();
 	} else {
 		output << delimiter << printTransmitHeader();
-	}
-	for ( int i=0; i<variables.size(); i++ ) {
-		output << delimiter << variables[i] << delimiter << variables[i] << "_age";
 	}
 	output << endl;
 }
@@ -168,7 +370,7 @@ int main (	int argc, char *argv[] ) {
 			sync_variable = "ACOMMS_RECEIVED_ALL";
 		} else if (sarg == "--transmit") {
 			mode = TRANSMIT;
-			sync_variable = "ACOMMS_TRANSMIT_ALL";
+			sync_variable = "ACOMMS_TRANSMISSION";
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
 		} else if ( strContains(sarg, "--backsearch=" ) ) {
@@ -235,7 +437,7 @@ int main (	int argc, char *argv[] ) {
 
 	// open output file and print header
 	string file_out = alogfile_in;
-	file_out.replace( file_out.size()-4, 4, "txt");
+	file_out.replace( file_out.size()-4, 4, "csv");
 	output.open(file_out.c_str());
 	printHeader();
 
@@ -259,14 +461,14 @@ int main (	int argc, char *argv[] ) {
 			// output when key is found
 			if ( key == sync_variable ) {
 				output << entry.getTimeStamp();
+				for ( int j=0; j<variables.size(); j++ ) {
+					output << delimiter << current_value[variables[j]];
+					output << delimiter << entry.getTimeStamp()-current_times[variables[j]];
+				}
 				if (mode == RECEIVE) {
 					output << delimiter << printReceive(entry);
 				} else {
 					output << delimiter << printTransmit(entry);
-				}
-				for ( int j=0; j<variables.size(); j++ ) {
-					output << delimiter << current_value[variables[j]];
-					output << delimiter << entry.getTimeStamp()-current_times[variables[j]];
 				}
 				output << endl;
 			}
@@ -296,11 +498,6 @@ int main (	int argc, char *argv[] ) {
 			}
 
 			output << entry.getTimeStamp();
-			if (mode == RECEIVE) {
-				output << delimiter << printReceive(entry);
-			} else {
-				output << delimiter << printTransmit(entry);
-			}
 
 			// process current entry for all partials
 			for ( int j=0; j<partials.size(); j++ ) {
@@ -313,11 +510,17 @@ int main (	int argc, char *argv[] ) {
 			// output complete partials
 			if ( !partials.empty() ) {
 				while ( partials.front().checkComplete() ) {
-					output << partials.front().serialize() << endl;
+					output << partials.front().serialize();
 					partials.pop_front();
 					if ( partials.empty() ) break;
 				}
 			}
+			if (mode == RECEIVE) {
+				output << delimiter << printReceive(entry);
+			} else {
+				output << delimiter << printTransmit(entry);
+			}
+			output << endl;
 		}
 		// clear leftover partials
 		while ( !partials.empty() ) {
