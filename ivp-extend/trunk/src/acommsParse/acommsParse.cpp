@@ -38,6 +38,8 @@ using namespace std;
 vector<string> variables, wilds;
 ofstream output;
 string delimiter = ",";
+deque<ALogEntry> hex_data_entries;
+string hex_data_name;
 
 enum MODE {
 	UNSET,
@@ -119,7 +121,6 @@ string printTransmit(ALogEntry entry) {
 	if (trans.HasExtension(micromodem::protobuf::type)) {
 		ss << trans.GetExtension(micromodem::protobuf::type);
 	}
-	ss << delimiter;
 
 	return ss.str();
 }
@@ -344,10 +345,26 @@ void printHeader() {
 	} else {
 		output << delimiter << printTransmitHeader();
 	}
+	output << delimiter << hex_data_name;
+	output << delimiter << hex_data_name << "_age";
 	output << endl;
 }
 
 double backsearch_range = 0;
+
+ALogEntry findNearestHex(double time) {
+	double offset = 10000000;
+	ALogEntry entry;
+	while (!hex_data_entries.empty()) {
+		if (fabs(hex_data_entries.front().getTimeStamp()-time) < offset) {
+			entry = hex_data_entries.front();
+			hex_data_entries.pop_front();
+			offset = fabs(entry.getTimeStamp()-time);
+		} else
+			break;
+	}
+	return entry;
+}
 
 int main (	int argc, char *argv[] ) {
 	string sync_variable;
@@ -368,9 +385,11 @@ int main (	int argc, char *argv[] ) {
 		} else if (sarg == "--receive") {
 			mode = RECEIVE;
 			sync_variable = "ACOMMS_RECEIVED_ALL";
+			hex_data_name = "ACOMMS_RECEIVED_DATA_HEX";
 		} else if (sarg == "--transmit") {
 			mode = TRANSMIT;
 			sync_variable = "ACOMMS_TRANSMISSION";
+			hex_data_name = "ACOMMS_TRANSMITTED_DATA_HEX";
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
 		} else if ( strContains(sarg, "--backsearch=" ) ) {
@@ -412,6 +431,11 @@ int main (	int argc, char *argv[] ) {
 		line_num++;
 		if ( entry.getStatus() == "okay" ) {
 			string key = entry.getVarName();
+
+			if (key == hex_data_name) {
+				hex_data_entries.push_back(entry);
+			}
+
 			// save if its in list of variables
 			if ( find(variables.begin(), variables.end(), key) != variables.end() ||
 					key == sync_variable ) {
@@ -434,6 +458,8 @@ int main (	int argc, char *argv[] ) {
 	// make sure entries are sorted by time
 	sort( entries.begin(), entries.end(), entry_sort );
 	cout << "Sorted " << entries.size() << " entries." << endl;
+
+	sort( hex_data_entries.begin(), hex_data_entries.end(), entry_sort );
 
 	// open output file and print header
 	string file_out = alogfile_in;
@@ -470,6 +496,8 @@ int main (	int argc, char *argv[] ) {
 				} else {
 					output << delimiter << printTransmit(entry);
 				}
+				ALogEntry hex_entry = findNearestHex(entry.getTimeStamp());
+				output << delimiter << hex_entry.getStringVal() << delimiter << entry.getTimeStamp()-hex_entry.getTimeStamp();
 				output << endl;
 			}
 		}
@@ -520,6 +548,8 @@ int main (	int argc, char *argv[] ) {
 			} else {
 				output << delimiter << printTransmit(entry);
 			}
+			ALogEntry hex_entry = findNearestHex(entry.getTimeStamp());
+			output << delimiter << hex_entry.getStringVal() << delimiter << entry.getTimeStamp()-hex_entry.getTimeStamp();
 			output << endl;
 		}
 		// clear leftover partials
