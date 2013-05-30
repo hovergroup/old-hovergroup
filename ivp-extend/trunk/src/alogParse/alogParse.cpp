@@ -64,7 +64,7 @@ void printHelp() {
     cout << "                   always be positive).                          " << endl;
     cout << "  --backsearch=X   Allow searching up to X seconds in the future " << endl;
     cout << "                   for the nearest posting of each variable.     " << endl;
-    cout << "  --delimiter=X    Set the delimiter string to X.  Default is ,  " << endl;
+    cout << "  --delimiter=\"X\"  Set the delimiter string to X.  Default is ,  " << endl;
     cout << "                                                                 " << endl;
     cout << "                                                                 " << endl;
     cout << "Further Notes:                                                   " << endl;
