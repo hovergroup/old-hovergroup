@@ -70,7 +70,7 @@ void printHelp() {
     cout << "                   always be positive).                          " << endl;
     cout << "  --backsearch=X   Allow searching up to X seconds in the future " << endl;
     cout << "                   for the nearest posting of each variable.     " << endl;
-    cout << "  --delimiter=X    Set the delimiter string to X.  Default is ,  " << endl;
+    cout << "  --delimiter=\"X\"  Set the delimiter string to X.  Default is ,  " << endl;
     cout << "                                                                 " << endl;
     cout << "                                                                 " << endl;
     cout << "Further Notes:                                                   " << endl;
@@ -111,6 +111,9 @@ string printTransmit(ALogEntry entry) {
 		}
 		while (frame.find("\r",0) != string::npos) {
 			frame.erase(frame.find("\r",0),1);
+		}
+		while (frame.find(delimiter,0) != string::npos) {
+			frame.erase(frame.find(delimiter,0),delimiter.size());
 		}
 		ss << frame << delimiter;
 	}
@@ -255,6 +258,9 @@ string printReceive(ALogEntry entry) {
 		}
 		while (frame.find("\r",0) != string::npos) {
 			frame.erase(frame.find("\r",0),1);
+		}
+		while (frame.find(delimiter,0) != string::npos) {
+			frame.erase(frame.find(delimiter,0),delimiter.size());
 		}
 		ss << frame << delimiter;
 	}
