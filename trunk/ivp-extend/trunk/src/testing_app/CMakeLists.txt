@@ -11,4 +11,5 @@ TARGET_LINK_LIBRARIES(testing_app
     goby_acomms
     boost_system
     boost_signals
+    boost_date_time
 )

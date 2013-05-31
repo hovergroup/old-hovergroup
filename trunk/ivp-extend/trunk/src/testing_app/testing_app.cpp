@@ -3,10 +3,12 @@
 //#include <QtGui/QScrollArea>
 //#include <mgl2/qmathgl.h>
 
-#include "HoverAcomms.h"
-#include "goby/acomms/modem_driver.h"
-#include "goby/acomms/protobuf/mm_driver.pb.h"
+//#include "HoverAcomms.h"
+//#include "goby/acomms/modem_driver.h"
+//#include "goby/acomms/protobuf/mm_driver.pb.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
+//#include <iostream>
 //int sample(mglGraph *gr)
 //{
 //  gr->Rotate(60,40);
@@ -16,26 +18,20 @@
 
 int main(int argc,char **argv)
 {
-	goby::acomms::protobuf::ModemTransmission proto;
-	HoverAcomms::AcommsTransmission trans;
-	trans.setDest(0);
-	std::cout << trans.serialize() << std::endl;
-	std::string s = trans.serialize();
-	for (int i=0; i<s.size(); i++) {
-		std::cout << std::hex << (int) s[i] << ":";
-	}
-	std::cout << std::endl;
 
-	std::cout << trans.parseFromString(s) << std::endl;
-	std::cout << trans.getRate() << std::endl;
-	trans.setRate(trans.getRate());
-	std::cout << trans.getRate() << std::endl;
+	std::string date = "2013/05/31 15:48:07.020";
+
+	boost::posix_time::ptime t(boost::posix_time::time_from_string(date));
+
+	std::cout << t << std::endl;
 
 
-	HoverAcomms::AcommsReception reception;
-	reception.copyFromProtobuf(proto);
-	std::cout << reception.m_protobuf.DebugString() << std::endl;
-//  QApplication a(argc,argv);
+	std::string line = "2013/05/31 15:48:07.000,  42.358579515, -71.087503447,  -23.0271,  5,  5, 17.2777,  5.2547, 14.0589, -7.9344, -6.1982, 13.4823,  0.00,   0.0";
+
+
+
+
+	//  QApplication a(argc,argv);
 //  QMainWindow *Wnd = new QMainWindow;
 //  Wnd->resize(810,610);  // for fill up the QMGL, menu and toolbars
 //  Wnd->setWindowTitle("QMathGL sample");
