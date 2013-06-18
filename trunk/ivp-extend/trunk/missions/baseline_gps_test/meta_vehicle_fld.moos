@@ -28,8 +28,8 @@ Processconfig = ANTLER
 
 ProcessConfig = iRTKNAVI
 {
-  HOST=192.168.1.202
-  PORT=50000
+  HOST=localhost
+  PORT=50001
 }
 
 ProcessConfig = uXMS
