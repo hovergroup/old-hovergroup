@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# source parameters
+MISSIONS_HOME="../.."
+source ${MISSIONS_HOME}/trunk/config/hard_config
+source ${MISSIONS_HOME}/trunk/config/soft_config
+
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
@@ -40,14 +45,10 @@ fi
 #  Part 2: Create the shoreside.moos file
 #-------------------------------------------------------
 
-SNAME="terra"  # Shoreside Community
-SPORT="9000"
-SLPORT="9001"
-WARP=1
-
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
+	SHOREHOST=$SHOREHOST                                \
     LOITER_PT1=$LOITER_PT1                              \
     LOITER_PT2=$LOITER_PT2
 

@@ -3,15 +3,17 @@
 # modify path
 # PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
 
+# source parameters
 MISSIONS_HOME="../.."
+source ${MISSIONS_HOME}/trunk/config/hard_config
+source ${MISSIONS_HOME}/trunk/config/soft_config
 
-source ${MISSIONS_HOME}/trunk/config/global_config
-
-WARP=1
+# set defaults
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
 VEHICLE=""
+WARP=1
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
