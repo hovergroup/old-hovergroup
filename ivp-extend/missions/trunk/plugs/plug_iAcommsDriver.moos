@@ -1,14 +1,12 @@
-
-
 ProcessConfig = iAcommsDriver
 {
-	AppTick = 5
-    IterateMode = 0
+  AppTick     = 5
+  IterateMode = 0
 
-	PortName = $(MODEMPORT)
-	ID = $(ACOMMSID)
-	
-	PSK_minipackets = false
-	enable_ranging = true
-	show_range_pulses = true
+  PortName = $(MODEMPORT)
+  ID       = $(ACOMMSID)
+
+  PSK_minipackets   = false
+  enable_ranging    = true
+  show_range_pulses = true
 }

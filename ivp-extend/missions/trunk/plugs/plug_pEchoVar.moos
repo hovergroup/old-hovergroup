@@ -1,13 +1,12 @@
 ProcessConfig = pEchoVar
 {
-	AppTick   = 40
-	MaxAppTick = 100
-	IterateMode = 1 // comms driven iterate and mail
+  AppTick     = 40
+  MaxAppTick  = 100
+  IterateMode = 1 // comms driven iterate and mail
 
-	Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-	Echo = GPS_X -> NAV_X
-	Echo = GPS_Y -> NAV_Y
-	Echo = GPS_SPEED -> NAV_SPEED
-	Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+  Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
+  Echo = GPS_SPEED -> NAV_SPEED
+  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
-
