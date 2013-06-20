@@ -69,7 +69,7 @@ SLPORT="9001"
 nsplug meta_vehicle_sim.moos targ_nostromo.moos -f      \
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
     START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost  \
-    VHOST=localhost
+    VHOST=localhost SLPORT=$SLPORT SHOREHOST=localhost
 
 nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
     VNAME=$VNAME1                                       \
@@ -80,7 +80,7 @@ nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
 nsplug meta_vehicle_sim.moos targ_silvana.moos -f       \
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
     START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost \
-    VHOST=localhost
+    VHOST=localhost SLPORT=$SLPORT SHOREHOST=localhost
 
 nsplug meta_vehicle.bhv targ_silvana.bhv -f             \
     VNAME=$VNAME2                                       \
@@ -93,6 +93,9 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT                                       \
     VPORT=$SPORT                                        \
     VNAME=$SNAME                                        \
+    VHOST2=localhost   VHOST3=localhost                 \
+    VNAME2=$VNAME1     VNAME3=$VNAME2                   \
+    LPORT2=$LPORT1     LPORT3=$LPORT2                   \
     WARP=$WARP                                          
 
 if [ ${JUST_BUILD} = "yes" ] ; then
