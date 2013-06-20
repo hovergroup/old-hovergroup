@@ -1,6 +1,10 @@
 #!/bin/bash
 
+#shore configuration
 SHOREHOST="192.168.1.100"
+SLPORT="9001"
+SPORT="9000"
+SNAME="terra"
 
 #icarus configuration
 VNAME_ICARUS="icarus"
@@ -22,10 +26,10 @@ GPSPORT_SILVANA="/dev/ttyACM0"
 GPSBAUD_SILVANA="57600"
 
 #nostromo configuration
-VNAME3="nostromo"
-VHOST3="192.168.1.103"
-VPORT3="9100"
-LPORT3="9101"
+VNAME_NOSTROMO="nostromo"
+VHOST_NOSTROMO="192.168.1.103"
+VPORT_NOSTROMO="9100"
+LPORT_NOSTROMO="9101"
 MODEMPORT_NOSTROMO="/dev/ttyUSB0"
 OS5000PORT_NOSTROMO="/dev/ttyUSB2"
 GPSPORT_NOSTROMO="/dev/ttyUSB1"
