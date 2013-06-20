@@ -3,9 +3,9 @@
 
 ProcessConfig = pShare
 {
-  AppTick   = 10
-  MaxAppTick = 20
+  AppTick     = 10
+  MaxAppTick  = 20
   IterateMode = 1
   
-  input = route =  $(VHOST):$(LPORT) 
+  input = route = $(VHOST):$(LPORT) 
 }

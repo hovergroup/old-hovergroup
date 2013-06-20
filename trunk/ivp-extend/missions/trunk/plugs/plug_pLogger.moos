@@ -1,13 +1,13 @@
 ProcessConfig = pLogger
 {
-	AppTick 	= 10
-	CommsTick 	= 10
+    AppTick   = 10
+    CommsTick = 10
 
-	File		= LOG_%(VNAME)
-	PATH		= /home/josh/logs/
-	AsyncLog 	= true
-	FileTimeStamp = true
-	WildCardLogging		= true
+    File            = LOG_%(VNAME)
+    PATH            = /home/josh/logs/
+    AsyncLog        = true
+    FileTimeStamp   = true
+    WildCardLogging = true
 
-	WildCardOmitPattern = PLOGGER_STATUS
+    WildCardOmitPattern = PLOGGER_STATUS
 }
