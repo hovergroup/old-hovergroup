@@ -88,11 +88,11 @@ nsplug meta_vehicle.bhv targ_silvana.bhv -f             \
     RETURN_PT=$RETURN_PT2
 
 # Prepare Shoreside files
-nsplug meta_shoreside.moos targ_shoreside.moos -f   \
-    SHOREHOST=localhost
-    SLPORT=$SLPORT                                      \
-    SPORT=$SPORT                                        \
-    SNAME=$SNAME                                        \
+nsplug meta_shoreside.moos targ_shoreside.moos -f       \
+    VHOST=localhost                                     \
+    LPORT=$SLPORT                                       \
+    VPORT=$SPORT                                        \
+    VNAME=$SNAME                                        \
     WARP=$WARP                                          
 
 if [ ${JUST_BUILD} = "yes" ] ; then
@@ -110,7 +110,7 @@ sleep 0.1
 
 # Launch Silvana
 printf "Launching silvana MOOS Community \n"
-pAntler targ_kassandra.moos >& /dev/null &
+pAntler targ_silvana.moos >& /dev/null &
 sleep 0.1
 
 # Launch shorestation 
