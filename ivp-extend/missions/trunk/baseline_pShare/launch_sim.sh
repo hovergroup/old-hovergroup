@@ -49,19 +49,19 @@ fi
 #  Part 2: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-VNAME1="nostromo"
+VNAME1="NOSTROMO"
 VPORT1="9100"
 LPORT1="9101"
 START_POS1="10,-20"
 RETURN_PT1="10,-20"
 
-VNAME2="silvana"
+VNAME2="SILVANA"
 VPORT2="9200"
 LPORT2="9201"
 START_POS2="30,-10"
 RETURN_PT2="30,-10"
 
-SNAME="terra"
+SNAME="TERRA"
 SPORT="9000"
 SLPORT="9001"
 
