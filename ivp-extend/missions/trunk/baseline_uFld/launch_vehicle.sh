@@ -77,7 +77,7 @@ fi
 
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld_rtk.moos targ_nostromo.moos -f  \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
         VHOST=$VHOST_NOSTROMO                           \
         VNAME=$VNAME_NOSTROMO                           \
         VPORT=$VPORT_NOSTROMO                           \
@@ -89,7 +89,7 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         RUDDER_OFFSET=$RUDDER_OFFSET_NOSTROMO           \
         OS5000PORT=$OS5000PORT_NOSTROMO
 
-    nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
+    nsplug meta_vehicle.bhv targ_$VNAME_NOSTROMO.bhv -f        \
         VNAME=$VNAME_NOSTROMO                           \
         CRUISESPEED=$SPEED_NOSTROMO                     \
         RETURN_PT=$RETURN_PT_NOSTROMO
@@ -97,7 +97,7 @@ fi
 
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
-    nsplug meta_vehicle_fld.moos targ_silvana.moos -f   \
+    nsplug meta_vehicle_fld.moos targ_$VNAME_SILVANA.moos -f   \
         VHOST=$VHOST_SILVANA                            \
         VNAME=$VNAME_SILVANA                            \
         VPORT=$VPORT_SILVANA                            \
@@ -111,7 +111,7 @@ if [ "${VEHICLE}" = "silvana" ]; then
         RUDDER_OFFSET=$RUDDER_OFFSET_SILVANA            \
         OS5000PORT=$OS5000PORT_SILVANA
 
-    nsplug meta_vehicle.bhv targ_silvana.bhv -f         \
+    nsplug meta_vehicle.bhv targ_$VNAME_SILVANA.bhv -f         \
         VNAME=$VNAME_SILVANA                            \
         CRUISESPEED=$SPEED_SILVANA                      \
         RETURN_PT=$RETURN_PT_SILVANA
@@ -119,7 +119,7 @@ fi
 
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
-    nsplug meta_icarus.moos targ_icarus.moos -f         \
+    nsplug meta_icarus.moos targ_$VNAME_ICARUS.moos -f         \
         VHOST=$VHOST_ICARUS                             \
         VNAME=$VNAME_ICARUS                             \
         VPORT=$VPORT_ICARUS                             \
@@ -143,17 +143,17 @@ fi
 # Launch nostromo
 if [ "${VEHICLE}" = "nostromo" ]; then
     printf "Launching nostromo MOOS Community \n"
-    pAntler targ_nostromo.moos >& /dev/null &
+    pAntler targ_$VNAME_NOSTROMO.moos >& /dev/null &
 fi
 # Launch silvana
 if [ "${VEHICLE}" = "silvana" ]; then
     printf "Launching silvana MOOS Community \n"
-    pAntler targ_silvana.moos >& /dev/null &
+    pAntler targ_$VNAME_SILVANA.moos >& /dev/null &
 fi
 # Launch icarus
 if [ "${VEHICLE}" = "icarus" ]; then
     printf "Launching icarus MOOS Community \n"
-    pAntler targ_icarus.moos >& /dev/null &
+    pAntler targ_$VNAME_ICARUS.moos >& /dev/null &
 fi
 
 #-------------------------------------------------------
