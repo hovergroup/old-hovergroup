@@ -66,23 +66,23 @@ SPORT="9000"
 SLPORT="9001"
 
 # Prepare nostromo files
-nsplug meta_vehicle_sim.moos targ_nostromo.moos -f      \
+nsplug meta_vehicle_sim.moos targ_$VNAME1.moos -f      \
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
     START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost  \
     VHOST=localhost SLPORT=$SLPORT SHOREHOST=localhost
 
-nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
+nsplug meta_vehicle.bhv targ_$VNAME1.bhv -f            \
     VNAME=$VNAME1                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT1
 
 # Prepare silvana files
-nsplug meta_vehicle_sim.moos targ_silvana.moos -f       \
+nsplug meta_vehicle_sim.moos targ_$VNAME2.moos -f       \
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
     START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost \
     VHOST=localhost SLPORT=$SLPORT SHOREHOST=localhost
 
-nsplug meta_vehicle.bhv targ_silvana.bhv -f             \
+nsplug meta_vehicle.bhv targ_$VNAME2.bhv -f             \
     VNAME=$VNAME2                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT2
@@ -108,12 +108,12 @@ fi
 
 # Launch Nostromo
 printf "Launching nostromo MOOS Community \n"
-pAntler targ_nostromo.moos >& /dev/null &
+pAntler targ_$VNAME1.moos >& /dev/null &
 sleep 0.1
 
 # Launch Silvana
 printf "Launching silvana MOOS Community \n"
-pAntler targ_silvana.moos >& /dev/null &
+pAntler targ_$VNAME2.moos >& /dev/null &
 sleep 0.1
 
 # Launch shorestation 
