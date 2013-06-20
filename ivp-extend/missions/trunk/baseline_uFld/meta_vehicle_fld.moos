@@ -2,7 +2,7 @@ ServerHost = $(VHOST)
 ServerPort = $(VPORT)
 Community  = $(VNAME)
 
-#include plug_origin_warp.moos
+#include ../../trunk/plugs/plug_origin_warp.moos
   
 //------------------------------------------------------------
 Processconfig = ANTLER
@@ -17,7 +17,6 @@ Processconfig = ANTLER
   Run = pHelmIvP           	@ NewConsole = false
   Run = pHostInfo          	@ NewConsole = false
   Run = uFldNodeBroker     	@ NewConsole = false
-  Run = uFldMessageHandler 	@ NewConsole = false
   Run = iGPS_Hover         	@ NewConsole = false
   Run = iOS5000_Hover      	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
@@ -40,17 +39,16 @@ ProcessConfig = uXMS
 	VAR=ARDUINO_RUDDER
 }
 
-#include ../plugs/plug_pShareV_uFld.moos
-#include ../plugs/plug_pLogger.moos
-#include ../plugs/plug_pNodeReporter.moos
-#include ../plugs/plug_pMarinePID_Hover.moos
-#include ../plugs/plug_pHelmIvP.moos
-#include ../plugs/plug_pHostInfo.moos
-#include ../plugs/plug_uFldNodeBroker.moos
-#include ../plugs/plug_uFldMessageHandler.moos
-#include ../plugs/plug_pEchoVar.moos
-#include ../plugs/plug_iGPS_Hover.moos
-#include ../plugs/plug_iOS5000_Hover.moos
-#include ../plugs/plug_iRemote.moos
-#include ../plugs/plug_iHoverKayak.moos
-#include ../plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_pShareV_uFld.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+#include ../../trunk/plugs/plug_pHostInfo.moos
+#include ../../trunk/plugs/plug_uFldNodeBroker.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+#include ../../trunk/plugs/plug_iAcommsDriver.moos

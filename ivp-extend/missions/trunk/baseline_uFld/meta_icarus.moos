@@ -2,7 +2,7 @@ ServerHost = $(VHOST)
 ServerPort = $(VPORT)
 Community  = $(VNAME)
 
-#include ../plugs/plug_origin_warp.moos
+#include ../../trunk/plugs/plug_origin_warp.moos
   
 //------------------------------------------------------------
 Processconfig = ANTLER
@@ -21,12 +21,12 @@ Processconfig = ANTLER
   Run = iAcommsDriver		@ NewConsole = false
 }
 
-#include ../plugs/plug_pShareV_uFld.moos
-#include ../plugs/plug_pLogger.moos
-#include ../plugs/plug_pNodeReporter.moos
-#include ../plugs/plug_pHostInfo.moos
-#include ../plugs/plug_uFldNodeBroker.moos
-#include ../plugs/plug_uFldMessageHandler.moos
-#include ../plugs/plug_pEchoVar.moos
-#include ../plugs/plug_iGPS_Hover.moos
-#include ../plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_pShareV_uFld.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pHostInfo.moos
+#include ../../trunk/plugs/plug_uFldNodeBroker.moos
+#include ../../trunk/plugs/plug_uFldMessageHandler.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iAcommsDriver.moos

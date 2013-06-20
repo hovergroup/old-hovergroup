@@ -1,11 +1,13 @@
 #!/bin/bash 
 
+# source parameters
+MISSIONS_HOME="../.."
+source ${MISSIONS_HOME}/trunk/config/soft_config
+
 WARP=1
 HELP="no"
 JUST_BUILD="no"
-SIMULATE="no"
 BAD_ARGS=""
-CRUISESPEED=2
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -18,15 +20,15 @@ for ARGI; do
         UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
-	HELP="yes"
-	UNDEFINED_ARG=""
+    HELP="yes"
+    UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
-	JUST_BUILD="yes"
-	UNDEFINED_ARG=""
+    JUST_BUILD="yes"
+    UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
-	BAD_ARGS=$UNDEFINED_ARG
+    BAD_ARGS=$UNDEFINED_ARG
     fi
 done
 
@@ -64,7 +66,7 @@ SPORT="9000"
 SLPORT="9001"
 
 # Prepare nostromo files
-nsplug meta_vehicle_sim.moos targ_nostromo.moos -f		\
+nsplug meta_vehicle_sim.moos targ_nostromo.moos -f      \
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
     START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost  \
     VHOST=localhost
@@ -75,18 +77,19 @@ nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
     RETURN_PT=$RETURN_PT1
 
 # Prepare silvana files
-nsplug meta_vehicle_sim.moos targ_silvana.moos -f		\
+nsplug meta_vehicle_sim.moos targ_silvana.moos -f       \
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
     START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost \
     VHOST=localhost
 
-nsplug meta_vehicle.bhv targ_silvana.bhv -f            \
+nsplug meta_vehicle.bhv targ_silvana.bhv -f             \
     VNAME=$VNAME2                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT2
 
 # Prepare Shoreside files
-nsplug meta_shoreside_sim.moos targ_shoreside.moos -f       \
+nsplug meta_shoreside.moos targ_shoreside.moos -f   \
+    SHOREHOST=localhost
     SLPORT=$SLPORT                                      \
     SPORT=$SPORT                                        \
     SNAME=$SNAME                                        \
@@ -100,12 +103,12 @@ fi
 #  Part 3: Launch the processes
 #-------------------------------------------------------
 
-# Launch Archie
+# Launch Nostromo
 printf "Launching nostromo MOOS Community \n"
 pAntler targ_nostromo.moos >& /dev/null &
 sleep 0.1
 
-# Launch Betty
+# Launch Silvana
 printf "Launching silvana MOOS Community \n"
 pAntler targ_kassandra.moos >& /dev/null &
 sleep 0.1
