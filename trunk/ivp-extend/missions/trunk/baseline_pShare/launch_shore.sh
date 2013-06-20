@@ -51,13 +51,13 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     VNAME=$SNAME       WARP=$WARP                       \
     VHOST=$SHOREHOST                                    \
     LOITER_PT1=$LOITER_PT1                              \
-    LOITER_PT2=$LOITER_PT2								\
+    LOITER_PT2=$LOITER_PT2                              \
     VHOST2=$VHOST_NOSTROMO                              \
     VNAME2=$VNAME_NOSTROMO                              \
     LPORT2=$LPORT_NOSTROMO                              \
-    VHOST2=$VHOST_SILVANA                               \
-    VNAME2=$VNAME_SILVANA                               \
-    LPORT2=$LPORT_SILVANA
+    VHOST3=$VHOST_SILVANA                               \
+    VNAME3=$VNAME_SILVANA                               \
+    LPORT3=$LPORT_SILVANA
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0
