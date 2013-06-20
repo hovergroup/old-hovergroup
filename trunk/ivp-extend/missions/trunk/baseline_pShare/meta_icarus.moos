@@ -1,0 +1,31 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pNodeReporter          @ NewConsole = false
+  Run = pHostInfo              @ NewConsole = false
+  Run = uFldNodeBroker         @ NewConsole = false
+  Run = uFldMessageHandler     @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+}
+
+#include ../../trunk/plugs/plug_pShare_uFld.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pHostInfo.moos
+#include ../../trunk/plugs/plug_uFldNodeBroker.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iAcommsDriver.moos

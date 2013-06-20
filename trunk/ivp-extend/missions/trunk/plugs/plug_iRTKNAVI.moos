@@ -1,0 +1,5 @@
+ProcessConfig = iRTKNAVI
+{
+  HOST=$(VHOST)
+  PORT=50000
+}
