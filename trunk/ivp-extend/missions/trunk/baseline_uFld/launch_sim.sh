@@ -93,6 +93,7 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT                                       \
     VPORT=$SPORT                                        \
     VNAME=$SNAME                                        \
+    VNAME2=$VNAME1     VNAME3=$VNAME2                   \
     WARP=$WARP                                          
 
 if [ ${JUST_BUILD} = "yes" ] ; then
