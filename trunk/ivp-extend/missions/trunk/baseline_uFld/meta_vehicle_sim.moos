@@ -22,7 +22,7 @@ Processconfig = ANTLER
 }
 
 #include ../../trunk/plugs/plug_uSimMarine.moos
-#include ../../trunk/plugs/plug_pShareV_uFld.moos
+#include ../../trunk/plugs/plug_pShare_uFld.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pMarinePID_Hover.moos

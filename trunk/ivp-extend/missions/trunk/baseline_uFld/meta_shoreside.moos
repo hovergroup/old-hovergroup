@@ -1,9 +1,9 @@
  //*******************************************************
 // ShoreSide Configuration File
 
-ServerHost = $(SHOREHOST)
-ServerPort = $(SPORT)
-Community  = $(SNAME)
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
 
 #include ../../trunk/plugs/plug_origin_warp.moos
   
@@ -25,6 +25,6 @@ Processconfig = ANTLER
 
 #include ../../trunk/plugs/plug_pHostInfo.moos
 #include ../../trunk/plugs/plug_uFldShoreBroker.moos
-#include ../../trunk/plugs/plug_pShareS_uFld.moos
+#include ../../trunk/plugs/plug_pShare_uFld.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pMarineViewer.moos

@@ -8,6 +8,7 @@ source ${MISSIONS_HOME}/trunk/config/soft_config
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
+WARP=1
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -46,9 +47,9 @@ fi
 #-------------------------------------------------------
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
-    SLPORT=$SLPORT     SPORT=$SPORT                     \
-    SNAME=$SNAME       WARP=$WARP                       \
-	SHOREHOST=$SHOREHOST                                \
+    LPORT=$SLPORT      VPORT=$SPORT                     \
+    VNAME=$SNAME       WARP=$WARP                       \
+    VHOST=$SHOREHOST                                    \
     LOITER_PT1=$LOITER_PT1                              \
     LOITER_PT2=$LOITER_PT2
 
