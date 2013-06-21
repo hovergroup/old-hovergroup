@@ -57,10 +57,11 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 			if(msg.GetString() != "reset"){
 				if(action == "ticking"){
 					mail = msg.GetString();
+					double offset = sqrt(pow((myx-wpx[current_point]),2) + pow((myy-wpy[current_point]),2));
 
 					if(mail.size()!=length){
 						handleDebug("Bad Receive from Start");
-						if(relay_mode=="KEEP"){
+						if(offset<station_dist){
 						transmissions++;
 						}
 						action = "start_transmit_now";
