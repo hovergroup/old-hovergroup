@@ -28,7 +28,8 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
-#include ../../trunk/plugs/plug_pShareV.moos
+#include ../plugs/plug_pShareIcarus.moos
+
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
