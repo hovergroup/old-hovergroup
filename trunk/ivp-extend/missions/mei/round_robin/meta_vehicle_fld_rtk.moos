@@ -38,7 +38,7 @@ ProcessConfig = uXMS
 }
 
 #include ../plugs/plug_pRoundRobin.moos
-#include ../plugs/plug_pShareSilvana.moos
+#include ../plugs/plug_pShareNostromo.moos
 
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
