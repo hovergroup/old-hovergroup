@@ -1,7 +1,8 @@
 ProcessConfig = iHoverKayak
 {
-	AppTick = 20
-	CommsTick = 20
+    AppTick   = 20
+    MaxAppTick = 100
+    IterateMode = 1 // comms driven iterate and mail
 	
 	INVERT_RUDDER = false
 	RUDDER_OFFSET = $(RUDDER_OFFSET)

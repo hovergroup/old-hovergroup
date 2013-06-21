@@ -43,16 +43,14 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 
-		else if(key=="ACOMMS_SOURCE_ID"){
-			acomms_receive_id = msg.GetDouble();
-		}
-
-		else if(key=="ACOMMS_RECEIVED_STATUS"){
-			if(acomms_receive_id==relay_id){
-				if(msg.GetDouble()==0){
+		else if(key=="ACOMMS_RECEIVED"){
+			reception.parseFromString(msg.GetString());
+			if(reception.getSource()==relay_id){
+				if(reception.getNumBadFrames()==0){
 					heard = "good";
 				}
 				else{
+					cout << "Heard "<<reception.getNumBadFrames()<< " bad frames"<<endl;
 					heard = "bad";
 				}
 				m_Comms.Notify("RELAY_SUCCESS",heard);
@@ -92,8 +90,7 @@ bool RelayEnd::OnConnectToServer()
 
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
-	m_Comms.Register("ACOMMS_SOURCE_ID",0);
-	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
+	m_Comms.Register("ACOMMS_RECEIVED",0);
 	m_Comms.Register("DESIRED_THRUST",0);
 	m_Comms.Register("RELAY_ACK",0);
 

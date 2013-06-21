@@ -97,8 +97,10 @@ bool RelayStart::OnConnectToServer()
 {
 	// m_MissionReader.GetConfigurationParam("Name", <string>);
 	// m_Comms.Register("VARNAME", is_float(int));
+	m_MissionReader.GetConfigurationParam("Rate",rate);
 
 	m_Comms.Notify("START_TRANSMIT_NOW","reset");
+	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 
 	m_Comms.Register("ACOMMS_TRANSMIT_RATE",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);

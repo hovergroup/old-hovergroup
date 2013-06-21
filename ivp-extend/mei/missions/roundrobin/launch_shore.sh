@@ -45,11 +45,33 @@ SPORT="9000"
 SLPORT="9001"
 WARP=1
 
+VNAME1="icarus"  # The first vehicle Community
+VHOST1="192.168.1.102"
+VPORT1="9300"
+LPORT1="9301"
+ID1=1
+
+VNAME2="silvana"  # The second vehicle Community
+VHOST2="192.168.1.104"
+VPORT2="9200"
+LPORT2="9201"
+RETURN_PT2="10,-20"
+ID2=2
+
+VNAME3="nostromo"  # The third vehicle Community
+VHOST3="192.168.1.103"
+VPORT3="9100"
+LPORT3="9101"
+RETURN_PT3="30,-10"
+ID3=3
+
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT     SPORT=$SPORT                     \
     SNAME=$SNAME       WARP=$WARP                       \
     LOITER_PT1=$LOITER_PT1                              \
-    LOITER_PT2=$LOITER_PT2
+    LOITER_PT2=$LOITER_PT2                              \
+    VNAME2=$VNAME2     VHOST2=$VHOST2    LPORT2=$LPORT2 \
+    VNAME3=$VNAME3     VHOST3=$VHOST3    LPORT3=$LPORT3
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0

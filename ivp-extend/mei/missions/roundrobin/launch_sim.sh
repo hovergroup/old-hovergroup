@@ -53,7 +53,7 @@ LPORT1="9101"
 START_POS1="10,-20"
 RETURN_PT1="10,-20"
 
-VNAME2="kassandra"
+VNAME2="silvana"
 VPORT2="9200"
 LPORT2="9201"
 START_POS2="30,-10"
@@ -66,25 +66,27 @@ SLPORT="9001"
 # Prepare nostromo files
 nsplug meta_vehicle_sim.moos targ_nostromo.moos -f		\
     VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
-    START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost
+    START_POS=$START_POS1 WARP=$WARP SHOREIP=localhost  \
+    VHOST=localhost
 
 nsplug meta_vehicle.bhv targ_nostromo.bhv -f            \
     VNAME=$VNAME1                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT1
 
-# Prepare kassandra files
-nsplug meta_vehicle_sim.moos targ_kassandra.moos -f		\
+# Prepare silvana files
+nsplug meta_vehicle_sim.moos targ_silvana.moos -f		\
     VNAME=$VNAME2 VPORT=$VPORT2 LPORT=$LPORT2           \
-    START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost
+    START_POS=$START_POS2  WARP=$WARP SHOREIP=localhost \
+    VHOST=localhost
 
-nsplug meta_vehicle.bhv targ_kassandra.bhv -f            \
+nsplug meta_vehicle.bhv targ_silvana.bhv -f            \
     VNAME=$VNAME2                                       \
     CRUISESPEED=$CRUISESPEED                            \
     RETURN_PT=$RETURN_PT2
 
 # Prepare Shoreside files
-nsplug meta_shoreside.moos targ_shoreside.moos -f       \
+nsplug meta_shoreside_sim.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT                                      \
     SPORT=$SPORT                                        \
     SNAME=$SNAME                                        \
@@ -104,7 +106,7 @@ pAntler targ_nostromo.moos >& /dev/null &
 sleep 0.1
 
 # Launch Betty
-printf "Launching kassandra MOOS Community \n"
+printf "Launching silvana MOOS Community \n"
 pAntler targ_kassandra.moos >& /dev/null &
 sleep 0.1
 

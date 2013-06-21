@@ -1,7 +1,6 @@
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
-initialize   RELAY_MODE = INACTIVE
 
 Behavior = BHV_Waypoint
 { 
@@ -73,44 +72,4 @@ Behavior = BHV_StationKeep
 	outer_radius	= 10
 	outer_speed		= 1.0
 	swing_time		= 3
-}
-
-
-//
-
-Behavior = BHV_Waypoint
-{ 
-  name      = rr_goto
-  pwt       = 100
-  condition = MISSION_MODE = ROUNDROBIN
-  condition = RELAY_MODE = GOTO
-  endflag = RELAY_MODE = KEEP
-  perpetual = true
-  updates   = WPT_RR_UPDATES
-
-          lead = 8
-   lead_damper = 1
-         speed = 2.0   // meters per second
-        radius = 4
-   slip_radius = 10
-        points = $(RETURN_PT)
-        repeat = 0
-  visual_hints = nextpt_color=red, nextpt_lcolor=green
-  visual_hints = vertex_color=red, line_color=green
-  visual_hints = vertex_size=2, edge_size=1
-}
-
-Behavior = BHV_StationKeep
-{
-  name		= rr_keep
-  priority		= 100
-  condition     = MISSION_MODE = ROUNDROBIN
-  condition     = RELAY_MODE = KEEP
-  updates = STATION_RR_UPDATES
-  
-  station_pt    = $(RETURN_PT)
-  inner_radius	= 4
-  outer_radius	= 10
-  outer_speed	= 2.0
-  swing_time	= 0
 }

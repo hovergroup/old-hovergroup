@@ -14,5 +14,10 @@ ${MOOSGeodesy_LIBRARIES}
    m
    pthread
    acomms_messages
+   HoverAcomms
+   goby_acomms
+   protobuf
+   boost_system
+   boost_signals
    )
 

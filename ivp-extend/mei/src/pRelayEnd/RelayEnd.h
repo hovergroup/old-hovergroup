@@ -9,6 +9,7 @@
 #define RelayEnd_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include "HoverAcomms.h"
 #include <math.h>
 
 using namespace std;
@@ -26,13 +27,14 @@ public:
 
 
 protected:
-	int relay_id,acomms_receive_id;
+	int relay_id;
 	double end_x,end_y,myx,myy;
 	double fudge_factor, station_factor;
 	string driver_status;
 	double mythrust;
 	double relay_status;
 	string heard;
+	HoverAcomms::AcommsReception reception;
 };
 
 #endif 

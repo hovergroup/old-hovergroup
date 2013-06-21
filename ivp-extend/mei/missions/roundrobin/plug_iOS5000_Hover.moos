@@ -1,10 +1,9 @@
 ProcessConfig = iOS5000_Hover
 {
-	AppTick		= 40
-	CommsTick	= 40
+	AppTick		= 1
 
 	Port		= $(OS5000PORT)		// tty port for communicating with the dig compass
-	Speed		= 115200			// Always set to 19200 (OS5000 baud rate)
+	Speed		= 57600			// Always set to 19200 (OS5000 baud rate)
 	PreRotation	= -15			// -15 for Boston (magnetic declination)
 
 	UpdateFraction = .025
