@@ -9,8 +9,8 @@ ProcessConfig = pShare
   
   output = START_TRANSMITTED->:NOSTROMO:9101:udp
   
-  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
-  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
   
   input = route=$(VHOST):$(LPORT) 
 }
