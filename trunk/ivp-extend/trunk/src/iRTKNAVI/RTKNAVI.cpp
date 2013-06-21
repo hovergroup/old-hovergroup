@@ -17,6 +17,7 @@ using namespace boost::asio;
 RTKNAVI::RTKNAVI() : sock(io_service), timeout(io_service) {
 	readBuffer = std::vector<char> (1000, 0);
 	data_available = false;
+	time_prev=-1;
 }
 
 //---------------------------------------------------------
@@ -128,6 +129,22 @@ void RTKNAVI::parseLine(std::string sline) {
 	if ( m_Geodesy.LatLong2LocalUTM(lat, lon, dfYLocal, dfXLocal) ) {
 		m_Comms.Notify("GPS_X", dfXLocal);
 		m_Comms.Notify("GPS_Y", dfYLocal);
+
+		if (time_prev!=-1) {
+			double vel = sqrt(pow(dfXLocal-x_prev,2) + pow(dfYLocal-y_prev,2))/(MOOSTime()-time_prev);
+			vel_history.push_back(vel);
+			if (vel_history.size()>=5) {
+				double sum=0;
+				for (int i=0; i<vel_history.size(); i++) {
+					sum += vel_history[i];
+				}
+				m_Comms.Notify("GPS_SPEED", sum/vel_history.size());
+				vel_history.pop_front();
+			}
+		}
+		x_prev = dfXLocal;
+		y_prev = dfYLocal;
+		time_prev = MOOSTime();
 	}
 }
 
