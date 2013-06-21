@@ -6,8 +6,7 @@
 /************************************************************/
 
 #include <string>
-#include "MOOSLib.h"
-#include "MOOSGenLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include "RelayStart.h"
 
 using namespace std;

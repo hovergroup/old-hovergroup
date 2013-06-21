@@ -8,8 +8,9 @@ FILE(GLOB SRC *.cpp)
 ADD_EXECUTABLE(pRelayEnd ${SRC})
 
 TARGET_LINK_LIBRARIES(pRelayEnd
-   MOOS
-   MOOSGen
+${MOOSGeodesy_LIBRARIES}
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
    m
    pthread
    acomms_messages

@@ -8,8 +8,9 @@ FILE(GLOB SRC *.cpp)
 ADD_EXECUTABLE(pSearchRelay ${SRC})
 
 TARGET_LINK_LIBRARIES(pSearchRelay
-   MOOS
-   MOOSGen
+   ${MOOSGeodesy_LIBRARIES}
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
    m
    pthread
    gsl

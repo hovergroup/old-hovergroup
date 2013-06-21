@@ -81,26 +81,19 @@ FILE(GLOB IVP_LIBRARY_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/lib )
 # Specify where to find MOOS's headers and libraries...
 #=============================================================================
 
-SET(MOOS_LIB_DIR
-	${MOOS_BASE_DIR}/MOOSBin)
+find_package(MOOS 10)
+find_package(MOOSGeodesy)
 
-LINK_DIRECTORIES(	${MOOS_LIB_DIR}
+LINK_DIRECTORIES(
 			${IVP_LIBRARY_DIRS}
 			${GOBY_LIBRARY_PATH}
 			${HOVERGROUP_LIBRARY_PATH}	)
 
-# No harm in giving all IvP software access to MOOS's include libraries.
-SET(MOOS_INCLUDE_DIRS
-   ${MOOS_BASE_DIR}/Essentials
-   ${MOOS_BASE_DIR}/Core
-   ${MOOS_BASE_DIR}/Essentials/MOOSUtilityLib
-   ${MOOS_BASE_DIR}/Core/MOOSLIB
-   ${MOOS_BASE_DIR}/Core/MOOSGenLib
-)
-
 INCLUDE_DIRECTORIES(	${MOOS_INCLUDE_DIRS}
-			${GOBY_INCLUDE_DIRS}
-			${IVP_INCLUDE_DIRS}
+                        ${MOOS_DEPEND_INCLUDE_DIRS}
+                        ${MOOSGeodesy_INCLUDE_DIRS}
+                        ${GOBY_INCLUDE_DIRS}
+                        ${IVP_INCLUDE_DIRS}
 			${HOVERGROUP_INCLUDE_DIRECTORIES}	)
 
 

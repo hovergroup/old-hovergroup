@@ -69,7 +69,7 @@ bool SearchRelay::OnNewMail(MOOSMSG_LIST &NewMail)
 					}
 					else{
 						action = "relay";
-						m_Comms.Notify("RELAY_ACK",0);
+						m_Comms.Notify("RELAY_ACK",0.0);
 					}
 				}
 				else{
