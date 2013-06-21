@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 # modify path
-# PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
+ PATH=$PATH:/home/josh/hovergroup-extend/mei/bin
 
 # source parameters
 MISSIONS_HOME="../.."
