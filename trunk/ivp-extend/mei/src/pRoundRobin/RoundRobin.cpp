@@ -46,6 +46,13 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 				}
 			}
 		}
+		else if(key=="NAV_X"){
+					myx = msg.GetDouble();
+				}
+		else if(key=="NAV_Y"){
+			myy = msg.GetDouble();
+		}
+
 		else if(key=="ACOMMS_RECEIVED_DATA"){
 			if(msg.GetString() != "reset"){
 				if(action == "ticking"){
@@ -106,13 +113,17 @@ bool RoundRobin::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("WaitTime", wait_time);
 	m_MissionReader.GetConfigurationParam("Rate", rate);
 	m_MissionReader.GetConfigurationParam("Transmissions",transmissions_per_segment);
+	m_MissionReader.GetConfigurationParam("StationDist", station_dist);
 
 	setLength(rate);
 
+	m_Comms.Notify("ACOMMS_TRANSMIT_RATE",rate);
 	m_Comms.Notify("RR_PAUSE","reset");
 	m_Comms.Notify("START_TRANSMITTED","reset");
 	m_Comms.Notify("RR_ACTION","reset");
 
+	m_Comms.Register("NAV_X",0);
+	m_Comms.Register("NAV_Y",0);
 	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
 	m_Comms.Register("START_TRANSMITTED",0);
 	m_Comms.Register("RR_PAUSE",0);
@@ -134,6 +145,8 @@ bool RoundRobin::Iterate(){
 	}
 
 	//Position State
+	double offset = sqrt(pow((myx-wpx[current_point]),2) + pow((myy-wpy[current_point]),2));
+
     if(transmissions != 0 && (int)transmissions % transmissions_per_segment == 0){
             if(current_point<total_points-1){
                 current_point++;
@@ -170,7 +183,7 @@ bool RoundRobin::Iterate(){
 		if(time_elapsed > wait_time){
 			handleDebug("No Sync with Start");
 			action = "start_transmit_now";
-			if(relay_mode=="KEEP"){
+			if(offset<station_dist){
 			transmissions++;
 			}
 		}
@@ -188,7 +201,7 @@ bool RoundRobin::Iterate(){
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA",mail);
 		action = "start_transmit_wait";
 		start_time = MOOSTime();
-		if(relay_mode=="KEEP"){
+		if(offset<station_dist){
 		transmissions++;
 		}
 	}
@@ -251,7 +264,7 @@ void RoundRobin::GetWaypoints(){
 }
 
 void RoundRobin::handleDebug(string debug_msg){
-	m_Comms.Notify("ROUND_ROBIN_MESSAGE",debug_msg);
+	m_Comms.Notify("RR_MESSAGE",debug_msg);
 }
 
 void RoundRobin::RRGoto(double x, double y){

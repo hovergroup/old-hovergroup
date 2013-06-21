@@ -16,6 +16,7 @@ using namespace std;
 #include <sstream>
 #include <iostream>
 #include "XYSegList.h"
+#include <math.h>
 
 class RoundRobin : public CMOOSApp
 {
@@ -40,7 +41,7 @@ protected:
 
 	//Local variables
 	string action, mail, waypoints_msg, relay_mode;
-	double connected, transmissions;
+	double connected, transmissions, myx,myy, station_dist;
 	vector<double> wpx, wpy;
 	XYSegList seglist;
 	double start_time;
