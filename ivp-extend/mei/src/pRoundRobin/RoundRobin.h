@@ -8,7 +8,7 @@
 #ifndef RoundRobin_HEADER
 #define RoundRobin_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 
 using namespace std;
 
