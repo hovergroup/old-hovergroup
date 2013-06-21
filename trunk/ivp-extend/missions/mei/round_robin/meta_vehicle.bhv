@@ -12,7 +12,7 @@ Behavior = BHV_Waypoint
   condition = RELAY_MODE = GOTO
   endflag = RELAY_MODE = KEEP
   perpetual = true
-  updates   = WPT_RR_UPDATES
+  updates   = WPT_RELAY_UPDATES
 
           lead = 8
    lead_damper = 1
@@ -32,7 +32,7 @@ Behavior = BHV_StationKeep
   priority		= 100
   condition     = MISSION_MODE = RELAY
   condition     = RELAY_MODE = KEEP
-  updates = STATION_RR_UPDATES
+  updates = STATION_RELAY_UPDATES
   
   station_pt    = $(RETURN_PT)
   inner_radius	= 4
