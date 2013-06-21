@@ -18,6 +18,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <vector>
+#include <deque>
+#include <math.h>
 
 class RTKNAVI: public CMOOSInstrument {
 public:
@@ -48,6 +50,9 @@ protected:
 
 	int asyncBytesRead;
     CMOOSGeodesy m_Geodesy;
+
+    std::deque<double> vel_history;
+    double x_prev, y_prev, time_prev;
 };
 
 #endif 
