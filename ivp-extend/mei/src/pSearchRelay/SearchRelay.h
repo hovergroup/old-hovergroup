@@ -8,7 +8,7 @@
 #ifndef SearchRelay_HEADER
 #define SearchRelay_HEADER
 
-#include "MOOSLib.h"
+#include "MOOS/libMOOS/MOOSLib.h"
 #include <map>
 #include <gsl/gsl_statistics_double.h>
 #include <sstream>
@@ -16,7 +16,6 @@
 #include "XYSegList.h"
 #include <string.h>
 #include <math.h>
-#include <lib_acomms_messages/acomms_messages.h>
 #include <time.h>
 #include <stdlib.h>
 

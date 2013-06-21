@@ -8,8 +8,7 @@
 #ifndef RelayStart_HEADER
 #define RelayStart_HEADER
 
-#include "MOOSLib.h"
-#include <lib_acomms_messages/acomms_messages.h>
+#include "MOOS/libMOOS/MOOSLib.h"
 
 using namespace std;
 

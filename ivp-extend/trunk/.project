@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>hovergroup</name>
+	<name>trunk</name>
 	<comment></comment>
 	<projects>
 		<project>goby</project>
 		<project>MOOS-IvP</project>
 		<project>MOOSCore</project>
+		<project>MOOSEssentials</project>
 		<project>MOOSGeodesy</project>
+		<project>MOOSToolsUI</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

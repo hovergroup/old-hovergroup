@@ -43,11 +43,13 @@ bool RelayEnd::OnNewMail(MOOSMSG_LIST &NewMail)
 			myy = msg.GetDouble();
 		}
 
-		else if(key=="ACOMMS_RECEIVED_SIMPLE"){
-			lib_acomms_messages::SIMPLIFIED_RECEIVE_INFO receive_info(msg.GetString());
-			if(receive_info.source==relay_id){
-				cout << "Got Mail: " << receive_info.num_good_frames << "/" << receive_info.num_frames <<" frames"<< endl;
-				if(receive_info.num_good_frames==receive_info.num_frames){
+		else if(key=="ACOMMS_SOURCE_ID"){
+			acomms_receive_id = msg.GetDouble();
+		}
+
+		else if(key=="ACOMMS_RECEIVED_STATUS"){
+			if(acomms_receive_id==relay_id){
+				if(msg.GetDouble()==0){
 					heard = "good";
 				}
 				else{
@@ -90,7 +92,7 @@ bool RelayEnd::OnConnectToServer()
 
 	m_Comms.Register("NAV_X",0);
 	m_Comms.Register("NAV_Y",0);
-	m_Comms.Register("ACOMMS_RECEIVED_SIMPLE",0);
+	m_Comms.Register("ACOMMS_SOURCE_ID",0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS",0);
 	m_Comms.Register("DESIRED_THRUST",0);
 	m_Comms.Register("RELAY_ACK",0);
@@ -118,13 +120,13 @@ bool RelayEnd::Iterate()
 	if(offset < station_factor){
 		if(mythrust != 0){
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","true");
-			m_Comms.Notify("END_THRUST",0);
+			m_Comms.Notify("END_THRUST",0.0);
 		}
 	}
 	else if(offset > fudge_factor){
 		if(mythrust == 0){
 			m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
-			m_Comms.Notify("END_THRUST",30);
+			m_Comms.Notify("END_THRUST",30.0);
 		}
 	}
 

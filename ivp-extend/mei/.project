@@ -4,9 +4,12 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
-		<project>moos</project>
-		<project>moos-ivp</project>
-		<project>moos-ivp-anrp</project>
+		<project>MOOS-IvP</project>
+		<project>MOOSCore</project>
+		<project>MOOSEssentials</project>
+		<project>MOOSGeodesy</project>
+		<project>MOOSToolsUI</project>
+		<project>trunk</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
