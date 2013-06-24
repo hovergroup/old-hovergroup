@@ -5,8 +5,8 @@ ProcessConfig = pRelayEnd
         CommsTick = 10
 
         RelayID = 3
-        Endx = 0
-        Endy = -200
+        Endx = 400
+        Endy = -300
         OuterRadius = 15
         InnerRadius = 3
 }
