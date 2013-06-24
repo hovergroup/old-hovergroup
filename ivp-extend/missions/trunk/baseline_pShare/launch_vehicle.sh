@@ -84,7 +84,7 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         LPORT=$LPORT_NOSTROMO                           \
         WARP=$WARP                                      \
         SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
+        SLPORT=$SLPORT                                  \
         ACOMMSID=$ACOMMSID_NOSTROMO                     \
         MODEMPORT=$MODEMPORT_NOSTROMO                   \
         RUDDER_OFFSET=$RUDDER_OFFSET_NOSTROMO           \
@@ -98,18 +98,16 @@ fi
 
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
-    nsplug meta_vehicle_fld.moos targ_$VNAME_SILVANA.moos -f   \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_SILVANA.moos -f   \
         VHOST=$VHOST_SILVANA                            \
         VNAME=$VNAME_SILVANA                            \
         VPORT=$VPORT_SILVANA                            \
         LPORT=$LPORT_SILVANA                            \
         WARP=$WARP                                      \
         SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
+        SLPORT=$SLPORT                                  \
         ACOMMSID=$ACOMMSID_SILVANA                      \
         MODEMPORT=$MODEMPORT_SILVANA                    \
-        GPSPORT=$GPSPORT_SILVANA                        \
-        GPSBAUD=$GPSBAUD_SILVANA                        \
         RUDDER_OFFSET=$RUDDER_OFFSET_SILVANA            \
         OS5000PORT=$OS5000PORT_SILVANA
 
@@ -128,7 +126,7 @@ if [ "${VEHICLE}" = "icarus" ]; then
         LPORT=$LPORT_ICARUS                             \
         WARP=$WARP                                      \
         SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
+        SLPORT=$SLPORT                                  \
         ACOMMSID=$ACOMMSID_ICARUS                       \
         MODEMPORT=$MODEMPORT_ICARUS                     \
         GPSPORT=$GPSPORT_ICARUS                         \
