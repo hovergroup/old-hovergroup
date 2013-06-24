@@ -7,7 +7,7 @@ Community  = $(VNAME)
 //------------------------------------------------------------
 Processconfig = ANTLER
 {
-  MSBetweenLaunches = 500
+  MSBetweenLaunches = 1000
    
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
