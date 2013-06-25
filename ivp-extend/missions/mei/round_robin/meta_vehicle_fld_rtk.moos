@@ -38,6 +38,7 @@ ProcessConfig = uXMS
 }
 
 #include ../plugs/plug_pRoundRobin.moos
+#include ../plugs/plug_pRelayEnd.moos
 #include ../plugs/plug_pShare_$(VNAME).moos
 
 #include ../../trunk/plugs/plug_pLogger.moos
