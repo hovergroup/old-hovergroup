@@ -9,5 +9,5 @@ ProcessConfig = pRoundRobin
         WaitTime = 7	//start sync 
         Rate = 1
         Transmissions = 5
-        StationDist = 15
+        StationDist = 10
 } 
