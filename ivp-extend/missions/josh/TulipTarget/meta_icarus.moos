@@ -46,7 +46,18 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
-#include ../../trunk/plugs/plug_pShareV.moos
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  //output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
+  
+  input = route=$(VHOST):$(LPORT) 
+}
+
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
