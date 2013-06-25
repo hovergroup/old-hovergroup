@@ -94,6 +94,7 @@ fi
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
     nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
+        ROLE=$ROLE                                      \
         VHOST=$VHOST_NOSTROMO                           \
         VNAME=$VNAME_NOSTROMO                           \
         VPORT=$VPORT_NOSTROMO                           \
@@ -115,6 +116,7 @@ fi
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
     nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_SILVANA.moos -f   \
+        ROLE=$ROLE                                      \
         VHOST=$VHOST_SILVANA                            \
         VNAME=$VNAME_SILVANA                            \
         VPORT=$VPORT_SILVANA                            \
@@ -136,6 +138,7 @@ fi
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
     nsplug meta_icarus.moos targ_$VNAME_ICARUS.moos -f         \
+        ROLE=$ROLE                                      \
         VHOST=$VHOST_ICARUS                             \
         VNAME=$VNAME_ICARUS                             \
         VPORT=$VPORT_ICARUS                             \
