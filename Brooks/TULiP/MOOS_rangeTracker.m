@@ -37,7 +37,7 @@ Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 % (held over filter step)
 
 % inside SPKF, noise drawn according to sqrt(Q)*randn subj to rateLimit
-rateLimit = deg2rad(135/dt);
+rateLimit = deg2rad(120/dt);
 
 % z(1) = leader, z(2) = follower
 %Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
