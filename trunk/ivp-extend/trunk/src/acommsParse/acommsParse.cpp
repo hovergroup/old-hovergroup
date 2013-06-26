@@ -394,7 +394,7 @@ int main (	int argc, char *argv[] ) {
 			hex_data_name = "ACOMMS_RECEIVED_DATA_HEX";
 		} else if (sarg == "--transmit") {
 			mode = TRANSMIT;
-			sync_variable = "ACOMMS_TRANSMISSION";
+			sync_variable = "ACOMMS_TRANSMITTED_ALL";
 			hex_data_name = "ACOMMS_TRANSMITTED_DATA_HEX";
 		} else if ( sarg == "-b" || sarg == "--backsearch" ) {
 			restrict_to_backsearch = true;
