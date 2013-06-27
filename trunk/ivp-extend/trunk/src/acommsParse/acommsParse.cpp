@@ -361,13 +361,14 @@ double backsearch_range = 0;
 ALogEntry findNearestHex(double time) {
 	double offset = 10000000;
 	ALogEntry entry;
-	while (!hex_data_entries.empty()) {
-		if (fabs(hex_data_entries.front().getTimeStamp()-time) < offset) {
-			entry = hex_data_entries.front();
-			hex_data_entries.pop_front();
+	for (int i=0; i<hex_data_entries.size(); i++) {
+//	while (!hex_data_entries.empty()) {
+		if (fabs(hex_data_entries[i].getTimeStamp()-time) < offset) {
+			entry = hex_data_entries[i];
+//			hex_data_entries.pop_front();
 			offset = fabs(entry.getTimeStamp()-time);
-		} else
-			break;
+		}// else
+//			break;
 	}
 	return entry;
 }
