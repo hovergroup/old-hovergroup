@@ -16,16 +16,16 @@ ProcessConfig = pTulip26bit
   follower_range_divs = 19.1667,32.5,42.5,50,57.5,67.5,80.8333
   
   receive_period = 12
-  receive_offset = 2
+  receive_offset = 1
   //receive_period = 30
   //receive_offset = 2
   
   transmit_period = 12
-  transmit_offset = 7.75
+  transmit_offset = 8
   //transmit_offset = 19.75
   
-  receive_extension = 0.75
-  max_receive_error = 0.75
+  receive_extension = 1
+  max_receive_error = 2
   
   vehicle_mode = follower
   
