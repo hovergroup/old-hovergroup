@@ -39,7 +39,7 @@ public:
     void setMaxReceivingError(double error);
 
 private:
-    static const int GPS_TIME_SAMPLES = 4;
+    static const int GPS_TIME_SAMPLES = 20;
 
     enum StateIDs {
         GPS_TIME_CAL = 0, EXITING_TIME_CAL, READY, RECEIVING
