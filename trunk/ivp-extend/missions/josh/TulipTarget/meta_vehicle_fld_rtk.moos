@@ -41,10 +41,11 @@ Processconfig = ANTLER
 
 Processconfig = uTimerScript_Config
 {
-    AppTick = 4
-    CommsTick = 4
+  AppTick = 4
+  CommsTick = 4
     
-    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = quit, time=2
 }
 
 ProcessConfig = uXMS
@@ -101,4 +102,4 @@ ProcessConfig = pShare
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
+#include plug_iAcommsDriver.moos
