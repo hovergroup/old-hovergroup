@@ -12,6 +12,7 @@ Processconfig = ANTLER
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
   Run = pNodeReporter          @ NewConsole = false
   Run = pMarinePID_Hover       @ NewConsole = false
   Run = pHelmIvP               @ NewConsole = false
@@ -19,7 +20,6 @@ Processconfig = ANTLER
   Run = iOS5000_Hover          @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
-  Run = iAcommsDriver          @ NewConsole = false
   
 #ifdef ROLE target
     Run = pTulipTarget			@ NewConsole = false
