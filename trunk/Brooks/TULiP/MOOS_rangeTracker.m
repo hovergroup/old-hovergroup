@@ -1,7 +1,7 @@
 % MOOS Kayak Ranging Tracker
 % 2 kayaks tracking a (virtual) target via range measurements
 % target position relative to baseline assumed known
-% kayaks attempt to stay in formation (equilateral triangle, length 100m)
+% kayaks attempt to stay in formation (triangle, length 100m)
 % this script: target estimator with modified UKF, plus iMatlab interface
 
 % BR, 10/12/2012
