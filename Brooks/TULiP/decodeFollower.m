@@ -44,7 +44,20 @@ switch binSet
 end
 
 
+%{
+figure
+plot(R75,'bo-')
 
+figure
+plot(
+plot(R0,'bo-')
+
+
+figure
+plot(R3,'bo-')
+
+
+%}
 
 %{
 %%% LATER: make fcn more flexible, find mid of logspace properly...
