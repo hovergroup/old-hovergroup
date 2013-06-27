@@ -60,7 +60,7 @@ bool TulipTarget::OnNewMail(MOOSMSG_LIST &NewMail) {
                 m_AcommsTimer.signalBadReception();
             }
 
-        } else if (key == "SYSTEM_TIME_SECONDS") {
+        } else if (key == "GPS_TIME_SECONDS") {
             m_AcommsTimer.processGpsTimeSeconds(msg.GetDouble(), msg.GetTime());
 //            std::stringstream ss;
 //            ss << "gps time: " << msg.GetDouble() << " " << msg.GetTime();
@@ -110,7 +110,7 @@ bool TulipTarget::OnConnectToServer() {
     m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
     m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
     m_Comms.Register("ACOMMS_BAD_FRAMES", 0);
-    m_Comms.Register("SYSTEM_TIME_SECONDS", 0);
+    m_Comms.Register("GPS_TIME_SECONDS", 0);
 
     m_Comms.Register("NAV_X", 0);
     m_Comms.Register("NAV_Y", 0);
