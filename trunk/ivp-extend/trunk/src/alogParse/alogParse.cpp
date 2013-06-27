@@ -506,7 +506,7 @@ ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings)
 
 	//	cout << "t:" << time << " v:" << var << " s:" << src << " v:" << val << endl;
 
-	if ((time != "") && (var != "") && (src != "") && (val != "")
+	if ((time != "") && (var != "") && (src != "") /*&& (val != "")*/
 			&& isNumber(time)) {
 		entry.set(atof(time.c_str()), var, src, srcaux, val);
 		entry.setStatus("okay");
