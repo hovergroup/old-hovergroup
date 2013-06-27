@@ -29,9 +29,9 @@ dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % estimator parameters
-%targetSpeed = 1.5;    % m/s
+targetSpeed = 1.55;    % m/s
 %targetSpeed = 2;
-tagetSpeed = 2.2;
+%tagetSpeed = 2.2;
 
 Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 % (held over filter step)
