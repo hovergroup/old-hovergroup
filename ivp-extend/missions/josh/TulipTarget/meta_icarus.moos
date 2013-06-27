@@ -13,7 +13,7 @@ Processconfig = ANTLER
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
   Run = pNodeReporter          @ NewConsole = false
-  Run = iGPS_Hover             @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
@@ -61,5 +61,5 @@ ProcessConfig = pShare
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
-#include ../../trunk/plugs/plug_iGPS_Hover.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include plug_iAcommsDriver.moos
