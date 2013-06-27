@@ -12,7 +12,6 @@
 
 RelayStart::RelayStart()
 {
-	rate = 2;
 	length = 192;
 	mail_counter = 0;
 	srand((unsigned) time(NULL));
