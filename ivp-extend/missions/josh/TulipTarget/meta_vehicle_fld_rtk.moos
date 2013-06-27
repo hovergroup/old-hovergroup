@@ -69,24 +69,24 @@ ProcessConfig = pShare
   MaxAppTick = 20
   IterateMode = 1
   
-  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
-  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
   
-  output = TULIP_DEBUG->TULIP_DEBUG_$(VNAME):$(SHOREHOST):$(SLPORT):udp
-  output = TULIP_UPDATES->TULIP_UPDATES_$(VNAME):$(SHOREHOST):$(SLPORT):udp
+  output = TULIP_DEBUG->TULIP_DEBUG_$(VNAME):$(SHOREHOST):$(SLPORT)
+  output = TULIP_UPDATES->TULIP_UPDATES_$(VNAME):$(SHOREHOST):$(SLPORT)
   
   #ifdef ROLE leader
-    output = LEADER_X->$(SHOREHOST):$(SLPORT):udp
-    output = LEADER_Y->$(SHOREHOST):$(SLPORT):udp
-    output = FOLLOWER_X->$(SHOREHOST):$(SLPORT):udp
-    output = FOLLOWER_Y->$(SHOREHOST):$(SLPORT):udp
-    output = LEADER_RANGE->$(SHOREHOST):$(SLPORT):udp
-    output = FOLLOWER_RANGE_BIN->$(SHOREHOST):$(SLPORT):udp
-    output = FOLLOWER_PACKET->$(SHOREHOST):$(SLPORT):udp
+    output = LEADER_X->$(SHOREHOST):$(SLPORT)
+    output = LEADER_Y->$(SHOREHOST):$(SLPORT)
+    output = FOLLOWER_X->$(SHOREHOST):$(SLPORT)
+    output = FOLLOWER_Y->$(SHOREHOST):$(SLPORT)
+    output = LEADER_RANGE->$(SHOREHOST):$(SLPORT)
+    output = FOLLOWER_RANGE_BIN->$(SHOREHOST):$(SLPORT)
+    output = FOLLOWER_PACKET->$(SHOREHOST):$(SLPORT)
 	
-    output = GPS_TIME_SECONDS->$(SHOREHOST):$(SLPORT):udp
+    output = GPS_TIME_SECONDS->$(SHOREHOST):$(SLPORT)
   #else
-    output = LEADER_PACKET->$(SHOREHOST):$(SLPORT):udp
+    output = LEADER_PACKET->$(SHOREHOST):$(SLPORT)
   #endif
   
   input = route=$(VHOST):$(LPORT) 
