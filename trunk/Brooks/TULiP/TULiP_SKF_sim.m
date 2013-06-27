@@ -79,21 +79,21 @@ switch settings
         noiseSeq = sqrt(simQ)*randn(steps,1);
 
     case 'plan'
-        steps = 300 ; % time steps to si mulate
+        steps = 100 ; % time steps to si mulate
         
         probPLossLF = 0.1;
         probPLossFL = 0.1;
-        targetSpeed = 1.5;    % m/s
+        targetSpeed = 2;    % m/s
         %R = diag([10 49]) ; % range sensor noise covariance, per agent
-        R = diag([9 25]);
+        R = diag([2 9]);
         
-        Q = .05 ; % target process noise [rad/s]^2
+        Q = .01 ; % target process noise [rad/s]^2
             % target heading rate (held over filter step)
             %   w = sqrt(Q)*randn [rad/s]        
         
         simQ = 0.01;    % simulated target process noise
-        rateLimit = deg2rad(135/dt);
-        %{
+        rateLimit = deg2rad(90/dt);
+        %
         noiseSeq = zeros(1,steps);
         for i = 1:steps
             dum = sqrt(simQ)*randn;
@@ -102,18 +102,18 @@ switch settings
             end
             noiseSeq(i) = dum ;
         end
-        %}
+        %
         
         % randomized order halton seq,
         % scaled from -0.5-0.5 to -rateLimit-rateLimit
-        noiseSeq = rateLimit*(createHalton(1,steps)-0.5);
-        noiseSeq = noiseSeq(randperm(steps));
+        %noiseSeq = rateLimit*(createHalton(1,steps)-0.5);
+        %noiseSeq = noiseSeq(randperm(steps));
         
         % Agent process noise (currents)
-        WX = 4;
-        WY = 4;
+        WX = 1;
+        WY = 1;
         % [leader, follower];
-        maxSpeed = [2 2]';
+        maxSpeed = [2.5 2.5]';
         
         % quantization: bin edges
         % LOG - 7.5 b(1), rho = 0.75...
@@ -129,8 +129,8 @@ end
 % set the initial conditions
 % Note state is target's: [heading, Cartesian X, Cartesian Y]
 xhat = [0 0 0]' ; % guessed
-xtrue = [0 50 25]' ; % true
-P = diag([5 2500 2500]) ; % state covariance
+xtrue = [0 0 0]' ; % true
+P = diag([5 400 400]) ; % state covariance
 
 % formation
 legLen = 50;        % meters
@@ -344,9 +344,10 @@ plot(XAgentSave',YAgentSave')
 %% TF analysis...
 
 
+tf=steps;
 % compute ex, ey
-ex = xhatSave(2,:) - trueTargetSave(2,:);
-ey = xhatSave(3,:) - trueTargetSave(3,:);
+ex = xhatSave(2,1:tf) - trueTargetSave(2,1:tf);
+ey = xhatSave(3,1:tf) - trueTargetSave(3,1:tf);
 
 % TF analysis
 fs = 1/dt;  % Hz

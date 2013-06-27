@@ -35,14 +35,18 @@ tagetSpeed = 2.2;
 
 Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
 % (held over filter step)
+% 4/2013: 0.05
 
 % inside SPKF, noise drawn according to sqrt(Q)*randn subj to rateLimit
 rateLimit = deg2rad(120/dt);
+% 4/2013: 135
 
 % z(1) = leader, z(2) = follower
 %Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
 %Rmeas = diag([9 49]);
-Rmeas = diag([4 9]);
+Rmeas = diag([1 4]);
+
+% 4/2013: diag([4 9]);
 
 % QUANTIZATION (same settings as 11/2012 exp)
 % b(1) = 3, rho = 0.4775
