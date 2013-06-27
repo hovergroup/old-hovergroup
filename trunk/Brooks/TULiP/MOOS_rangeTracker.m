@@ -44,7 +44,7 @@ rateLimit = deg2rad(120/dt);
 % z(1) = leader, z(2) = follower
 %Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
 %Rmeas = diag([9 49]);
-Rmeas = diag([1 4]);
+Rmeas = diag([1 9]);
 
 % 4/2013: diag([4 9]);
 
