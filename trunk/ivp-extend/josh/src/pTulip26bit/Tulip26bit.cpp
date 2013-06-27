@@ -164,6 +164,7 @@ bool Tulip26bit::OnConnectToServer() {
     std::string range_source = "sim";
     m_MissionReader.GetConfigurationParam("range_source", range_source);
     m_MissionReader.GetConfigurationParam("target_id", m_target_acomms_id);
+    std::cout << "target id " << m_target_acomms_id << std::endl;
 
     if (vehicle_mode == "leader") {
         goby::acomms::connect(&m_AcommsTimer.signal_transmit,
