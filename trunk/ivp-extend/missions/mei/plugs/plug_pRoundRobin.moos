@@ -5,8 +5,8 @@ ProcessConfig = pRoundRobin
         CommsTick = 10
 
         ThroughDelay = 4	//start to end
-        RelayDelay = 7 	//relay to end
-        WaitTime = 7	//start sync 
+        RelayDelay = 8 	//relay to end
+        WaitTime = 8	//start sync 
         Rate = 1
         Transmissions = 5
         StationDist = 10
