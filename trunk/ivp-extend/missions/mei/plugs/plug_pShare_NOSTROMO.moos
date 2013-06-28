@@ -7,8 +7,8 @@ ProcessConfig = pShare
   MaxAppTick = 20
   IterateMode = 1
     
-  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
-  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
   
   input = route=$(VHOST):$(LPORT) 
 }
