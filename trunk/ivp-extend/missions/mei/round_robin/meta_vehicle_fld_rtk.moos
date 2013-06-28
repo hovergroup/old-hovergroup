@@ -40,10 +40,10 @@ ProcessConfig = uXMS
 #include ../plugs/plug_pRoundRobin.moos
 #include ../plugs/plug_pRelayEnd.moos
 #include ../plugs/plug_pShare_$(VNAME).moos
+#include ../plugs/plug_pMarinePID_Hover.moos
 
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
-#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
 #include ../../trunk/plugs/plug_pHelmIvP.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iOS5000_Hover.moos
