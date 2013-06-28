@@ -274,7 +274,7 @@ void RoundRobin::RRGoto(double x, double y){
 	m_Comms.Notify("WPT_RR_UPDATES",ss.str());
 
 	ss.str("");
-	ss<<"station_pt="<<myx<<","<<myy<<":"<<x<<","<<y;
+	ss<<"station_pt="<<x<<","<<y;
 	m_Comms.Notify("STATION_RR_UPDATES",ss.str());
 
 	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");
