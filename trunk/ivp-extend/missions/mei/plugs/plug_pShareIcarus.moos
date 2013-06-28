@@ -7,7 +7,7 @@ ProcessConfig = pShare
   MaxAppTick = 20
   IterateMode = 1
   
-  output = START_TRANSMITTED->192.168.1.103:9101:udp
+  output = START_TRANSMITTED->192.168.1.104:9201:udp
   
   output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT):udp
   output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
