@@ -40,7 +40,7 @@ protected:
 	double through_transmission_delay, relay_transmission_delay, wait_time;
 
 	//Local variables
-	string action, mail, waypoints_msg, relay_mode;
+	string action, mail, waypoints_msg;
 	double connected, transmissions, myx,myy, station_dist;
 	vector<double> wpx, wpy;
 	XYSegList seglist;

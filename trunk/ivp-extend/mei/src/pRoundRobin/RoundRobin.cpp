@@ -96,8 +96,8 @@ bool RoundRobin::OnNewMail(MOOSMSG_LIST &NewMail)
 				handleDebug(ss.str());
 			}
 		}
-		else if(key=="RELAY_MODE"){
-			relay_mode = msg.GetString();
+		else if(key=="RR_GOTO"){
+			RRGoto(wpx[msg.GetDouble()],wpy[msg.GetDouble()]);
 		}
 	}
 
@@ -123,13 +123,13 @@ bool RoundRobin::OnConnectToServer()
 	m_Comms.Notify("START_TRANSMITTED","reset");
 	m_Comms.Notify("RR_ACTION","reset");
 
-	m_Comms.Register("NAV_X",0);
-	m_Comms.Register("NAV_Y",0);
-	m_Comms.Register("ACOMMS_RECEIVED_DATA",0);
-	m_Comms.Register("START_TRANSMITTED",0);
-	m_Comms.Register("RR_PAUSE",0);
-	m_Comms.Register("RR_ACTION",0);
-	m_Comms.Register("RELAY_MODE",0);
+	m_Comms.Register("NAV_X",0.0);
+	m_Comms.Register("NAV_Y",0.0);
+	m_Comms.Register("ACOMMS_RECEIVED_DATA",0.0);
+	m_Comms.Register("START_TRANSMITTED",0.0);
+	m_Comms.Register("RR_PAUSE",0.0);
+	m_Comms.Register("RR_ACTION",0.0);
+	m_Comms.Register("RR_GOTO",0.0);
 
 	return(true);
 }
@@ -270,11 +270,11 @@ void RoundRobin::handleDebug(string debug_msg){
 
 void RoundRobin::RRGoto(double x, double y){
 	stringstream ss;
-	ss<<"points="<<x<<","<<y;
+	ss<<"points="<<myx<<","<<myy<<":"<<x<<","<<y;
 	m_Comms.Notify("WPT_RR_UPDATES",ss.str());
 
 	ss.str("");
-	ss<<"station_pt="<<x<<","<<y;
+	ss<<"station_pt="<<myx<<","<<myy<<":"<<x<<","<<y;
 	m_Comms.Notify("STATION_RR_UPDATES",ss.str());
 
 	m_Comms.Notify("MOOS_MANUAL_OVERRIDE","false");

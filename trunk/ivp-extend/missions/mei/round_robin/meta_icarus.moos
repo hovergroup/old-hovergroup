@@ -28,6 +28,7 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
+#include ../plugs/plug_pRelayStart.moos
 #include ../plugs/plug_pShareIcarus.moos
 
 #include ../../trunk/plugs/plug_pLogger.moos
