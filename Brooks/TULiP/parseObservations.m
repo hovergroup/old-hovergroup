@@ -1,9 +1,11 @@
-function [dataOut] = parseObservations(readTimeout)
+function [dataOut] = parseObservations(varList,readTimeout)
 % reads in observations from iMatlab/MOOS for tracking
-% must be subscribed to: varList = {'FOLLOWER_X','FOLLOWER_Y',
+%
+% must be subscribed to: varList
+% (usual varList) = {'FOLLOWER_X','FOLLOWER_Y',
 %   'FOLLOWER_R','FOLLOWER_PACKET',...
-%    'LEADER_X','LEADER_Y','LEADER_R'};%%%,'LEADER_PACKET'};
-    
+%    'LEADER_X','LEADER_Y','LEADER_R'};
+
 % BR, 10/11/2012
 
 % could probably replace key{i} with key = (etc) near bottom
@@ -11,7 +13,7 @@ function [dataOut] = parseObservations(readTimeout)
 
 % changelog:
 %{
--
+- 7/3/2013: added varList as input, (for different exps)
 -
 
 %}
@@ -28,7 +30,7 @@ while(~gotObs)
     
     %disp(length(mail))
     
-    [gotObs,dataOut] = parseMail(mail);
+    [gotObs,dataOut] = parseMail(mail,varList);
     
     if(gotObs)
         dataOut.status = 'good';
@@ -39,7 +41,7 @@ while(~gotObs)
         dataOut.status = 'timeout';
         break;
     end
-   
+    
     pause(0.1)
     
 end
@@ -48,12 +50,12 @@ end
 end
 
 
-function [gotAllObs,dataOut] = parseMail(mail)
+function [gotAllObs,dataOut] = parseMail(mail,varList)
 
 % [xL,yL,rL,piL,xF,yF,rF,piF]
-varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
-    'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
-%,'LEADER_PACKET'};
+%varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
+%   'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+
 n = length(varList);
 
 gotStates = zeros(1,n);

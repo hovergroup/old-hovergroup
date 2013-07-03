@@ -9,9 +9,9 @@
 % changelog:
 %{
 - added targetSpeed, added MOOS logging of estimate
-- 4/30/2013: updated parameter inits, added rateLimit option for SPKF, 
+- 4/30/2013: updated parameter inits, added rateLimit option for SPKF,
     added binSet option to decodeFollower
-- 
+- 7/3/2013: added options for full packets, ideal comms
 
 %}
 
@@ -20,56 +20,102 @@ global targetSpeed
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % USER SETTINGS
-
 PRINTOUTS = 1;  % to matlab terminal
+% (note: add process config to meta_shoreside.moos)
+moosDB = 'targ_shoreside.moos';
+pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
 
-% problem parameters
-dt = 12 ; % time step between samples
-dim = 3 ; % dimension of the state space - should match getHermite below
-nAgents = 2;
+%experiment = 'mini';
+experiment = 'full';
+%experiment = 'ideal';
 
-% estimator parameters
+% time step
+switch experiment
+    case 'mini'
+        dt = 12;
+        
+        varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
+            'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+        
+        % QUANTIZATION
+        % 11/2012: binSet 3
+        % 4/2013: binSet 0
+        % 6/2013: binSet 75
+        
+        % b(1) = 3, rho = 0.4775
+        % bin edges: [27.6 40.7 47 50 53 59.3 72.4];
+        % binSet = 3;
+        
+        % LOG - v2
+        % b(1) = 7.5, rho = 0.75
+        % bin edges: [19.1667 32.5 42.5 50 57.5 67.5 80.8333];
+        binSet = 75;
+        
+        % uniform
+        % b(1) = 12.5, rho = 1
+        % bin edges: [12.5 25 37.5 50 62.5 75 87.5];
+        %binSet = 0;
+        
+        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
+        Rmeas = diag([1 9]);
+        % 11/2012: diag([9 49])
+        % 4/2013: diag([4 9]);
+        % 6/2013: diag([1 9]);
+        
+    case 'full'
+        % (follower x,y, range should not be quantized now)
+        % still have to handle missed packets
+        
+        dt = 20;
+        
+        % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
+        varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
+            'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+        
+
+    case 'ideal'
+        
+        dt = 4;
+        
+        % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
+        % (maybe remove FOLLOWER_PACKET - depends on josh)
+        varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
+            'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+        
+        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
+        Rmeas = diag([1 1]);
+        
+end
+
+
+% ESTIMATOR PARAMETERS
+% target speed: (match motorboat (and kayak) speed)
 targetSpeed = 1.55;    % m/s
-%targetSpeed = 2;
-%tagetSpeed = 2.2;
 
-Q = .05 ; % target process noise (heading rate of target) [rad/s]^2
-% (held over filter step)
+% target process noise (heading rate of target) [rad/s]^2
+Q = .05 ;
+% 11/2012: 0.02
 % 4/2013: 0.05
+% 6/2013: 0.05
 
 % inside SPKF, noise drawn according to sqrt(Q)*randn subj to rateLimit
 rateLimit = deg2rad(120/dt);
+% 11/2012: Inf
 % 4/2013: 135
-
-% z(1) = leader, z(2) = follower
-%Rmeas = diag([9 36]) ;     % range sensor noise covariance, per agent
-%Rmeas = diag([9 49]);
-Rmeas = diag([1 9]);
-
-% 4/2013: diag([4 9]);
-
-% QUANTIZATION (same settings as 11/2012 exp)
-% b(1) = 3, rho = 0.4775
-% bin edges: [27.6 40.7 47 50 53 59.3 72.4];
-% binSet = 3;
-
-% LOG - v2
-% b(1) = 7.5, rho = 0.75
-% bin edges: [19.1667 32.5 42.5 50 57.5 67.5 80.8333];
-binSet = 75;
-
-% uniform
-% b(1) = 12.5, rho = 1
-% bin edges: [12.5 25 37.5 50 62.5 75 87.5];
-%binSet = 0;
+% 6/2013: 120
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % initial covariance and state
 % [heading metersE metersN] from origin (pavilion)
 xhat=[0 20 -20]';
 P = diag([5 2500 2500]) ;
 z = zeros(2,1); % preallocate
+
+dim = 3 ; % dimension of the state space - should match getHermite below
+nAgents = 2;
 
 % formation
 legLen = 50;        % meters
@@ -85,11 +131,7 @@ else
 end;
 
 % INITIALIZE IMATLAB:
-% (note: add process config to meta_shoreside.moos)
-moosDB = 'targ_shoreside.moos';
-pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
 old = cd(pathName);
-
 % subscribe
 iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
@@ -102,7 +144,6 @@ while(go)
     
     it = it+1;
     fprintf('\n m IT: %d \n',it)
-    
     itStart = tic;
     
     % GRAB OBSERVATIONS
@@ -110,42 +151,75 @@ while(go)
     % Follower: x,y,range
     
     readTimeout = dt+3;
-    data = parseObservations(readTimeout);
+    data = parseObservations(varList,readTimeout);
     
     if(strcmp(data.status,'timeout'))
         disp('data read timeout!')
         % do nothing
         
     else
-        if(data.FOLLOWER_PACKET==0)
-            disp('MISSING FOLLOWER PACKET')
+        
+        % measurements always used
+        XAgent(1) = data.LEADER_X;
+        YAgent(1) = data.LEADER_Y;
+        
+        % handle possible missed leader ranges
+        z(1) = data.LEADER_RANGE;
+        R = Rmeas;
+        if(z(1)==-1)
+            z(1) = 0;R(1,1) = 10e10;
+            disp('MISSING LEADER RANGE')
+        end
+        
+        if(strcmp(experiment,'mini') || strcmp(experiment,'full'))
+            % HANDLE LOST PACKETS
             
-            XAgent(1) = data.LEADER_X;
-            YAgent(1) = data.LEADER_Y;
-            z(1) = data.LEADER_RANGE;
-            
-            % Set follower meas noise to INF
-            R = Rmeas;
-            R(2,2) = 10e10; % Inf meas noise
-            % USE OLD FOLLOWER INFO...no changes
+            % add option for data.LEADER_RANGE == -1... missed
+            if(data.FOLLOWER_PACKET==0)
+                disp('MISSING FOLLOWER PACKET')
+                z(2) = 0;R(2,2) = 10e10; % Inf meas noise
+            elseif(data.FOLLOWER_RANGE_BIN==-1)
+                % follower missed it's range... data useless
+                disp('MISSING FOLLOWER RANGE')
+                z(2) = 0;R(2,2) = 10e10;
+            else
+                % got a follower packet
+                XAgent(2) = data.FOLLOWER_X;
+                YAgent(2) = data.FOLLOWER_Y;
+                % range
+                switch experiment
+                    case 'mini'
+                        z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
+                    case 'full'
+                        z(2) = data.FOLLOWER_RANGE;
+                end
+            end
             
         else
             
-            XAgent(1) = data.LEADER_X;
+            % ideal
             XAgent(2) = data.FOLLOWER_X;
-            YAgent(1) = data.LEADER_Y;
             YAgent(2) = data.FOLLOWER_Y;
-            z(1) = data.LEADER_RANGE;
-            z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
-            R = Rmeas;
-            
+            z(2) = data.FOLLOWER_RANGE;
+            if(z(2)==-1)
+                z(2) = 0;R(2,2) = 10e10;
+                disp('MISSING LEADER RANGE')
+            end
         end
+        
         
         if(PRINTOUTS)
             fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
                 data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
-            fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
             fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
+            switch experiment
+                case 'mini'
+                    fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
+                case 'full'
+                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+                case 'ideal'
+                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+            end
         end
         
         % run SPKF
@@ -168,7 +242,8 @@ while(go)
         iMatlab('MOOS_MAIL_TX','TARGET_EST_Y',xhat(3));
         
         % post estimate to pMarineViewer
-        view_marker = sprintf('type=square,x=%f,y=%f,label=estimate,COLOR=blue,msg=Est: %f %f', ...
+        view_marker = sprintf(...
+            'type=square,x=%f,y=%f,label=estimate,COLOR=blue,msg=Est: %f %f', ...
             xhat(2), xhat(3), xhat(2), xhat(3) );
         iMatlab('MOOS_MAIL_TX','VIEW_MARKER',view_marker);
         

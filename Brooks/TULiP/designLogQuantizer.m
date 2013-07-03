@@ -61,9 +61,9 @@ highfac = 1/(1-delta);
 
 v = linspace(-2*b(1),50,500);
 figure
-plot(v,(1+delta)*v)
+plot(v,(1+delta)*v,'c:')
 hold on
-plot(v+b(1),(1-delta)*v)
+plot(v+b(1),(1-delta)*v,'c:')
 
 plot([0 b(1)],[0 0],'k')
 plot([b(1) b(1)],[0 (1+delta)*b(1)],'k')
@@ -79,12 +79,22 @@ yInt = -(1-delta)*b(1)/2;
 midLine = yInt + midSlope.*v;
 plot(v,midLine,'k--')
 
+colors={'r','g','b'}
 centers = ((1+delta)*[0 b(1:3)] - yInt)/midSlope;
-plot(centers,(1+delta)*[0 b(1:3)],'b*','MarkerSize',10)
+plot(centers(1),0,'m*','MarkerSize',10);
+for i = 2:length(centers)
+    plot(centers(i),(1+delta)*[b(i-1)],[colors{i-1},'*'],'MarkerSize',10)
+    plot([centers(i) centers(i)],(1+delta)*[0 b(i-1)],[colors{i-1},':'])
+    plot([0 centers(i)],(1+delta)*[b(i-1) b(i-1)],'k:')
+end
 
-axis equal
 
-centers = [center - [fliplr(centers)] (center + centers)]
+%axis equal
+axis([0 48 0 48])
+ylabel('Input range')
+xlabel('Decoded range')
+title('3-bit logarithmic quantizer (symmetric, 0-50)')
+centersALL = [center - [fliplr(centers)] (center + centers)];
 
 
 
