@@ -15,19 +15,23 @@
 
 %}
 
+clear all;
 clear iMatlab; clc
 global targetSpeed
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % USER SETTINGS
 PRINTOUTS = 1;  % to matlab terminal
+diaryName = sprintf('TULiP_diary_%s.txt',dateString('DHM'));
 % (note: add process config to meta_shoreside.moos)
 moosDB = 'targ_shoreside.moos';
-pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
+%pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
+path = '/home/josh/hovergroup/ivp-extend/missions/josh/TulipTarget';
 
 %experiment = 'mini';
-experiment = 'full';
-%experiment = 'ideal';
+%experiment = 'full';
+%experiment = 'asym';
+experiment = 'ideal';
 
 % time step
 switch experiment
@@ -72,7 +76,16 @@ switch experiment
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
-
+    case 'asym'
+        % (follower x,y, range should not be quantized now)
+        % still have to handle missed packets
+        
+        dt = 17;
+        
+        % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
+        varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
+            'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+        
     case 'ideal'
         
         dt = 4;
@@ -106,6 +119,9 @@ rateLimit = deg2rad(120/dt);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+diary(diaryName)
+disp(experiment)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % initial covariance and state
@@ -171,21 +187,26 @@ while(go)
             disp('MISSING LEADER RANGE')
         end
         
-        if(strcmp(experiment,'mini') || strcmp(experiment,'full'))
+        if(strcmp(experiment,'mini') || strcmp(experiment,'full') || strcmp(experiment,'asym') )
             % HANDLE LOST PACKETS
             
             % add option for data.LEADER_RANGE == -1... missed
             if(data.FOLLOWER_PACKET==0)
                 disp('MISSING FOLLOWER PACKET')
                 z(2) = 0;R(2,2) = 10e10; % Inf meas noise
-            elseif(data.FOLLOWER_RANGE_BIN==-1)
+            else
+                % got a follower packet: update (x,y)
+                % (not really necessary because update depends on range)
+                XAgent(2) = data.FOLLOWER_X;
+                YAgent(2) = data.FOLLOWER_Y;
+            end
+            
+            
+            if(data.FOLLOWER_RANGE_BIN==-1)
                 % follower missed it's range... data useless
                 disp('MISSING FOLLOWER RANGE')
                 z(2) = 0;R(2,2) = 10e10;
             else
-                % got a follower packet
-                XAgent(2) = data.FOLLOWER_X;
-                YAgent(2) = data.FOLLOWER_Y;
                 % range
                 switch experiment
                     case 'mini'
@@ -207,21 +228,6 @@ while(go)
             end
         end
         
-        
-        if(PRINTOUTS)
-            fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
-                data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
-            fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
-            switch experiment
-                case 'mini'
-                    fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
-                case 'full'
-                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
-                case 'ideal'
-                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
-            end
-        end
-        
         % run SPKF
         [xhat,P] = filterStep(xhat,P,z,XAgent,YAgent,...
             dim,s1,s2,s3,w,vol,Q,dt,R,rateLimit);
@@ -230,11 +236,6 @@ while(go)
             disp('xhat appears unstable -- Stop.');
             break ;
         end;
-        
-        if(PRINTOUTS)
-            fprintf('\n Target X: %f   Target Y: %f   Target H: %f \n',...
-                xhat(2),xhat(3),90 - rad2deg(xhat(1)))
-        end
         
         % post estimate to DB
         iMatlab('MOOS_MAIL_TX','TARGET_EST_H',xhat(1));
@@ -258,8 +259,39 @@ while(go)
         iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_NOSTROMO',fwps);
         
         if(PRINTOUTS)
-            fprintf(['leader wpt: ' lwps '\n'])
-            fprintf(['follower wpt: ' fwps '\n'])
+            
+            % post measurements
+            fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
+                data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
+            fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
+            switch experiment
+                case 'mini'
+                    fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
+                case 'full'
+                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+                case 'asym'
+                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+                case 'ideal'
+                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+            end
+            
+            % post estimate
+            hrad = xhat(1);
+            while(abs(hrad)>2*pi)
+                if(hrad>2*pi)
+                    hrad = hrad-2*pi;
+                elseif(hrad<(-2*pi))
+                    hrad = hrad+2*pi;
+                end
+            end
+            bearing = 90 - rad2deg(hrad);
+            fprintf('\n Target X: %f   Target Y: %f   Target Bearing: %f \n',...
+                xhat(2),xhat(3),bearing)
+            
+            % post command
+            fprintf(['leader non-quantized wpt: ' lwps '\n'])
+            fprintf(['follower non-quantized wpt: ' fwps '\n'])
+            
         end
         
     end
@@ -268,6 +300,10 @@ while(go)
     fprintf('matlab time: %f \n',mloopTime)
     
 end
+
+%%%% TURN DIARY OFF %%%%% 
+diary off
+
 
 % NOTES ON MODIFIED SPKF from Franz
 
