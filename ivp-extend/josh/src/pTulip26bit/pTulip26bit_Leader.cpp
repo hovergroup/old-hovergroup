@@ -30,15 +30,24 @@ void Tulip26bit::onGoodReceive_leader( const std::string data ) {
 		handleDebug( ss.str() );
 	}
 
-	double received_x = LinearDecode( data[0], m_osx_minimum, m_osx_maximum, 5);
-	double received_y = LinearDecode( data[1]>>3, m_osy_minimum, m_osy_maximum, 5);
-	unsigned char received_range = data[1] & 0x07;
+	if (data[0]==0x1f && data[1]==0xff) {
+		m_Comms.Notify("FOLLOWER_X", -1.0);
+		m_Comms.Notify("FOLLOWER_Y", -1.0);
+		m_Comms.Notify("FOLLOWER_RANGE_BIN", -1.0);
+		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
+	} else {
+		double received_x = LinearDecode( data[0], m_osx_minimum, m_osx_maximum, 5);
+		double received_y = LinearDecode( data[1]>>3, m_osy_minimum, m_osy_maximum, 5);
+		unsigned char received_range = data[1] & 0x07;
 
-	m_Comms.Notify("FOLLOWER_RANGE_BIN", (int)received_range);
-	m_Comms.Notify("FOLLOWER_X", received_x);
-	m_Comms.Notify("FOLLOWER_Y", received_y);
-	publishLeaderPos();
-    m_Comms.Notify("FOLLOWER_PACKET",1.0);
+		m_Comms.Notify("FOLLOWER_RANGE_BIN", (int)received_range);
+		m_Comms.Notify("FOLLOWER_X", received_x);
+		m_Comms.Notify("FOLLOWER_Y", received_y);
+		publishLeaderPos();
+		m_Comms.Notify("FOLLOWER_PACKET",1.0);
+	}
+
+	m_target_range = -1;
 }
 
 void Tulip26bit::onBadReceive_leader() {
@@ -47,10 +56,12 @@ void Tulip26bit::onBadReceive_leader() {
     m_Comms.Notify("FOLLOWER_X", 0.0);
     m_Comms.Notify("FOLLOWER_Y", 0.0);
     m_Comms.Notify("FOLLOWER_RANGE_BIN", -1.0);
+
+	m_target_range = -1;
 }
 
 void Tulip26bit::publishLeaderPos() {
-    m_Comms.Notify("LEADER_X", m_osx);
-    m_Comms.Notify("LEADER_Y", m_osy);
+    m_Comms.Notify("LEADER_X", m_range_x);
+    m_Comms.Notify("LEADER_Y", m_range_y);
     m_Comms.Notify("LEADER_RANGE", m_target_range);
 }

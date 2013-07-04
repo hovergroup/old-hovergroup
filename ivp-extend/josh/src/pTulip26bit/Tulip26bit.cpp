@@ -95,6 +95,8 @@ bool Tulip26bit::OnNewMail(MOOSMSG_LIST &NewMail) {
         // may have to adjust to support original simulated target
         if ( m_sourceID == m_target_acomms_id ) {
             m_target_range = m_acommsRange;
+            m_range_x = m_osx;
+            m_range_y = m_osy;
             std::stringstream ss;
             ss << "range to target: " << m_target_range;
             handleUpdate( ss.str() );
@@ -146,6 +148,11 @@ bool Tulip26bit::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("transmit_offset", transmit_offset);
     m_AcommsTimer.setTransmitTiming(transmit_period, transmit_offset);
 
+    std::string transmit_mode = "mini";
+    std::string receive_mode = "mini";
+    m_MissionReader.GetConfigurationParam("transmit_mode", transmit_mode);
+    m_MissionReader.GetConfigurationParam("receive_mode", receive_mode);
+
     m_MissionReader.GetValue("Community", m_name);
     MOOSToUpper(m_name);
 
@@ -167,22 +174,42 @@ bool Tulip26bit::OnConnectToServer() {
     std::cout << "target id " << m_target_acomms_id << std::endl;
 
     if (vehicle_mode == "leader") {
-        goby::acomms::connect(&m_AcommsTimer.signal_transmit,
-                boost::bind(&Tulip26bit::onTransmit_leader, this));
+    	if (transmit_mode == "mini") {
+			goby::acomms::connect(&m_AcommsTimer.signal_transmit,
+					boost::bind(&Tulip26bit::onTransmit_leader, this));
+    	} else {
+
+    	}
+
         goby::acomms::connect(&m_AcommsTimer.signal_no_receipt,
                 boost::bind(&Tulip26bit::onBadReceive_leader, this));
-        goby::acomms::connect(&m_AcommsTimer.signal_receipt,
-                boost::bind(&Tulip26bit::onGoodReceive_leader, this, _1));
+
+        if (receive_mode == "mini") {
+			goby::acomms::connect(&m_AcommsTimer.signal_receipt,
+					boost::bind(&Tulip26bit::onGoodReceive_leader, this, _1));
+        } else {
+
+        }
 
         m_Comms.Register("FOLLOWER_WAYPOINT",0);
         m_Comms.Register("LEADER_WAYPOINT",0);
     } else if (vehicle_mode == "follower") {
-        goby::acomms::connect(&m_AcommsTimer.signal_transmit,
-                boost::bind(&Tulip26bit::onTransmit_follower, this));
+    	if (transmit_mode == "mini") {
+			goby::acomms::connect(&m_AcommsTimer.signal_transmit,
+					boost::bind(&Tulip26bit::onTransmit_follower, this));
+    	} else {
+
+    	}
+
         goby::acomms::connect(&m_AcommsTimer.signal_no_receipt,
                 boost::bind(&Tulip26bit::onBadReceive_follower, this));
-        goby::acomms::connect(&m_AcommsTimer.signal_receipt,
-                boost::bind(&Tulip26bit::onGoodReceive_follower, this, _1));
+
+        if (receive_mode == "mini") {
+			goby::acomms::connect(&m_AcommsTimer.signal_receipt,
+					boost::bind(&Tulip26bit::onGoodReceive_follower, this, _1));
+		} else {
+
+		}
 
     } else {
         std::cout << "Exiting on invalid vehicle mode: " << vehicle_mode
