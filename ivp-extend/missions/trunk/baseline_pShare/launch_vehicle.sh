@@ -128,9 +128,7 @@ if [ "${VEHICLE}" = "icarus" ]; then
         SHOREHOST=$SHOREHOST                            \
         SLPORT=$SLPORT                                  \
         ACOMMSID=$ACOMMSID_ICARUS                       \
-        MODEMPORT=$MODEMPORT_ICARUS                     \
-        GPSPORT=$GPSPORT_ICARUS                         \
-        GPSBAUD=$GPSBAUD_ICARUS
+        MODEMPORT=$MODEMPORT_ICARUS
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
