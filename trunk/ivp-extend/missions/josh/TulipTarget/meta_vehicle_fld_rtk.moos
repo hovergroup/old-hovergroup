@@ -84,6 +84,7 @@ ProcessConfig = pShare
     output = FOLLOWER_Y->$(SHOREHOST):$(SLPORT)
     output = LEADER_RANGE->$(SHOREHOST):$(SLPORT)
     output = FOLLOWER_RANGE_BIN->$(SHOREHOST):$(SLPORT)
+    output = FOLLOWER_RANGE->$(SHOREHOST):$(SLPORT)
     output = FOLLOWER_PACKET->$(SHOREHOST):$(SLPORT)
 	
     output = GPS_TIME_SECONDS->$(SHOREHOST):$(SLPORT)
