@@ -77,7 +77,7 @@ switch experiment
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
-        Rmeas = diag([1 1]);
+        Rmeas = diag([.25 .25]);
         
     case 'asym'
         % (follower x,y, range should not be quantized now)
@@ -89,7 +89,7 @@ switch experiment
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
-        Rmeas = diag([1 1]);
+        Rmeas = diag([.25 .25]);
         
     case 'ideal'
         
@@ -180,14 +180,13 @@ while(go)
     if(strcmp(data.status,'timeout'))
         disp('data read timeout!')
         % do nothing
+    else % good data
         
-    else
-        
-        % measurements always used
+        % measurements used by all exps
         XAgent(1) = data.LEADER_X;
         YAgent(1) = data.LEADER_Y;
         
-        % handle possible missed leader ranges
+        % possible missed leader ranges
         z(1) = data.LEADER_RANGE;
         R = Rmeas;
         if(z(1)==-1)
@@ -195,68 +194,33 @@ while(go)
             disp('MISSING LEADER RANGE')
         end
         
-        if(strcmp(experiment,'mini') || strcmp(experiment,'full') || strcmp(experiment,'asym') )
-            % HANDLE LOST PACKETS
-            
-            % add option for data.LEADER_RANGE == -1... missed
-            if(data.FOLLOWER_PACKET==0)
-                disp('MISSING FOLLOWER PACKET')
-                z(2) = 0;R(2,2) = 10e10; % Inf meas noise
-            else
-                % got a follower packet: update (x,y)
-                % (not really necessary because update depends on range)
-                XAgent(2) = data.FOLLOWER_X;
-                YAgent(2) = data.FOLLOWER_Y;
-            end
-            
-            
-            switch experiment
-                
-                case 'full'
-                    
-                    if(data.FOLLOWER_RANGE==-1)
-                        % follower missed it's range... data useless
-                        disp('MISSING FOLLOWER RANGE')
-                        z(2) = 0;R(2,2) = 10e10;
-                        
-                    else
-                        z(2) = data.FOLLOWER_RANGE;
-                    end
-                    
-                case 'mini'
-                    if(data.FOLLOWER_RANGE_BIN==-1)
-                        % follower missed it's range... data useless
-                        disp('MISSING FOLLOWER RANGE')
-                        z(2) = 0;R(2,2) = 10e10;
-                        
-                    else
-                        z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
-                        
-                    end
-                    
-                case 'asym'
-                    if(data.FOLLOWER_RANGE==-1)
-                        % follower missed it's range... data useless
-                        disp('MISSING FOLLOWER RANGE')
-                        z(2) = 0;R(2,2) = 10e10;
-                        
-                    else
-                        z(2) = data.FOLLOWER_RANGE;
-                    end
-                    
-                    
-            end
-
-            
-        else
-            
-            % ideal
+        % follower packet drops (still posted for wifi)
+        if(data.FOLLOWER_PACKET==0)
+            disp('MISSING FOLLOWER PACKET')
+            z(2) = 0;R(2,2) = 10e10; % Inf meas noise
+        else    % good follower packet
             XAgent(2) = data.FOLLOWER_X;
             YAgent(2) = data.FOLLOWER_Y;
-            z(2) = data.FOLLOWER_RANGE;
-            if(z(2)==-1)
-                z(2) = 0;R(2,2) = 10e10;
-                disp('MISSING FOLLOWER RANGE')
+            
+            % ranges (mini is quantized)
+            if(strcmp(experiment,'mini'))
+                % decode packet
+                if(data.FOLLOWER_RANGE_BIN==-1)
+                    % follower missed it's range... data useless
+                    disp('MISSING FOLLOWER RANGE')
+                    z(2) = 0;R(2,2) = 10e10;
+                else
+                    z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
+                end
+            else    % ideal, full, asym: range not quantized
+                % grab range
+                if(data.FOLLOWER_RANGE==-1)
+                    % follower missed it's range... data useless
+                    disp('MISSING FOLLOWER RANGE')
+                    z(2) = 0;R(2,2) = 10e10;
+                else
+                    z(2) = data.FOLLOWER_RANGE;
+                end
             end
             
         end
@@ -297,15 +261,8 @@ while(go)
             fprintf('LX: %f  LY: %f  FX: %f  FY: %f  \n',data.LEADER_X,...
                 data.LEADER_Y, data.FOLLOWER_X, data.FOLLOWER_Y);
             fprintf('LR: %f  FR:  %f \n',data.LEADER_RANGE, z(2));
-            switch experiment
-                case 'mini'
-                    fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
-                case 'full'
-                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
-                case 'asym'
-                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
-                case 'ideal'
-                    fprintf('F range: %f \n',data.FOLLOWER_RANGE)
+            if(strcmp(experiment,'mini'))
+                fprintf('F bin: %d \n',data.FOLLOWER_RANGE_BIN);
             end
             
             % post estimate
