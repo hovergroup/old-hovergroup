@@ -127,12 +127,16 @@ bool TulipWifi::Iterate() {
 
 	// timeout - push update
 	if (MOOSTime()-m_lastUpdateTime > m_timeout) {
-		if (m_leader == -1) {
+		if (m_leader == -1 && MOOSTime()-m_follower < 2.0) {
 			m_Comms.Notify("LEADER_RANGE", -1.0);
 			std::cout << "Updating with only follower range via large timeout." << std::endl;
-		} else {
+		} else if (m_follower==-1 && MOOSTime()-m_leader < 2.0){
 			m_Comms.Notify("FOLLOWER_RANGE", -1.0);
 			std::cout << "Updating with only leader range via large timeout." << std::endl;
+		} else {
+		    m_Comms.Notify("LEADER_RANGE", -1.0);
+			m_Comms.Notify("FOLLOWER_RANGE", -1.0);
+			std::cout << "Lost both ranges via large timeout." << std::endl;
 		}
 		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
 		m_lastUpdateTime = MOOSTime();

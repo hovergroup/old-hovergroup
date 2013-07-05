@@ -9,7 +9,11 @@
 
 void Tulip26bit::onTransmit_follower() {
 	if (m_target_range == -1) {
-		m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", 0xffff, 2);
+        std::vector<unsigned char> data(2, 0);
+        data[1] = 0xff;
+        data[2] = 0xff;
+
+		m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &data[0], 2);
 	} else {
 		unsigned char transmit_x = LinearEncode(m_range_x, m_osx_minimum, m_osx_maximum,
 				5);
