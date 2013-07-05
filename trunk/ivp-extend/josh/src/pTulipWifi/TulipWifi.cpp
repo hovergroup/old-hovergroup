@@ -92,8 +92,10 @@ bool TulipWifi::Iterate() {
 	// check for mismatch by age
 	if (m_leader-2 > m_follower) {
 		m_follower = -1;
+		std::cout << "discarding old follower range" << std::endl;
 	} else if (m_follower-2 > m_leader) {
 		m_leader = -1;
+		std::cout << "discarding old leader range" << std::endl;
 	}
 
 	// both received - push update
@@ -102,14 +104,35 @@ bool TulipWifi::Iterate() {
 		m_lastUpdateTime = MOOSTime();
 		m_leader = -1;
 		m_follower = -1;
+		std::cout << "Updating both ranges." << std::cout;
+	}
+
+	// one missing with small timeout - push update
+	if (m_leader!=-1 && MOOSTime()-m_leader > 1.0) {
+		m_Comms.Notify("FOLLOWER_RANGE", -1.0);
+		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
+		m_lastUpdateTime = MOOSTime();
+		m_leader = -1;
+		m_follower = -1;
+		std::cout << "Updating with only leader range via small timeout." << std::cout;
+	}
+	if (m_follower!=-1 && MOOSTime()-m_follower > 1.0) {
+		m_Comms.Notify("LEADER_RANGE", -1.0);
+		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
+		m_lastUpdateTime = MOOSTime();
+		m_leader = -1;
+		m_follower = -1;
+		std::cout << "Updating with only follower range via small timeout." << std::cout;
 	}
 
 	// timeout - push update
 	if (MOOSTime()-m_lastUpdateTime > m_timeout) {
 		if (m_leader == -1) {
 			m_Comms.Notify("LEADER_RANGE", -1.0);
+			std::cout << "Updating with only follower range via large timeout." << std::cout;
 		} else {
 			m_Comms.Notify("FOLLOWER_RANGE", -1.0);
+			std::cout << "Updating with only leader range via large timeout." << std::cout;
 		}
 		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
 		m_lastUpdateTime = MOOSTime();
