@@ -23,6 +23,36 @@ void Tulip26bit::onTransmit_leader() {
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &data[0], 2);
 }
 
+void Tulip26bit::onTransmit_leader_full() {
+    char buffer[50];
+    sprintf(buffer, "%.2f,%.2f", m_set_x, m_set_y);
+
+    std::string to_transmit = std::string(buffer);
+
+    if (m_packSize != -1) {
+        while (to_transmit.size()<m_packSize) {
+            to_transmit.push_back(' ');
+        }
+    }
+
+    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", to_transmit);
+}
+
+void Tulip26bit::onGoodReceive_leader_full( const std::string data ) {
+    std::string data_copy = data;
+    std::string val = MOOSChomp(data_copy, ",");
+    double received_x = atof(val.c_str());
+    val = MOOSChomp(data_copy, ",");
+    double received_y = atof(val.c_str());
+    double received_range = atof(data_copy.c_str());
+
+    m_Comms.Notify("FOLLOWER_RANGE", received_range);
+    m_Comms.Notify("FOLLOWER_X", received_x);
+    m_Comms.Notify("FOLLOWER_Y", received_y);
+    publishLeaderPos();
+    m_Comms.Notify("FOLLOWER_PACKET",1.0);
+}
+
 void Tulip26bit::onGoodReceive_leader( const std::string data ) {
 	if ( data.size() != 2 ) {
 		std::stringstream ss;
