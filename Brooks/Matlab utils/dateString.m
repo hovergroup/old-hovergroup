@@ -24,6 +24,8 @@ sec=round(clockvec(6));
 switch size
     case 'DH'
         datestring=sprintf('%s-%s-%s-%d',year,month,day,hour);
+    case 'DHM'
+        datestring=sprintf('%s-%s-%s-%d-%d',year,month,day,hour,min);
     case 'DHMS'
         datestring=sprintf('%s-%s-%s-%d-%d-%d',year,month,day,hour,min,sec);
 end

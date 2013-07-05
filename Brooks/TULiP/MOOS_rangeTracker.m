@@ -26,12 +26,12 @@ diaryName = sprintf('TULiP_diary_%s.txt',dateString('DHM'));
 % (note: add process config to meta_shoreside.moos)
 moosDB = 'targ_shoreside.moos';
 %pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
-path = '/home/josh/hovergroup/ivp-extend/missions/josh/TulipTarget';
+pathName = '/home/josh/hovergroup/ivp-extend/missions/josh/TulipTarget';
 
 %experiment = 'mini';
-%experiment = 'full';
+experiment = 'full';
 %experiment = 'asym';
-experiment = 'ideal';
+%experiment = 'ideal';
 
 % time step
 switch experiment
@@ -76,6 +76,9 @@ switch experiment
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
+        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower        
+        Rmeas = diag([1 1]);
+        
     case 'asym'
         % (follower x,y, range should not be quantized now)
         % still have to handle missed packets
@@ -85,13 +88,14 @@ switch experiment
         % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
+        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
+        Rmeas = diag([1 1]);
         
     case 'ideal'
         
-        dt = 4;
+        dt = 3;
         
         % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
-        % (maybe remove FOLLOWER_PACKET - depends on josh)
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
@@ -152,6 +156,8 @@ old = cd(pathName);
 iMatlab('init','CONFIG_FILE',moosDB);
 garbageMail = iMatlab('MOOS_MAIL_RX');
 %length(garbageMail)
+cd(old);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 it = 0;
