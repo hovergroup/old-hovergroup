@@ -1,7 +1,7 @@
 function [dataOut] = parseObservations(varList,readTimeout)
 % reads in observations from iMatlab/MOOS for tracking
 %
-% must be subscribed to: varList
+% iMatlab must be subscribed to members of varList
 % (usual varList) = {'FOLLOWER_X','FOLLOWER_Y',
 %   'FOLLOWER_R','FOLLOWER_PACKET',...
 %    'LEADER_X','LEADER_Y','LEADER_R'};
@@ -14,18 +14,15 @@ function [dataOut] = parseObservations(varList,readTimeout)
 % changelog:
 %{
 - 7/3/2013: added varList as input, (for different exps)
--
+- 7/5/2013: fixed (i think) bug with resetting gotStates
 
 %}
 
-
-gotObs = 0;
-readStart = tic;
-
-n = length(varList);
-gotStates = zeros(1,n);
 dataOut = [];
 gotObs = 0;
+readStart = tic;
+n = length(varList);
+gotStates = zeros(1,n);
 
 while(~gotObs)
     
@@ -57,10 +54,6 @@ end
 
 
 function [gotStates,dataOut] = parseMail(mail,varList,gotStates,dataOut)
-
-% [xL,yL,rL,piL,xF,yF,rF,piF]
-%varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
-%   'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
 
 n = length(varList);
 
