@@ -10,8 +10,8 @@
 void Tulip26bit::onTransmit_follower() {
 	if (m_target_range == -1) {
         std::vector<unsigned char> data(2, 0);
+        data[0] = 0xff;
         data[1] = 0xff;
-        data[2] = 0xff;
 
 		m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &data[0], 2);
 	} else {
