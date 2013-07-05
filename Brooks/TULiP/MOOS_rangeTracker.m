@@ -28,8 +28,8 @@ moosDB = 'targ_shoreside.moos';
 %pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
 pathName = '/home/josh/hovergroup/ivp-extend/missions/josh/TulipTarget';
 
-%experiment = 'mini';
-experiment = 'full';
+experiment = 'mini';
+%experiment = 'full';
 %experiment = 'asym';
 %experiment = 'ideal';
 
@@ -70,13 +70,13 @@ switch experiment
         % (follower x,y, range should not be quantized now)
         % still have to handle missed packets
         
-        dt = 20;
+        dt = 23;
         
         % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
-        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower        
+        % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
         Rmeas = diag([1 1]);
         
     case 'asym'
@@ -93,14 +93,14 @@ switch experiment
         
     case 'ideal'
         
-        dt = 3;
+        dt = 4;
         
         % (FOLLOWER_RANGE vs. FOLLOWER_RANGE_BIN: no decode)
         varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE',...
             'FOLLOWER_PACKET','LEADER_X','LEADER_Y','LEADER_RANGE'};
         
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
-        Rmeas = diag([1 1]);
+        Rmeas = diag([.25 .25]);
         
 end
 
@@ -208,19 +208,43 @@ while(go)
             end
             
             
-            if(data.FOLLOWER_RANGE_BIN==-1)
-                % follower missed it's range... data useless
-                disp('MISSING FOLLOWER RANGE')
-                z(2) = 0;R(2,2) = 10e10;
-            else
-                % range
-                switch experiment
-                    case 'mini'
-                        z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
-                    case 'full'
+            switch experiment
+                
+                case 'full'
+                    
+                    if(data.FOLLOWER_RANGE==-1)
+                        % follower missed it's range... data useless
+                        disp('MISSING FOLLOWER RANGE')
+                        z(2) = 0;R(2,2) = 10e10;
+                        
+                    else
                         z(2) = data.FOLLOWER_RANGE;
-                end
+                    end
+                    
+                case 'mini'
+                    if(data.FOLLOWER_RANGE_BIN==-1)
+                        % follower missed it's range... data useless
+                        disp('MISSING FOLLOWER RANGE')
+                        z(2) = 0;R(2,2) = 10e10;
+                        
+                    else
+                        z(2) = decodeFollower(data.FOLLOWER_RANGE_BIN,binSet);
+                        
+                    end
+                    
+                case 'asym'
+                    if(data.FOLLOWER_RANGE==-1)
+                        % follower missed it's range... data useless
+                        disp('MISSING FOLLOWER RANGE')
+                        z(2) = 0;R(2,2) = 10e10;
+                        
+                    else
+                        z(2) = data.FOLLOWER_RANGE;
+                    end
+                    
+                    
             end
+
             
         else
             
@@ -230,8 +254,9 @@ while(go)
             z(2) = data.FOLLOWER_RANGE;
             if(z(2)==-1)
                 z(2) = 0;R(2,2) = 10e10;
-                disp('MISSING LEADER RANGE')
+                disp('MISSING FOLLOWER RANGE')
             end
+            
         end
         
         % run SPKF
@@ -307,7 +332,7 @@ while(go)
     
 end
 
-%%%% TURN DIARY OFF %%%%% 
+%%%% TURN DIARY OFF %%%%%
 diary off
 
 
