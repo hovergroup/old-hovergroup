@@ -22,6 +22,11 @@ function [dataOut] = parseObservations(varList,readTimeout)
 gotObs = 0;
 readStart = tic;
 
+n = length(varList);
+gotStates = zeros(1,n);
+dataOut = [];
+gotObs = 0;
+
 while(~gotObs)
     
     mail=iMatlab('MOOS_MAIL_RX');
@@ -30,8 +35,9 @@ while(~gotObs)
     
     %disp(length(mail))
     
-    [gotObs,dataOut] = parseMail(mail,varList);
-    
+    [gotStates,dataOut] = parseMail(mail,varList,gotStates,dataOut);
+    gotObs = min(gotStates);
+
     if(gotObs)
         dataOut.status = 'good';
     end
@@ -50,7 +56,7 @@ end
 end
 
 
-function [gotAllObs,dataOut] = parseMail(mail,varList)
+function [gotStates,dataOut] = parseMail(mail,varList,gotStates,dataOut)
 
 % [xL,yL,rL,piL,xF,yF,rF,piF]
 %varList = {'FOLLOWER_X','FOLLOWER_Y','FOLLOWER_RANGE_BIN',...
@@ -58,17 +64,13 @@ function [gotAllObs,dataOut] = parseMail(mail,varList)
 
 n = length(varList);
 
-gotStates = zeros(1,n);
-gotAllObs = 0;
-dataOut = [];
-
 messages = length(mail);
 key = cell(1,messages);
 val = cell(1,messages);
 str = cell(1,messages);
 i = 1;
 
-while(~gotAllObs)
+while(~min(gotStates))
     
     key{i}=mail(i).KEY;
     val{i}=mail(i).DBL;
@@ -82,9 +84,7 @@ while(~gotAllObs)
     end
     
     %disp(gotStates)
-    
-    gotAllObs = min(gotStates);
-    
+        
     % if more messages to look through:
     if(i<messages)
         i = i+1;

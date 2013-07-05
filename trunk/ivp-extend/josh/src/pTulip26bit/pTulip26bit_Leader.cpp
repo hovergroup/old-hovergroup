@@ -86,6 +86,7 @@ void Tulip26bit::onBadReceive_leader() {
     m_Comms.Notify("FOLLOWER_X", 0.0);
     m_Comms.Notify("FOLLOWER_Y", 0.0);
     m_Comms.Notify("FOLLOWER_RANGE_BIN", -1.0);
+    m_Comms.Notify("FOLLOWER_RANGE", -1.0);
 
 	m_target_range = -1;
 }

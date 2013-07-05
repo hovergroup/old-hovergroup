@@ -40,16 +40,16 @@ bool TulipWifi::OnNewMail(MOOSMSG_LIST &NewMail) {
         } else if (key == "FOLLOWER_TRAVEL_TIME") {
         	m_Comms.Notify("FOLLOWER_RANGE", msg.GetDouble()*1450.0);
         	m_follower = MOOSTime();
-        } else if (key == "FOLLOWER_WAYPOINT") {
+        } else if (key == "FOLLOWER_WAYPOINT_NOSTROMO") {
             std::stringstream ss;
             ss << "points=" << m_followerX << "," << m_followerY << ":" << msg.GetString();
             m_Comms.Notify("TULIP_WAYPOINT_UPDATES_" + m_followerName, ss.str());
             m_Comms.Notify("TULIP_STATION_" + m_followerName, "false");
-        } else if (key == "LEADER_WAYPOINT") {
+        } else if (key == "LEADER_WAYPOINT_NOSTROMO") {
             std::stringstream ss;
             ss << "points=" << m_leaderX << "," << m_leaderY << ":" << msg.GetString();
             m_Comms.Notify("TULIP_WAYPOINT_UPDATES_" + m_leaderName, ss.str());
-            m_Comms.Notify("TULIP_STATION_" + m_followerName, "false");
+            m_Comms.Notify("TULIP_STATION_" + m_leaderName, "false");
         } else if (key == "LEADER_X") {
         	m_leaderX = msg.GetDouble();
         } else if (key == "LEADER_Y") {
@@ -75,8 +75,8 @@ bool TulipWifi::OnConnectToServer() {
     m_Comms.Register("LEADER_TRAVEL_TIME", 0);
     m_Comms.Register("FOLLOWER_TRAVEL_TIME", 0);
 
-    m_Comms.Register("LEADER_WAYPOINT", 0);
-    m_Comms.Register("FOLLOWER_WAYPOINT", 0);
+    m_Comms.Register("LEADER_WAYPOINT_NOSTROMO", 0);
+    m_Comms.Register("FOLLOWER_WAYPOINT_NOSTROMO", 0);
 
     m_Comms.Register("LEADER_X", 0);
     m_Comms.Register("LEADER_Y", 0);
@@ -90,10 +90,10 @@ bool TulipWifi::OnConnectToServer() {
 
 bool TulipWifi::Iterate() {
 	// check for mismatch by age
-	if (m_leader-2 > m_follower) {
+	if (m_leader-2 > m_follower && m_follower!=-1) {
 		m_follower = -1;
 		std::cout << "discarding old follower range" << std::endl;
-	} else if (m_follower-2 > m_leader) {
+	} else if (m_follower-2 > m_leader && m_leader!=-1) {
 		m_leader = -1;
 		std::cout << "discarding old leader range" << std::endl;
 	}
@@ -104,7 +104,7 @@ bool TulipWifi::Iterate() {
 		m_lastUpdateTime = MOOSTime();
 		m_leader = -1;
 		m_follower = -1;
-		std::cout << "Updating both ranges." << std::cout;
+		std::cout << "Updating both ranges." << std::endl;
 	}
 
 	// one missing with small timeout - push update
@@ -114,7 +114,7 @@ bool TulipWifi::Iterate() {
 		m_lastUpdateTime = MOOSTime();
 		m_leader = -1;
 		m_follower = -1;
-		std::cout << "Updating with only leader range via small timeout." << std::cout;
+		std::cout << "Updating with only leader range via small timeout." << std::endl;
 	}
 	if (m_follower!=-1 && MOOSTime()-m_follower > 1.0) {
 		m_Comms.Notify("LEADER_RANGE", -1.0);
@@ -122,17 +122,17 @@ bool TulipWifi::Iterate() {
 		m_lastUpdateTime = MOOSTime();
 		m_leader = -1;
 		m_follower = -1;
-		std::cout << "Updating with only follower range via small timeout." << std::cout;
+		std::cout << "Updating with only follower range via small timeout." << std::endl;
 	}
 
 	// timeout - push update
 	if (MOOSTime()-m_lastUpdateTime > m_timeout) {
 		if (m_leader == -1) {
 			m_Comms.Notify("LEADER_RANGE", -1.0);
-			std::cout << "Updating with only follower range via large timeout." << std::cout;
+			std::cout << "Updating with only follower range via large timeout." << std::endl;
 		} else {
 			m_Comms.Notify("FOLLOWER_RANGE", -1.0);
-			std::cout << "Updating with only leader range via large timeout." << std::cout;
+			std::cout << "Updating with only leader range via large timeout." << std::endl;
 		}
 		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
 		m_lastUpdateTime = MOOSTime();
