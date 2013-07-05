@@ -113,3 +113,27 @@ ProcessConfig = pEchoVar
 
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pMarineViewer.moos
+
+ProcessConfig = iMatlab
+{
+  AppTick = 20
+  Comms Tick = 20
+
+  Port = COM6
+  BaudRate = 4800
+
+  Verbose = false
+  Streaming = false
+  MOOSComms = true
+  SerialComms = false
+  SERIAL_TIMEOUT = 10.0
+
+  SUBSCRIBE = DB_TIME @ 1.0
+  SUBSCRIBE = FOLLOWER_X @ 0.0
+  SUBSCRIBE = FOLLOWER_Y @ 0.0
+  SUBSCRIBE = LEADER_X @ 0.0
+  SUBSCRIBE = LEADER_Y @ 0.0
+  SUBSCRIBE = FOLLOWER_RANGE_BIN @ 0.0
+  SUBSCRIBE = LEADER_RANGE @ 0.0
+  SUBSCRIBE = FOLLOWER_PACKET @ 0.0
+}
