@@ -1,0 +1,94 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 1000
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pNodeReporter          @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iHoverKayak            @ NewConsole = false
+  
+#ifdef ROLE target
+    Run = pTulipTarget			@ NewConsole = false
+#else
+    Run = pNodeReporter      	@ NewConsole = false
+#endif
+
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_Config
+}
+
+#ifdef ROLE target
+    #include plug_pTulipTarget.moos
+#endif
+
+Processconfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = uXMS
+{
+  DISPLAY_TIME = true
+  DISPLAY_SOURCE = true
+    
+  VAR=VOLTAGE
+  VAR=CPU_BOX_TEMP
+  VAR=ROBOTEQ_HEATSINK_TEMP
+  VAR=ROBOTEQ_INTERNAL_TEMP
+  VAR=ROBOTEQ_BATTERY_CURRENT
+  VAR=ROBOTEQ_MOTOR_CURRENT
+  VAR=ARDUINO_THRUST
+  VAR=ARDUINO_RUDDER
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
+  
+  #ifdef ROLE leader
+    output = NAV_X->LEADER_X:$(SHOREHOST):$(SLPORT)
+    output = NAV_Y->LEADER_Y:$(SHOREHOST):$(SLPORT)
+    output = ACOMMS_ONE_WAY_TRAVEL_TIME->LEADER_TRAVEL_TIME:$(SHOREHOST):$(SLPORT)
+  #endif
+  #ifdef ROLE follower
+    output = NAV_X->FOLLOWER_X:$(SHOREHOST):$(SLPORT)
+    output = NAV_Y->FOLLOWER_Y:$(SHOREHOST):$(SLPORT)
+    output = ACOMMS_ONE_WAY_TRAVEL_TIME->FOLLOWER_TRAVEL_TIME:$(SHOREHOST):$(SLPORT)
+  #endif
+  
+  input = route=$(VHOST):$(LPORT) 
+}
+
+
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include plug_pMarinePID_Hover.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+#include plug_iAcommsDriver.moos

@@ -1,0 +1,67 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 1000
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pNodeReporter          @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  
+#ifdef ROLE target
+    Run = pTulipTarget			@ NewConsole = false
+#else
+    Run = pTulip26bit			@ NewConsole = false
+    Run = pNodeReporter      	@ NewConsole = false
+#endif
+
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_Config
+}
+
+#ifdef ROLE leader
+    #include plug_pTulip26bit_leader.moos
+#endif
+#ifdef ROLE follower
+    #include plug_pTulip26bit_follower.moos
+#endif
+#ifdef ROLE target
+    #include plug_pTulipTarget.moos
+#endif
+
+Processconfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  //output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
+  
+  input = route=$(VHOST):$(LPORT) 
+}
+
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include plug_iAcommsDriver.moos
