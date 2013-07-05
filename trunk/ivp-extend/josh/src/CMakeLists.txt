@@ -30,6 +30,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(markerRelabel)
 	ADD_SUBDIRECTORY(drawTriangle)
     ADD_SUBDIRECTORY(quickAlogEditor)
+    ADD_SUBDIRECTORY(pTulipWifi)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
