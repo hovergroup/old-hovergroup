@@ -35,6 +35,40 @@ void Tulip26bit::onTransmit_follower() {
     m_target_range = -1;
 }
 
+void Tulip26bit::onTransmit_follower_full() {
+    char buffer[50];
+    sprintf(buffer, "%.2f,%.2f,%.2f", m_range_x, m_range_y, m_target_range);
+
+    std::string to_transmit = std::string(buffer);
+
+    if (m_packSize != -1) {
+        while (to_transmit.size()<m_packSize) {
+            to_transmit.push_back(' ');
+        }
+    }
+
+    m_Comms.Notify("ACOMMS_TRANSMIT_DATA", to_transmit);
+
+    m_target_range = -1;
+}
+
+void Tulip26bit::onGoodReceive_follower_full(const std::string data) {
+    std::string data_copy = data;
+    std::string val = MOOSChomp(data_copy, ",");
+    double received_x = atof(val.c_str());
+    double received_y = atof(data_copy.c_str());
+
+    m_Comms.Notify("COMMANDED_X", received_x);
+    m_Comms.Notify("COMMANDED_Y", received_y);
+
+    std::stringstream ss;
+    ss << "points=" << m_osx << "," << m_osy << ":" << received_x << "," << received_y;
+    m_Comms.Notify("TULIP_WAYPOINT_UPDATES",ss.str());
+    m_Comms.Notify("TULIP_STATION", "false");
+
+    m_Comms.Notify("LEADER_PACKET",1);
+}
+
 void Tulip26bit::onGoodReceive_follower(const std::string data) {
     if (data.size() != 2) {
         std::stringstream ss;

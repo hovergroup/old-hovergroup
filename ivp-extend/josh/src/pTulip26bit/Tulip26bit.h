@@ -39,6 +39,10 @@ protected:
 	void onBadReceive_follower();
 	void onBadReceive_leader();
 	void publishLeaderPos();
+	void onTransmit_leader_full();
+	void onGoodReceive_leader_full( const std::string data );
+	void onTransmit_follower_full();
+	void onGoodReceive_follower_full( const std::string data );
 
 	unsigned char LinearEncode( double val, double min, double max, int bits );
 	double LinearDecode( unsigned char val, double min, double max, int bits );
@@ -64,6 +68,8 @@ protected:
 	bool m_gotSource, m_gotRange;
 	int m_sourceID;
 	double m_acommsRange;
+
+	int m_packSize;
 
 	std::vector<double> m_follower_range_divs;
 };

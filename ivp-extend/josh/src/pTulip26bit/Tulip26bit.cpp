@@ -21,6 +21,8 @@ Tulip26bit::Tulip26bit() {
     m_gotRange = false;
     m_gotFrames = false;
     m_gotData = false;
+
+    m_packSize = -1;
 }
 
 //---------------------------------------------------------
@@ -153,6 +155,8 @@ bool Tulip26bit::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("transmit_mode", transmit_mode);
     m_MissionReader.GetConfigurationParam("receive_mode", receive_mode);
 
+    m_MissionReader.GetConfigurationParam("pack_size", m_packSize);
+
     m_MissionReader.GetValue("Community", m_name);
     MOOSToUpper(m_name);
 
@@ -178,7 +182,8 @@ bool Tulip26bit::OnConnectToServer() {
 			goby::acomms::connect(&m_AcommsTimer.signal_transmit,
 					boost::bind(&Tulip26bit::onTransmit_leader, this));
     	} else {
-
+            goby::acomms::connect(&m_AcommsTimer.signal_transmit,
+                    boost::bind(&Tulip26bit::onTransmit_leader_full, this));
     	}
 
         goby::acomms::connect(&m_AcommsTimer.signal_no_receipt,
@@ -188,7 +193,8 @@ bool Tulip26bit::OnConnectToServer() {
 			goby::acomms::connect(&m_AcommsTimer.signal_receipt,
 					boost::bind(&Tulip26bit::onGoodReceive_leader, this, _1));
         } else {
-
+            goby::acomms::connect(&m_AcommsTimer.signal_receipt,
+                    boost::bind(&Tulip26bit::onGoodReceive_leader_full, this, _1));
         }
 
         m_Comms.Register("FOLLOWER_WAYPOINT",0);
@@ -198,7 +204,8 @@ bool Tulip26bit::OnConnectToServer() {
 			goby::acomms::connect(&m_AcommsTimer.signal_transmit,
 					boost::bind(&Tulip26bit::onTransmit_follower, this));
     	} else {
-
+            goby::acomms::connect(&m_AcommsTimer.signal_transmit,
+                    boost::bind(&Tulip26bit::onTransmit_follower_full, this));
     	}
 
         goby::acomms::connect(&m_AcommsTimer.signal_no_receipt,
@@ -208,7 +215,8 @@ bool Tulip26bit::OnConnectToServer() {
 			goby::acomms::connect(&m_AcommsTimer.signal_receipt,
 					boost::bind(&Tulip26bit::onGoodReceive_follower, this, _1));
 		} else {
-
+            goby::acomms::connect(&m_AcommsTimer.signal_receipt,
+                    boost::bind(&Tulip26bit::onGoodReceive_follower_full, this, _1));
 		}
 
     } else {
