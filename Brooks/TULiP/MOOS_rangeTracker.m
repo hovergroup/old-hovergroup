@@ -142,6 +142,8 @@ legLen = 50;        % meters
 theta = deg2rad(60);    % degrees (total angle between each leg)
 XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'; % sets desired formation
 YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]';
+XAgent = XAgent0;
+YAgent = YAgent0;
 
 if dim == 3,
     [s1,s2,s3,w,vol] = getHermite(NaN); % get quadrature points and weights
@@ -286,8 +288,8 @@ while(go)
         
         lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
         fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
-        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_NOSTROMO',lwps);
-        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_NOSTROMO',fwps);
+        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_SILVANA',lwps);
+        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_SILVANA',fwps);
         
         if(PRINTOUTS)
             
