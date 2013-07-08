@@ -28,8 +28,8 @@ moosDB = 'targ_shoreside.moos';
 %pathName = '/home/josh/hovergroup/ivp-extend/josh/missions/121119_TargetTulip/';
 pathName = '/home/josh/hovergroup/ivp-extend/missions/josh/TulipTarget';
 
-experiment = 'mini';
-%experiment = 'full';
+%experiment = 'mini';
+experiment = 'full';
 %experiment = 'asym';
 %experiment = 'ideal';
 
@@ -110,7 +110,8 @@ end
 targetSpeed = 1.55;    % m/s
 
 % target process noise (heading rate of target) [rad/s]^2
-Q = .05 ;
+%Q = .05 ;
+Q = .01;
 % 11/2012: 0.02
 % 4/2013: 0.05
 % 6/2013: 0.05
@@ -174,7 +175,7 @@ while(go)
     % Leader: x,y,range
     % Follower: x,y,range
     
-    readTimeout = dt+3;
+    readTimeout = dt+5
     data = parseObservations(varList,readTimeout);
     
     if(strcmp(data.status,'timeout'))
