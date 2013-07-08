@@ -61,7 +61,7 @@ switch experiment
         %binSet = 0;
         
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
-        Rmeas = diag([1 9]);
+        Rmeas = diag([.25 9]);
         % 11/2012: diag([9 49])
         % 4/2013: diag([4 9]);
         % 6/2013: diag([1 9]);
@@ -252,8 +252,8 @@ while(go)
         
         lwps = sprintf('%f,%f',XAgentDes(1),YAgentDes(1));
         fwps = sprintf('%f,%f',XAgentDes(2),YAgentDes(2));
-        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_SILVANA',lwps);
-        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_SILVANA',fwps);
+        iMatlab('MOOS_MAIL_TX','LEADER_WAYPOINT_NOSTROMO',lwps);
+        iMatlab('MOOS_MAIL_TX','FOLLOWER_WAYPOINT_NOSTROMO',fwps);
         
         if(PRINTOUTS)
             
