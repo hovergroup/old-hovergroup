@@ -65,6 +65,7 @@ void Tulip26bit::onGoodReceive_leader( const std::string data ) {
 		m_Comms.Notify("FOLLOWER_Y", -1.0);
 		m_Comms.Notify("FOLLOWER_RANGE_BIN", -1.0);
 		m_Comms.Notify("FOLLOWER_PACKET", 1.0);
+	    publishLeaderPos();
 	} else {
 		double received_x = LinearDecode( data[0], m_osx_minimum, m_osx_maximum, 5);
 		double received_y = LinearDecode( data[1]>>3, m_osy_minimum, m_osy_maximum, 5);
