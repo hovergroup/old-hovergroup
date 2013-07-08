@@ -71,6 +71,7 @@ ProcessConfig = pShare
     output = NAV_X->LEADER_X:$(SHOREHOST):$(SLPORT)
     output = NAV_Y->LEADER_Y:$(SHOREHOST):$(SLPORT)
     output = ACOMMS_ONE_WAY_TRAVEL_TIME->LEADER_TRAVEL_TIME:$(SHOREHOST):$(SLPORT)
+    output = SYSTEM_TIME_SECONDS->$(SHOREHOST):$(SLPORT)
   #endif
   #ifdef ROLE follower
     output = NAV_X->FOLLOWER_X:$(SHOREHOST):$(SLPORT)
