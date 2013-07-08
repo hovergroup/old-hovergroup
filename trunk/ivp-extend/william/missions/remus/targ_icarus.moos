@@ -1,0 +1,154 @@
+ServerHost = 192.168.1.102
+ServerPort = 9300
+Community  = icarus
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456		
+LongOrigin = -71.087589	
+
+
+
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pShare          	@ NewConsole = false
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = pAcommCmdTransmit       @ NewConsole = false
+}
+
+//---------------------------------------------------------
+// pMOOSBridge_ICARUS Config Block  (Created from Plugin)
+
+ProcessConfig = pAcommCmdTransmit
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  input = route =  192.168.1.102:9301 
+}
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_ICARUS
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+// pNodeReporter Configuration Block (Created from Plugin)
+
+ProcessConfig = pNodeReporter
+{
+  AppTick     = 2
+  CommsTick   = 2
+  
+  VESSEL_TYPE = KAYAK
+
+  alt_nav_prefix = REMUS_ 
+  alt_nav_name = REMUS 
+
+}
+
+//--------------------------------------------------
+// pHostInfo configuration block from plugin
+
+ProcessConfig = pHostInfo
+{
+  AppTick 	= 1
+  CommsTick 	= 1
+
+  DEFAULT_HOSTIP = 192.168.1.102
+}
+
+//--------------------------------------------------
+// uFldNodeBroker configuration block from plugin
+
+ProcessConfig = uFldNodeBroker
+{
+  AppTick   = 1
+  CommsTick = 1
+
+  TRY_SHORE_HOST = pshare_route=192.168.1.100:9001
+
+  BRIDGE = src=VIEW_POLYGON
+  BRIDGE = src=VIEW_POINT
+  BRIDGE = src=VIEW_SEGLIST
+  BRIDGE = src=VIEW_RANGE_PULSE
+  
+  BRIDGE = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
+  BRIDGE = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
+}
+
+//--------------------------------------------------
+// uFldMessageHandler configuration block from plugin
+
+ProcessConfig = uFldMessageHandler
+{
+  AppTick   = 5
+  CommsTick = 5
+
+  STRICT_ADDRESSING = false
+}
+
+ProcessConfig = pEchoVar
+{
+	AppTick   = 40
+	MaxAppTick = 100
+	IterateMode = 1 // comms driven iterate and mail
+
+	Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+	Echo = GPS_X -> NAV_X
+	Echo = GPS_Y -> NAV_Y
+	Echo = GPS_SPEED -> NAV_SPEED
+	Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+}
+
+
+ProcessConfig = iGPS_Hover
+{
+	AppTick = 1
+	
+	PORT_NAME = /dev/ttyUSB1
+	BAUD_RATE = 57600
+}
+
+
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+    IterateMode = 0
+
+	PortName = /dev/ttyUSB0
+	ID = 1
+	
+	PSK_minipackets = false
+	enable_ranging = true
+	show_range_pulses = true
+}
