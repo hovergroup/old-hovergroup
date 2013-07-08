@@ -22,7 +22,7 @@ ProcessConfig = pTulip26bit
   //receive_period = 12
   //receive_offset = 3
   receive_period = 23 // full
-  receive_offset = 7 // full
+  receive_offset = 6 // full
   
   //transmit_period = 12
   //transmit_offset = 8
@@ -32,7 +32,7 @@ ProcessConfig = pTulip26bit
   //receive_extension = 1
   //max_receive_error = 2
   receive_extension = 5 // full
-  max_receive_error = 3 // full
+  max_receive_error = 5 // full
   
   vehicle_mode = follower
   
