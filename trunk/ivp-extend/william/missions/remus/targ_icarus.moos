@@ -17,7 +17,7 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pShare          	@ NewConsole = false
+  Run = pShare          	  @ NewConsole = false
   Run = pLogger            	@ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
   Run = pHostInfo          	@ NewConsole = false
@@ -25,8 +25,8 @@ Processconfig = ANTLER
   Run = uFldMessageHandler 	@ NewConsole = false
   Run = iGPS_Hover         	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
-  Run = iAcommsDriver		@ NewConsole = false
-  Run = pAcommCmdTransmit       @ NewConsole = false
+  Run = iAcommsDriver		    @ NewConsole = false
+  Run = pAcommCmdTransmit   @ NewConsole = false
 }
 
 //---------------------------------------------------------
