@@ -330,7 +330,7 @@ void acomms_driver::handle_data_receive(
 			publishWarning(debug_msg);
 		} else {
 			std::string serialized = reception.serializeWithInfo();
-			m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
+			m_Comms.Notify("ACOMMS_RECEIVED", (void*) serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
 			if (reception.getRate()==HoverAcomms::REMUS_LBL) {
