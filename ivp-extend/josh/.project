@@ -4,7 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
-		<project>hovergroup</project>
+		<project>hovergroup-trunk</project>
 		<project>MOOS-IvP</project>
 		<project>MOOSCore</project>
 		<project>MOOSGeodesy</project>

@@ -25,6 +25,7 @@ public:
 
 protected:
 	double DELAY;
+	int SOURCE;
 
 	HoverAcomms::AcommsReception m_reception;
 	double m_ackTime;
