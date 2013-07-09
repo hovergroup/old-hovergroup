@@ -72,7 +72,8 @@ switch experiment
         % 6/2013: 0.05
         % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
         Q = 0.05;
-        
+        legLen = 50;        % meters
+
     case 'full'
         % (follower x,y, range should not be quantized now)
         % still have to handle missed packets
@@ -88,8 +89,9 @@ switch experiment
         
         % process noise (heading rate, held over time step)
         % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
-        Q = 0.05;
-        
+        Q = 0.01;
+        legLen = 100;        % meters
+
     case 'asym'
         % (follower x,y, range should not be quantized now)
         % still have to handle missed packets
@@ -103,7 +105,8 @@ switch experiment
         Rmeas = diag([.25 .25]);
         
         Q = 0.02;
-        
+        legLen = 50;        % meters
+
     case 'ideal'
         
         dt = 4;
@@ -117,7 +120,9 @@ switch experiment
         
         % process noise (heading rate, held over time step)
         % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
-        Q = 0.01;
+        Q = 0.05;
+        legLen = 50;        % meters
+
 end
 
 
@@ -148,7 +153,6 @@ dim = 3 ; % dimension of the state space - should match getHermite below
 nAgents = 2;
 
 % formation
-legLen = 50;        % meters
 theta = deg2rad(60);    % degrees (total angle between each leg)
 XAgent0 = [-sin(theta/2)*legLen sin(theta/2)*legLen]'; % sets desired formation
 YAgent0 = [-cos(theta/2)*legLen -cos(theta/2)*legLen]';
@@ -288,6 +292,9 @@ while(go)
             bearing = 90 - rad2deg(hrad);
             fprintf('\n Target X: %f   Target Y: %f   Target Bearing: %f \n',...
                 xhat(2),xhat(3),bearing)
+            
+            disp('Error Covariance')
+            disp(P)
             
             % post command
             fprintf(['leader non-quantized wpt: ' lwps '\n'])
