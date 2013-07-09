@@ -8,6 +8,7 @@
 		<project>MOOS-IvP</project>
 		<project>MOOSCore</project>
 		<project>MOOSGeodesy</project>
+		<project>trunk</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
