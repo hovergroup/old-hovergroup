@@ -84,6 +84,8 @@ bool Relay::OnNewMail(MOOSMSG_LIST &NewMail) {
                 std::stringstream ss;
                 ss << "points=" << m_x << "," << m_y << ":" << msg.GetString();
                 m_Comms.Notify("RELAY_WAYPOINT_UPDATES", ss.str());
+                ss.str().clear();
+                m_Comms.Notify("RELAY_STATION_UPDATES", "station_pt="+msg.GetString());
                 m_Comms.Notify("RELAY_STATION", "false");
             }
             m_setX = xset;
