@@ -1,0 +1,20 @@
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  output = NODE_REPORT_LOCAL->NODE_REPORT:$(SHOREHOST):$(SLPORT)
+  output = VIEW_*->:$(SHOREHOST):$(SLPORT)
+  
+  #ifdef ROLE relay	
+    output = RELAY_RESULT->$(SHOREHOST):$(SLPORT)
+	output = RELAY_RESULT_MATLAB->$(SHOREHOST):$(SLPORT)
+	output = RANDOM_TRANSMIT_INDEX->192.168.1.102:9301
+  #endif
+  #ifdef ROLE start
+    output = SYSTEM_TIME_SECONDS->$(SHOREHOST):$(SLPORT)
+  #endif  
+  
+  input = route=$(VHOST):$(LPORT) 
+}
