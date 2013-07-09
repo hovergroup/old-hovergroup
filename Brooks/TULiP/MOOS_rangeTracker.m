@@ -65,6 +65,13 @@ switch experiment
         % 11/2012: diag([9 49])
         % 4/2013: diag([4 9]);
         % 6/2013: diag([1 9]);
+
+        % process noise (heading rate, held over time step)
+        % 11/2012: 0.02
+        % 4/2013: 0.05
+        % 6/2013: 0.05
+        % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
+        Q = 0.05;
         
     case 'full'
         % (follower x,y, range should not be quantized now)
@@ -79,6 +86,10 @@ switch experiment
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
         Rmeas = diag([.25 .25]);
         
+        % process noise (heading rate, held over time step)
+        % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
+        Q = 0.05;
+        
     case 'asym'
         % (follower x,y, range should not be quantized now)
         % still have to handle missed packets
@@ -91,6 +102,8 @@ switch experiment
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
         Rmeas = diag([.25 .25]);
         
+        Q = 0.02;
+        
     case 'ideal'
         
         dt = 4;
@@ -102,6 +115,9 @@ switch experiment
         % range sensor noise covariance, per agent; z(1) = leader, z(2) = follower
         Rmeas = diag([.25 .25]);
         
+        % process noise (heading rate, held over time step)
+        % 7/8/2013: 0.05 * ISRR data ...  (maybe too large though)
+        Q = 0.01;
 end
 
 
@@ -109,19 +125,12 @@ end
 % target speed: (match motorboat (and kayak) speed)
 targetSpeed = 1.55;    % m/s
 
-% target process noise (heading rate of target) [rad/s]^2
-%Q = .05 ;
-Q = .01;
-% 11/2012: 0.02
-% 4/2013: 0.05
-% 6/2013: 0.05
-
 % inside SPKF, noise drawn according to sqrt(Q)*randn subj to rateLimit
 rateLimit = deg2rad(120/dt);
 % 11/2012: Inf
 % 4/2013: 135
 % 6/2013: 120
-
+% 7/8/2013: 120 * ISRR
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -175,7 +184,7 @@ while(go)
     % Leader: x,y,range
     % Follower: x,y,range
     
-    readTimeout = dt+5
+    readTimeout = dt+5;
     data = parseObservations(varList,readTimeout);
     
     if(strcmp(data.status,'timeout'))
@@ -239,6 +248,7 @@ while(go)
         iMatlab('MOOS_MAIL_TX','TARGET_EST_H',xhat(1));
         iMatlab('MOOS_MAIL_TX','TARGET_EST_X',xhat(2));
         iMatlab('MOOS_MAIL_TX','TARGET_EST_Y',xhat(3));
+        iMatlab('MOOS_MAIL_TX','EST_P',P)
         
         % post estimate to pMarineViewer
         view_marker = sprintf(...
