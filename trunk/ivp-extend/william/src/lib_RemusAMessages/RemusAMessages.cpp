@@ -33,8 +33,8 @@ std::string RemusStatusM::toString()
 	ss << "vname=" << vname
 			<< ",x=" << nav_x
 			<< ",y=" << nav_y
-			<< ",y=" << nav_d
-			<< ",y=" << nav_b;
+			<< ",d=" << nav_d
+			<< ",b=" << nav_b;
 	return ss.str();
 }
 
