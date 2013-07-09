@@ -6,14 +6,10 @@
 MOOSTimeWarp =1
 ServerHost = localhost
 ServerPort = 9201
-//Simulator  = true
 // Community name IS the vehicle name
 Community  = shoreside
 LatOrigin  = 42.3584
 LongOrigin = -71.08745
-
-modem_id = 1
-modem_id_lookup_path =  ../acomms/modemidlookup.txt
 
 //------------------------------------------------------------
 ProcessConfig = ANTLER
@@ -22,17 +18,7 @@ ProcessConfig = ANTLER
   Run = MOOSDB          	@ NewConsole = false
   Run = pMOOSBridge       @ NewConsole = false
   Run = pMarineViewer   @ NewConsole = false
-
-// CONTROL:
- // Run = uSimMarine      	@ NewConsole = false
- // Run = pEchoVar        	@ NewConsole = false
   Run = pLogger         	@ NewConsole = false
- // Run = pNodeReporter 	@ NewConsole = false
-
-// COMMS:
-//  Run = pNavGlobalize	@ NewConsole = false
-//  Run = pAcommsHandler	@ NewConsole = true,XConfig=pAcommsHandlerConfig
-//  pAcommsHandlerConfig = -geometry,120x30+0+750
 }
 
 ProcessConfig = pMOOSBridge
@@ -47,12 +33,7 @@ ProcessConfig = pMOOSBridge
   // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
 
   SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY] -> remus@192.168.1.74:9202
-  //SHARE = [MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE] -> kassandra@192.168.1.101:9001
-  //SHARE = [WPT_SURVEY_UPDATES_NOSTROMO, MISSION_MODE_NOSTROMO, MOOS_MANUAL_OVERRIDE_NOSTROMO] -> nostromo@192.168.1.103:9003 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
-  //SHARE = [MISSION_MODE_NOSTROMO] -> nostromo@192.168.1.103:9003 [MISSION_MODE]
-  //SHARE = [WPT_SURVEY_UPDATES_KASSANDRA, MISSION_MODE_KASSANDRA, MOOS_MANUAL_OVERRIDE_KASSANDRA] -> kassandra@192.168.1.101:9001 [WPT_SURVEY_UPDATES, MISSION_MODE, MOOS_MANUAL_OVERRIDE]
-  
-  //SHARE = [TRANSMITTER_DATA] -> nostromo@192.168.1.103:9003 [ACOMMS_TRANSMIT_DATA]
+  SHARE = [A_DEPLOY] -> josh@192.168.1.102:9300
 }
 
 ProcessConfig = pMarineViewer
@@ -69,19 +50,12 @@ ProcessConfig = pMarineViewer
 
   BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false
   BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true
-  BUTTON_THREE = STARTRANSMIT # ASTATUS_TRANSMITS = true
-  BUTTON_FOUR = STOPTRANSMIT # ASTATUS_TRANSMITS = false
-}
+  BUTTON_THREE = A_DEPLOY # A_DEPLOY = true
+  BUTTON_FOUR  = A_STOP # A_DEPLOY = false
 
+  action = menu_key=ST_START # ASTATUS_TRANSMITS = true
+  action = menu_key=ST_STOP # ASTATUS_TRANSMITS = false
 
-// Start of Control Processes ///////////////////////////////////////////////////////
-// from plug_uSimMarine
-ProcessConfig = uSimMarine
-{
-  AppTick   = 10
-  CommsTic  = 10
-  START_POS = 0,0
-  PREFIX = NAV
 }
 
 // from plug_pEchoVar
@@ -154,114 +128,4 @@ ProcessConfig = pNodeReporter
   VESSEL_LENGTH = 2
 }
 
-// Start of Comms Processes /////////////////////////////////////////////////////////
-// from plug_pNavGlobalize
-ProcessConfig = pNavGlobalize
-{
-	AppTick     = 5
-	CommsTick   = 5
-	NorthingSrc = NAV_Y
-	EastingSrc = NAV_X
-}
-
-
-// from plug_pAcommsHandler
-ProcessConfig = pAcommsHandler
-{
-    common
-    {
-      verbosity: VERBOSITY_GUI
-      initializer { type: INI_DOUBLE  global_cfg_var: "LatOrigin"  moos_var: "LAT_ORIGIN" }
-      initializer { type: INI_DOUBLE  global_cfg_var: "LongOrigin" moos_var: "LONG_ORIGIN" }
-      initializer { type: INI_STRING  moos_var: "VEHICLE_TYPE" sval: "topside" }
-      initializer { type: INI_STRING  moos_var: "VEHICLE_NAME" sval: "shoreside" }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_X"  dval: 100 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_Y"  dval: 300 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_HEADING" dval: 150 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_SPEED" dval: 0 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_DEPTH" dval: 0 }
-    }
-
-    modem_id: 1
-
-    driver_type: DRIVER_WHOI_MICROMODEM
-    driver_cfg
-    { 
-      serial_port: "/dev/ttyUSB0"
-# doesn't work with iModemSim, set to true for real ops
-      [MicroModemConfig.reset_nvram]: false
-    }
-
-    mac_cfg
-    {
-	  type: MAC_POLLED
-//        type: MAC_FIXED_DECENTRALIZED
-        slot { src: 1  dest: 2  rate: 0  type: SLOT_DATA  slot_seconds: 10 } # downlink
-        slot { src: 2  dest: 1  rate: 0  type: SLOT_DATA  slot_seconds: 10 } # uplink
-    }
-
-    queue_cfg
-    {
-        queue
-        {
-            key {
-                type: QUEUE_CCL
-                id: 14 # decimal CCL id (first byte)
-            }
-            in_pubsub_var: "IN_REMUS_STATUS"
-            out_pubsub_var: "OUT_REMUS_STATUS"
-            name: "Remus_State"
-        }
-        queue
-        {
-            key {
-                type: QUEUE_CCL
-                id: 16 # decimal CCL id (first byte)
-            }
-            in_pubsub_var: "IN_REMUS_RANGER"
-            out_pubsub_var: "OUT_REMUS_RANGER"
-            name: "Remus_Ranger"
-        }
-    }
-
-    dccl_cfg
-    {
-        message_file { path: "../acomms/simple_status.xml" }
-        message_file { path: "../acomms/acoustic_moospoke.xml"}
-    }  
-}
-
-
-ProcessConfig = iCommander
-{
-  // available to all moos processes.
-//  AppTick    = 4
-//  CommsTick  = 4
-  
-  // available to all tes moos processes
-
-  //verbose, terse, quiet
-//  verbosity = verbose
-
-  // for checking xml structure correctness
-  // highly recommended to use this
-//  schema = /home/toby/moos-ivp-local/src/tes/pGeneralCodec/message_schema.xsd
-
-//  message_file = ../acomms/acoustic_moospoke.xml
-  
-//  message_file = ../../../data/acomms/simple_status.xml
-//  message_file = ../../../data/acomms/nafcon_command.xml
-//  message_file = ../../../data/acomms/nafcon_report.xml
-//  message_file = ../../../data/acomms/nafcon_targetsim.xml
-//  message_file = test_lat_lon.xml
-
-//  load = iCommander_autosave.txt  
-
-  // set all lat/long to xy
- // force_xy_only = true
-  
-  // all case insensitive
-//  show_variable = UNICORN_NAV_X
-//  show_variable = UNICORN_NAV_Y
-}
 
