@@ -19,7 +19,7 @@ horizon = 5;
 
 %FLAGS
 paused_now = 0;
-waiting = 1;
+waiting = 0;
 showfigures = 0;
 paused = 0;
 
@@ -27,7 +27,6 @@ paused = 0;
 paused_time = 0;
 sw_gindex = ones(9,1);
 sw_current_means = ones(9,1);
-sw_time_index = zeros(9,1);
 sw_gindex_history = cell(9,1);
 sw_mab_reward_by_point = cell(9,1);
 sw_mab_c_reward_by_point = cell(9,1);
@@ -88,7 +87,7 @@ while 1
         disp('Starting Data Wait')
     end
     
-    data = parseObservations(varList,readTimeout);    
+    data = parseObservations(varList,readTimeout);
     disp(data)
     
     if strcmp(data.status,'timeout')
@@ -97,26 +96,25 @@ while 1
         paused = data.MATLAB_PAUSE==1;
     end
     
-    if paused && ~paused_now 
+    if paused && ~paused_now
         pstart = tic;
         paused_now = 1;
         disp('Starting Pause')
     end
     
     if strcmp(data.status,'timeout')
-        disp('Data Listen Timeout')
+        disp('Data Listen Timeout');
     elseif data.status(1)==1 && ~paused
         if paused_now
             paused_time = toc(pstart);
             paused_now = 0;
             disp('Ending Pause')
-            disp(['Paused for: ' num2str(paused_time)
+            disp(['Paused for: ' num2str(paused_time)]);
         else
             paused_time = 0;
             disp('No Pause Detected')
         end
         
-        disp('Calculating...')
         %Get Experimental Data
         if data.RELAY_RESULT_MATLAB == 1
             alphas(r) = alphas(r)+1 ;
@@ -130,7 +128,7 @@ while 1
         sw_mab_c_reward_by_point{r} = vertcat(sw_mab_c_reward_by_point{r},sum(sw_mab_reward_by_point{r}));
         sw_current_means(r) = sum(sw_mab_reward_by_point{r})/length(sw_mab_reward_by_point{r});
         sw_means{r} = vertcat(sw_means{r},sw_current_means(r));
-
+        
         sw_gindex(r) = interpolateBI(alphas(r),betas(r));
         sw_gindex_history{r} = vertcat(sw_gindex_history{r},sw_gindex(r));
         
@@ -146,9 +144,11 @@ while 1
             if sw_gindex(r_hist) >= min(sw_gindex_history{r_hist}(1:end-1))
                 r = r_hist; %keep playing this arm
                 sw_mode_decisions = vertcat(sw_mode_decisions,-1);
+                disp('A&T Decision');
                 %brute force analysis
             else
                 sw_mode_decisions = vertcat(sw_mode_decisions,1);
+                disp('Enumerating');
                 
                 %Initialize each path
                 current_means = sw_current_means;
@@ -217,6 +217,7 @@ while 1
             end
         else
             sw_mode_decisions = [sw_mode_decisions;-2];
+            disp('Max GI');
         end
         
         sw_r_decisions = vertcat(sw_r_decisions,r);
@@ -239,6 +240,5 @@ while 1
         
         save SCRelay.mat
         disp('Saved Data')
-        
     end
 end
