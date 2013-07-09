@@ -102,7 +102,7 @@ bool Relay::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("link2_timeout", LINK2_TIMEOUT);
 	m_MissionReader.GetConfigurationParam("matlab_radius", MATLAB_RADIUS);
 
-	m_Comms.Register("ACOMMS_RECEIEVED");
+	m_Comms.Register("ACOMMS_RECEIVED");
 	m_Comms.Register("ACOMMS_DRIVER_STATUS");
 	m_Comms.Register("RELAY_ENABLE");
 	m_Comms.Register("NAV_X");
