@@ -42,7 +42,7 @@ bool AcommCmdTransmit::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_Comms.Notify("REMUS_DEPTH",status.nav_d);
 			m_Comms.Notify("REMUS_YAW",status.nav_b);
 
-		}else if (key == "DEPLOY"){ // command
+		}else if (key == "A_DEPLOY"){ // command
 			RemusAMessages::RemusCmdM cmd(msg.GetString());
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA", cmd.toString());
 		}
