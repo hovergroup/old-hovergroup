@@ -329,7 +329,7 @@ void acomms_driver::handle_data_receive(
 		if (!ok) {
 			publishWarning(debug_msg);
 		} else {
-			std::string serialized = reception.serializeWithInfo();
+			std::string serialized = reception.serialize();
 			m_Comms.Notify("ACOMMS_RECEIVED", (void*) serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
