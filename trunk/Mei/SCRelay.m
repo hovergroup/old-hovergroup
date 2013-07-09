@@ -19,8 +19,8 @@ horizon = 5;
 
 %FLAGS
 paused_now = 0;
-waiting = 0;
-showfigures = 0;
+waiting = 1;
+showfigures = 1;
 paused = 0;
 
 %VARS
@@ -231,11 +231,11 @@ while 1
             plot(figure_handles(3),sw_mab_c_reward./(1:length(sw_mab_c_reward))','-o','markersize',4,'linewidth',1.8);
             plot(figure_handles(4),sw_mab_c_reward_times/60,sw_mab_c_reward,'-o','markersize',4,'linewidth',1.8);
             
-            for k=1:9
-                hold(figure_handles(5),'on')
-                plot(figure_handles(5),sw_mab_c_reward_by_point{k}./(1:length(sw_mab_c_reward_by_point{k}))','-o','markersize',4,'linewidth',1.8,'color',cc(k,:));
-            end
-            hold(figure_handles(5),'off')
+%             for k=1:9
+%                 hold(figure_handles(5),'on')
+%                 plot(figure_handles(5),sw_mab_c_reward_by_point{k}./(1:length(sw_mab_c_reward_by_point{k}))','-o','markersize',4,'linewidth',1.8,'color',cc(k,:));
+%             end
+%             hold(figure_handles(5),'off')
         end
         
         save SCRelay.mat
