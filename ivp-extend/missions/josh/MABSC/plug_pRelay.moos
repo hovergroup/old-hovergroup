@@ -2,11 +2,11 @@ ProcessConfig = pRelay
 {
   AppTick = 4
   
-  relay_delay = 1.0
-  repeat_delay = 2.0
+  relay_delay = 3.0
+  repeat_delay = 3.0
   source = 1
   dest = 3
-  link1_timeout = 12
-  link2_timeout = 20
-  matlab_radius = 15
+  link1_timeout = 9
+  link2_timeout = 15
+  matlab_radius = 10
 }

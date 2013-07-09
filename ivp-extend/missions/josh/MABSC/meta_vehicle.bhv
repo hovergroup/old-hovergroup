@@ -36,7 +36,7 @@ Behavior = BHV_StationKeep
 	station_pt      = 0,0
 	inner_radius	= 3
 	outer_radius	= 10
-	outer_speed		= 0.5
+	outer_speed		= 0.75
 	swing_time		= 0
 }
 
@@ -108,6 +108,6 @@ Behavior = BHV_StationKeep
 	station_pt      = 0,0
 	inner_radius	= 3
 	outer_radius	= 10
-	outer_speed		= 0.5
+	outer_speed		= 0.75
 	swing_time		= 0
 }
