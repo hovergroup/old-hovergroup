@@ -39,13 +39,11 @@ while(~gotObs)
     %    dataOut.status = 'good';
     %end
     
-    if gotStates(1) == 1
-    dataOut.status = 1;
-    else
-        dataOut.status = 0;
-    end
+    dataOut.status = gotStates;
     
-    if(toc(readStart)>readTimeout)
+    if max(gotStates)
+        break;
+    elseif(toc(readStart)>readTimeout)
         disp('TIMEOUT READING IN STATES')
         dataOut.status = 'timeout';
         break;

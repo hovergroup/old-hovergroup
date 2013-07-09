@@ -20,7 +20,8 @@ horizon = 5;
 %FLAGS
 paused_now = 0;
 waiting = 1;
-showfigures = 1;
+showfigures = 0;
+paused = 0;
 
 %VARS
 paused_time = 0;
@@ -75,7 +76,7 @@ for k=1:9
     iMatlab('MOOS_MAIL_TX','VIEW_MARKER',wp_msg);
 end
 
-iMatlab('MOOS_MAIL_TX','MATLAB_PAUSE','false');
+iMatlab('MOOS_MAIL_TX','MATLAB_PAUSE',0);
 iMatlab('MOOS_MAIL_TX','RELAY_WAYPOINT',[num2str(wp(r,1)) ',' num2str(wp(r,2))]);
 disp('Starting Cycle')
 
@@ -88,18 +89,28 @@ while 1
     end
     
     data = parseObservations(varList,readTimeout);    
-    pause = strcmp(data.MATLAB_PAUSE,'true');
-    if pause && ~paused_now 
+    disp(data)
+    
+    if strcmp(data.status,'timeout')
+        disp('Data Listen Timeout')
+    elseif data.status(2)==1
+        paused = data.MATLAB_PAUSE==1;
+    end
+    
+    if paused && ~paused_now 
         pstart = tic;
         paused_now = 1;
         disp('Starting Pause')
     end
     
-    if data.status==1 && ~pause
+    if strcmp(data.status,'timeout')
+        disp('Data Listen Timeout')
+    elseif data.status(1)==1 && ~paused
         if paused_now
             paused_time = toc(pstart);
             paused_now = 0;
             disp('Ending Pause')
+            disp(['Paused for: ' num2str(paused_time)
         else
             paused_time = 0;
             disp('No Pause Detected')
@@ -115,7 +126,7 @@ while 1
             disp('Relay Failure :<')
         end
         
-        sw_mab_reward_by_point{r} = vertcat(sw_mab_reward_by_point{r},data_point);
+        sw_mab_reward_by_point{r} = vertcat(sw_mab_reward_by_point{r},data.RELAY_RESULT_MATLAB);
         sw_mab_c_reward_by_point{r} = vertcat(sw_mab_c_reward_by_point{r},sum(sw_mab_reward_by_point{r}));
         sw_current_means(r) = sum(sw_mab_reward_by_point{r})/length(sw_mab_reward_by_point{r});
         sw_means{r} = vertcat(sw_means{r},sw_current_means(r));
