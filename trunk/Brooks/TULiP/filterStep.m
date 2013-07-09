@@ -98,6 +98,10 @@ for i = 1:nAgents,
         1/2/zhat(i)*2*(xhat(3)-YAgent(i))] ;
 end;
 Kk = P*Hk'*inv(Hk*P*Hk'+R); 
+
+fprintf('\n Kalman Gain:')
+disp(Kk);
+
 xhat = xhat + Kk*(z-zhat);
 P = (eye(dim,dim)-Kk*Hk)*P;
 
