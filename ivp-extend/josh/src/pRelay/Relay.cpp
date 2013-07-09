@@ -76,14 +76,18 @@ bool Relay::OnNewMail(MOOSMSG_LIST &NewMail) {
 		} else if (key == "RELAY_WAYPOINT") {
             std::string sline = msg.GetString();
             std::string sTmp = MOOSChomp(sline,",");
-            m_setX = atof(sTmp.c_str());
-            m_setY = atof(sline.c_str());
+            double xset = atof(sTmp.c_str());
+            double yset = atof(sline.c_str());
             m_doMatlab = true;
 
-            std::stringstream ss;
-            ss << "points=" << m_x << "," << m_y << ":" << msg.GetString();
-            m_Comms.Notify("RELAY_WAYPOINT_UPDATES", ss.str());
-            m_Comms.Notify("RELAY_STATION", "false");
+            if (xset != m_setX || yset != m_setY) {
+                std::stringstream ss;
+                ss << "points=" << m_x << "," << m_y << ":" << msg.GetString();
+                m_Comms.Notify("RELAY_WAYPOINT_UPDATES", ss.str());
+                m_Comms.Notify("RELAY_STATION", "false");
+            }
+            m_setX = xset;
+            m_setY = yset;
         }
 	}
 
