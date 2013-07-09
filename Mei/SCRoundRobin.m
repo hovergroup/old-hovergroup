@@ -4,7 +4,7 @@ wp = importdata('relay_waypoints.txt');
 
 cycle_counter = 0;
 paused_now = 0;
-waiting = 0;
+waiting = 1;
 paused = 0;
 obs_per_location = 10;
 max_cycles = 1;
@@ -55,7 +55,12 @@ while cycle_counter < max_cycles
     
     data = parseObservations(varList,readTimeout);
     
-    paused = data.MATLAB_PAUSE==1;
+    if strcmp(data.status,'timeout')
+        disp('Data Listen Timeout')
+    elseif data.status(2)==1
+        paused = data.MATLAB_PAUSE==1;
+    end
+    
     if paused && ~paused_now
         pstart = tic;
         paused_now = 1;
@@ -64,7 +69,7 @@ while cycle_counter < max_cycles
     
     if strcmp(data.status,'timeout')
         disp('Data Listen Timeout')
-    elseif data.status(1)==1 && ~pause
+    elseif data.status(1)==1 && ~paused
         if paused_now
             paused_time = toc(pstart);
             paused_now = 0;
@@ -83,7 +88,7 @@ while cycle_counter < max_cycles
             betas(r) = betas(r)+1;
             disp('Relay Failure :<')
         end
-    end
+    
     
     rr_reward_by_point{r} = vertcat(rr_reward_by_point{r},data.RELAY_RESULT_MATLAB);
     rr_c_reward_by_point{r} = vertcat(rr_c_reward_by_point{r},sum(rr_reward_by_point{r}));
@@ -110,5 +115,5 @@ while cycle_counter < max_cycles
     
     save SCRoundRobin.mat
     disp('Saved Data')
-    
+    end
 end
