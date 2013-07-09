@@ -33,7 +33,9 @@ bool SimpleAck::OnNewMail(MOOSMSG_LIST &NewMail) {
 		std::string key = msg.GetKey();
 		if (key == "ACOMMS_RECEIVED") {
 			if (m_reception.parseFromString(msg.GetString())) {
-				m_ackTime = MOOSTime() + DELAY;
+			    if (m_reception.getSource()==SOURCE) {
+			        m_ackTime = MOOSTime() + DELAY;
+			    }
 			} else {
 				std::cout << "error parsing" << std::endl;
 			}
@@ -53,6 +55,7 @@ bool SimpleAck::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 bool SimpleAck::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("delay", DELAY);
+	m_MissionReader.GetConfigurationParam("source", SOURCE);
 
 	m_Comms.Register("ACOMMS_RECEIVED");
 	m_Comms.Register("ACOMMS_DRIVER_STATUS");
