@@ -4,6 +4,7 @@ global Results bernoulli_coefficients
 
 load('bernoulli_indices.mat')
 load('bernoulli_coefficients.csv')
+load('cc_hybrid.mat')
 wp = importdata('relay_waypoints.txt');
 switching_matrix = zeros(9,9);
 for i=1:9
@@ -50,6 +51,8 @@ if showfigures
     figure_handles(3) = gca;
     figure;
     figure_handles(4) = gca;
+    figure;
+    figure_handles(5) = gca;
     set(figure_handles,'fontsize',15);
 end
 
@@ -74,12 +77,14 @@ end
 
 iMatlab('MOOS_MAIL_TX','MATLAB_PAUSE','false');
 iMatlab('MOOS_MAIL_TX','RELAY_WAYPOINT',[num2str(wp(r,1)) ',' num2str(wp(r,2))]);
+disp('Starting Cycle')
 
 %-----ITERATE------%
 while 1
     if waiting
         tstart = tic;
         waiting = 0;
+        disp('Starting Data Wait')
     end
     
     data = parseObservations(varList,readTimeout);    
@@ -87,21 +92,27 @@ while 1
     if pause && ~paused_now 
         pstart = tic;
         paused_now = 1;
+        disp('Starting Pause')
     end
     
     if data.status==1 && ~pause
         if paused_now
             paused_time = toc(pstart);
             paused_now = 0;
+            disp('Ending Pause')
         else
             paused_time = 0;
+            disp('No Pause Detected')
         end
         
+        disp('Calculating...')
         %Get Experimental Data
         if data.RELAY_RESULT_MATLAB == 1
             alphas(r) = alphas(r)+1 ;
+            disp('Relay Success!')
         else
             betas(r) = betas(r)+1;
+            disp('Relay Failure :<')
         end
         
         sw_mab_reward_by_point{r} = vertcat(sw_mab_reward_by_point{r},data_point);
@@ -200,12 +211,23 @@ while 1
         sw_r_decisions = vertcat(sw_r_decisions,r);
         iMatlab('MOOS_MAIL_TX','RELAY_WAYPOINT',[num2str(wp(r,1)) ',' num2str(wp(r,2))]);
         waiting = 1;
+        disp(['Sent Waypoint ' num2str(r)])
         
         if showfigures
             stem(figure_handles(1),sw_mode_decisions,'r')
             stem(figure_handles(2),sw_r_decisions,'r')
-            plot(figure_handles(1),sw_mab_c_reward./(1:length(sw_mab_c_reward))','-o','markersize',4,'linewidth',1.8);
-            plot(figure_handles(2),sw_mab_c_reward_times/60,sw_mab_c_reward,'-o','markersize',4,'linewidth',1.8);
+            plot(figure_handles(3),sw_mab_c_reward./(1:length(sw_mab_c_reward))','-o','markersize',4,'linewidth',1.8);
+            plot(figure_handles(4),sw_mab_c_reward_times/60,sw_mab_c_reward,'-o','markersize',4,'linewidth',1.8);
+            
+            for k=1:9
+                hold(figure_handles(5),'on')
+                plot(figure_handles(5),sw_mab_c_reward_by_point{k}./(1:length(sw_mab_c_reward_by_point{k}))','-o','markersize',4,'linewidth',1.8,'color',cc(k,:));
+            end
+            hold(figure_handles(5),'off')
         end
+        
+        save SCRelay.mat
+        disp('Saved Data')
+        
     end
 end
