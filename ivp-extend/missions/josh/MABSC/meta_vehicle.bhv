@@ -31,7 +31,8 @@ Behavior = BHV_StationKeep
 	pwt				= 100
 	condition		= MISSION_MODE = RELAY
 	condition		= RELAY_STATION = true
-	center_activate	= true
+	updates                 = RELAY_STATION_UPDATES
+	center_activate	= false
 	
 	station_pt      = 0,0
 	inner_radius	= 3
