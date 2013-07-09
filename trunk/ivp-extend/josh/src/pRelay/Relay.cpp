@@ -47,8 +47,10 @@ bool Relay::OnNewMail(MOOSMSG_LIST &NewMail) {
 			else
 				m_modemReady = false;
 		} else if (key == "ACOMMS_RECEIVED") {
-		    std::cout << "got acomms" << std::endl;
-			if (m_reception.parseFromString(msg.GetString())) {
+		    std::vector<unsigned char> vec (msg.GetBinaryDataSize(), 0);
+		    msg.GetBinaryData(vec);
+		    std::string sline(vec.begin(), vec.end());
+			if (m_reception.parseFromString(sline)) {
 			    std::cout << m_reception.getSource() << std::endl;
 				if (m_reception.getSource() == SOURCE) {
 					m_gotTrans = true;
