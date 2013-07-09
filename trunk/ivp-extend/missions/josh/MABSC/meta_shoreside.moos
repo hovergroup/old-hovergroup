@@ -63,8 +63,8 @@ ProcessConfig = uTermCommand
 	CMD = relay --> MISSION_MODE_$(RELAY) --> RELAY
 	CMD = enable --> RELAY_ENABLE_$(RELAY) --> 1
 	CMD = disable --> RELAY_ENABLE_$(RELAY) --> 0
-	CMD = pause_matlab --> MATLAB_PAUSE --> true
-	CMD = unpause_matlab --> MATLAB_PAUSE --> false
+	CMD = pause_matlab --> MATLAB_PAUSE --> 1
+	CMD = unpause_matlab --> MATLAB_PAUSE --> 0
 }
 
 ProcessConfig = pEchoVar
