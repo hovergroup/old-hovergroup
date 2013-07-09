@@ -15,6 +15,7 @@ Relay::Relay() {
 	m_enable = false;
 	m_lastTime = -1;
 	m_iteration = 0;
+	m_doMatlab = false;
 }
 
 //---------------------------------------------------------
@@ -77,6 +78,7 @@ bool Relay::OnNewMail(MOOSMSG_LIST &NewMail) {
             std::string sTmp = MOOSChomp(sline,",");
             m_setX = atof(sTmp.c_str());
             m_setY = atof(sline.c_str());
+            m_doMatlab = true;
 
             std::stringstream ss;
             ss << "points=" << m_x << "," << m_y << ":" << msg.GetString();
@@ -214,18 +216,26 @@ std::string Relay::formatResult(int iter, double x1, double y1, double x2, doubl
 
 void Relay::reportFailure() {
 	m_Comms.Notify("RELAY_RESULT", formatResult(m_iteration, m_initX, m_initY, m_relayX, m_relayY,0));
-	double d1 = dist(m_initX, m_initY, m_setX, m_setY);
-	double d2 = dist(m_relayX, m_relayY, m_setX, m_setY);
-	if (d1 < MATLAB_RADIUS && d2 < MATLAB_RADIUS)
-		m_Comms.Notify("RELAY_RESULT_MATLAB", 0.0);
+	if (m_doMatlab) {
+        double d1 = dist(m_initX, m_initY, m_setX, m_setY);
+        double d2 = dist(m_relayX, m_relayY, m_setX, m_setY);
+        if (d1 < MATLAB_RADIUS && d2 < MATLAB_RADIUS) {
+            m_Comms.Notify("RELAY_RESULT_MATLAB", 0.0);
+            m_doMatlab = false;
+        }
+	}
 }
 
 void Relay::reportSuccess() {
 	m_Comms.Notify("RELAY_RESULT", formatResult(m_iteration, m_initX, m_initY, m_relayX, m_relayY,1));
-	double d1 = dist(m_initX, m_initY, m_setX, m_setY);
-	double d2 = dist(m_relayX, m_relayY, m_setX, m_setY);
-	if (d1 < MATLAB_RADIUS && d2 < MATLAB_RADIUS)
-		m_Comms.Notify("RELAY_RESULT_MATLAB", 1.0);
+	if (m_doMatlab) {
+        double d1 = dist(m_initX, m_initY, m_setX, m_setY);
+        double d2 = dist(m_relayX, m_relayY, m_setX, m_setY);
+        if (d1 < MATLAB_RADIUS && d2 < MATLAB_RADIUS) {
+            m_Comms.Notify("RELAY_RESULT_MATLAB", 1.0);
+            m_doMatlab = false;
+        }
+	}
 }
 
 void Relay::doRelay() {

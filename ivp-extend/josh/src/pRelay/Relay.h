@@ -43,6 +43,7 @@ protected:
 	std::string m_relayData;
 
 	double m_x, m_y, m_setX, m_setY;
+	bool m_doMatlab;
 	double m_lastTime, m_initX, m_initY, m_relayX, m_relayY;
 	int m_iteration;
 
