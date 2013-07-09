@@ -26,8 +26,8 @@ for ARGI; do
 	JUST_BUILD="yes"
 	UNDEFINED_ARG=""
     fi
-    if [ "${ARGI:0:6}" = "--relay" ] ; then
-        LEADER="${ARGI#--relay=*}"
+    if [ "${ARGI:0:7}" = "--relay" ] ; then
+        RELAY="${ARGI#--relay=*}"
         UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
