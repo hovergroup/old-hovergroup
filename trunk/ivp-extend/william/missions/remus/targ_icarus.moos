@@ -1,6 +1,5 @@
 ServerHost = 192.168.1.102
-//ServerHost = localhost
-ServerPort = 9300
+ServerPort = 9200
 Community  = icarus
 
 MOOSTimeWarp = 1
@@ -18,45 +17,17 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pMOOSBridge             @ NewConsole = false
-  //Run = pShare          	@ NewConsole = false
   Run = pLogger            	@ NewConsole = false
+  Run = pShare                  @ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
   //Run = pHostInfo          	@ NewConsole = false
   //Run = uFldNodeBroker     	@ NewConsole = false
   //Run = uFldMessageHandler 	@ NewConsole = false
-  //Run = iGPS_Hover         	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
   //Run = iAcommsDriver		@ NewConsole = false
   Run = pAcommCmdTransmit       @ NewConsole = false
-}
 
-//---------------------------------------------------------
-// pMOOSBridge_ICARUS Config Block  (Created from Plugin)
-
-ProcessConfig = pMOOSBridge
-{
-        // xxxTick =    5 when using 5hz GPS, 2 when using 1hz GPS
-        AppTick         = 5
-        CommsTick       = 5
-
-        UDPListen = 9202
-
-        BridgeFrequency = 0                     // Always set to 0 (bridge on new message availa$
-
-        // SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
-        // Destination is shore station terra@YOURIP:9000
-        UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9000 [NODE_REPORT]
-        //SHARE = [VIEW_RANGE_PULSE]      -> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
-        //SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
-        //SHARE = [ACOMMS_RECEIVED_DATA] -> terra@192.168.1.100:9000
-
-}
-
-ProcessConfig = pAcommCmdTransmit
-{
-	AppTick 	= 10
-	CommsTick 	= 10
 }
 
 ProcessConfig = pShare
@@ -64,9 +35,21 @@ ProcessConfig = pShare
   AppTick   = 10
   MaxAppTick = 20
   IterateMode = 1
-  
-  input = route =  192.168.1.102:9301 
+
+  output = NODE_REPORT_LOCAL->NODE_REPORT:192.168.1.100:9001
+  output = VIEW_*->:192.168.1.100:9001
+
+  input = route=192.168.1.102:9301
 }
+
+
+
+ProcessConfig = pAcommCmdTransmit
+{
+        AppTick         = 10
+        CommsTick       = 10
+}
+
 
 ProcessConfig = pLogger
 {
@@ -74,7 +57,7 @@ ProcessConfig = pLogger
 	CommsTick 	= 10
 
 	File		= LOG_ICARUS
-	PATH		= /home/josh/logs/
+	PATH		= /home/josh/hovergroup-extend/william/logs/
 	AsyncLog 	= true
 	FileTimeStamp = true
 	WildCardLogging		= true
@@ -92,8 +75,9 @@ ProcessConfig = pNodeReporter
   
   VESSEL_TYPE = KAYAK
 
-  alt_nav_prefix = REMUS_ 
-  alt_nav_name = REMUS 
+  alt_nav_prefix = REMUS_
+  alt_nav_name = REMUS
+
 
 }
 
@@ -105,7 +89,7 @@ ProcessConfig = pHostInfo
   AppTick 	= 1
   CommsTick 	= 1
 
-  DEFAULT_HOSTIP = 192.168.1.102
+  DEFAULT_HOSTIP = localhost
 }
 
 //--------------------------------------------------
@@ -116,15 +100,16 @@ ProcessConfig = uFldNodeBroker
   AppTick   = 1
   CommsTick = 1
 
-  TRY_SHORE_HOST = pshare_route=192.168.1.100:9001
+  TRY_SHORE_HOST = hostip=192.168.1.100, port_udp=9001
 
   BRIDGE = src=VIEW_POLYGON
-  BRIDGE = src=VIEW_POINT
+  BRIDGE = scr=VIEW_POINT
   BRIDGE = src=VIEW_SEGLIST
   BRIDGE = src=VIEW_RANGE_PULSE
   
   BRIDGE = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
   BRIDGE = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
+  
 }
 
 //--------------------------------------------------
@@ -141,8 +126,7 @@ ProcessConfig = uFldMessageHandler
 ProcessConfig = pEchoVar
 {
 	AppTick   = 40
-	MaxAppTick = 100
-	IterateMode = 1 // comms driven iterate and mail
+	CommsTick = 40
 
 	Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
 	Echo = GPS_X -> NAV_X
@@ -154,9 +138,10 @@ ProcessConfig = pEchoVar
 
 ProcessConfig = iGPS_Hover
 {
-	AppTick = 1
+	AppTick = 10
+	CommsTick = 10
 	
-	PORT_NAME = /dev/ttyUSB1
+	PORT_NAME = /dev/ttyUSB0
 	BAUD_RATE = 57600
 }
 
@@ -164,12 +149,12 @@ ProcessConfig = iGPS_Hover
 ProcessConfig = iAcommsDriver
 {
 	AppTick = 5
-    IterateMode = 0
+	CommsTick = 5
 
-	PortName = /dev/ttyUSB0
+	PortName = /dev/ttyUSB1
 	ID = 1
 	
 	PSK_minipackets = false
-	enable_ranging = true
+	enable_ranging = false
 	show_range_pulses = true
 }

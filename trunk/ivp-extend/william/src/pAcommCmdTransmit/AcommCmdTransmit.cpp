@@ -40,7 +40,7 @@ bool AcommCmdTransmit::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_Comms.Notify("REMUS_X",status.nav_x);
 			m_Comms.Notify("REMUS_Y",status.nav_y);
 			m_Comms.Notify("REMUS_DEPTH",status.nav_d);
-			m_Comms.Notify("REMUS_YAW",status.nav_b);
+			m_Comms.Notify("REMUS_HEADING",status.nav_b);
 
 		}else if (key == "A_DEPLOY"){ // command
 			RemusAMessages::RemusCmdM cmd(msg.GetString());
@@ -69,6 +69,8 @@ bool AcommCmdTransmit::OnConnectToServer()
 {
 
 	m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
+        m_Comms.Register("A_DEPLOY", 0);
+
 
 	return(true);
 }
