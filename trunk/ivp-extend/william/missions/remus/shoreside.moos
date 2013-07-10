@@ -2,12 +2,11 @@
 // Vehicle 1 Configuration File
 //
 
-
 MOOSTimeWarp =1
 ServerHost = localhost
-ServerPort = 9201
+ServerPort = 9000
 // Community name IS the vehicle name
-Community  = shoreside
+Community  = terra
 LatOrigin  = 42.3584
 LongOrigin = -71.08745
 
@@ -32,21 +31,46 @@ ProcessConfig = pMOOSBridge
 
   // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
 
-  SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY] -> remus@192.168.1.74:9202
-  SHARE = [A_DEPLOY] -> josh@192.168.1.102:9300
+  SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY, ASTATUS_TRANSMITS] -> remus@192.168.1.74:9202
+  SHARE = [A_DEPLOY] -> icarus@192.168.1.102:9300
 }
 
 ProcessConfig = pMarineViewer
 {
   AppTick    = 4
   CommsTick  = 4
-//  TIF_FILE  = Default.tif
-//  VEHICOLOR = vehicle1, darkgreen
-//  VEHICOLOR = vehicle2, darkgreen
-//  VEHICOLOR = vehicle3, darkgreen
-//  VEHICOLOR = dr, darkblue
- // polygon_vertex_size = 0
-// not necessary  seglist_vertex_size = 0
+
+  TIFF_FILE     = ../../data/pavilion.tif
+
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+  vehicles_name_viewable = names
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+        scope  = NODE_REPORT
+        scope  = VIEW_POINT
+        scope  = VIEW_SEGLIST
+        scope  = VIEW_POLYGON
+
 
   BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false
   BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true
