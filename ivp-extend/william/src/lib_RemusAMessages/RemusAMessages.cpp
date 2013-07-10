@@ -41,13 +41,13 @@ std::string RemusStatusM::toString()
 // =========================================
 
 RemusCmdM::RemusCmdM( std::string msg ) {
-	MOOSChomp(msg, "=");
+	//MOOSChomp(msg, "=");
 	cmd = msg.c_str();
 }
 
 std::string RemusCmdM::toString() {
 	std::stringstream ss;
-	ss << ",cmd=" << cmd;
+	ss << "cmd=" << cmd;
 	return ss.str();
 }
 

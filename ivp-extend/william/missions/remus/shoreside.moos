@@ -15,10 +15,23 @@ ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 10
   Run = MOOSDB          	@ NewConsole = false
+  Run = pShare                 @NewConsole = false
   Run = pMOOSBridge       @ NewConsole = false
   Run = pMarineViewer   @ NewConsole = false
   Run = pLogger         	@ NewConsole = false
 }
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = A_DEPLOY->A_DEPLOY:192.168.1.102:9301:udp
+
+  input = route=localhost:9001
+}
+
 
 ProcessConfig = pMOOSBridge
 {
@@ -42,23 +55,23 @@ ProcessConfig = pMarineViewer
 
   TIFF_FILE     = ../../data/pavilion.tif
 
-    center_view_true = true
-  center_view_sticky = true
+//    center_view_true = true
+//  center_view_sticky = true
 
-  HASH_VIEW     = false
-  HASH_DELTA    = 100
-  HASH_SHADE    = 0.45
-  BACK_SHADE    = 0.70
+//  HASH_VIEW     = false
+//  HASH_DELTA    = 100
+//  HASH_SHADE    = 0.45
+//  BACK_SHADE    = 0.70
 
           trails_viewable = true
         trails_point_size = 1
-       polygon_edge_color = white
-     polygon_vertex_color = light_green
-       polygon_edge_width = 1
-  polygon_viewable_labels = false
+//       polygon_edge_color = white
+//     polygon_vertex_color = light_green
+//       polygon_edge_width = 1
+//  polygon_viewable_labels = false
 
-      seglist_vertex_size = 4
-        point_vertex_size = 8
+ //     seglist_vertex_size = 4
+ //       point_vertex_size = 8
 
       vehicle_shape_scale = 3
   vehicles_name_viewable = names
