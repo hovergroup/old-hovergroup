@@ -1,4 +1,5 @@
 ServerHost = 192.168.1.102
+//ServerHost = localhost
 ServerPort = 9300
 Community  = icarus
 
@@ -17,20 +18,40 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pShare          	  @ NewConsole = false
+  Run = pMOOSBridge             @ NewConsole = false
+  //Run = pShare          	@ NewConsole = false
   Run = pLogger            	@ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
-  Run = pHostInfo          	@ NewConsole = false
-  Run = uFldNodeBroker     	@ NewConsole = false
-  Run = uFldMessageHandler 	@ NewConsole = false
-  Run = iGPS_Hover         	@ NewConsole = false
+  //Run = pHostInfo          	@ NewConsole = false
+  //Run = uFldNodeBroker     	@ NewConsole = false
+  //Run = uFldMessageHandler 	@ NewConsole = false
+  //Run = iGPS_Hover         	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
-  Run = iAcommsDriver		    @ NewConsole = false
-  Run = pAcommCmdTransmit   @ NewConsole = false
+  //Run = iAcommsDriver		@ NewConsole = false
+  Run = pAcommCmdTransmit       @ NewConsole = false
 }
 
 //---------------------------------------------------------
 // pMOOSBridge_ICARUS Config Block  (Created from Plugin)
+
+ProcessConfig = pMOOSBridge
+{
+        // xxxTick =    5 when using 5hz GPS, 2 when using 1hz GPS
+        AppTick         = 5
+        CommsTick       = 5
+
+        UDPListen = 9202
+
+        BridgeFrequency = 0                     // Always set to 0 (bridge on new message availa$
+
+        // SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
+        // Destination is shore station terra@YOURIP:9000
+        UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> terra@192.168.1.100:9000 [NODE_REPORT]
+        //SHARE = [VIEW_RANGE_PULSE]      -> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
+        //SHARE = [ACOMMS_TRANSMIT_SIMPLE, ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000
+        //SHARE = [ACOMMS_RECEIVED_DATA] -> terra@192.168.1.100:9000
+
+}
 
 ProcessConfig = pAcommCmdTransmit
 {
