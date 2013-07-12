@@ -25,31 +25,59 @@ ProcessConfig = ANTLER
 {
 // 1 CONTROL
   MSBetweenLaunches = 10
-  Run = MOOSDB          @ NewConsole = false
+  Run = MOOSDB                        @ NewConsole = false
+  Run = pMOOSBridge                   @ NewConsole = false
 
-  Run = iRecon                @ NewConsole = false
-  Run = pHelmIvP    	@ NewConsole = false
+  Run = iRecon                        @ NewConsole = false
+  Run = pHelmIvP    	              @ NewConsole = false
 
-  Run = pEchoVar        @ NewConsole = false
-  Run = pLogger         @ NewConsole = false
-  Run = pNodeReporter 	@ NewConsole = false
-
+ // Run = pEchoVar                    @ NewConsole = false
+  Run = pLogger                       @ NewConsole = false
+  Run = pNodeReporter 	              @ NewConsole = false
+  Run = pAcommStatusTransmit          @ NewConsole = false
+  Run = uTimerScript                  @ NewConsole = false
 // 2 COMMS:
 // Run this in a terminal initiially:
-  Run = pAcommsHandler	@ NewConsole = false
-  Run = pNavGlobalize	@ NewConsole = false
-  
+  Run = iAcommsDriver                 @ NewConsole = false
 }
 
 // Start of Control Processes ///////////////////////////////////////////////////////
-// from plug_uSimMarine
-ProcessConfig = uSimMarine
+
+Processconfig = uTimerScript
 {
-  AppTick   = 10
-  CommsTic  = 10
-  START_POS = -10,-5
-  PREFIX = NAV
+  AppTick = 4
+  CommsTick = 4
+
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+  event = quit, time=2
 }
+
+
+
+
+ProcessConfig = pMOOSBridge
+        {
+        // xxxTick =    5 when using 5hz GPS, 2 when using 1hz GPS
+        AppTick         = 5
+        CommsTick       = 5
+
+        UDPListen = 9201
+
+        BridgeFrequency = 0                     // Always set to 0 (bridge on new message available)
+
+        // SHARE = [VAR_NAME_LOCALLY] -> to-community @ dest-host:dest-port [NEW_VAR_AT_DEST]
+        // Destination is shore station shoreside@YOURIP:9000
+
+        UDPSHARE = [NODE_REPORT_LOCAL, NAV_X, NAV_Y] -> shoreside@192.168.1.152:9200 [NODE_REPORT]
+        //SHARE = [VIEW_POLYGON]                -> terra@192.168.1.100:9000 [VIEW_POLYGON]
+        //SHARE = [VIEW_POINT]          -> terra@192.168.1.100:9000 [VIEW_POINT]
+        //SHARE = [VIEW_SEGLIST]                -> terra@192.168.1.100:9000 [VIEW_SEGLIST]
+        //SHARE = [VIEW_RANGE_PULSE]    -> terra@192.168.1.100:9000 [VIEW_RANGE_PULSE]
+
+        //Rateless Shares
+        //SHARE = [ACOMMS_RECEIVED_SIMPLE] -> terra@192.168.1.100:9000 [HEARD]
+}
+
 
 // pMarinePID Configuration Block (created from plugin)
 ProcessConfig = pMarinePID
@@ -87,7 +115,7 @@ ProcessConfig = pHelmIvP
   AppTick    = 4
   CommsTick  = 4
 
-  Behaviors  = ../bhv_files/remus.bhv
+  Behaviors  = remus.bhv
   Verbose    = true
   Domain     = course:0:359:360
   Domain     = speed:0:4:21
@@ -186,72 +214,26 @@ ProcessConfig = pNodeReporter
   VESSEL_LENGTH = 2
 }
 
-
-// Start of Comms Processes /////////////////////////////////////////////////////////
-// from plug_pNavGlobalize
-ProcessConfig = pNavGlobalize
+ProcessConfig = iAcommsDriver
 {
-	AppTick     = 5
-	CommsTick   = 5
-	NorthingSrc = NAV_Y
-	EastingSrc = NAV_X
+        AppTick = 5
+        CommsTick = 5
+
+        PortName = /dev/ttyS1
+        ID = 2
+        enable_legacy = true
 }
 
-// from plug_pAcommsHandler
-ProcessConfig = pAcommsHandler
+
+/------------------------------------------------
+// pAcommStatusTransmit config block
+
+ProcessConfig = pAcommStatusTransmit
 {
-    common
-    {
-      verbosity: VERBOSITY_GUI
-      initializer { type: INI_DOUBLE  global_cfg_var: "LatOrigin"  moos_var: "LAT_ORIGIN" }
-      initializer { type: INI_DOUBLE  global_cfg_var: "LongOrigin" moos_var: "LONG_ORIGIN" }
-      initializer { type: INI_STRING  moos_var: "VEHICLE_TYPE" sval: "auv" }
-      initializer { type: INI_STRING  moos_var: "VEHICLE_NAME" sval: "remus" }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_X"  dval: 100 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_Y"  dval: 300 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_HEADING" dval: 150 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_SPEED" dval: 0 }
-      //  initializer { type: INI_DOUBLE  moos_var: "NAV_DEPTH" dval: 0 }
-    }
+   AppTick   = 4
+   CommsTick = 4
 
-    modem_id: 2
-
-    driver_type: DRIVER_WHOI_MICROMODEM
-    driver_cfg
-    { 
-      serial_port: "/dev/ttyS1"
-# doesn't work with iModemSim, set to true for real ops
-      [MicroModemConfig.reset_nvram]: false
-    }
-
-    mac_cfg
-    {
-	  type: MAC_NONE
-//       type: MAC_FIXED_DECENTRALIZED
-//        slot { src: 1  dest: 2  rate: 0  type: SLOT_DATA  slot_seconds: 25 } # downlink
-//        slot { src: 2  dest: 1  rate: 0  type: SLOT_DATA  slot_seconds: 25 } # uplink
-    }
-
-    queue_cfg
-    {
-        queue
-        {
-            key {
-                type: QUEUE_CCL
-                id: 14 # decimal CCL id (first byte)
-            }
-            in_pubsub_var: "IN_REMUS_STATUS"
-            out_pubsub_var: "OUT_REMUS_STATUS"
-            name: "Remus_State"
-        }
-    }
-
-    dccl_cfg
-    {
-        message_file { path: "../acomms/simple_status.xml" }
-        message_file { path: "../acomms/acoustic_moospoke.xml"
-                       manipulator: NO_ENCODE }        
-    }  
+   period = 15
+   offset = 0
 }
-
 

@@ -24,7 +24,9 @@ RemusStatusM::RemusStatusM(std::string msg)
 	MOOSChomp(msg, "=");
 	nav_d = atof( MOOSChomp(msg, ",").c_str() );
 	MOOSChomp(msg, "=");
-	nav_b = atof( msg.c_str() );
+	nav_b = atof( MOOSChomp(msg, ",").c_str() );
+	MOOSChomp(msg, "=");
+	nav_s = atof( msg.c_str() );
 }
 
 std::string RemusStatusM::toString()
@@ -34,14 +36,15 @@ std::string RemusStatusM::toString()
 			<< ",x=" << nav_x
 			<< ",y=" << nav_y
 			<< ",d=" << nav_d
-			<< ",b=" << nav_b;
+			<< ",b=" << nav_b
+                        << ",s=" << nav_s;
 	return ss.str();
 }
 
 // =========================================
 
 RemusCmdM::RemusCmdM( std::string msg ) {
-	MOOSChomp(msg, "=");
+//	MOOSChomp(msg, "=");
 	cmd = msg.c_str();
 }
 
