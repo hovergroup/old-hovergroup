@@ -93,11 +93,11 @@ ProcessConfig = pMarineViewer
 
   BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false
   BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true
-  BUTTON_THREE = A_DEPLOY # A_DEPLOY = ON
-  BUTTON_FOUR  = A_STOP # A_DEPLOY = OFF
+  BUTTON_THREE = A_DEPLOY # A_DEPLOY = true
+  BUTTON_FOUR  = A_STOP # A_DEPLOY = false
 
-  action = menu_key=ST_START # ASTATUS_TRANSMITS = true
-  action = menu_key=ST_STOP # ASTATUS_TRANSMITS = false
+  action = menu_key=ST_START # ASTATUS_TRANSMITS = on
+  action = menu_key=ST_STOP # ASTATUS_TRANSMITS = off
 
 }
 
