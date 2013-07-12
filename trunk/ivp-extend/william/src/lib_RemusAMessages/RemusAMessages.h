@@ -17,7 +17,7 @@ namespace RemusAMessages {
 		RemusStatusM( std::string msg );
 
 		std::string vname;
-		double nav_x, nav_y, nav_d, nav_b; //[x y depth,bearing]
+		double nav_x, nav_y, nav_d, nav_b, nav_s; //[x y depth,bearing,speed]
 
 		std::string toString();
 	};

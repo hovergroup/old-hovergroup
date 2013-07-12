@@ -23,12 +23,30 @@ Processconfig = ANTLER
   //Run = pHostInfo          	@ NewConsole = false
   //Run = uFldNodeBroker     	@ NewConsole = false
   //Run = uFldMessageHandler 	@ NewConsole = false
-  Run = iGPS_Hover         	@ NewConsole = false
+  //Run = iGPS_Hover         	@ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
-  //Run = iAcommsDriver		@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
   Run = pAcommCmdTransmit       @ NewConsole = false
-
+  Run = iRTKNAVI                @ NewConsole = false
+  RUn = uTimerScript            @ NewConsole = false
 }
+
+Processconfig = uTimerScript
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=0,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = iRTKNAVI
+{
+  HOST=192.168.1.102
+  PORT=50001
+}
+
 
 ProcessConfig = pShare
 {
@@ -151,10 +169,11 @@ ProcessConfig = iAcommsDriver
 	AppTick = 5
 	CommsTick = 5
 
-	PortName = /dev/ttyUSB1
+	PortName = /dev/ttyUSB0
 	ID = 1
 	
 	PSK_minipackets = false
 	enable_ranging = false
 	show_range_pulses = true
+        enable_legacy = true
 }

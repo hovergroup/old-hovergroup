@@ -57,12 +57,20 @@ bool AcommStatusTransmit::OnNewMail(MOOSMSG_LIST &NewMail)
         } else if (key == "NAV_HEADING") {
             m_vb = msg.GetDouble();
 
+        } else if (key == "NAV_SPEED") {
+           m_vsp = msg.GetDouble();
+
         } else if (key == "ACOMMS_RECEIVED_DATA") {
         	//TODO design simple message class ?
         	//Receive Command from the shoreside, poor assumption,
         	// do some simple message "header" checking if possible in the future.
         	RemusAMessages::RemusCmdM cmd(msg.GetString());
         	m_Comms.Notify("DEPLOY", cmd.cmd); //# update this !
+                if (cmd.cmd == "true")
+        	    m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "false"); //# update this !
+                else
+        	    m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true"); //# update this !
+
         }
 
 #if 0 // Keep these around just for template
@@ -103,6 +111,7 @@ bool AcommStatusTransmit::OnConnectToServer()
     m_Comms.Register("NAV_Y", 0);
     m_Comms.Register("NAV_DEPTH", 0);
     m_Comms.Register("NAV_HEADING", 0);
+    m_Comms.Register("NAV_SPEED", 0);
     m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
 
 	return(true);
@@ -138,7 +147,9 @@ bool AcommStatusTransmit::OnStartUp()
 
 void AcommStatusTransmit::post() {
 	std::stringstream ss;
-	ss << m_lastSentSlot++ << "---";
+        std::stringstream sa;
+	sa << m_lastSentSlot++;
+	m_Comms.Notify("ACOMMS_TCNT", sa.str());
 	ss << getStatusString();
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ss.str());
 }
@@ -164,6 +175,7 @@ std::string AcommStatusTransmit::getStatusString()
 	status.nav_y = m_vy;
 	status.nav_d = m_vd;
 	status.nav_b = m_vb;
+        status.nav_s = m_vsp;
 	return status.toString();
 
 }

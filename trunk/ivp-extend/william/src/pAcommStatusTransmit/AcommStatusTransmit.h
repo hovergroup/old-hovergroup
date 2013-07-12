@@ -28,7 +28,7 @@ protected:
 
 	std::string m_vname;
 	double m_period, m_offset;
-	double m_vx, m_vy, m_vd, m_vb; //vehicle status (x,y,depth,bearing)
+	double m_vx, m_vy, m_vd, m_vb, m_vsp; //vehicle status (x,y,depth,bearing,speed)
 
 	int m_lastSentSlot;
 
