@@ -19,6 +19,12 @@ ProcessConfig = ANTLER
   Run = pMOOSBridge       @ NewConsole = false
   Run = pMarineViewer   @ NewConsole = false
   Run = pLogger         	@ NewConsole = false
+
+ 1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+  3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
+  4 = -geometry,80x30+0+460,-bg,blue,-fg,white
+
 }
 
 ProcessConfig = pShare
@@ -53,25 +59,25 @@ ProcessConfig = pMarineViewer
   AppTick    = 4
   CommsTick  = 4
 
-  TIFF_FILE     = ../../data/pavilion.tif
+//  TIFF_FILE     = ../../data/pavilion.tif
 
-//    center_view_true = true
-//  center_view_sticky = true
+    center_view_true = true
+  center_view_sticky = true
 
-//  HASH_VIEW     = false
-//  HASH_DELTA    = 100
-//  HASH_SHADE    = 0.45
-//  BACK_SHADE    = 0.70
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
 
           trails_viewable = true
         trails_point_size = 1
-//       polygon_edge_color = white
-//     polygon_vertex_color = light_green
-//       polygon_edge_width = 1
-//  polygon_viewable_labels = false
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
 
- //     seglist_vertex_size = 4
- //       point_vertex_size = 8
+      seglist_vertex_size = 4
+        point_vertex_size = 8
 
       vehicle_shape_scale = 3
   vehicles_name_viewable = names
@@ -87,8 +93,8 @@ ProcessConfig = pMarineViewer
 
   BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false
   BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true
-  BUTTON_THREE = A_DEPLOY # A_DEPLOY = true
-  BUTTON_FOUR  = A_STOP # A_DEPLOY = false
+  BUTTON_THREE = A_DEPLOY # A_DEPLOY = ON
+  BUTTON_FOUR  = A_STOP # A_DEPLOY = OFF
 
   action = menu_key=ST_START # ASTATUS_TRANSMITS = true
   action = menu_key=ST_STOP # ASTATUS_TRANSMITS = false
