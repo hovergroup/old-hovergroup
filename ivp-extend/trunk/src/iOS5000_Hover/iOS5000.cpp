@@ -195,7 +195,7 @@ void iOS5000_Hover::parseLine( string msg ) {
 
 	vector<string> subs;
 
-	boost::char_separator<char> sep("$CRT*");
+	boost::char_separator<char> sep("$CPRT*");
 	tokenizer tok(msg, sep);
 	for ( tokenizer::iterator beg=tok.begin();
 			beg!=tok.end(); ++beg ) {
