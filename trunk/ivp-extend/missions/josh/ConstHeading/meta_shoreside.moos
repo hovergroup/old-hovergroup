@@ -16,9 +16,17 @@ Processconfig = ANTLER
   Run = pShare               @ NewConsole = false
   Run = pMarineViewer        @ NewConsole = false
   Run = pLogger              @ NewConsole = false
+  Run = uTermCommand         @ NewConsole = true
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+
+	CMD = heading --> MISSION_MODE_ALL --> HEADING
 }
 
 #include ../../trunk/plugs/plug_pShareS.moos
