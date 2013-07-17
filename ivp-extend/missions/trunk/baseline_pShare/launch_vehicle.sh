@@ -88,7 +88,8 @@ if [ "${VEHICLE}" = "nostromo" ]; then
         ACOMMSID=$ACOMMSID_NOSTROMO                     \
         MODEMPORT=$MODEMPORT_NOSTROMO                   \
         RUDDER_OFFSET=$RUDDER_OFFSET_NOSTROMO           \
-        OS5000PORT=$OS5000PORT_NOSTROMO
+        OS5000PORT=$OS5000PORT_NOSTROMO                 \
+        ARDUINO_PORT=$ARDUINOPORT_NOSTROMO
 
     nsplug meta_vehicle.bhv targ_$VNAME_NOSTROMO.bhv -f        \
         VNAME=$VNAME_NOSTROMO                           \
@@ -109,7 +110,8 @@ if [ "${VEHICLE}" = "silvana" ]; then
         ACOMMSID=$ACOMMSID_SILVANA                      \
         MODEMPORT=$MODEMPORT_SILVANA                    \
         RUDDER_OFFSET=$RUDDER_OFFSET_SILVANA            \
-        OS5000PORT=$OS5000PORT_SILVANA
+        OS5000PORT=$OS5000PORT_SILVANA                  \
+        ARDUINO_PORT=$ARDUINOPORT_SILVANA
 
     nsplug meta_vehicle.bhv targ_$VNAME_SILVANA.bhv -f         \
         VNAME=$VNAME_SILVANA                            \
