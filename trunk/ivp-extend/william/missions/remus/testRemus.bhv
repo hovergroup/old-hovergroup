@@ -8,6 +8,7 @@ initialize  DEPLOY = false
 // this seems to be an extra paramter for waypt_survey... i dont want it mfallon
 initialize MOOS_MANUAL_OVERIDE = true
 initialize RECON_ENGAGE=true
+initialize GO_HOME=false
 
 
 //------------------------------------------------
