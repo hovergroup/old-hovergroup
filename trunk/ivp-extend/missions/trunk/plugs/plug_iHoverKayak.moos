@@ -6,4 +6,5 @@ ProcessConfig = iHoverKayak
    
   INVERT_RUDDER = false
   RUDDER_OFFSET = $(RUDDER_OFFSET)
+  PORT_NAME = $(ARDUINO_PORT)
 }
