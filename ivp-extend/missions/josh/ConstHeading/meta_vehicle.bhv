@@ -24,6 +24,18 @@ Behavior = BHV_Waypoint
     visual_hints  = vertex_size=2, edge_size=1
 }
 
+
+Behavior = BHV_ConstantSpeed
+{
+  name = constant_speed
+  condition = MISSION_MODE = HEADING
+  updates = CONST_SPEED_UPDATES
+  
+  duration = no-time-limit
+  
+  speed = 2.0
+}
+
 Behavior = BHV_ConstantHeading
 {
   name = constant_heading
