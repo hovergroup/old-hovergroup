@@ -86,7 +86,7 @@ ProcessConfig = pMarinePID
   CommsTick  = 10
   
   VERBOSE       = true
-  DEPTH_CONTROL = false
+  DEPTH_CONTROL = true
   ACTIVE_START  = true
   
   // Yaw PID controller
@@ -101,6 +101,18 @@ ProcessConfig = pMarinePID
   SPEED_PID_KI           = 0.0
   SPEED_PID_INTEGRAL_LIMIT = 0.07
   
+  //Pitch PID controller
+  PITCH_PID_KP                   = 0.5
+  PITCH_PID_KD                   = 1.0
+  PITCH_PID_KI                   = 0
+  PITCH_PID_INTEGRAL_LIMIT       = 0
+
+  //ZPID controller
+  Z_TO_PITCH_PID_KP              = 0.12
+  Z_TO_PITCH_PID_KD              = 0
+  Z_TO_PITCH_PID_KI              = 0.004
+  Z_TO_PITCH_PID_INTEGRAL_LIMIT  = 0.05
+
   // Maximums
   MAXRUDDER  = 100
   MAXTHRUST  = 100
@@ -115,7 +127,7 @@ ProcessConfig = pHelmIvP
   AppTick    = 4
   CommsTick  = 4
 
-  Behaviors  = remus.bhv
+  Behaviors  = testRemus.bhv
   Verbose    = true
   Domain     = course:0:359:360
   Domain     = speed:0:4:21

@@ -50,7 +50,7 @@ ProcessConfig = pMOOSBridge
 
   // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
 
-  SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY, ASTATUS_TRANSMITS] -> remus@192.168.1.74:9202
+  SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY, ASTATUS_TRANSMITS, GO_HOME] -> remus@192.168.1.74:9202
   SHARE = [A_DEPLOY] -> icarus@192.168.1.102:9300
 }
 
@@ -91,14 +91,14 @@ ProcessConfig = pMarineViewer
         scope  = VIEW_POLYGON
 
 
-  BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false
-  BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true
+  BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false # GO_HOME = false
+  BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true # GO_HOME = false
   BUTTON_THREE = A_DEPLOY # A_DEPLOY = true
   BUTTON_FOUR  = A_STOP # A_DEPLOY = false
 
   action = menu_key=ST_START # ASTATUS_TRANSMITS = on
   action = menu_key=ST_STOP # ASTATUS_TRANSMITS = off
-
+  action = menu_key=GOHOME # GO_HOME = true # DEPLOY = false
 }
 
 // from plug_pEchoVar
