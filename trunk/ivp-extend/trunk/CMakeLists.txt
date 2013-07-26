@@ -28,7 +28,7 @@ CONFIGURE_FILE(src/lib_JoshUtils/config.h.in src/lib_JoshUtils/config.h)
 
 find_path( 	GOBY_BASE
 			NAMES DEPENDENCIES build.sh AUTHORS
-			PATHS "~/goby"
+			PATHS "~/goby" "../../../goby"
 			NO_DEFAULT_PATH
 )
 
