@@ -13,6 +13,7 @@ Behavior = BHV_Waypoint
     updates    = GOTO_UPDATES
 
     lead          = 15
+    lead_on_start = 15
     lead_damper   = 1
     speed         = $(CRUISESPEED)
     radius        = 4.0
@@ -35,6 +36,7 @@ Behavior = BHV_Waypoint
     updates    = GOTO_UPDATES
 
     lead          = 15
+    lead_on_start = 15
     lead_damper   = 1
     speed         = $(CRUISESPEED)
     radius        = 4.0
