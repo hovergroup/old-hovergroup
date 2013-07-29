@@ -328,7 +328,7 @@ void acomms_driver::handle_data_receive(
 		std::string debug_msg = reception.verify(ok);
 		if (!ok) {
 			publishWarning(debug_msg);
-		} else {
+		}// else {
 			std::string serialized = reception.serialize();
 			m_Comms.Notify("ACOMMS_RECEIVED", (void*) serialized.data(), serialized.size());
 			m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
@@ -376,7 +376,7 @@ void acomms_driver::handle_data_receive(
                             receive_pulse_duration, "red");
                 }
 			}
-		}
+		//}
 //	} else {
 //		std::string serialized = reception.serializeWithInfo();
 //		m_Comms.Notify("ACOMMS_RECEIVED", serialized.data(), serialized.size());
