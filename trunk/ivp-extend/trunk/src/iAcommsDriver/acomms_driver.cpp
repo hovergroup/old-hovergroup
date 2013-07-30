@@ -224,7 +224,7 @@ void acomms_driver::transmit_data() {
 	}
 
 	// check that we have transmission data
-	if ( m_transmission.getData().size() == 0 && (m_transmission.getRate()!=HoverAcomms::REMUS_LBL ||
+	if ( m_transmission.getData().size() == 0 && (m_transmission.getRate()!=HoverAcomms::REMUS_LBL &&
 	        m_transmission.getRate()!=HoverAcomms::TWO_WAY_RANGING)) {
 		publishWarning("No transmission data");
 		return;
