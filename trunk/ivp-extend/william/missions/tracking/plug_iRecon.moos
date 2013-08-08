@@ -1,0 +1,25 @@
+ProcessConfig = iRecon
+{
+  AppTick = 4
+  CommsTick = 4
+  
+// MIT H. Schmidt's REMUS emulator: 192.168.1.158
+// Panama City: 192.168.1.159
+// 
+
+  remus_host = 192.168.1.71
+
+  remus_port = 23456
+  local_port = 23456
+  
+  keep_alive = true
+  
+  ready_var = BACKSEAT_READY
+  ready_numeric = true
+  speed_mode = meters/sec
+  
+  ntpref_unit = 2
+  random_hdg = true
+  hdg_amplitude = 5
+  hdg_period = 20
+}

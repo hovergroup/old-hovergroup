@@ -1,0 +1,155 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = localhost
+ServerPort = $(SPORT)
+Community  = $(SNAME)
+
+#include plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+	MSBetweenLaunches = 200
+
+	Run = MOOSDB             @ NewConsole = false
+	Run = pShare             @ NewConsole = false
+	Run = pMarineViewer      @ NewConsole = false
+	//Run = pLogger          @ NewConsole = false
+
+	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+//--------------------------------------------------------
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = MISSION_MODE_ALL->MISSION_MODE: $(VHOST3):$(LPORT3):udp & MISSION_MODE: $(VHOST2):$(LPORT2):udp & MISSION_MODE: $(VHOST5):$(LPORT5):udp
+  output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE: $(VHOST3):$(LPORT3):udp & MOOS_MANUAL_OVERRIDE: $(VHOST2):$(LPORT2):udp & MOOS_MANUAL_OVERRIDE: $(VHOST5):$(LPORT5):udp
+  
+  output = MISSION_MODE_$(VNAME3)->MISSION_MODE:$(VHOST3):$(LPORT3):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME3)->MOOS_MANUAL_OVERRIDE:$(VHOST3):$(LPORT3):udp
+  output = GOTO_UPDATES_$(VNAME3)->GOTO_UPDATES:$(VHOST3):$(LPORT3):udp
+  
+  output = MISSION_MODE_$(VNAME2)->MISSION_MODE:$(VHOST2):$(LPORT2):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME2)->MOOS_MANUAL_OVERRIDE:$(VHOST2):$(LPORT2):udp
+  output = GOTO_UPDATES_$(VNAME2)->GOTO_UPDATES:$(VHOST2):$(LPORT2):udp
+
+  // for REMUS AUV
+  output = MISSION_MODE_$(VNAME5)->MISSION_MODE:$(VHOST5):$(LPORT5):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME5)->MOOS_MANUAL_OVERRIDE:$(VHOST5):$(LPORT5):udp
+  output = GOTO_UPDATES_$(VNAME5)->GOTO_UPDATES:$(VHOST5):$(LPORT5):udp
+  // cmd via wifi for remus computer
+  output = STARTMISSION->STARTMISSION:$(VHOST5):$(LPORT5):udp
+  output = STARTLOITER->STARTLOITER:$(VHOST5):$(LPORT5):udp
+  output = ASTATUS_TRANSMITS->ASTATUS_TRANSMITS:$(VHOST5):$(LPORT5):udp
+  // use icarus to transmit acoustically for remus
+  output = A_STARTMISSION->A_STARTMISSION:$(VHOST1):$(LPORT1):udp
+  
+  input = route=localhost:$(SLPORT)
+}
+
+//--------------------------------------------------
+// pLogger Configuration Block
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_%(SNAME)
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 4
+  CommsTick  = 4
+
+  TIFF_FILE     = ../../data/pavilion.tif
+  
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+  
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+  vehicles_name_viewable = names
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+	scope  = NODE_REPORT
+	scope  = VIEW_POINT
+	scope  = VIEW_SEGLIST
+	scope  = VIEW_POLYGON
+
+	ACTION = GOSTAY_$(VNAME3) =false
+	ACTION = GOSTAY_$(VNAME2) =false
+  ACTION = GOSTAY_$(VNAME5) =false
+	ACTION = GOSTAY_$(VNAME3) =true
+  ACTION = GOSTAY_$(VNAME5) =true
+	ACTION+ = GOSTAY_$(VNAME2) =true
+
+	ACTION = MENU_KEY=STATION_$(VNAME3) # MISSION_MODE_$(VNAME3) = STATION-KEEP 
+	ACTION+ = MENU_KEY=STATION_$(VNAME3) # MOOS_MANUAL_OVERRIDE_$(VNAME3)=false
+
+	ACTION = MENU_KEY=ALLSTOP_$(VNAME3) # MISSION_MODE_$(VNAME3) = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_$(VNAME3) # MOOS_MANUAL_OVERRIDE_$(VNAME3)=true
+
+	ACTION = MENU_KEY=STATION_$(VNAME2) # MISSION_MODE_$(VNAME2) = STATION-KEEP
+	ACTION+ = MENU_KEY=STATION_$(VNAME2) # MOOS_MANUAL_OVERRIDE_$(VNAME2)=false
+
+	ACTION = MENU_KEY=ALLSTOP_$(VNAME2) # MISSION_MODE_$(VNAME2) = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_$(VNAME2) # MOOS_MANUAL_OVERRIDE_$(VNAME2)=true
+
+  ACTION = MENU_KEY=STATION_$(VNAME5) # MISSION_MODE_$(VNAME5) = STATION-KEEP
+  ACTION+ = MENU_KEY=STATION_$(VNAME5) # MOOS_MANUAL_OVERRIDE_$(VNAME5)=false
+
+  ACTION = MENU_KEY=ALLSTOP_$(VNAME5) # MISSION_MODE_$(VNAME5) = INACTIVE
+  ACTION+ = MENU_KEY=ALLSTOP_$(VNAME5) # MOOS_MANUAL_OVERRIDE_$(VNAME5)=true
+
+  ACTION = MENU_KEY=REMUS_ST_START # ASTATUS_TRANSMITS = on
+  ACTION = MENU_KEY=REMUS_ST_STOP # ASTATUS_TRANSMITS = off
+  ACTION = MENU_KEY=REMUS_MISSION_START # MISSION_MODE_$(VNAME5) = STARTMISSION
+  ACTION = MENU_KEY=REMUS_MISSION_STOP # MISSION_MODE_$(VNAME5) = INACTIVE
+  ACTION = MENU_KEY=REMUS_LOITER_START # MISSION_MODE_$(VNAME5) = STARTLOITER
+  ACTION = MENU_KEY=REMUS_LOITER_STOP # MISSION_MODE_$(VNAME5) = INACTIVE
+
+	right_context[nostromo] = GOTO_UPDATES_nostromo = points=$(XPOS),$(YPOS)
+	right_context[$(VNAME3)] = MISSION_MODE_$(VNAME3)=GOTO
+	right_context[silvana] = GOTO_UPDATES_silvana = points=$(XPOS),$(YPOS)
+	right_context[$(VNAME2)] = MISSION_MODE_$(VNAME2)=GOTO
+  right_context[remus] = GOTO_UPDATES_remus = points=$(XPOS),$(YPOS)
+  right_context[$(VNAME5)] = MISSION_MODE_$(VNAME5)=GOTO
+
+
+	BUTTON_ONE   = DEPLOY  # MISSION_MODE_ALL=GOTO # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_TWO   = RETURN  # MISSION_MODE_ALL=RETURN # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_THREE = STATION # MISSION_MODE_ALL=STATION-KEEP # MOOS_MANUAL_OVERRIDE_ALL=false
+	BUTTON_FOUR  = ALLSTOP # MISSION_MODE_ALL=INACTIVE # MOOS_MANUAL_OVERRIDE_ALL=true
+}
+
