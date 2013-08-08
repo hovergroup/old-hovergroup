@@ -15,9 +15,9 @@ ProcessConfig = ANTLER
 {
   MSBetweenLaunches = 10
   Run = MOOSDB          	@ NewConsole = false
-  Run = pShare                 @NewConsole = false
+  Run = pShare            @NewConsole = false
   Run = pMOOSBridge       @ NewConsole = false
-  Run = pMarineViewer   @ NewConsole = false
+  Run = pMarineViewer     @ NewConsole = false
   Run = pLogger         	@ NewConsole = false
 
  1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
