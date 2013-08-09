@@ -51,11 +51,11 @@ fi
 #  Part 2: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-VNAME1="remus"
-VPORT1="9500"
-LPORT1="9501"
-START_POS1="10,-20"
-RETURN_PT1="10,-20"
+VNAME5="remus"
+VPORT5="9500"
+LPORT5="9501"
+START_POS5="10,-20"
+RETURN_PT5="10,-100"
 
 SNAME="terra"
 SPORT="9000"
@@ -65,21 +65,23 @@ SHOREHOST="localhost"
 
 # Prepare remus files
 nsplug meta_remus_sim.moos targ_remus.moos -f		\
-    VNAME=$VNAME1 VPORT=$VPORT1 LPORT=$LPORT1           \
-    START_POS=$START_POS1  WARP=$WARP SHOREIP=localhost \
+    VNAME=$VNAME5 VPORT=$VPORT5 LPORT=$LPORT5           \
+    START_POS=$START_POS5  WARP=$WARP SHOREHOST=$SHOREHOST \
+    SLPORT=$SLPORT OPEHOST=$SHOREHOST OPELPORT=$SLPORT \
     VHOST=localhost
 
 nsplug meta_remus.bhv targ_remus.bhv -f            \
-    VNAME=$VNAME1                                       \
+    VNAME=$VNAME5                                       \
     CRUISESPEED=$CRUISESPEED                            \
-    RETURN_PT=$RETURN_PT1
+    RETURN_PT=$RETURN_PT5
 
 # Prepare Shoreside files
-nsplug meta_shoreside.moos targ_shoreside.moos -f       \
+nsplug meta_shoreside_sim.moos targ_shoreside.moos -f       \
     SLPORT=$SLPORT                                      \
     SPORT=$SPORT                                        \
     SNAME=$SNAME                                        \
-    WARP=$WARP                                          
+    WARP=$WARP                                          \
+    VNAME5=$VNAME5 VPORT5=$VPORT5 LPORT5=$LPORT5 VHOST5=localhost                                
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0
@@ -89,7 +91,7 @@ fi
 #  Part 3: Launch the processes
 #-------------------------------------------------------
 
-# Launch Archie
+# Launch remus
 printf "Launching remus MOOS Community \n"
 pAntler targ_remus.moos >& /dev/null &
 sleep 0.1
