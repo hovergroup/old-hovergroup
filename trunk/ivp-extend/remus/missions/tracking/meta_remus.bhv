@@ -85,14 +85,29 @@ Behavior = BHV_Loiter
  	duration = 600 // 10 minutes
  	updates = LOITER_REMUS_UPDATES
 
- 	polygon = format=radial, x=20, y=-75, z=2, radius=40, pts=6, snap=1, label=Lima
+ 	polygon = format=radial, x=74, y=-113, radius=40, pts=8, snap=1, label=Lima
  	speed = $(CRUISESPEED)
  	capture_radius = 8.0
  	slip_radius = 16.0
  	clockwise = true
- 	aquire_dist = 25
- 	center_assign = present_position
+ 	acquire_dist = 25
+ 	//center_assign = present_position
+
+   visual_hints = nextpt_color=red, nextpt_lcolor=khaki
+   visual_hints = edge_color=gray80, vertex_color=light_green
+   visual_hints = edge_size=1, vertex_size=0, label=LOITER_POLYGON
  }
+
+Behavior = BHV_ConstantDepth
+{
+ 		name       = loiter_depth
+		pwt        = 100
+  		condition  = MISSION_MODE = STARTLOITER
+  		updates    = LOITER_REMUSDEPTH_UPDATES
+
+              depth = 4
+           duration = no-time-limit
+}
 
 Behavior = BHV_OpRegion
 {
@@ -104,6 +119,7 @@ Behavior = BHV_OpRegion
               polygon = -200,-100:-100,-250:200,-100:144,3:84,35
    trigger_entry_time = 2.0
     trigger_exit_time = 1.0
+    visual_hints = edge_size=2
 }
 
 // ---------------------------------------------------------------------------------------
@@ -123,8 +139,20 @@ Behavior = BHV_Waypoint
 	speed	   	= $(CRUISESPEED)
 	radius	   	= 2.0
 	nm_radius  	= 8.0
-	points	   	= format=lawnmower, label=dudley_survey, x=20, y=-80, z=2, \
-					width=70, height=30, lane_width=8, rows=north-south,degs=30
+	points	   	= format=lawnmower, label=remus_survey, x=20, y=-80, \
+					width=70, height=30, lane_width=20, rows=north-south,degs=0
+    //points      = 20,-80,2
+}
+
+Behavior = BHV_ConstantDepth
+{
+ 		name       = mission_depth
+		pwt        = 100
+  		condition  = MISSION_MODE = STARTMISSION
+  		updates    = MISSION_REMUSDEPTH_UPDATES
+
+              depth = 4
+           duration = no-time-limit
 }
 
 
@@ -138,6 +166,7 @@ Behavior = BHV_OpRegion
               polygon = -200,-100:-100,-250:200,-100:144,3:84,35
    trigger_entry_time = 2.0
     trigger_exit_time = 1.0
+    visual_hints = edge_size=2
 }
 
 

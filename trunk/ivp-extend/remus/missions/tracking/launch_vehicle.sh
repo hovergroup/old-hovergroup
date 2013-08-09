@@ -1,15 +1,20 @@
 #!/bin/bash 
 
 # modify path
-# PATH=$PATH:/home/student/moos-ivp-jleight/ivp-extend/trunk/bin
+#PATH=$PATH:/home/josh/hovergroup-extend/josh/bin
 
-WARP=1
+# source parameters
+MISSIONS_HOME="."
+source ${MISSIONS_HOME}/config/hard_config
+source ${MISSIONS_HOME}/config/soft_config
+
+# set defaults
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
 VEHICLE=""
-CRUISESPEED=2
-RUDDER_OFFSET=2
+WARP=1
+ROLE=""
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -37,6 +42,10 @@ for ARGI; do
     VEHICLE="icarus"
     UNDEFINED_ARG=""
     fi
+    if [ "${ARGI}" = "--remus" ] ; then
+    VEHICLE="remus"
+    UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
     BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -62,6 +71,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --nostromo             nostromo vehicle only                 \n"
     printf "  --silvana              silvana vehicle only                \n"
     printf "  --icarus               icarus vehicle only                   \n"
+    printf "  --remus                remus vehicle only                   \n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -71,94 +81,83 @@ fi
 #  Part 3: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-
-SHOREHOST="192.168.1.100"
-SPORT="9000"
-SLPORT="9001"
-
-VNAME1="icarus"  # The first vehicle Community
-VHOST1="192.168.1.102"
-VPORT1="9300"
-LPORT1="9301"
-ID1=1
-
-VNAME2="silvana"  # The second vehicle Community
-VHOST2="192.168.1.104"
-VPORT2="9200"
-LPORT2="9201"
-RETURN_PT2="10,-20"
-ID2=2
-
-VNAME3="nostromo"  # The third vehicle Community
-VHOST3="192.168.1.103"
-VPORT3="9100"
-LPORT3="9101"
-RETURN_PT3="30,-10"
-ID3=3
-
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld.moos targ_nostromo.moos -f  \
-        VHOST=$VHOST3                                   \
-        VNAME=$VNAME3                                   \
-        VPORT=$VPORT3                                   \
-        LPORT=$LPORT3                                   \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
+        VHOST=$VHOST_NOSTROMO                           \
+        VNAME=$VNAME_NOSTROMO                           \
+        VPORT=$VPORT_NOSTROMO                           \
+        LPORT=$LPORT_NOSTROMO                           \
         WARP=$WARP                                      \
-        SHOREIP=$SHOREHOST                              \
-        RUDDER_OFFSET=$RUDDER_OFFSET                    \
-        ACOMMSID=$ID3                                   \
-        MODEMPORT="/dev/ttyUSB0"                        \
-        OS5000PORT="/dev/ttyUSB2"                       \
-        GPSPORT="/dev/ttyUSB1"                          \
-        GPSBAUD="57600"                                 \
         SHOREHOST=$SHOREHOST                            \
-        SLPORT=$SLPORT
+        SLPORT=$SLPORT                                  \
+        ACOMMSID=$ACOMMSID_NOSTROMO                     \
+        MODEMPORT=$MODEMPORT_NOSTROMO                   \
+        RUDDER_OFFSET=$RUDDER_OFFSET_NOSTROMO           \
+        OS5000PORT=$OS5000PORT_NOSTROMO
 
-    nsplug meta_vehicle.bhv targ_nostromo.bhv -f        \
-        VNAME=$VNAME3                                   \
-        CRUISESPEED=$CRUISESPEED                        \
-        RETURN_PT=$RETURN_PT3
+    nsplug meta_vehicle.bhv targ_$VNAME_NOSTROMO.bhv -f        \
+        VNAME=$VNAME_NOSTROMO                           \
+        CRUISESPEED=$SPEED_NOSTROMO                     \
+        RETURN_PT=$RETURN_PT_NOSTROMO
 fi
 
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
-    nsplug meta_vehicle_fld.moos targ_silvana.moos -f   \
-        VHOST=$VHOST2                                   \
-        VNAME=$VNAME2                                   \
-        VPORT=$VPORT2                                   \
-        LPORT=$LPORT2                                   \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_SILVANA.moos -f   \
+        VHOST=$VHOST_SILVANA                            \
+        VNAME=$VNAME_SILVANA                            \
+        VPORT=$VPORT_SILVANA                            \
+        LPORT=$LPORT_SILVANA                            \
         WARP=$WARP                                      \
-        SHOREIP=$SHOREHOST                              \
-        RUDDER_OFFSET=0                                 \
-        ACOMMSID=$ID2                                   \
-        MODEMPORT="/dev/ttyUSB0"                        \
-        OS5000PORT="/dev/ttyUSB1"                       \
-        GPSPORT="/dev/ttyACM0"                          \
-        GPSBAUD="57600"                                 \
         SHOREHOST=$SHOREHOST                            \
-        SLPORT=$SLPORT
+        SLPORT=$SLPORT                                  \
+        ACOMMSID=$ACOMMSID_SILVANA                      \
+        MODEMPORT=$MODEMPORT_SILVANA                    \
+        RUDDER_OFFSET=$RUDDER_OFFSET_SILVANA            \
+        OS5000PORT=$OS5000PORT_SILVANA
 
-    nsplug meta_vehicle.bhv targ_silvana.bhv -f         \
-        VNAME=$VNAME2                                   \
-        CRUISESPEED=$CRUISESPEED                        \
-        RETURN_PT=$RETURN_PT2
+    nsplug meta_vehicle.bhv targ_$VNAME_SILVANA.bhv -f         \
+        VNAME=$VNAME_SILVANA                            \
+        CRUISESPEED=$SPEED_SILVANA                      \
+        RETURN_PT=$RETURN_PT_SILVANA
 fi
 
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
-    nsplug meta_icarus.moos targ_icarus.moos -f      \
-        VHOST=$VHOST1                                \
-        VNAME=$VNAME1                                \
-        VPORT=$VPORT1                                \
-        LPORT=$LPORT1                                \
-        WARP=$WARP                                   \
-        SHOREIP=$SHOREHOST                           \
-        ACOMMSID=$ID1                                \
-        MODEMPORT="/dev/ttyUSB0"                     \
-        GPSPORT="/dev/ttyUSB1"                       \
-        GPSBAUD="57600"                              \
-        SHOREHOST=$SHOREHOST                         \
-        SLPORT=$SLPORT
+    nsplug meta_icarus.moos targ_$VNAME_ICARUS.moos -f         \
+        VHOST=$VHOST_ICARUS                             \
+        VNAME=$VNAME_ICARUS                             \
+        VPORT=$VPORT_ICARUS                             \
+        LPORT=$LPORT_ICARUS                             \
+        WARP=$WARP                                      \
+        SHOREHOST=$SHOREHOST                            \
+        SLPORT=$SLPORT                                  \
+        ACOMMSID=$ACOMMSID_ICARUS                       \
+        MODEMPORT=$MODEMPORT_ICARUS                     \
+        GPSPORT=$GPSPORT_ICARUS                         \
+        GPSBAUD=$GPSBAUD_ICARUS
+fi
+
+# Conditionally Prepare remus files
+if [ "${VEHICLE}" = "remus" ]; then
+    nsplug meta_remus.moos targ_$VNAME_REMUS.moos -f         \
+        VHOST=$VHOST_REMUS                             \
+        VNAME=$VNAME_REMUS                             \
+        VPORT=$VPORT_REMUS                             \
+        LPORT=$LPORT_REMUS                             \
+        OPEHOST=$OPEHOST                                \
+        OPELPORT=$OPELPORT                              \
+        WARP=$WARP                                      \
+        SHOREHOST=$SHOREHOST                            \
+        SLPORT=$SLPORT                                  \
+        ACOMMSID=$ACOMMSID_REMUS                       \
+        MODEMPORT=$MODEMPORT_REMUS  
+
+    nsplug meta_remus.bhv targ_$VNAME_REMUS.bhv -f         \
+        VNAME=$VNAME_REMUS                            \
+        CRUISESPEED=$SPEED_REMUS                      \
+        RETURN_PT=$RETURN_PT_REMUS                   
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
@@ -172,18 +171,24 @@ fi
 # Launch nostromo
 if [ "${VEHICLE}" = "nostromo" ]; then
     printf "Launching nostromo MOOS Community \n"
-    pAntler targ_nostromo.moos >& /dev/null &
+    pAntler targ_$VNAME_NOSTROMO.moos >& /dev/null &
 fi
 # Launch silvana
 if [ "${VEHICLE}" = "silvana" ]; then
     printf "Launching silvana MOOS Community \n"
-    pAntler targ_silvana.moos >& /dev/null &
+    pAntler targ_$VNAME_SILVANA.moos >& /dev/null &
 fi
 # Launch icarus
 if [ "${VEHICLE}" = "icarus" ]; then
     printf "Launching icarus MOOS Community \n"
-    pAntler targ_icarus.moos >& /dev/null &
+    pAntler targ_$VNAME_ICARUS.moos >& /dev/null &
 fi
+# Launch remus
+if [ "${VEHICLE}" = "remus" ]; then
+    printf "Launching remus MOOS Community \n"
+    pAntler targ_$VNAME_REMUS.moos >& /dev/null &
+fi
+
 
 #-------------------------------------------------------
 #  Part 5: Exiting and/or killing the simulation
