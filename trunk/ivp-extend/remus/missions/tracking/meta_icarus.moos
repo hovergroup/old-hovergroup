@@ -10,14 +10,15 @@ Processconfig = ANTLER
   MSBetweenLaunches = 500
    
   Run = MOOSDB             	@ NewConsole = false
-  Run = pShare          	  @ NewConsole = false
+  Run = pShare          	@ NewConsole = false
   Run = pLogger            	@ NewConsole = false
   Run = pNodeReporter      	@ NewConsole = false
-  Run = iRTKNAVI            @ NewConsole = false
+  Run = pNodeReporter           @ NewConsole = false ~pNodeReporter_remus
+  Run = iRTKNAVI                @ NewConsole = false
   Run = pEchoVar           	@ NewConsole = false
-  Run = iAcommsDriver		    @ NewConsole = false
-  Run = pAcommCmdTransmit   @ NewConsole = false
-  Run = uTimerScript		    @ NewConsole = false ~uTimerScript_config
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = pAcommCmdTransmit       @ NewConsole = false
+  Run = uTimerScript		@ NewConsole = false ~uTimerScript_config
 }
 
 ProcessConfig = uTimerScript_config
@@ -33,6 +34,7 @@ ProcessConfig = uTimerScript_config
 #include plug_pShareV.moos
 #include plug_pLogger.moos
 #include plug_pNodeReporter.moos
+#include plug_pNodeReporter_REMUS_relay.moos
 #include plug_pEchoVar.moos
 #include plug_iAcommsDriver.moos
 #include plug_iRTKNAVI.moos
