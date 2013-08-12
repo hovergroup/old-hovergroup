@@ -50,7 +50,7 @@ RemusCmdM::RemusCmdM( std::string msg ) {
 
 std::string RemusCmdM::toString() {
 	std::stringstream ss;
-	ss << "cmd=" << cmd;
+	ss  << cmd;
 	return ss.str();
 }
 
