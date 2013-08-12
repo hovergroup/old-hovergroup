@@ -70,7 +70,7 @@ bool AcommCmdTransmit::OnConnectToServer()
 {
 
 	m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
-        m_Comms.Register("A_DEPLOY", 0);
+        m_Comms.Register("A_MISSIONMODE", 0);
 
 
 	return(true);
