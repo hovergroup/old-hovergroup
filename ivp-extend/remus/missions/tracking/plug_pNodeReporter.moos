@@ -7,4 +7,9 @@ ProcessConfig = pNodeReporter
   CommsTick   = 2
   
   VESSEL_TYPE = KAYAK
+
+  alt_nav_prefix = REMUS_
+  alt_nav_name = REMUS
+
+
 }

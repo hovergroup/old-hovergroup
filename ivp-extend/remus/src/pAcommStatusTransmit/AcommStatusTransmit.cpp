@@ -65,11 +65,11 @@ bool AcommStatusTransmit::OnNewMail(MOOSMSG_LIST &NewMail)
         	//Receive Command from the shoreside, poor assumption,
         	// do some simple message "header" checking if possible in the future.
         	RemusAMessages::RemusCmdM cmd(msg.GetString());
-        	m_Comms.Notify("DEPLOY", cmd.cmd); //# update this !
-                if (cmd.cmd == "true")
-        	    m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "false"); //# update this !
-                else
+        	m_Comms.Notify("MISSION_MODE", cmd.cmd); //# update this !
+                if (cmd.cmd == "INACTIVE")
         	    m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "true"); //# update this !
+                else
+        	    m_Comms.Notify("MOOS_MANUAL_OVERRIDE", "false"); //# update this !
 
         }
 

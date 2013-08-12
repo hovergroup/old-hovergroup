@@ -43,7 +43,7 @@ bool AcommCmdTransmit::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_Comms.Notify("REMUS_HEADING",status.nav_b);
 			m_Comms.Notify("REMUS_SPEED",status.nav_s);
 
-		}else if (key == "A_DEPLOY"){ // command
+		}else if (key == "A_MISSIONMODE"){ // command
 			RemusAMessages::RemusCmdM cmd(msg.GetString());
 			m_Comms.Notify("ACOMMS_TRANSMIT_DATA", cmd.toString());
 		}
