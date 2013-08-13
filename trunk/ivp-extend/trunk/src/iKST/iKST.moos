@@ -1,0 +1,9 @@
+//------------------------------------------------
+// iKST config block
+
+ProcessConfig = iKST
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+
