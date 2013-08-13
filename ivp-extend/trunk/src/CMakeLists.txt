@@ -43,6 +43,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(alogParseGPSTime)
 	ADD_SUBDIRECTORY(acommsParse)
 	ADD_SUBDIRECTORY(testing_app)
+	ADD_SUBDIRECTORY(iKST)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
