@@ -37,6 +37,9 @@ acomms_driver::acomms_driver()
 	m_transmission.setDest(0);
 	m_transmission.setRate(0);
 	m_transmission.fillData("default_data");
+
+	m_transmitLockout = false;
+	m_useScheduler = false;
 }
 
 //---------------------------------------------------------
@@ -64,14 +67,16 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  }
       } else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
     	  m_transmission.setDest(msg.GetDouble());
-      } else if ( key == "ACOMMS_TRANSMIT_DATA" &&
+      } else if ( (key=="ACOMMS_TRANSMIT_DATA" ||
+    		  key=="SCHEDULER_TRANSMIT_DATA") &&
     		  msg.GetSource() != GetAppName() ) {
     	  if (m_transmission.fillData(msg.GetString())==-1) {
     		  publishWarning("Cannot fill data because rate is not defined.");
     	  } else {
     		  new_transmit = true;
     	  }
-      } else if ( key == "ACOMMS_TRANSMIT_DATA_BINARY" &&
+      } else if ( (key=="ACOMMS_TRANSMIT_DATA_BINARY" ||
+    		  key=="SCHEDULER_TRANSMIT_DATA_BINARY") &&
     		  msg.GetSource() != GetAppName() ) {
     	  if (m_transmission.fillData(msg.GetString())==-1) {
     		  publishWarning("Cannot fill data because rate is not defined.");
@@ -85,7 +90,7 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  m_navx = msg.GetDouble();
       } else if ( key == "NAV_Y" ) {
     	  m_navy = msg.GetDouble();
-      } else if ( key == "ACOMMS_TRANSMIT" &&
+      } else if ( (key=="ACOMMS_TRANSMIT" || key=="SCHEDULER_TRANSMIT") &&
     		  msg.GetSource() != GetAppName() ) {
     	  if (m_transmission.parseFromString(msg.GetString()))
     		  new_transmit=true;
@@ -104,6 +109,12 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     	  } else {
     		  m_transmission.setAckRequested(false);
     	  }
+      } else if ( key == "ACOMMS_TRANSMIT_LOCKOUT" ) {
+    	  if (MOOSToUpper(msg.GetString())=="ON") {
+    		  m_transmitLockout = true;
+    	  } else {
+    		  m_transmitLockout = false;
+    	  }
       }
    }
 
@@ -117,13 +128,20 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 void acomms_driver::RegisterVariables() {
 	m_Comms.Register( "ACOMMS_TRANSMIT_RATE", 0 );
 	m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
-	m_Comms.Register( "ACOMMS_TRANSMIT_DATA", 0 );
-	m_Comms.Register( "ACOMMS_TRANSMIT_DATA_BINARY", 0 );
+	if (!m_useScheduler) {
+		m_Comms.Register("ACOMMS_TRANSMIT_DATA", 0);
+		m_Comms.Register("ACOMMS_TRANSMIT_DATA_BINARY", 0);
+		m_Comms.Register("ACOMMS_TRANSMIT", 0);
+	} else {
+		m_Comms.Register("SCHEDULER_TRANSMIT_DATA", 0);
+		m_Comms.Register("SCHEDULER_TRANSMIT_DATA_BINARY", 0);
+		m_Comms.Register("SCHEDULER_TRANSMIT", 0);
+	}
     m_Comms.Register( "LOGGER_DIRECTORY", 1 );
     m_Comms.Register( "NAV_X", 1 );
     m_Comms.Register( "NAV_Y", 1 );
-    m_Comms.Register( "ACOMMS_TRANSMIT", 0 );
     m_Comms.Register( "ACOMMS_REQUEST_ACK", 0);
+    m_Comms.Register( "ACOMMS_TRANSMIT_LOCKOUT", 0);
 
     if (in_sim)
     	m_Comms.Register("ACOMMS_TRANSMITTED_REMOTE", 0);
@@ -132,33 +150,38 @@ void acomms_driver::RegisterVariables() {
 //---------------------------------------------------------
 // Procedure: OnConnectToServer
 
-bool acomms_driver::OnConnectToServer()
-{
-   m_MissionReader.GetConfigurationParam("PortName", port_name);
-   m_MissionReader.GetConfigurationParam("ID", my_id);
-   m_MissionReader.GetValue("Community", my_name);
-   m_MissionReader.GetConfigurationParam("PSK_minipackets", use_psk_for_minipackets);
-   m_MissionReader.GetConfigurationParam("enable_ranging", enable_one_way_ranging);
-   m_MissionReader.GetConfigurationParam("show_range_pulses", enable_range_pulses);
-   m_MissionReader.GetConfigurationParam("in_sim", in_sim);
-   m_MissionReader.GetConfigurationParam("enable_legacy", enable_legacy);
+bool acomms_driver::OnConnectToServer() {
+	m_MissionReader.GetConfigurationParam("PortName", port_name);
+	m_MissionReader.GetConfigurationParam("ID", my_id);
+	m_MissionReader.GetValue("Community", my_name);
+	m_MissionReader.GetConfigurationParam("PSK_minipackets",
+			use_psk_for_minipackets);
+	m_MissionReader.GetConfigurationParam("enable_ranging",
+			enable_one_way_ranging);
+	m_MissionReader.GetConfigurationParam("show_range_pulses",
+			enable_range_pulses);
+	m_MissionReader.GetConfigurationParam("in_sim", in_sim);
+	m_MissionReader.GetConfigurationParam("enable_legacy", enable_legacy);
+	m_MissionReader.GetConfigurationParam("use_scheduler", m_useScheduler);
 
-   // post these to make sure they are the correct type
-   unsigned char c = 0x00;
-   m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
-   m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
-   m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
+	// post these to make sure they are the correct type
+	unsigned char c = 0x00;
+	if (!m_useScheduler) {
+		m_Comms.Notify("ACOMMS_TRANSMIT_DATA", ""); // string
+		m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
+		m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", &c, 1); // binary string
+	}
+	m_Comms.Notify("ACOMMS_RECEIVED_DATA", &c, 1); // binary string
 //   m_Comms.Notify("ACOMMS_TRANSMITTED_REMOTE", &c, 1);
 //   m_Comms.Notify("ACOMMS_TRANSMITTED", &c, 1);
-   m_Comms.Notify("ACOMMS_TRANSMIT", &c, 1); // binary string
 
-   RegisterVariables();
+	RegisterVariables();
 
-   // driver not started yet
-   publishStatus("not running");
-   connect_complete = true;
+	// driver not started yet
+	publishStatus("not running");
+	connect_complete = true;
 
-   return(true);
+	return (true);
 }
 
 //---------------------------------------------------------
@@ -227,6 +250,11 @@ void acomms_driver::transmit_data() {
 	// check driver status
 	if ( !driver_ready ) {
 		publishWarning("Driver not ready");
+		return;
+	}
+
+	if (m_transmitLockout) {
+		publishWarning("Transmit lockout enabled.");
 		return;
 	}
 
