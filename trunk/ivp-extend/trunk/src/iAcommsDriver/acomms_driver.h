@@ -72,7 +72,7 @@ protected:
 
 	HoverAcomms::AcommsTransmission m_transmission;
 
-	bool in_sim, enable_legacy;
+	bool in_sim, enable_legacy, m_transmitLockout, m_useScheduler;
 
 	// simulation stuff
 	static const double mini_packet_transmission_length = 1.5;

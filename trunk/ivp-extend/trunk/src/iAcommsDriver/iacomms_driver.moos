@@ -11,6 +11,7 @@ ProcessConfig = iAcommsDriver
     in_sim = false
     
     PSK_minipackets = false
-    enable_ranging = false
+    enable_ranging = true
     show_range_pulses = true
+    use_scheduler = false
 }
