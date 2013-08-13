@@ -135,6 +135,7 @@ public:
 	bool setRate(Rate r);
 	bool setRate(int r);
 	void setDest(int d) { m_protobuf.set_dest(d); }
+	void setAckRequested(bool b) { m_protobuf.set_ack_requested(b); }
 
 	int fillData(const char * data, int length);
 	int fillData(const std::string & data);

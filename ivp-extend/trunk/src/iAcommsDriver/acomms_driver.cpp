@@ -91,13 +91,19 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     		  new_transmit=true;
     	  else
     		  publishWarning("Failed to parse protobuf from ACOMMS_TRANSMIT posting.");
-      } else if ( key == "ACOMMS_TRANSMITTED_REMOTE") {
+      } else if ( key == "ACOMMS_TRANSMITTED_REMOTE" ) {
     	  if ( !msg.IsBinary() ) {
     		  std::cout << "warning - wasn't binary" << std::endl;
     	  } else {
     		  std::cout << "was binary" << std::endl;
     	  }
     	  handle_sim_receive(msg.GetString());
+      } else if ( key == "ACOMMS_REQUEST_ACK" ) {
+    	  if (msg.GetDouble()==1) {
+    		  m_transmission.setAckRequested(true);
+    	  } else {
+    		  m_transmission.setAckRequested(false);
+    	  }
       }
    }
 
@@ -117,6 +123,7 @@ void acomms_driver::RegisterVariables() {
     m_Comms.Register( "NAV_X", 1 );
     m_Comms.Register( "NAV_Y", 1 );
     m_Comms.Register( "ACOMMS_TRANSMIT", 0 );
+    m_Comms.Register( "ACOMMS_REQUEST_ACK", 0);
 
     if (in_sim)
     	m_Comms.Register("ACOMMS_TRANSMITTED_REMOTE", 0);

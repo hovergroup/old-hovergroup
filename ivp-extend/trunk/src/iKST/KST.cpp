@@ -9,12 +9,11 @@
 #include "MBUtils.h"
 #include "KST.h"
 
-using namespace std;
-
 //---------------------------------------------------------
 // Constructor
 
 KST::KST() {
+	m_outputFilePath = "~/kst.csv";
 }
 
 //---------------------------------------------------------
@@ -31,24 +30,11 @@ bool KST::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 	for (p = NewMail.begin(); p != NewMail.end(); p++) {
 		CMOOSMsg &msg = *p;
-		if (msg.GetKey() == "NAV_X") {
-			m_navy = msg.GetDouble();
-		} else if (msg.GetKey() == "NAV_Y") {
-			m_navx = msg.GetDouble();
-		} else if (msg.GetKey() == "NAV_SPEED") {
-			m_navspeed = msg.GetDouble();
-		}
 
-#if 0 // Keep these around just for template
-		string key = msg.GetKey();
-		string comm = msg.GetCommunity();
-		double dval = msg.GetDouble();
-		string sval = msg.GetString();
-		string msrc = msg.GetSource();
-		double mtime = msg.GetTime();
-		bool mdbl = msg.IsDouble();
-		bool mstr = msg.IsString();
-#endif
+		if (msg.IsDouble())
+			m_values[msg.GetKey()] = msg.GetDouble();
+		else
+			m_values[msg.GetKey()] = sqrt(-1.0);
 	}
 
 	return (true);
@@ -58,10 +44,34 @@ bool KST::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool KST::OnConnectToServer() {
-	RegisterVariables();
 	m_startTime = MOOSTime();
 
-	out.open("/home/josh/kst.csv");
+    STRING_LIST Params;
+	m_MissionReader.GetConfiguration(m_sAppName,Params);
+
+	//this will make columns in sync log in order they
+	//were declared in *.moos file
+	Params.reverse();
+
+	STRING_LIST::iterator p;
+	for(p=Params.begin();p!=Params.end();p++)
+	{
+		std::string sParam = *p;
+		std::string sWhat = MOOSChomp(sParam,"=");
+
+		if(MOOSStrCmp(sWhat,"LOG"))
+		{
+			std::string sNewVar = stripBlankEnds(sParam);
+			m_vars.push_back(sNewVar);
+			m_values[sNewVar] = sqrt(-1.0);
+		}
+	}
+
+	m_MissionReader.GetConfigurationParam("output_path", m_outputFilePath);
+
+	RegisterVariables();
+
+	out.open(m_outputFilePath.c_str());
 	printHeader();
 
 	return (true);
@@ -88,22 +98,31 @@ bool KST::OnStartUp() {
 // Procedure: RegisterVariables
 
 void KST::RegisterVariables() {
-	m_Comms.Register("NAV_X", 0);
-	m_Comms.Register("NAV_Y", 0);
-	m_Comms.Register("NAV_SPEED", 0);
-	// m_Comms.Register("FOOBAR", 0);
+	for (int i=0; i<m_vars.size(); i++) {
+		m_Comms.Register(m_vars[i], 0);
+	}
 }
 
 void KST::printHeader() {
 	out << "time" << delim;
-	out << "NAV_X" << delim;
-	out << "NAV_Y" << delim;
-	out << "NAV_SPEED" << std::endl;
+	for (int i=0; i<m_vars.size()-1; i++) {
+		out << m_vars[i] << delim;
+	}
+	out << m_vars.back() << std::endl;
 }
 
 void KST::printLine() {
 	out << MOOSTime()-m_startTime << delim;
-	out << m_navx << delim;
-	out << m_navy << delim;
-	out << m_navspeed << std::endl;
+	for (int i=0; i<m_vars.size(); i++) {
+		double val = m_values[m_vars[i]];
+		if (isnan(val))
+			out << "nan";
+		else
+			out << val;
+		if (i==m_vars.size()-1)
+			out << std::endl;
+		else
+			out << delim;
+		m_values[m_vars[i]] = sqrt(-1.0);
+	}
 }

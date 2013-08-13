@@ -9,6 +9,7 @@
 #define KST_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include <math.h>
 
 class KST: public CMOOSApp {
 public:
@@ -25,7 +26,13 @@ protected:
 private:
 	static const char delim = ',';
 
-	double m_navx, m_navy, m_navspeed, m_startTime;
+	std::string m_outputFilePath;
+
+	std::vector<std::string> m_vars;
+	std::map<std::string,double> m_values;
+
+	double m_startTime;
+	int m_allocated_columns;
 
 	std::ofstream out;
 
