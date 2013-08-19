@@ -16,8 +16,7 @@ using namespace std;
 
 AcommCmd13Bit::AcommCmd13Bit()
 {
-  m_iterations = 0;
-  m_timewarp   = 1;
+
 }
 
 //---------------------------------------------------------
@@ -32,24 +31,40 @@ AcommCmd13Bit::~AcommCmd13Bit()
 
 bool AcommCmd13Bit::OnNewMail(MOOSMSG_LIST &NewMail)
 {
-  MOOSMSG_LIST::iterator p;
-   
-  for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-    CMOOSMsg &msg = *p;
+    MOOSMSG_LIST::iterator p;
+
+    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
+        CMOOSMsg &msg = *p;
+        std::string key = msg.GetKey();
+
+        if (key == "ACOMMS_RECEIVED_DATA_BINARY") {
+            //TODO design simple message class ?
+            //Receive Status from the Remus, poor assumption,
+            // do some simple message "header" checking if possible in the future.
+
+            decodeStatusString13Bits( msg.GetString());
+
+
+        }else if (key == "A_MISSIONMODE"){ // command
+            RemusAMessages::Remus13Bits m;
+            unsigned char cmd  = (unsigned char)m.Cmd2Num(msg.GetString());
+            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", cmd);
+        }
+
 
 #if 0 // Keep these around just for template
-    string key   = msg.GetKey();
-    string comm  = msg.GetCommunity();
-    double dval  = msg.GetDouble();
-    string sval  = msg.GetString(); 
-    string msrc  = msg.GetSource();
-    double mtime = msg.GetTime();
-    bool   mdbl  = msg.IsDouble();
-    bool   mstr  = msg.IsString();
+        string key   = msg.GetKey();
+        string comm  = msg.GetCommunity();
+        double dval  = msg.GetDouble();
+        string sval  = msg.GetString();
+        string msrc  = msg.GetSource();
+        double mtime = msg.GetTime();
+        bool   mdbl  = msg.IsDouble();
+        bool   mstr  = msg.IsString();
 #endif
-   }
-	
-   return(true);
+    }
+
+    return(true);
 }
 
 //---------------------------------------------------------
@@ -57,13 +72,20 @@ bool AcommCmd13Bit::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool AcommCmd13Bit::OnConnectToServer()
 {
-   // register for variables here
-   // possibly look at the mission file?
-   // m_MissionReader.GetConfigurationParam("Name", <string>);
-   // m_Comms.Register("VARNAME", 0);
-	
-   RegisterVariables();
-   return(true);
+    // register for variables here
+    // possibly look at the mission file?
+    // m_MissionReader.GetConfigurationParam("Name", <string>);
+    // m_Comms.Register("VARNAME", 0);
+
+    m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
+    m_Comms.Register("A_MISSIONMODE", 0);
+
+    m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
+    m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
+    m_MissionReader.GetConfigurationParam("y_min", m_osy_minimum);
+    m_MissionReader.GetConfigurationParam("y_max", m_osy_maximum);
+
+    return(true);
 }
 
 //---------------------------------------------------------
@@ -72,8 +94,8 @@ bool AcommCmd13Bit::OnConnectToServer()
 
 bool AcommCmd13Bit::Iterate()
 {
-  m_iterations++;
-  return(true);
+
+    return(true);
 }
 
 //---------------------------------------------------------
@@ -82,35 +104,26 @@ bool AcommCmd13Bit::Iterate()
 
 bool AcommCmd13Bit::OnStartUp()
 {
-  list<string> sParams;
-  m_MissionReader.EnableVerbatimQuoting(false);
-  if(m_MissionReader.GetConfiguration(GetAppName(), sParams)) {
-    list<string>::iterator p;
-    for(p=sParams.begin(); p!=sParams.end(); p++) {
-      string original_line = *p;
-      string param = stripBlankEnds(toupper(biteString(*p, '=')));
-      string value = stripBlankEnds(*p);
-      
-      if(param == "FOO") {
-        //handled
-      }
-      else if(param == "BAR") {
-        //handled
-      }
-    }
-  }
-  
-  m_timewarp = GetMOOSTimeWarp();
 
-  RegisterVariables();	
-  return(true);
+    return(true);
 }
 
-//---------------------------------------------------------
-// Procedure: RegisterVariables
-
-void AcommCmd13Bit::RegisterVariables()
+void AcommCmd13Bit::decodeStatusString13Bits(const std::string data)
 {
-  // m_Comms.Register("FOOBAR", 0);
+    if ( data.size() != 2 ) {
+        std::stringstream ss;
+        ss << "Wrong data length: " << data.size();
+        m_Comms.Notify("REMUS_DEBUG", ss.str());
+    }
+
+    RemusAMessages::Remus13Bits msg;
+
+    double received_x = msg.LinearDecode( data[0], m_osx_minimum, m_osx_maximum, 5);
+    double received_y = msg.LinearDecode( data[1]>>3, m_osy_minimum, m_osy_maximum, 5);
+
+    m_Comms.Notify("REMUS_X",received_x);
+    m_Comms.Notify("REMUS_Y",received_y);
 }
+
+
 
