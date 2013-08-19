@@ -58,12 +58,12 @@ protected:
 	// driver startup and status
 	void startDriver( std::string logDirectory );
 	bool driver_ready, driver_initialized, connect_complete;
-	std::string status;
+	HoverAcomms::DriverStatus m_status;
 	double status_set_time, receive_set_time, transmit_set_time;
 
 	// utility functions
 	void publishWarning( std::string message );
-	void publishStatus( std::string status_update );
+	void publishStatus(HoverAcomms::DriverStatus status_update);
 	void postRangePulse( std::string label, double range, double duration, std::string color = "yellow" );
 	void RegisterVariables();
 	bool file_exists( std::string filename );

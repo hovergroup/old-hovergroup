@@ -17,6 +17,13 @@
 
 namespace HoverAcomms {
 
+enum DriverStatus {
+	READY = 0,
+	TRANSMITTING,
+	RECEIVING,
+	NOT_RUNNING
+};
+
 enum Rate {
 	FSK0 = 0,
 	PSK1,

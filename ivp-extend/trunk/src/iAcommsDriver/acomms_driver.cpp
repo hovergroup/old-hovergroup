@@ -96,21 +96,21 @@ bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
     		  new_transmit=true;
     	  else
     		  publishWarning("Failed to parse protobuf from ACOMMS_TRANSMIT posting.");
-      } else if ( key == "ACOMMS_TRANSMITTED_REMOTE" ) {
+      }/* else if ( key == "ACOMMS_TRANSMITTED_REMOTE" ) {
     	  if ( !msg.IsBinary() ) {
     		  std::cout << "warning - wasn't binary" << std::endl;
     	  } else {
     		  std::cout << "was binary" << std::endl;
     	  }
     	  handle_sim_receive(msg.GetString());
-      } else if ( key == "ACOMMS_REQUEST_ACK" ) {
+      }*/ else if ( key == "ACOMMS_REQUEST_ACK" ) {
     	  if (msg.GetDouble()==1) {
     		  m_transmission.setAckRequested(true);
     	  } else {
     		  m_transmission.setAckRequested(false);
     	  }
       } else if ( key == "ACOMMS_TRANSMIT_LOCKOUT" ) {
-    	  if (MOOSToUpper(msg.GetString())=="ON") {
+    	  if (msg.GetDouble()==1) {
     		  m_transmitLockout = true;
     	  } else {
     		  m_transmitLockout = false;
@@ -178,7 +178,7 @@ bool acomms_driver::OnConnectToServer() {
 	RegisterVariables();
 
 	// driver not started yet
-	publishStatus("not running");
+	publishStatus(HoverAcomms::NOT_RUNNING);
 	connect_complete = true;
 
 	return (true);
@@ -201,10 +201,10 @@ bool acomms_driver::Iterate()
 		driver->do_work();
 
 	// receive status timeout
-	if ( status=="receiving" && MOOSTime()-receive_set_time > 8 ) {
+	if ( m_status==HoverAcomms::RECEIVING && MOOSTime()-receive_set_time > 8 ) {
 		publishWarning("Timed out in receiving state.");
 		driver_ready = true;
-		publishStatus("ready");
+		publishStatus(HoverAcomms::READY);
 	}
 
 	// transmit status timeout
@@ -222,16 +222,16 @@ bool acomms_driver::Iterate()
 		else
 			transmit_timeout = 8;
 	}
-	if ( status=="transmitting" && MOOSTime()-transmit_set_time > transmit_timeout ) {
+	if ( m_status==HoverAcomms::TRANSMITTING && MOOSTime()-transmit_set_time > transmit_timeout ) {
 		if (!in_sim)
 			publishWarning("Timed out in transmitting state.");
 		driver_ready = true;
-		publishStatus("ready");
+		publishStatus(HoverAcomms::READY);
 	}
 
 	// status gets updated every 5 seconds
 	if ( MOOSTime()-status_set_time > 5 ) {
-		publishStatus( status );
+		publishStatus( m_status );
 	}
 
 	return(true);
@@ -266,7 +266,7 @@ void acomms_driver::transmit_data() {
 	}
 
 	// set status to transmitting
-	publishStatus("transmitting");
+	publishStatus(HoverAcomms::TRANSMITTING);
 	transmit_set_time = MOOSTime();
 	driver_ready = false;
 
@@ -340,7 +340,7 @@ void acomms_driver::handle_sim_receive(std::string msg) {
 
 	receive_set_time = MOOSTime();
 	driver_ready = false;
-	publishStatus("receiving");
+	publishStatus(HoverAcomms::RECEIVING);
 
 	std::cout << "scheduled reception for: " << scheduled_reception.m_time << std::endl;
 	std::cout << "currently: " << JoshUtil::getSystemTimeSeconds() << std::endl;
@@ -441,7 +441,7 @@ void acomms_driver::handle_data_receive(
 //	}
 
 	driver_ready = true;
-	publishStatus("ready");
+	publishStatus(HoverAcomms::READY);
 }
 
 void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
@@ -449,13 +449,13 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
 	if ( descriptor == "TXF") {
 		// end of transmission, change status back to ready
 		driver_ready = true;
-		publishStatus("ready");
+		publishStatus(HoverAcomms::READY);
 	} else if ( descriptor == "RXP" ) {
 		// receive start, set status and flags
 		driver_ready = false;
 		CST_received = false;
 		RXD_received = false;
-		publishStatus("receiving");
+		publishStatus(HoverAcomms::RECEIVING);
 		receive_set_time = MOOSTime();
 	} else if ( descriptor == "IRE" ) {
 		// impulse response, post to moosdb
@@ -469,8 +469,8 @@ void acomms_driver::publishWarning( std::string message ) {
 }
 
 // publish status and update locally
-void acomms_driver::publishStatus( std::string status_update ) {
-	status = status_update;
+void acomms_driver::publishStatus(HoverAcomms::DriverStatus status_update) {
+	m_status = status_update;
 	m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update);
 	status_set_time = MOOSTime();
 
@@ -559,5 +559,5 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 	driver_ready = true;
 	driver_initialized = true;
 
-	publishStatus("ready");
+	publishStatus(HoverAcomms::READY);
 }
