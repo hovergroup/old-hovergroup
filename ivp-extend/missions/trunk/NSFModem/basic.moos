@@ -1,0 +1,41 @@
+ServerHost = 192.168.1.10
+ServerPort = 9000
+Community  = NSF
+
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 1000
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  //Run = iAcommsDriver          @ NewConsole = false
+  //Run = iNSFModem              @ NewConsole = false
+}
+
+ProcessConfig = pLogger
+{
+    AppTick   = 10
+    CommsTick = 10
+
+    File            = LOG_SILVANA
+    PATH            = /home/acomms/logs/
+    AsyncLog        = true
+    FileTimeStamp   = true
+    WildCardLogging = true
+
+    WildCardOmitPattern = PLOGGER_STATUS
+}
+
+ProcessConfig = iAcommsDriver
+{
+  AppTick     = 5
+  IterateMode = 0
+
+  PortName = /dev/ttyO0
+  ID       = 5
+
+  PSK_minipackets   = false
+  enable_ranging    = false
+  show_range_pulses = true
+}
+
