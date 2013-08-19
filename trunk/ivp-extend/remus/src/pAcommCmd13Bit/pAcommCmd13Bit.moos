@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pAcommCmd13Bit config block
+
+ProcessConfig = pAcommCmd13Bit
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+
