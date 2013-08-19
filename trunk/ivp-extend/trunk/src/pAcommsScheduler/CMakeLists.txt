@@ -19,5 +19,7 @@ TARGET_LINK_LIBRARIES(pAcommsScheduler
    ${MOOS_LIBRARIES}   
    mbutil
    m
-   pthread)
+   pthread
+   JoshUtils
+   HoverAcomms)
 
