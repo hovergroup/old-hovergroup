@@ -1,8 +1,8 @@
 /************************************************************/
-/*    NAME:                                               */
+/*    NAME:                                                 */
 /*    ORGN: MIT                                             */
-/*    FILE: NSFModem.cpp                                        */
-/*    DATE:                                                 */
+/*    FILE: NSFModem.cpp                                    */
+/*    DATE: 19-08-2013                                      */
 /************************************************************/
 
 #include <iterator>
@@ -20,7 +20,6 @@ NSFModem::NSFModem() : m_state(Starting),
                        m_power_decrease_pin_value(c_gpio6_val.c_str()),
                        m_power_decrease_pin_direction(c_gpio6_dir.c_str())
 {
-
   if (!m_power_increase_pin_direction.is_open())
   {
     std::cerr << "Unable to open TX power increase pin (direction)\n";
@@ -37,7 +36,6 @@ NSFModem::NSFModem() : m_state(Starting),
   {
     std::cerr << "Unable to open TX power decrease pin (value)\n";
   }
-
 
   m_power_increase_pin_direction << "out";
   m_power_decrease_pin_direction << "out";
@@ -97,9 +95,6 @@ bool NSFModem::OnNewMail(MOOSMSG_LIST &NewMail)
       std::cout << "TX power: " << m_requested_power_level << "/" << m_current_power_level << " (requested/current)\n";
     }
 
-
-    // update the requested power level
-
 #if 0 // Keep these around just for template
     string key   = msg.GetKey();
     string comm  = msg.GetCommunity();
@@ -157,7 +152,6 @@ bool NSFModem::OnStartUp()
 
 void NSFModem::RegisterVariables()
 {
-  // m_Comms.Register("FOOBAR", 0);
   m_Comms.Register("NSFMODEM_POWER_LEVEL", 0);
 }
 
@@ -166,7 +160,6 @@ void NSFModem::power_write_loop()
   while(m_state == Running)
   {
     // check current power level wrt latest request
-    // determine delta (= request - current)
     int delta = m_requested_power_level - m_current_power_level;
 
     if ( delta > 0)

@@ -1,8 +1,8 @@
 /************************************************************/
-/*    NAME:                                               */
+/*    NAME:                                                 */
 /*    ORGN: MIT                                             */
-/*    FILE: NSFModem.h                                          */
-/*    DATE:                                                 */
+/*    FILE: NSFModem.h                                      */
+/*    DATE: 19-08-2013                                      */
 /************************************************************/
 
 #ifndef NSFModem_HEADER
@@ -52,7 +52,9 @@ class NSFModem : public CMOOSApp
     std::ofstream m_power_decrease_pin_value;
     std::ofstream m_power_decrease_pin_direction;
 
-    boost::thread m_power_write_thread;
+    boost::thread m_power_write_thread; // a thread that takes care of writing to
+                                        // the pins to prevent OnNewMail from 
+                                        // blocking.
 
   private:
     void power_write_loop();
