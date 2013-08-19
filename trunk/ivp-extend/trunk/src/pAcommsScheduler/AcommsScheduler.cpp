@@ -14,7 +14,8 @@
 
 AcommsScheduler::AcommsScheduler() {
 	m_lockEnabled = false;
-	m_state = unset;
+	m_state = pre_start;
+	m_haveTransmission = false;
 }
 
 //---------------------------------------------------------
@@ -52,6 +53,20 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 				if (reception.getSource()==m_sourceID)
 					m_dataComplete++;
 			}
+		} else if (key=="ACOMMS_TRANSMIT_DATA_BINARY") {
+			m_haveTransmission = true;
+			m_binaryTranmissionData.resize(0);
+			msg.GetBinaryData(m_binaryTranmissionData);
+			m_transmissionSource = ACOMMS_TRANSMIT_DATA_BINARY;
+		} else if (key=="ACOMMS_TRANSMIT_DATA") {
+			m_haveTransmission = true;
+			m_transmissionData = msg.GetString();
+			m_transmissionSource = ACOMMS_TRANSMIT_DATA;
+		} else if (key=="ACOMMS_TRANSMIT") {
+			m_haveTransmission = true;
+			m_binaryTranmissionData.resize(0);
+			msg.GetBinaryData(m_binaryTranmissionData);
+			m_transmissionSource = ACOMMS_TRANSMIT;
 		}
 	}
 
@@ -68,6 +83,9 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 		}
 		m_meanOffset = sum1/m_observations.size();
 		m_meanDuration = sum2/m_observations.size();
+
+		m_Comms.Notify("ACOMMS_SCHEDULER_OFFSET", m_meanOffset);
+		m_Comms.Notify("ACOMMS_SCHEDULER_DURATION", m_meanDuration);
 
 		m_dataComplete=0;
 	}
@@ -101,6 +119,7 @@ bool AcommsScheduler::Iterate() {
 	// don't do anything if we don't have at least one observation
 	if (m_observations.size()<1) {
 		setLock(false);
+		updateState(unset);
 		return true;
 	}
 
@@ -110,13 +129,13 @@ bool AcommsScheduler::Iterate() {
 
 	// determine current state within slot
 	if (0<m_offset && m_offset<m_meanDuration) {
-		m_state = lock;
+		updateState(lock);
 	} else if (m_meanDuration<m_offset && m_offset<m_meanDuration+m_postLock) {
-		m_state = post_lock;
+		updateState(post_lock);
 	} else if (m_period-m_preLock<m_offset && m_offset<m_period) {
-		m_state = pre_lock;
+		updateState(pre_lock);
 	} else {
-		m_state = unlocked;
+		updateState(unlocked);
 	}
 
 	// set lock according to state
@@ -141,6 +160,26 @@ bool AcommsScheduler::Iterate() {
 		break;
 	}
 
+	if (m_haveTransmission && m_state==unlocked && m_driverStatus==HoverAcomms::READY) {
+		switch (m_transmissionSource) {
+		case ACOMMS_TRANSMIT_DATA:
+			m_Comms.Notify("SCHEDULER_TRANSMIT_DATA", m_transmissionData);
+			break;
+
+		case ACOMMS_TRANSMIT_DATA_BINARY:
+			m_Comms.Notify("SCHEDULER_TRANSMIT_DATA_BINARY", &m_binaryTranmissionData, m_binaryTranmissionData.size());
+			break;
+
+		case ACOMMS_TRANSMIT:
+			m_Comms.Notify("SCHEDULER_TRANSMIT", &m_binaryTranmissionData, m_binaryTranmissionData.size());
+			break;
+
+		default:
+			break;
+		}
+		m_haveTransmission = false;
+	}
+
 	return (true);
 }
 
@@ -151,6 +190,17 @@ bool AcommsScheduler::Iterate() {
 bool AcommsScheduler::OnStartUp() {
 	RegisterVariables();
 	return (true);
+}
+
+void AcommsScheduler::updateState(STATE state) {
+	if (state!=m_state) {
+		m_state = state;
+		postState();
+	}
+}
+
+void AcommsScheduler::postState() {
+	m_Comms.Notify("ACOMMS_SCHEDULER_STATE", m_state);
 }
 
 //---------------------------------------------------------

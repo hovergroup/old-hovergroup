@@ -19,7 +19,14 @@ enum STATE {
 	pre_lock,
 	lock,
 	post_lock,
-	unset
+	unset,
+	pre_start
+};
+
+enum TransmissionSource {
+	ACOMMS_TRANSMIT_DATA = 0,
+	ACOMMS_TRANSMIT_DATA_BINARY,
+	ACOMMS_TRANSMIT
 };
 
 class AcommsScheduler: public CMOOSApp {
@@ -47,6 +54,8 @@ private:
 	bool m_lockEnabled;
 
 	void setLock(bool lock);
+	void updateState(STATE state);
+	void postState();
 
 	// learning
 	HoverAcomms::DriverStatus m_driverStatus;
@@ -55,6 +64,12 @@ private:
 	double m_lastStart, m_lastEnd; // last observed
 	double m_meanOffset, m_meanDuration; // current mean
 	std::deque<std::pair<double,double> > m_observations; // current history
+
+	// transmissions
+	bool m_haveTransmission;
+	std::string m_transmissionData;
+	std::vector<unsigned char> m_binaryTranmissionData;
+	TransmissionSource m_transmissionSource;
 
 };
 
