@@ -19,5 +19,6 @@ TARGET_LINK_LIBRARIES(pAcommCmd13Bit
    ${MOOS_LIBRARIES}
    mbutil
    m
-   pthread)
+   pthread
+   RemusAMessages)
 

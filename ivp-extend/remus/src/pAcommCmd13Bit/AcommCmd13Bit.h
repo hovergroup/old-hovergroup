@@ -9,6 +9,7 @@
 #define AcommCmd13Bit_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include "RemusAMessages.h"
 
 class AcommCmd13Bit : public CMOOSApp
 {
@@ -21,13 +22,16 @@ class AcommCmd13Bit : public CMOOSApp
    bool Iterate();
    bool OnConnectToServer();
    bool OnStartUp();
-   void RegisterVariables();
+
+   double m_osx_minimum, m_osx_maximum;
+   double m_osy_minimum, m_osy_maximum;
+
+   void decodeStatusString13Bits(const std::string data);
+
 
  private: // Configuration variables
 
  private: // State variables
-   unsigned int m_iterations;
-   double       m_timewarp;
 };
 
 #endif 

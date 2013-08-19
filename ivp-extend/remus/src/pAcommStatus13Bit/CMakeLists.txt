@@ -17,7 +17,9 @@ ADD_EXECUTABLE(pAcommStatus13Bit ${SRC})
 
 TARGET_LINK_LIBRARIES(pAcommStatus13Bit
    ${MOOS_LIBRARIES}
+   boost_date_time
    mbutil
    m
-   pthread)
+   pthread
+   RemusAMessages)
 
