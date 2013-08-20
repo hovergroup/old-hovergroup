@@ -1,0 +1,14 @@
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+    IterateMode = 0
+
+	PortName = $(MODEMPORT)
+	ID = $(ACOMMSID)
+	
+	PSK_minipackets = true
+        enable_ranging = false
+        show_range_pulses = true
+        enable_legacy = true
+
+}
