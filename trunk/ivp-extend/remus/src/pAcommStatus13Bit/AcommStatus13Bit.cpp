@@ -51,7 +51,7 @@ bool AcommStatus13Bit::OnNewMail(MOOSMSG_LIST &NewMail)
           } else if (key == "NAV_Y") {
               m_vy = msg.GetDouble();
 
-          } else if (key == "ACOMMS_RECEIVED_DATA_BINARY") {
+          } else if (key == "ACOMMS_RECEIVED_DATA") {
               //TODO design simple message class ?
               //Receive Command from the shoreside, poor assumption,
               // do some simple message "header" checking if possible in the future.
@@ -101,7 +101,7 @@ bool AcommStatus13Bit::OnConnectToServer()
     m_Comms.Register("ASTATUS_TRANSMITS",0);
     m_Comms.Register("NAV_X", 0);
     m_Comms.Register("NAV_Y", 0);
-    m_Comms.Register("ACOMMS_RECEIVED_DATA_BINARY", 0);
+    m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
 
     m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
     m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
