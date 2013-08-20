@@ -77,7 +77,7 @@ bool AcommCmd13Bit::OnConnectToServer()
     // m_MissionReader.GetConfigurationParam("Name", <string>);
     // m_Comms.Register("VARNAME", 0);
 
-    m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
+    m_Comms.Register("ACOMMS_RECEIVED_DATA_BINARY", 0);
     m_Comms.Register("A_MISSIONMODE", 0);
 
     m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
