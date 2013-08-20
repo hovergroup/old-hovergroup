@@ -42,7 +42,7 @@ public:
 
     // very bad way of encoding, just for temporary usage
     std::string Num2Cmd(int numCmd);
-    int Cmd2Num(std::string cmd);
+    unsigned char Cmd2Num(std::string cmd);
 };
 
 

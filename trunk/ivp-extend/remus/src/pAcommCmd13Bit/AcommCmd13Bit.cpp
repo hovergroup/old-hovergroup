@@ -47,8 +47,11 @@ bool AcommCmd13Bit::OnNewMail(MOOSMSG_LIST &NewMail)
 
         }else if (key == "A_MISSIONMODE"){ // command
             RemusAMessages::Remus13Bits m;
-            unsigned char cmd  = (unsigned char)m.Cmd2Num(msg.GetString());
-            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", cmd);
+            unsigned char cmd  = m.Cmd2Num(msg.GetString());
+            std::vector<unsigned char> data (2, 0);
+                data[1] = cmd;
+                data[0] = cmd;
+            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY",  &data[0], 2);
         }
 
 

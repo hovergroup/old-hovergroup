@@ -88,7 +88,7 @@ std::string Remus13Bits::Num2Cmd(int numCmd){
 }
 
 
-int Remus13Bits::Cmd2Num(std::string cmd){
+unsigned char Remus13Bits::Cmd2Num(std::string cmd){
     if (cmd.compare("INACTIVE")==0)
         return 1;
     else if (cmd.compare("GOTO")==0)
