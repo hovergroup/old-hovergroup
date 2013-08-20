@@ -17,8 +17,13 @@ Processconfig = ANTLER
   Run = pHelmIvP           	@ NewConsole = false
   Run = iAcommsDriver	    	@ NewConsole = false
   Run = iRecon              @ NewConsole = false
-  Run = pAcommStatusTransmit   @ NewConsole = false
   Run = uTimerScript        @ NewConsole = false
+
+#ifdef PACKET psk
+  Run = pAcommStatusTransmit    @ NewConsole = false
+#else
+  Run = pAcommStatus13Bit       @ NewConsole = false
+#endif
 }
 
 
@@ -27,7 +32,14 @@ Processconfig = ANTLER
 #include plug_pNodeReporter_Remus.moos
 #include plug_pMarinePID_Remus.moos
 #include plug_pHelmIvP_remus.moos
-#include plug_iAcommsDriver.moos
 #include plug_iRecon.moos
-#include plug_pAcommStatusTransmit.moos
 #include plug_uTimerScript_remus.moos
+
+
+#ifdef PACKET psk
+  #include plug_pAcommStatusTransmit.moos
+  #include plug_iAcommsDriver.moos
+#else
+  #include plug_pAcommStatus13Bit.moos
+  #include plug_iAcommsDriver13Bit.moos
+#endif

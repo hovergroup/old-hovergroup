@@ -150,7 +150,7 @@ fi
 # Conditionally Prepare remus files
 if [ "${VEHICLE}" = "remus" ]; then
     nsplug meta_remus.moos targ_$VNAME_REMUS.moos -f         \
-        PACKET=$PACKET                                 \       
+        PACKET=$PACKET                                 \
         VHOST=$VHOST_REMUS                             \
         VNAME=$VNAME_REMUS                             \
         VPORT=$VPORT_REMUS                             \
