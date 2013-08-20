@@ -101,7 +101,7 @@ bool AcommStatus13Bit::OnConnectToServer()
     m_Comms.Register("ASTATUS_TRANSMITS",0);
     m_Comms.Register("NAV_X", 0);
     m_Comms.Register("NAV_Y", 0);
-    m_Comms.Register("ACOMMS_RECEIVED_DATA", 0);
+    m_Comms.Register("ACOMMS_RECEIVED_DATA_BINARY", 0);
 
     m_MissionReader.GetConfigurationParam("x_min", m_osx_minimum);
     m_MissionReader.GetConfigurationParam("x_max", m_osx_maximum);
