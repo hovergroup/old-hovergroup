@@ -32,7 +32,11 @@ ProcessConfig = uTimerScript_config
     IterateMode = 0
     
     event = var=NAV_HEADING,val=0,time=1
+#ifdef PACKET psk
     event = var=ACOMMS_TRANSMIT_RATE,val=0,time=1
+#else
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+#endif
     event = quit, time=2
 }
 
