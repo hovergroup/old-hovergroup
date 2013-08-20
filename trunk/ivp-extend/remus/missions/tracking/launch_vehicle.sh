@@ -14,7 +14,7 @@ JUST_BUILD="no"
 BAD_ARGS=""
 VEHICLE=""
 WARP=1
-ROLE=""
+PACKET="psk"
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -46,6 +46,10 @@ for ARGI; do
     VEHICLE="remus"
     UNDEFINED_ARG=""
     fi
+    if [ "${ARGI:0:8}" = "--packet" ] ; then
+        PACKET="${ARGI#--packet=*}"
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
     BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -72,6 +76,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --silvana              silvana vehicle only                \n"
     printf "  --icarus               icarus vehicle only                   \n"
     printf "  --remus                remus vehicle only                   \n"
+    printf "  --PACKET=[psk(default)/mini]\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -84,6 +89,7 @@ fi
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
     nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
+        PACKET=$PACKET                                  \
         VHOST=$VHOST_NOSTROMO                           \
         VNAME=$VNAME_NOSTROMO                           \
         VPORT=$VPORT_NOSTROMO                           \
@@ -105,6 +111,7 @@ fi
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
     nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_SILVANA.moos -f   \
+        PACKET=$PACKET                                  \
         VHOST=$VHOST_SILVANA                            \
         VNAME=$VNAME_SILVANA                            \
         VPORT=$VPORT_SILVANA                            \
@@ -126,6 +133,7 @@ fi
 # Conditionally Prepare icarus files
 if [ "${VEHICLE}" = "icarus" ]; then
     nsplug meta_icarus.moos targ_$VNAME_ICARUS.moos -f         \
+        PACKET=$PACKET                                  \
         VHOST=$VHOST_ICARUS                             \
         VNAME=$VNAME_ICARUS                             \
         VPORT=$VPORT_ICARUS                             \
@@ -142,6 +150,7 @@ fi
 # Conditionally Prepare remus files
 if [ "${VEHICLE}" = "remus" ]; then
     nsplug meta_remus.moos targ_$VNAME_REMUS.moos -f         \
+        PACKET=$PACKET                                 \       
         VHOST=$VHOST_REMUS                             \
         VNAME=$VNAME_REMUS                             \
         VPORT=$VPORT_REMUS                             \

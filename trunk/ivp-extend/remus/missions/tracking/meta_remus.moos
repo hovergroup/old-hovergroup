@@ -27,7 +27,7 @@ Processconfig = ANTLER
 #include plug_pNodeReporter_Remus.moos
 #include plug_pMarinePID_Remus.moos
 #include plug_pHelmIvP_remus.moos
-#include plug_iAcommsDriver_remus.moos
+#include plug_iAcommsDriver.moos
 #include plug_iRecon.moos
 #include plug_pAcommStatusTransmit.moos
 #include plug_uTimerScript_remus.moos
