@@ -17,13 +17,26 @@ Processconfig = ANTLER
   Run = pHelmIvP           	@ NewConsole = false
   Run = iAcommsDriver	    	@ NewConsole = false
   Run = iRecon              @ NewConsole = false
-  Run = uTimerScript        @ NewConsole = false
+  Run = uTimerScript        @ NewConsole = false ~uTimerScript_config
 
 #ifdef PACKET psk
   Run = pAcommStatusTransmit    @ NewConsole = false
 #else
   Run = pAcommStatus13Bit       @ NewConsole = false
 #endif
+}
+
+Processconfig = uTimerScript_config
+{
+  AppTick = 4
+  CommsTick = 4
+
+#ifdef PACKET psk
+    event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+#else
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+#endif
+  event = quit, time=2
 }
 
 
@@ -33,7 +46,6 @@ Processconfig = ANTLER
 #include plug_pMarinePID_Remus.moos
 #include plug_pHelmIvP_remus.moos
 #include plug_iRecon.moos
-#include plug_uTimerScript_remus.moos
 
 
 #ifdef PACKET psk
