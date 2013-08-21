@@ -85,7 +85,7 @@ Behavior = BHV_Loiter
  	duration = 600 // 10 minutes
  	updates = LOITER_REMUS_UPDATES
 
- 	polygon = format=radial, x=74, y=-113, radius=40, pts=8, snap=1, label=Lima
+ 	polygon = format=radial, x=3, y=-103, radius=50, pts=8, snap=1, label=Lima
  	speed = $(CRUISESPEED)
  	capture_radius = 8.0
  	slip_radius = 16.0
@@ -105,8 +105,24 @@ Behavior = BHV_ConstantDepth
   		condition  = MISSION_MODE = STARTLOITER
   		updates    = LOITER_REMUSDEPTH_UPDATES
 
-              depth = 4
-           duration = no-time-limit
+              depth = 2
+           duration = 1800
+}
+
+Behavior = BHV_PeriodicSurface
+{
+
+		name       = depthloiter
+		pwt        = 100
+  		condition  = MISSION_MODE = STARTLOITER
+  		updates    = LOITER_REMUSYOYO_UPDATES
+	
+	period = 60
+	max_time_at_surface = 10
+	ascent_grade = fullspeed
+	ascent_speed = $(CRUISESPEED)
+	zero_speed_depth = 0.000001
+
 }
 
 Behavior = BHV_OpRegion
@@ -115,7 +131,7 @@ Behavior = BHV_OpRegion
   pwt        = 100
   condition  = MISSION_MODE = STARTLOITER 
 
-             max_time = 600
+             max_time = 1800
               polygon = -200,-100:-100,-250:200,-100:144,3:84,35
    trigger_entry_time = 2.0
     trigger_exit_time = 1.0
@@ -139,9 +155,10 @@ Behavior = BHV_Waypoint
 	speed	   	= $(CRUISESPEED)
 	radius	   	= 2.0
 	nm_radius  	= 8.0
-	points	   	= format=lawnmower, label=remus_survey, x=20, y=-80, \
-					width=70, height=30, lane_width=20, rows=north-south,degs=0
-    //points      = 20,-80,2
+	lead        = 8.0
+    points      = format=lawnmower, label=remus_survey, x=20, y=-90, \
+                            width=150, height=50, lane_width=20, rows=north,degs=-30
+    //points    = 20,-80,2
 }
 
 Behavior = BHV_ConstantDepth
@@ -151,10 +168,25 @@ Behavior = BHV_ConstantDepth
   		condition  = MISSION_MODE = STARTMISSION
   		updates    = MISSION_REMUSDEPTH_UPDATES
 
-              depth = 4
-           duration = no-time-limit
+              depth = 2
+           duration = 1800
 }
 
+Behavior = BHV_PeriodicSurface
+{
+
+		name       = depthyoyo
+		pwt        = 100
+  		condition  = MISSION_MODE = STARTMISSION
+  		updates    = MISSION_REMUSYOYO_UPDATES
+	
+	period = 60
+	max_time_at_surface = 10
+	ascent_grade = fullspeed
+	ascent_speed = $(CRUISESPEED)
+	zero_speed_depth = 0.000001
+
+}
 
 Behavior = BHV_OpRegion
 {
@@ -162,7 +194,7 @@ Behavior = BHV_OpRegion
   pwt        = 100
   condition  = MISSION_MODE = STARTMISSION 
 
-             max_time = 600
+             max_time = 1800
               polygon = -200,-100:-100,-250:200,-100:144,3:84,35
    trigger_entry_time = 2.0
     trigger_exit_time = 1.0
