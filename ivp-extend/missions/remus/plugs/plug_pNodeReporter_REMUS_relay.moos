@@ -1,0 +1,15 @@
+//--------------------------------------------------------
+// pNodeReporter Configuration Block (Created from Plugin)
+
+ProcessConfig = pNodeReporter_remus
+{
+  AppTick     = 2
+  CommsTick   = 2
+  
+  VESSEL_TYPE = UUV
+
+  alt_nav_prefix = REMUS_
+  alt_nav_name = REMUS
+
+
+}
