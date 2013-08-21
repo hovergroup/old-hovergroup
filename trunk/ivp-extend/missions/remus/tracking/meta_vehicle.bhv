@@ -1,0 +1,77 @@
+initialize   MISSION_MODE = INACTIVE
+initialize   MOOS_MANUAL_OVERRIDE=true
+initialize   GOSTAY = true
+
+Behavior = BHV_Waypoint
+{ 
+    name       = goto_and_station
+    pwt        = 100
+    condition  = MISSION_MODE = GOTO
+    condition  = GOSTAY = true
+    endflag    = MISSION_MODE = STATION-KEEP
+    perpetual  = true
+    updates    = GOTO_UPDATES
+
+    lead          = 15
+    lead_to_start = true
+    lead_damper   = 1
+    speed         = $(CRUISESPEED)
+    radius        = 4.0
+    slip_radius   = 10.0
+    points        = $(RETURN_PT)
+    repeat        = 1
+    visual_hints  = nextpt_color=red, nextpt_lcolor=green
+    visual_hints  = vertex_color=red, line_color=green
+    visual_hints  = vertex_size=2, edge_size=1
+}
+
+Behavior = BHV_Waypoint
+{ 
+    name       = goto_and_return
+    pwt        = 100
+    condition  = MISSION_MODE = GOTO
+    condition  = GOSTAY = false
+    endflag    = MISSION_MODE = RETURN
+    perpetual  = true
+    updates    = GOTO_UPDATES
+
+    lead          = 15
+    lead_to_start = true
+    lead_damper   = 1
+    speed         = $(CRUISESPEED)
+    radius        = 4.0
+    slip_radius   = 10.0
+    points        = $(RETURN_PT)
+    repeat        = 1
+    visual_hints  = nextpt_color=red, nextpt_lcolor=green
+    visual_hints  = vertex_color=red, line_color=green
+    visual_hints  = vertex_size=2, edge_size=1
+}
+
+Behavior = BHV_Waypoint
+{
+    name       = return
+    pwt        = 100
+    condition  = MISSION_MODE = RETURN
+    endflag    = MISSION_MODE = STATION-KEEP
+    perpetual  = true
+
+    speed      = $(CRUISESPEED)
+    radius     = 2.0
+    nm_radius  = 8.0
+    points     = $(RETURN_PT)
+}
+
+Behavior = BHV_StationKeep
+{
+    name             = Archie_Stationkeep
+    pwt              = 100
+    condition        = MISSION_MODE = STATION-KEEP
+    center_activate  = true
+    
+    station_pt    = 0,0
+    inner_radius  = 5
+    outer_radius  = 10
+    outer_speed   = 1.0
+    swing_time    = 3
+}
