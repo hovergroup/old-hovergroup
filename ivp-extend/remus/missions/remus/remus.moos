@@ -56,7 +56,7 @@ Processconfig = uTimerScript
 
 
 ProcessConfig = pMOOSBridge
-        {
+{
         // xxxTick =    5 when using 5hz GPS, 2 when using 1hz GPS
         AppTick         = 5
         CommsTick       = 5

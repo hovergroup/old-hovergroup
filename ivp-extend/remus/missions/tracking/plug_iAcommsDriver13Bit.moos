@@ -6,7 +6,7 @@ ProcessConfig = iAcommsDriver
 	PortName = $(MODEMPORT)
 	ID = $(ACOMMSID)
 	
-	PSK_minipackets = true
+	PSK_minipackets = false
         enable_ranging = false
         show_range_pulses = true
         enable_legacy = true
