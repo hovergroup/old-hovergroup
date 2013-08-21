@@ -88,7 +88,7 @@ fi
 
 # Conditionally Prepare nostromo files
 if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
+    nsplug meta_nostromo.moos targ_$VNAME_NOSTROMO.moos -f  \
         PACKET=$PACKET                                  \
         VHOST=$VHOST_NOSTROMO                           \
         VNAME=$VNAME_NOSTROMO                           \
@@ -110,7 +110,7 @@ fi
 
 # Conditionally Prepare silvana files
 if [ "${VEHICLE}" = "silvana" ]; then
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_SILVANA.moos -f   \
+    nsplug meta_silvana.moos targ_$VNAME_SILVANA.moos -f   \
         PACKET=$PACKET                                  \
         VHOST=$VHOST_SILVANA                            \
         VNAME=$VNAME_SILVANA                            \
