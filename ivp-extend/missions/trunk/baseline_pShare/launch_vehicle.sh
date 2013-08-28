@@ -94,7 +94,7 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f      \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
         VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
         VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
@@ -103,10 +103,11 @@ else
         OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
         ARDUINOPORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}     \
         ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-        SHOREHOST=$SHOREHOST                                  \
+        RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+        SHOREHOST=$SHOREHOST                                   \
         SLPORT=$SLPORT
         
-    nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                \
+    nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
         CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
         RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
