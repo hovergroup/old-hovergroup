@@ -13,7 +13,6 @@ HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
 VNAME=""
-WARP=1
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -88,7 +87,7 @@ then
         VNAME=$VNAME_ICARUS                                   \
         VPORT=$VPORT_ICARUS                                   \
         LPORT=$LPORT_ICARUS                                   \
-        WARP=$WARP                                            \
+        WARP="1"                                              \
         ACOMMSID=$ACOMMSID_ICARUS                             \
         MODEMPORT=$MODEMPORT_ICARUS                           \
         SHOREHOST=$SHOREHOST                                  \
@@ -101,9 +100,10 @@ else
         LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
         MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
         OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-        ARDUINOPORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}     \
+        ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
         ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
         RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+        WARP="1"                                               \
         SHOREHOST=$SHOREHOST                                   \
         SLPORT=$SLPORT
         
