@@ -110,7 +110,7 @@ else
             OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
             ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
             ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            RUDDER_OFFSET="-12"                                    \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
             SLPORT=$SLPORT
