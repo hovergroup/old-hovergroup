@@ -13,6 +13,7 @@ HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
 VNAME=""
+TRITECH=false
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -44,6 +45,10 @@ for ARGI; do
         VNAME="KESTREL"
         UNDEFINED_ARG=""
     fi
+    if [ "${ARGI}" = "--tritech" ] ; then
+        TRITECH=true
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
         BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -53,6 +58,19 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
+if [ "${HELP}" = "yes" ]; then
+    printf "%s [SWITCHES]            \n" $0
+    printf "Switches:                \n"
+    printf "  --nostromo             nostromo vehicle only  \n"
+    printf "  --silvana              silvana vehicle only   \n"
+    printf "  --icarus               icarus vehicle only    \n"
+    printf "  --kestrel              kestrel vehicle only   \n"
+    printf "  --tritech              enable altimeter, disable modem \n"
+    printf "  --just_build, -j       \n" 
+    printf "  --help, -h             \n" 
+    exit 0;
+fi
+
 if [ "${VNAME}" = "" ] ; then
     printf "Must specify a vehicle name. \n"
     exit 0
@@ -61,18 +79,6 @@ fi
 if [ "${BAD_ARGS}" != "" ] ; then
     printf "Bad Argument: %s \n" $BAD_ARGS
     exit 0
-fi
-
-if [ "${HELP}" = "yes" ]; then
-    printf "%s [SWITCHES]            \n" $0
-    printf "Switches:                \n"
-    printf "  --nostromo             nostromo vehicle only  \n"
-    printf "  --silvana              silvana vehicle only   \n"
-    printf "  --icarus               icarus vehicle only    \n"
-    printf "  --kestrel              kestrel vehicle only   \n"
-    printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
-    exit 0;
 fi
 
 #-------------------------------------------------------
@@ -93,19 +99,36 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
-        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-        VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
-        VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
-        LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
-        MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
-        OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-        ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
-        ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-        RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-        WARP="1"                                               \
-        SHOREHOST=$SHOREHOST                                   \
-        SLPORT=$SLPORT
+    if $TRITECH
+    then
+        nsplug meta_vehicle_tritech_rtk.moos targ_$VNAME.moos -f   \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+            TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
+            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
+            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
+            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            WARP="1"                                               \
+            SHOREHOST=$SHOREHOST                                   \
+            SLPORT=$SLPORT
+    else
+        nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+            MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
+            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
+            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
+            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            WARP="1"                                               \
+            SHOREHOST=$SHOREHOST                                   \
+            SLPORT=$SLPORT
+    fi
         
     nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
