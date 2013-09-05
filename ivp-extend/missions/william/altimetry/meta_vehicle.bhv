@@ -75,3 +75,24 @@ Behavior = BHV_StationKeep
     outer_speed   = 1.0
     swing_time    = 3
 }
+
+
+// ===================================== mission =========================================
+Behavior = BHV_Waypoint
+{
+	name      	= lawnmower_nostromo
+	pwt		= 100
+	condition	= MISSION_MODE = STARTMISSION
+	endflag   	= MISSION_MODE = INACTIVE
+	perpetual	= true
+	updates         = MISSION_SURVEY_UPDATES
+
+	speed	   	= $(CRUISESPEED)
+	radius        = 4.0
+        slip_radius   = 10.0
+	nm_radius  	= 8.0
+	lead        = 8.0
+    points      = format=lawnmower, label=remus_survey, x=20, y=-90, \
+                            width=150, height=50, lane_width=20, rows=north,degs=-30
+    //points    = 20,-80,2
+}
