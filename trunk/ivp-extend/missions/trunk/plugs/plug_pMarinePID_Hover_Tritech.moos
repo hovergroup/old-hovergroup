@@ -17,10 +17,10 @@ ProcessConfig = pMarinePID_Hover
     // 40 with modem
 
     // Yaw PID controller
-    YAW_PID_KP             = 0.2
-    YAW_PID_KD             = 0.4
+    YAW_PID_KP             = 0.3
+    YAW_PID_KD             = 0.6
     YAW_PID_KI             = 0.025
-    YAW_PID_INTEGRAL_LIMIT = 100
+    YAW_PID_INTEGRAL_LIMIT = 1000
     YAW_PID_TAU            = 1
 
     // Speed PID controller
