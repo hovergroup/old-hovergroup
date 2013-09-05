@@ -17,6 +17,22 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  Run = pScheduledTransmit     @ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+  DISPLAY_TIME = true
+  DISPLAY_SOURCE = true
+    
+  VAR=ACOMMS_RECEIVED_ALL
+  VAR=ACOMMS_TRANSMITTED_ALL
+  VAR=ACOMMS_TRANSMIT_RATE
+  VAR=ACOMMS_TRANSMIT_DEST
+  VAR=ACOMMS_TRANSMIT_DATA
+  VAR=ACOMMS_DRIVER_WARNING
+  VAR=ACOMMS_DRIVER_STATUS
+  VAR=SCHEDULED_TRANSMITS
 }
 
 Processconfig = uTimerScript_Config
@@ -25,7 +41,18 @@ Processconfig = uTimerScript_Config
   CommsTick = 4
     
   event = var=NAV_HEADING,val=0,time=1
-  event = quit, time=2
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=9
+  event = var=SCHEDULED_TRANSMITS,val="on",time=10
+  event = quit, time=20
+}
+
+ProcessConfig = pScheduledTransmit
+{
+  AppTick = 4
+  CommsTick = 4
+  
+  period = 30
+  offset = 0
 }
 
 #include ../../trunk/plugs/plug_pShareV.moos
