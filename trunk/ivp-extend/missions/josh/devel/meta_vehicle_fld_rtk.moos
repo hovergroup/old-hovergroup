@@ -20,6 +20,7 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
+  Run = pAcommsScheduler       @ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -27,14 +28,25 @@ ProcessConfig = uXMS
   DISPLAY_TIME = true
   DISPLAY_SOURCE = true
     
-  VAR=VOLTAGE
-  VAR=CPU_BOX_TEMP
-  VAR=ROBOTEQ_HEATSINK_TEMP
-  VAR=ROBOTEQ_INTERNAL_TEMP
-  VAR=ROBOTEQ_BATTERY_CURRENT
-  VAR=ROBOTEQ_MOTOR_CURRENT
-  VAR=ARDUINO_THRUST
-  VAR=ARDUINO_RUDDER
+  VAR=ACOMMS_RECEIVED_ALL
+  VAR=ACOMMS_TRANSMITTED_ALL
+  VAR=ACOMMS_TRANSMIT_RATE
+  VAR=ACOMMS_TRANSMIT_DEST
+  VAR=ACOMMS_TRANSMIT_DATA
+  VAR=ACOMMS_DRIVER_WARNING
+  VAR=ACOMMS_DRIVER_STATUS
+  VAR=ACOMMS_TRANSMIT_LOCKOUT
+  VAR=ACOMMS_SCHEDULER_STATE
+}
+
+ProcessConfig = pAcommsScheduler
+{
+   AppTick   = 4
+   
+   period = 30 // auv's transmit period
+   pre_lock = 2 // time before expected receive start
+   post_lock = 2 // time after expected receive end
+   m_sourceID = 1 // source ID of remus
 }
 
 #include ../../trunk/plugs/plug_pShareV.moos
@@ -47,4 +59,18 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
+
+ProcessConfig = iAcommsDriver
+{
+  AppTick     = 5
+  IterateMode = 0
+
+  PortName = $(MODEMPORT)
+  ID       = $(ACOMMSID)
+
+  PSK_minipackets   = false
+  enable_ranging    = true
+  show_range_pulses = true
+  
+  use_scheduler = true
+}
