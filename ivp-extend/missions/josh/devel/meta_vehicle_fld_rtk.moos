@@ -37,6 +37,8 @@ ProcessConfig = uXMS
   VAR=ACOMMS_DRIVER_STATUS
   VAR=ACOMMS_TRANSMIT_LOCKOUT
   VAR=ACOMMS_SCHEDULER_STATE
+  VAR=ACOMMS_SCHEDULER_OFFSET
+  VAR=ACOMMS_SCHEDULER_DURATION
 }
 
 ProcessConfig = pAcommsScheduler
@@ -46,7 +48,7 @@ ProcessConfig = pAcommsScheduler
    period = 30 // auv's transmit period
    pre_lock = 2 // time before expected receive start
    post_lock = 2 // time after expected receive end
-   m_sourceID = 1 // source ID of remus
+   source_ID = 1 // source ID of remus
 }
 
 #include ../../trunk/plugs/plug_pShareV.moos

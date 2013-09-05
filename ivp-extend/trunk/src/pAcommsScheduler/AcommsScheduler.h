@@ -59,7 +59,7 @@ private:
 
 	// learning
 	HoverAcomms::DriverStatus m_driverStatus;
-	int m_dataComplete;
+	bool m_dataComplete, m_receiveComplete;
 
 	double m_lastStart, m_lastEnd; // last observed
 	double m_meanOffset, m_meanDuration; // current mean
