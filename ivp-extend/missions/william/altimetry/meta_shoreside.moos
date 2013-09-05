@@ -23,4 +23,4 @@ Processconfig = ANTLER
 
 #include ../../trunk/plugs/plug_pShareS.moos
 #include ../../trunk/plugs/plug_pLogger.moos
-#include ../../trunk/plugs/plug_pMarineViewer.moos
+#include plug_pMarineViewer.moos
