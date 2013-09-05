@@ -37,6 +37,7 @@ acomms_driver::acomms_driver()
 	m_transmission.setDest(0);
 	m_transmission.setRate(0);
 	m_transmission.fillData("default_data");
+    m_transmission.m_protobuf.set_ack_requested(false);
 
 	m_transmitLockout = false;
 	m_useScheduler = false;
@@ -282,7 +283,6 @@ void acomms_driver::transmit_data() {
 	}
 
 	m_transmission.m_protobuf.set_src(my_id);
-	m_transmission.m_protobuf.set_ack_requested(false);
 
 	goby::acomms::protobuf::ModemTransmission trans = m_transmission.getProtobuf();
 
