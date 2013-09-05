@@ -1,0 +1,36 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pShare          	@ NewConsole = false
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = uTimerScript		@ NewConsole = false ~uTimerScript_config
+}
+
+ProcessConfig = uTimerScript_config
+{
+    AppTick = 4
+    IterateMode = 0
+    
+    EVENT = var=NAV_HEADING, val=0, time=1
+    EVENT = quit, time=2
+}
+
+#include plug_pShareV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pEchoVar.moos
+#include plug_iGPS_Hover.moos
+#include plug_iAcommsDriver.moos
