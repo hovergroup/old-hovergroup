@@ -16,6 +16,8 @@ AcommsScheduler::AcommsScheduler() {
 	m_lockEnabled = false;
 	m_state = pre_start;
 	m_haveTransmission = false;
+    m_dataComplete = false;
+    m_receiveComplete = false;
 }
 
 //---------------------------------------------------------
@@ -39,19 +41,22 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 				// start of new receipt
 				m_lastStart = JoshUtil::getSystemTimeSeconds();
 				// reset
-				m_dataComplete = 0;
+				m_dataComplete = false;
+				m_receiveComplete = false;
 			} else if (m_driverStatus==HoverAcomms::RECEIVING && val==HoverAcomms::READY) {
 				// end of receipt
 				m_lastEnd = JoshUtil::getSystemTimeSeconds();
 				// increment
-				m_dataComplete++;
+				m_receiveComplete = true;
 			}
 			m_driverStatus = val;
 		} else if (key=="ACOMMS_RECEIVED") {
 			HoverAcomms::AcommsReception reception;
 			if (reception.parseFromString(msg.GetString())) {
 				if (reception.getSource()==m_sourceID)
-					m_dataComplete++;
+					m_dataComplete = true;
+			} else {
+			    std::cout << "parse error" << std::endl;
 			}
 		} else if (key=="ACOMMS_TRANSMIT_DATA_BINARY") {
 			m_haveTransmission = true;
@@ -70,7 +75,7 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 		}
 	}
 
-	if (m_dataComplete==2) { // got both status timings and data output
+	if (m_dataComplete && m_receiveComplete) { // got both status timings and data output
 		m_observations.push_back(std::pair<double,double>(m_lastStart,m_lastEnd));
 		while (m_observations.size()>MAX_OBSERVATIONS) {
 			m_observations.pop_front();
@@ -78,7 +83,7 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 		double sum1=0, sum2=0;
 		for (int i=0; i<m_observations.size(); i++) {
 			double slot;
-			sum1 += modf(m_observations[i].first/m_period, &slot);
+			sum1 += modf(m_observations[i].first/m_period, &slot)*m_period;
 			sum2 += m_observations[i].second - m_observations[i].first;
 		}
 		m_meanOffset = sum1/m_observations.size();
@@ -87,7 +92,8 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 		m_Comms.Notify("ACOMMS_SCHEDULER_OFFSET", m_meanOffset);
 		m_Comms.Notify("ACOMMS_SCHEDULER_DURATION", m_meanDuration);
 
-		m_dataComplete=0;
+		m_dataComplete = false;
+		m_receiveComplete = false;
 	}
 
 	return (true);
@@ -125,14 +131,16 @@ bool AcommsScheduler::Iterate() {
 
 	// determine current slot and offset
 	double m_time = JoshUtil::getSystemTimeSeconds();
-	double m_offset = modf(m_time/m_period, &m_slot) - m_meanOffset;
+	double m_offset = modf(m_time/m_period, &m_slot)*m_period - m_meanOffset;
+	if (m_offset < 0) m_offset+=m_period;
+	std::cout << "offset is " << m_offset << std::endl;
 
 	// determine current state within slot
-	if (0<m_offset && m_offset<m_meanDuration) {
+	if (0<m_offset && m_offset<=m_meanDuration) {
 		updateState(lock);
-	} else if (m_meanDuration<m_offset && m_offset<m_meanDuration+m_postLock) {
+	} else if (m_meanDuration<m_offset && m_offset<=m_meanDuration+m_postLock) {
 		updateState(post_lock);
-	} else if (m_period-m_preLock<m_offset && m_offset<m_period) {
+	} else if (m_period-m_preLock<m_offset && m_offset<=m_period) {
 		updateState(pre_lock);
 	} else {
 		updateState(unlocked);
