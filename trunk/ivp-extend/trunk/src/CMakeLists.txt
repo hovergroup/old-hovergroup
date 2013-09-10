@@ -9,11 +9,15 @@
 # Add the libraries in the current directory to the include path
 #============================================================================
 FILE(GLOB LOCAL_LIBRARY_DIRS ./lib_*)
-INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
+INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS}
+                    "./protobuf")
+
+ADD_SUBDIRECTORY(protobuf)
 
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
+
 # libraries
 ADD_SUBDIRECTORY(lib_acomms_messages)
 ADD_SUBDIRECTORY(lib_JoshUtils)
@@ -46,6 +50,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(acommsParse)
 	ADD_SUBDIRECTORY(testing_app)
 	ADD_SUBDIRECTORY(iKST)
+	ADD_SUBDIRECTORY(protobufExample)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
