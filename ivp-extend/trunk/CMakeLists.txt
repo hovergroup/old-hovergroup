@@ -13,6 +13,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT( IVP_EXTEND )
 
+include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIR})
+
 SET(BUILD_SHORE_APPS TRUE CACHE BOOL "Build shore apps")
 
 set (BOOST_OVER_146 0)
