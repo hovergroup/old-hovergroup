@@ -1,0 +1,11 @@
+message NodeReport {
+    optional double nav_x = 1;
+    optional double nav_y = 2;
+    optional double heading = 3;
+    optional double speed = 4;
+    optional double depth = 5;
+    
+    optional double voltage = 6;
+    
+    optional bool acommsDriverRunning = 10;
+}
