@@ -12,7 +12,7 @@ Processconfig = ANTLER
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
-  Run = pNodeReporter          @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
   Run = pMarinePID_Hover       @ NewConsole = false
   Run = pHelmIvP               @ NewConsole = false
   Run = iRTKNAVI               @ NewConsole = false
@@ -39,7 +39,7 @@ ProcessConfig = uXMS
 
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
-#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pProtoReporter.moos
 #include ../../trunk/plugs/plug_pMarinePID_Hover.moos
 #include ../../trunk/plugs/plug_pHelmIvP.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
