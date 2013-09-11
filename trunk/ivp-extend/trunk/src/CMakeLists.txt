@@ -53,6 +53,8 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(testing_app)
 	ADD_SUBDIRECTORY(iKST)
 	ADD_SUBDIRECTORY(protobufExample)
+	ADD_SUBDIRECTORY(wtExample)
+	ADD_SUBDIRECTORY(pWTStatusView)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
