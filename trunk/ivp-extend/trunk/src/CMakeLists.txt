@@ -27,6 +27,8 @@ ADD_SUBDIRECTORY(lib_HoverAcomms)
 ADD_SUBDIRECTORY(pMarinePID_Hover)
 ADD_SUBDIRECTORY(pScheduledTransmit)
 ADD_SUBDIRECTORY(pAcommsScheduler)
+ADD_SUBDIRECTORY(pProtoReporter)
+ADD_SUBDIRECTORY(pProtoReportParser)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)

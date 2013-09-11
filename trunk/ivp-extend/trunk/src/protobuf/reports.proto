@@ -1,11 +1,22 @@
-message NodeReport {
-    optional double nav_x = 1;
-    optional double nav_y = 2;
-    optional double heading = 3;
-    optional double speed = 4;
-    optional double depth = 5;
+message ProtoNodeReport {
+    required string name = 1;
     
-    optional double voltage = 6;
+    optional double nav_x = 2;
+    optional double nav_y = 3;
+    optional double heading = 4;
+    optional double speed = 5;
+    optional double depth = 6;
+    
+    optional double voltage = 7;
+    
+    required double time = 8;
     
     optional bool acommsDriverRunning = 10;
+    
+    optional TypeEnum platformType = 11;
+    enum TypeEnum {
+        KAYAK = 0;
+        GLIDER = 1;
+        AUV = 2; 
+    } 
 }
