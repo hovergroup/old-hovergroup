@@ -11,6 +11,8 @@
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WGridLayout>
+#include <Wt/WTable>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WText>
@@ -44,9 +46,18 @@ public:
 	StatusViewApplication(const Wt::WEnvironment& env);
 
 private:
+	void reDraw(int num_vehicles);
 	void update();
 
 	Wt::WText *voltage_;
+
+	int current_num_vehicles;
+
+private:
+	// widgets
+	Wt::WContainerWidget *container_;
+
+
 };
 
 #endif 
