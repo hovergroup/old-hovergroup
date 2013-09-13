@@ -20,6 +20,7 @@
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "reports.pb.h"
 #include <boost/thread.hpp>
+#include <map>
 
 class WTStatusView: public CMOOSApp {
 public:
@@ -49,13 +50,14 @@ private:
 	void reDraw(int num_vehicles);
 	void update();
 
-	Wt::WText *voltage_;
-
 	int current_num_vehicles;
 
 private:
+
 	// widgets
 	Wt::WContainerWidget *container_;
+
+	std::map<std::pair<int,int>, Wt::WText*> tableTexts;
 
 
 };

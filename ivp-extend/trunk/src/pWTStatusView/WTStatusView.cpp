@@ -9,12 +9,21 @@
 #include <sstream>
 #include "MBUtils.h"
 #include "WTStatusView.h"
-#include <map>
 
 using namespace Wt;
+using namespace std;
 
 boost::mutex data_mutex;
+std::vector<std::string> vnames;
+std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
+
+const int NUM_ROWS = 6;
+const int AGE_ROW = 1;
+const int HEALTH_ROW = 2;
+const int VOLTAGE_ROW = 3;
+const int BATT_PERCENT_ROW = 4;
+const int GPS_QUALITY_ROW = 5;
 
 //---------------------------------------------------------
 // Constructor
@@ -35,6 +44,7 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 
 void StatusViewApplication::reDraw(int num_vehicles) {
 	root()->clear();
+	tableTexts.clear();
 
 	container_ = new WContainerWidget();
 	container_->setStyleClass("CSS-example");
@@ -49,12 +59,22 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 //	container_->setLayout(grid_);
 
 	for (int column=0; column<num_vehicles+1; column++) {
-		for (int row=0; row<5; row++) {
-			WString cell = WString("Item ({1}, {2})").arg(row).arg(column);
-			WText *t = new WText(cell);
+		for (int row=0; row<NUM_ROWS; row++) {
+			WText *t = new WText();
+			tableTexts[pair<int,int>(row,column)] = t;
 			table->elementAt(row, column)->addWidget(t);
 //			grid_->addWidget(t, row, column);
 		}
+	}
+
+	tableTexts[pair<int,int>(AGE_ROW,0)]->setText("Age");
+	tableTexts[pair<int,int>(HEALTH_ROW,0)]->setText("Health");
+	tableTexts[pair<int,int>(VOLTAGE_ROW,0)]->setText("Voltage");
+	tableTexts[pair<int,int>(BATT_PERCENT_ROW,0)]->setText("Batt. %");
+	tableTexts[pair<int,int>(GPS_QUALITY_ROW,0)]->setText("GPS Quality");
+
+	for (int col=0; col<num_vehicles; col++) {
+		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
 	}
 
 	root()->addWidget(container_);
@@ -62,15 +82,26 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 
 void StatusViewApplication::update() {
 	boost::mutex::scoped_lock lock(data_mutex);
-//	if (data.size()!=current_num_vehicles) {
-//		current_num_vehicles = data.size();
-//		reDraw(current_num_vehicles);
-//	}
+	if (data.size()!=current_num_vehicles) {
+		current_num_vehicles = data.size();
+		reDraw(current_num_vehicles);
+	}
 
-	current_num_vehicles++;
 	reDraw(current_num_vehicles);
 
-	//voltage_->setText(ss.str());
+	for (int col=0; col<current_num_vehicles; col++) {
+		string vname = vnames[col];
+		std::stringstream ss;
+
+		ss << fixed << setprecision(1);
+		ss << data[vname].voltage();
+		tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
+
+		ss.str("");
+		ss << fixed << setprecision(2);
+		ss << (MOOSTime()-data[vname].time());
+		tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText(ss.str());
+	}
 }
 
 WTStatusView::WTStatusView() {
@@ -97,6 +128,9 @@ bool WTStatusView::OnNewMail(MOOSMSG_LIST &NewMail) {
 			ProtoNodeReport pnr;
 			if (pnr.ParseFromString(msg.GetString())) {
 				data[pnr.name()] = pnr;
+//				report_ages[pnr.name()] = MOOSTime()-pnr.time();
+				if (find(vnames.begin(), vnames.end(), pnr.name())==vnames.end())
+					vnames.push_back(pnr.name());
 			}
 		}
 
