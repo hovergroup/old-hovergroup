@@ -56,6 +56,7 @@ private:
 
 	// widgets
 	Wt::WContainerWidget *container_;
+	Wt::WTable *table;
 
 	std::map<std::pair<int,int>, Wt::WText*> tableTexts;
 
