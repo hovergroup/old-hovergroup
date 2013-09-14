@@ -36,23 +36,23 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
 			ProtoNodeReport pnr;
 			if (pnr.ParseFromString(msg.GetString())) {
 				NodeRecord nr;
-				nr.setX(pnr.nav_x());
-				nr.setY(pnr.nav_y());
+				nr.setX(pnr.x());
+				nr.setY(pnr.y());
 				nr.setHeading(pnr.heading());
 				nr.setSpeed(pnr.speed());
 				if (pnr.has_depth())
 					nr.setDepth(pnr.depth());
-				nr.setName(pnr.name());
-				nr.setTimeStamp(pnr.time());
+				nr.setName(pnr.vehicle_name());
+				nr.setTimeStamp(pnr.time_stamp());
 
-				switch (pnr.platformtype()) {
-				case ProtoNodeReport_TypeEnum_KAYAK:
+				switch (pnr.platform_type()) {
+				case ProtoNodeReport_PlatformTypeEnum_KAYAK:
 					nr.setType("KAYAK");
 					break;
-				case ProtoNodeReport_TypeEnum_AUV:
+				case ProtoNodeReport_PlatformTypeEnum_AUV:
 					nr.setType("AUV");
 					break;
-				case ProtoNodeReport_TypeEnum_GLIDER:
+				case ProtoNodeReport_PlatformTypeEnum_GLIDER:
 					nr.setType("GLIDER");
 					break;
 				default:

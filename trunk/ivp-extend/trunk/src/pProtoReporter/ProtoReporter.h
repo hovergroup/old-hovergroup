@@ -9,9 +9,8 @@
 #define ProtoReporter_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
-#include <map>
-#include <vector>
 #include "reports.pb.h"
+#include "HoverAcomms.h"
 
 class ProtoReporter: public CMOOSApp {
 public:
@@ -29,10 +28,7 @@ private:
 	// Configuration variables
 
 private:
-	double m_lastAcommsStatusUpdate;
-
-	std::map<std::string, double> m_data;
-	std::vector<std::string> m_vars;
+	double m_lastAcommsStatusUpdate, m_lastHelmStateUpdate;
 
 	double m_navX, m_navY, m_navHeading, m_navSpeed, m_navDepth;
 	double m_voltage;

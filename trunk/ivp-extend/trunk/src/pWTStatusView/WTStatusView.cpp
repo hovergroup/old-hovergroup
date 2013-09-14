@@ -9,6 +9,7 @@
 #include <sstream>
 #include "MBUtils.h"
 #include "WTStatusView.h"
+#include <Wt/WCssStyleSheet>
 
 using namespace Wt;
 using namespace std;
@@ -18,12 +19,15 @@ std::vector<std::string> vnames;
 std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
 
-const int NUM_ROWS = 6;
+const int NUM_ROWS = 9;
 const int AGE_ROW = 1;
 const int HEALTH_ROW = 2;
 const int VOLTAGE_ROW = 3;
 const int BATT_PERCENT_ROW = 4;
 const int GPS_QUALITY_ROW = 5;
+const int ACOMMS_DRIVER_STATUS_ROW = 6;
+const int HELM_STATE_ROW = 7;
+const int ACTIVE_BEHAVIORS_ROW = 8;
 
 //---------------------------------------------------------
 // Constructor
@@ -31,7 +35,18 @@ const int GPS_QUALITY_ROW = 5;
 StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 	WApplication(env) {
 	setTitle("Status View");
-	useStyleSheet("CSSexample.css");
+
+	Wt::WApplication::instance()->styleSheet().addRule(".MyWidget .item", "width: 100px; cursor: pointer;");
+
+	styleSheet().addRule(".StatusView table, td, th", "border: 2px solid #DDD; width: 0%; margin-top: 20px; margin-bottom: 20px; padding: 4px 5px;");
+	styleSheet().addRule(".StatusView .table-bordered", "border-left: 4px; border-radius: 4px;");
+	styleSheet().addRule(".StatusView .col0", "font-weight: bold; text-align: left");
+	styleSheet().addRule(".StatusView .center", "text-align: center");
+	styleSheet().addRule(".StatusView .green", "background-color: #58FA58;");
+	styleSheet().addRule(".StatusView .yellow", "background-color: #F7FE2E;");
+	styleSheet().addRule(".StatusView .red", "background-color: #FE2E2E;");
+
+//	useStyleSheet("CSSexample.css");
 
 	reDraw(0);
 	current_num_vehicles = 1;
@@ -47,20 +62,22 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts.clear();
 
 	container_ = new WContainerWidget();
-	container_->setStyleClass("CSS-example");
-	container_->setWidth(num_vehicles*100 + 50);
-	WTable *table = new WTable(container_);
+	container_->setStyleClass("StatusView");
+	table = new WTable(container_);
 	table->setHeaderCount(1);
 	table->setStyleClass("table table-bordered");
-	table->rowAt(1)->setStyleClass("info");
-    for (int i=1; i<table->rowCount(); i++)
-        table->elementAt(i,0)->setStyleClass("code");
-//	WGridLayout *grid_ = new WGridLayout();
-//	container_->setLayout(grid_);
+    table->columnAt(0)->setWidth(75);
+    for (int i=1; i<table->columnCount(); i++) {
+    	table->columnAt(i)->setWidth(150);
+    }
 
 	for (int column=0; column<num_vehicles+1; column++) {
 		for (int row=0; row<NUM_ROWS; row++) {
 			WText *t = new WText();
+			if (column==0)
+				t->setStyleClass("col0");
+			else
+				table->elementAt(row, column)->setStyleClass("center");
 			tableTexts[pair<int,int>(row,column)] = t;
 			table->elementAt(row, column)->addWidget(t);
 //			grid_->addWidget(t, row, column);
@@ -72,6 +89,9 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts[pair<int,int>(VOLTAGE_ROW,0)]->setText("Voltage");
 	tableTexts[pair<int,int>(BATT_PERCENT_ROW,0)]->setText("Batt. %");
 	tableTexts[pair<int,int>(GPS_QUALITY_ROW,0)]->setText("GPS Quality");
+	tableTexts[pair<int,int>(ACOMMS_DRIVER_STATUS_ROW,0)]->setText("Acomms Status");
+	tableTexts[pair<int,int>(HELM_STATE_ROW,0)]->setText("Helm State");
+	tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW,0)]->setText("Active Behaviors");
 
 	for (int col=0; col<num_vehicles; col++) {
 		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -98,9 +118,70 @@ void StatusViewApplication::update() {
 		tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
 
 		ss.str("");
-		ss << fixed << setprecision(2);
-		ss << (MOOSTime()-data[vname].time());
+		double age = (MOOSTime()-data[vname].time_stamp());
+		ss << fixed << setprecision(2) << age;
 		tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText(ss.str());
+		if (age < 3)
+			table->elementAt(AGE_ROW, col+1)->setStyleClass("green center");
+		else if (age > 10)
+			table->elementAt(AGE_ROW, col+1)->setStyleClass("red center");
+		else
+			table->elementAt(AGE_ROW, col+1)->setStyleClass("yellow center");
+
+		string helm_state;
+		switch(data[vname].helm_state()) {
+		case ProtoNodeReport_HelmStateEnum_DRIVE:
+			helm_state = "DRIVE";
+			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("green center");
+			break;
+		case ProtoNodeReport_HelmStateEnum_PARK:
+			helm_state = "PARK";
+			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("yellow center");
+			break;
+		case ProtoNodeReport_HelmStateEnum_MISSING:
+			helm_state = "MISSING";
+			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("red center");
+			break;
+		default:
+			helm_state = "";
+			break;
+		}
+		tableTexts[pair<int,int>(HELM_STATE_ROW, col+1)]->setText(helm_state);
+
+		ss.str("");
+		for (int i=0; i<data[vname].active_behaviors_size(); i++) {
+			ss << data[vname].active_behaviors(i);
+			if (i<data[vname].active_behaviors_size()-1)
+				ss << endl;
+		}
+		tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW, col+1)]->setText(ss.str());
+
+		string acomms_running;
+		switch(data[vname].acomms_status()) {
+		case ProtoNodeReport_AcommsStatusEnum_READY:
+			acomms_running = "ready";
+			table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col+1)->setStyleClass("green center");
+			break;
+		case ProtoNodeReport_AcommsStatusEnum_TRANSMITTING:
+			acomms_running = "transmitting";
+			table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col+1)->setStyleClass("green center");
+			break;
+		case ProtoNodeReport_AcommsStatusEnum_RECEIVING:
+			acomms_running = "receiving";
+			table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col+1)->setStyleClass("green center");
+			break;
+		case ProtoNodeReport_AcommsStatusEnum_NOT_RUNNING:
+			acomms_running = "not running";
+			table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col+1)->setStyleClass("yellow center");
+			break;
+		case ProtoNodeReport_AcommsStatusEnum_OFFLINE:
+			acomms_running = "offline";
+			table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col+1)->setStyleClass("red center");
+			break;
+		default:
+			break;
+		}
+		tableTexts[pair<int,int>(ACOMMS_DRIVER_STATUS_ROW, col+1)]->setText(acomms_running);
 	}
 }
 
@@ -127,10 +208,10 @@ bool WTStatusView::OnNewMail(MOOSMSG_LIST &NewMail) {
 		if (key == "PROTO_REPORT") {
 			ProtoNodeReport pnr;
 			if (pnr.ParseFromString(msg.GetString())) {
-				data[pnr.name()] = pnr;
+				data[pnr.vehicle_name()] = pnr;
 //				report_ages[pnr.name()] = MOOSTime()-pnr.time();
-				if (find(vnames.begin(), vnames.end(), pnr.name())==vnames.end())
-					vnames.push_back(pnr.name());
+				if (find(vnames.begin(), vnames.end(), pnr.vehicle_name())==vnames.end())
+					vnames.push_back(pnr.vehicle_name());
 			}
 		}
 
