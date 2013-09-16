@@ -36,8 +36,6 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 	WApplication(env) {
 	setTitle("Status View");
 
-	Wt::WApplication::instance()->styleSheet().addRule(".MyWidget .item", "width: 100px; cursor: pointer;");
-
 	styleSheet().addRule(".StatusView table, td, th", "border: 2px solid #DDD; width: 0%; margin-top: 20px; margin-bottom: 20px; padding: 4px 5px;");
 	styleSheet().addRule(".StatusView .table-bordered", "border-left: 4px; border-radius: 4px;");
 	styleSheet().addRule(".StatusView .col0", "font-weight: bold; text-align: left");
@@ -46,10 +44,8 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 	styleSheet().addRule(".StatusView .yellow", "background-color: #F7FE2E;");
 	styleSheet().addRule(".StatusView .red", "background-color: #FE2E2E;");
 
-//	useStyleSheet("CSSexample.css");
-
 	reDraw(0);
-	current_num_vehicles = 1;
+	current_num_vehicles = -1;
 
 	WTimer *timer = new WTimer();
 	timer->setInterval(1000);
