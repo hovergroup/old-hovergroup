@@ -1,0 +1,6 @@
+#!/bin/bash
+
+FOLDERDATE=$(date +%Y_%m_%d)
+cd /media/Data
+
+aws s3 cp ${FOLDERDATE} s3://kayak_data/${FOLDERDATE} --recursive

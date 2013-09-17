@@ -60,18 +60,23 @@ if [ "${LOCAL}" = "no" ] ; then
 #  Part 2: Remote fetch
 #-------------------------------------------------------
 
-TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.gz"
+#TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.gz"
 
-echo "Connecting to host ${VEHICLE}"
-ssh josh@${VEHICLE} <<ENDSSH
+#echo "Connecting to host ${VEHICLE}"
+#ssh josh@${VEHICLE} <<ENDSSH
 
-cd logs
+#cd logs
 
-tar cvfz ${TARNAME} *_${VEHICLE}_${MOOSDATE}*
+#tar cvfz ${TARNAME} *_${VEHICLE}_${MOOSDATE}*
 
-ENDSSH
+#ENDSSH
 
-scp josh@${VEHICLE}:/home/josh/logs/${TARNAME} ${TARNAME}
+#scp josh@${VEHICLE}:/home/josh/logs/${TARNAME} ${TARNAME}
+mkdir ${VEHICLE}
+rsync -r --progress josh@${VEHICLE}:/home/josh/logs/LOG_${VEHICLE}_${MOOSDATE}* ${VEHICLE}
+TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.bz2"
+tar cvfj ${TARNAME} ${VEHICLE}/*
+rm -r ${VEHICLE}
 
 else
 #-------------------------------------------------------
@@ -87,6 +92,6 @@ else
     exit 0
 fi
 
-tar cvfz ${TARNAME} /home/josh/logs/*_${VEHICLE}_${MOOSDATE}*
+tar cvfj ${TARNAME} /home/josh/logs/*_${VEHICLE}_${MOOSDATE}*
 
 fi
