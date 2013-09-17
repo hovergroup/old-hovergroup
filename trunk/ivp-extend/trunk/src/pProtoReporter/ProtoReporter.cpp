@@ -169,5 +169,6 @@ void ProtoReporter::RegisterVariables() {
 	m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
 	m_Comms.Register("IVPHELM_STATE", 0);
 	m_Comms.Register("IVPHELM_SUMMARY", 0);
+	m_Comms.Register("GPS_QUALITY", 0);
 }
 
