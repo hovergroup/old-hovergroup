@@ -105,14 +105,17 @@ void StatusViewApplication::update() {
 
 	reDraw(current_num_vehicles);
 
+	// loop over all vehicles
 	for (int col=0; col<current_num_vehicles; col++) {
 		string vname = vnames[col];
 		std::stringstream ss;
 
+		// ---------------- voltage -------------------
 		ss << fixed << setprecision(1);
 		ss << data[vname].voltage();
 		tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
 
+		// ---------------- age -------------------
 		ss.str("");
 		double age = (MOOSTime()-data[vname].time_stamp());
 		ss << fixed << setprecision(2) << age;
@@ -124,6 +127,7 @@ void StatusViewApplication::update() {
 		else
 			table->elementAt(AGE_ROW, col+1)->setStyleClass("yellow center");
 
+		// ---------------- helm state -------------------
 		string helm_state;
 		switch(data[vname].helm_state()) {
 		case ProtoNodeReport_HelmStateEnum_DRIVE:
@@ -144,6 +148,7 @@ void StatusViewApplication::update() {
 		}
 		tableTexts[pair<int,int>(HELM_STATE_ROW, col+1)]->setText(helm_state);
 
+		// ---------------- active behaviors -------------------
 		ss.str("");
 		for (int i=0; i<data[vname].active_behaviors_size(); i++) {
 			ss << data[vname].active_behaviors(i);
@@ -152,6 +157,7 @@ void StatusViewApplication::update() {
 		}
 		tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW, col+1)]->setText(ss.str());
 
+		// ---------------- acomms driver status -------------------
 		string acomms_running;
 		switch(data[vname].acomms_status()) {
 		case ProtoNodeReport_AcommsStatusEnum_READY:
@@ -178,6 +184,30 @@ void StatusViewApplication::update() {
 			break;
 		}
 		tableTexts[pair<int,int>(ACOMMS_DRIVER_STATUS_ROW, col+1)]->setText(acomms_running);
+
+		// ---------------- gps quality -------------------
+		string gps_quality;
+		switch(data[vname].gps_quality()) {
+		case ProtoNodeReport_GPSQualityEnum_FIX:
+			gps_quality = "fix";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("green");
+			break;
+		case ProtoNodeReport_GPSQualityEnum_FLOAT:
+			gps_quality = "fix";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
+			break;
+		case ProtoNodeReport_GPSQualityEnum_SINGLE:
+			gps_quality = "fix";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
+			break;
+		case ProtoNodeReport_GPSQualityEnum_MISSING_GPS:
+			gps_quality = "fix";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red");
+			break;
+		default:
+			break;
+		}
+		tableTexts[pair<int,int>(GPS_QUALITY_ROW, col+1)]->setText(gps_quality);
 	}
 }
 

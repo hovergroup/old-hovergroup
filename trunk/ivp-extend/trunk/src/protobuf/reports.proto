@@ -33,4 +33,12 @@ message ProtoNodeReport {
         DRIVE = 1;
         MISSING = 2;
     }
+    
+    optional GPSQualityEnum gps_quality = 13;
+    enum GPSQualityEnum {
+        FIX = 1;
+        FLOAT = 2;
+        SINGLE = 5;
+        MISSING_GPS = 10;
+    }
 }

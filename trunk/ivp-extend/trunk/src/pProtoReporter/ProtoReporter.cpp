@@ -70,8 +70,22 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 				nr.set_helm_state(ProtoNodeReport_HelmStateEnum_PARK);
 			}
 			m_lastHelmStateUpdate = msg.GetTime();
+		} else if (key == "GPS_QUALITY") {
+			switch ((int) msg.GetDouble()) {
+			case 1:
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_FIX);
+				break;
+			case 2:
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_FLOAT);
+				break;
+			case 5:
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_SINGLE);
+				break;
+			default:
+				break;
+			}
+			m_lastGPSQualityUpdate = msg.GetTime();
 		} else if (key == "IVPHELM_SUMMARY") {
-
 			vector<string> svector = parseStringQ(msg.GetString(), ',');
 			unsigned int i, vsize = svector.size();
 			for (i = 0; i < vsize; i++) {
@@ -137,6 +151,9 @@ bool ProtoReporter::Iterate() {
 	}
 	if (MOOSTime() - m_lastHelmStateUpdate > 5) {
 		nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MISSING);
+	}
+	if (MOOSTime() - m_lastGPSQualityUpdate > 5) {
+		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_MISSING_GPS);
 	}
 
 	nr.set_time_stamp(MOOSTime());
