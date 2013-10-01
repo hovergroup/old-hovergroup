@@ -20,6 +20,7 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAltimeter             @ NewConsole = false
+//  Run = iAltimeter_cruzPro     @ NewConsole = false
 }
 
 ProcessConfig = uXMS
@@ -48,3 +49,4 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
 #include ../../trunk/plugs/plug_iAltimeter.moos
+//#include plug_iAltimeter_cruzPro.moos
