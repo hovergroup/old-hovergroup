@@ -19,8 +19,11 @@ Processconfig = ANTLER
   Run = iOS5000_Hover          @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
+#ifdef VNAME NOSTROMO
   Run = iAltimeter             @ NewConsole = false
-//  Run = iAltimeter_cruzPro     @ NewConsole = false
+#else
+  Run = iAltimeter_cruzPro     @ NewConsole = false
+#endif
 }
 
 ProcessConfig = uXMS
@@ -41,7 +44,7 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pProtoReporter.moos
-#include ../../trunk/plugs/plug_pMarinePID_Hover_Tritech.moos
+#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
 #include ../../trunk/plugs/plug_pHelmIvP.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iOS5000_Hover.moos
@@ -49,4 +52,4 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
 #include ../../trunk/plugs/plug_iAltimeter.moos
-//#include plug_iAltimeter_cruzPro.moos
+#include plug_iAltimeter_cruzPro.moos
