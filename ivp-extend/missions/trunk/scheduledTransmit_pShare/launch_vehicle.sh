@@ -8,18 +8,18 @@ MISSIONS_HOME="../.."
 source ${MISSIONS_HOME}/trunk/config/hard_config
 source ${MISSIONS_HOME}/trunk/config/soft_config
 
-# scheduling
-TRANSMIT_PERIOD=30
-TRANSMIT_OFFSET_NOSTROMO=0
-TRANSMIT_OFFSET_SILVANA=10
-TRANSMIT_OFFSET_ICARUS=20
+# additional configs for the scheduled acomms
+SOFT_CONFIG["NOSTROMO:TRANSMIT_OFFSET"]="0"
+SOFT_CONFIG["SILVANA:TRANSMIT_OFFSET"]="4"
+SOFT_CONFIG["KESTREL:TRANSMIT_OFFSET"]="8"
+TRANSMIT_PERIOD="12"
 
 # set defaults
 HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
-VEHICLE=""
-WARP=1
+VNAME=""
+ALTIMETER=""
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -28,27 +28,35 @@ WARP=1
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
-    HELP="yes"
-    UNDEFINED_ARG=""
+        HELP="yes"
+        UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
-    JUST_BUILD="yes"
-    UNDEFINED_ARG=""
+        JUST_BUILD="yes"
+        UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--nostromo" ] ; then
-    VEHICLE="nostromo"
-    UNDEFINED_ARG=""
+        VNAME="NOSTROMO"
+        UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--silvana" ] ; then
-    VEHICLE="silvana"
-    UNDEFINED_ARG=""
+        VNAME="SILVANA"
+        UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--icarus" ] ; then
-    VEHICLE="icarus"
-    UNDEFINED_ARG=""
+        VNAME="ICARUS"
+        UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--kestrel" ] ; then
+        VNAME="KESTREL"
+        UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI:0:11}" = "--altimeter" ] ; then
+        ALTIMETER="${ARGI#--altimeter=*}"
+        UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
-    BAD_ARGS=$UNDEFINED_ARG
+        BAD_ARGS=$UNDEFINED_ARG
     fi
 done
 
@@ -56,7 +64,28 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
-if [ "${VEHICLE}" = "" ] ; then
+if [ "${ALTIMETER}" != "" ] ; then
+    if [ "${ALTIMETER}" != "tritech" ] && [ "${ALTIMETER}" != "cruzpro" ] ; then
+        printf "Invalid altimeter option\n"
+    else
+	printf "Using %s altimeter\n" $ALTIMETER
+    fi
+fi
+
+if [ "${HELP}" = "yes" ]; then
+    printf "%s [SWITCHES]            \n" $0
+    printf "Switches:                \n"
+    printf "  --nostromo                     nostromo vehicle only  \n"
+    printf "  --silvana                      silvana vehicle only   \n"
+    printf "  --icarus                       icarus vehicle only    \n"
+    printf "  --kestrel                      kestrel vehicle only   \n"
+    printf "  --altimeter=tritech/cruzpro    enable specfied depths sounder\n"
+    printf "  --just_build, -j       \n" 
+    printf "  --help, -h             \n" 
+    exit 0;
+fi
+
+if [ "${VNAME}" = "" ] ; then
     printf "Must specify a vehicle name. \n"
     exit 0
 fi
@@ -66,85 +95,48 @@ if [ "${BAD_ARGS}" != "" ] ; then
     exit 0
 fi
 
-if [ "${HELP}" = "yes" ]; then
-    printf "%s [SWITCHES]            \n" $0
-    printf "Switches:                \n"
-    printf "  --nostromo             nostromo vehicle only                 \n"
-    printf "  --silvana              silvana vehicle only                \n"
-    printf "  --icarus               icarus vehicle only                   \n"
-    printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
-    exit 0;
-fi
-
 #-------------------------------------------------------
 #  Part 3: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-# Conditionally Prepare nostromo files
-if [ "${VEHICLE}" = "nostromo" ]; then
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME_NOSTROMO.moos -f  \
-        VHOST=$VHOST_NOSTROMO                           \
-        VNAME=$VNAME_NOSTROMO                           \
-        VPORT=$VPORT_NOSTROMO                           \
-        LPORT=$LPORT_NOSTROMO                           \
-        WARP=$WARP                                      \
-        SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
-        ACOMMSID=$ACOMMSID_NOSTROMO                     \
-        MODEMPORT=$MODEMPORT_NOSTROMO                   \
-        RUDDER_OFFSET=$RUDDER_OFFSET_NOSTROMO           \
-        OS5000PORT=$OS5000PORT_NOSTROMO                 \
-		TransmitPeriod=$TRANSMIT_PERIOD                 \
-		TransmitOffset=$TRANSMIT_OFFSET_NOSTROMO
-
-    nsplug meta_vehicle.bhv targ_$VNAME_NOSTROMO.bhv -f        \
-        VNAME=$VNAME_NOSTROMO                           \
-        CRUISESPEED=$SPEED_NOSTROMO                     \
-        RETURN_PT=$RETURN_PT_NOSTROMO
-fi
-
-# Conditionally Prepare silvana files
-if [ "${VEHICLE}" = "silvana" ]; then
-    nsplug meta_vehicle_fld.moos targ_$VNAME_SILVANA.moos -f   \
-        VHOST=$VHOST_SILVANA                            \
-        VNAME=$VNAME_SILVANA                            \
-        VPORT=$VPORT_SILVANA                            \
-        LPORT=$LPORT_SILVANA                            \
-        WARP=$WARP                                      \
-        SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
-        ACOMMSID=$ACOMMSID_SILVANA                      \
-        MODEMPORT=$MODEMPORT_SILVANA                    \
-        GPSPORT=$GPSPORT_SILVANA                        \
-        GPSBAUD=$GPSBAUD_SILVANA                        \
-        RUDDER_OFFSET=$RUDDER_OFFSET_SILVANA            \
-        OS5000PORT=$OS5000PORT_SILVANA                  \
-		TransmitPeriod=$TRANSMIT_PERIOD                 \
-		TransmitOffset=$TRANSMIT_OFFSET_SILVANA
-
-    nsplug meta_vehicle.bhv targ_$VNAME_SILVANA.bhv -f         \
-        VNAME=$VNAME_SILVANA                            \
-        CRUISESPEED=$SPEED_SILVANA                      \
-        RETURN_PT=$RETURN_PT_SILVANA
-fi
-
 # Conditionally Prepare icarus files
-if [ "${VEHICLE}" = "icarus" ]; then
-    nsplug meta_icarus.moos targ_$VNAME_ICARUS.moos -f         \
-        VHOST=$VHOST_ICARUS                             \
-        VNAME=$VNAME_ICARUS                             \
-        VPORT=$VPORT_ICARUS                             \
-        LPORT=$LPORT_ICARUS                             \
-        WARP=$WARP                                      \
-        SHOREHOST=$SHOREHOST                            \
-		SLPORT=$SLPORT                                  \
-        ACOMMSID=$ACOMMSID_ICARUS                       \
-        MODEMPORT=$MODEMPORT_ICARUS                     \
-        GPSPORT=$GPSPORT_ICARUS                         \
-        GPSBAUD=$GPSBAUD_ICARUS                         \
-		TransmitPeriod=$TRANSMIT_PERIOD                 \
-		TransmitOffset=$TRANSMIT_OFFSET_ICARUS
+if [ "${VNAME}" = "ICARUS" ]
+then
+    nsplug meta_icarus.moos targ_$VNAME.moos -f               \
+        VHOST=$VHOST_ICARUS                                   \
+        VNAME=$VNAME_ICARUS                                   \
+        VPORT=$VPORT_ICARUS                                   \
+        LPORT=$LPORT_ICARUS                                   \
+        WARP="1"                                              \
+        ACOMMSID=$ACOMMSID_ICARUS                             \
+        MODEMPORT=$MODEMPORT_ICARUS                           \
+        SHOREHOST=$SHOREHOST                                  \
+        SLPORT=$SLPORT                                        \
+        TransmitOffset=0                                      \
+        TransmitPeriod=$TRANSMIT_PERIOD
+else
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f          \
+        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                    \
+        VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                    \
+        VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                    \
+        LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                    \
+        MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}            \
+        TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}        \
+        OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}          \
+        ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}       \
+        ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}              \
+        RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]}    \
+        TransmitOffset=${SOFT_CONFIG["${VNAME}:TRANSMIT_OFFSET"]} \
+        TransmitPeriod=$TRANSMIT_PERIOD                           \
+        ALTIMETER=$ALTIMETER                                      \
+        WARP="1"                                                  \
+        SHOREHOST=$SHOREHOST                                      \
+        SLPORT=$SLPORT
+        
+    nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
+        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+        CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
+        RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
 fi
 
 if [ "${JUST_BUILD}" = "yes" ] ; then
@@ -155,21 +147,9 @@ fi
 #  Part 4: Launch the processes
 #-------------------------------------------------------
 
-# Launch nostromo
-if [ "${VEHICLE}" = "nostromo" ]; then
-    printf "Launching nostromo MOOS Community \n"
-    pAntler targ_$VNAME_NOSTROMO.moos >& /dev/null &
-fi
-# Launch silvana
-if [ "${VEHICLE}" = "silvana" ]; then
-    printf "Launching silvana MOOS Community \n"
-    pAntler targ_$VNAME_SILVANA.moos >& /dev/null &
-fi
-# Launch icarus
-if [ "${VEHICLE}" = "icarus" ]; then
-    printf "Launching icarus MOOS Community \n"
-    pAntler targ_$VNAME_ICARUS.moos >& /dev/null &
-fi
+# Launch
+printf "Launching MOOS Community \n"
+pAntler targ_$VNAME.moos >& /dev/null &
 
 #-------------------------------------------------------
 #  Part 5: Exiting and/or killing the simulation

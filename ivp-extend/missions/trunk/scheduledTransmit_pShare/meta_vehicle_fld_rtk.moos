@@ -12,36 +12,38 @@ Processconfig = ANTLER
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
-  Run = pNodeReporter          @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
   Run = pMarinePID_Hover       @ NewConsole = false
   Run = pHelmIvP               @ NewConsole = false
-  Run = iRTKNavi               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
   Run = iOS5000_Hover          @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  
+#ifdef ALTIMETER tritech
+  Run = iAltimeter             @ NewConsole = false
+#endif
+#ifdef ALTIMETER cruzpro
+  Run = iAltimeter_cruzPro     @ NewConsole = false
+#endif
 }
 
-ProcessConfig = uXMS
+Processconfig = uTimerScript_Config
 {
-  DISPLAY_TIME = true
-  DISPLAY_SOURCE = true
+  AppTick = 4
+  CommsTick = 4
     
-  VAR=VOLTAGE
-  VAR=CPU_BOX_TEMP
-  VAR=ROBOTEQ_HEATSINK_TEMP
-  VAR=ROBOTEQ_INTERNAL_TEMP
-  VAR=ROBOTEQ_BATTERY_CURRENT
-  VAR=ROBOTEQ_MOTOR_CURRENT
-  VAR=ARDUINO_THRUST
-  VAR=ARDUINO_RUDDER
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = quit, time=2
 }
 
-#include ../../trunk/plugs/plug_pScheduledTransmit.moos
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
-#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pProtoReporter.moos
 #include ../../trunk/plugs/plug_pMarinePID_Hover.moos
 #include ../../trunk/plugs/plug_pHelmIvP.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
@@ -50,3 +52,6 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
 #include ../../trunk/plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_iAltimeter.moos
+#include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos

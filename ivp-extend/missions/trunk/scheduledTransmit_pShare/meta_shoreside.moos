@@ -16,12 +16,47 @@ Processconfig = ANTLER
   Run = pShare               @ NewConsole = false
   Run = pMarineViewer        @ NewConsole = false
   Run = pLogger              @ NewConsole = false
-  Run = pHostInfo            @ NewConsole = false
+  Run = pProtoReportParser   @ NewConsole = false
+  Run = uTermCommand         @ NewConsole = true
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
 }
 
-#include ../../trunk/plugs/plug_pShareS.moos
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = ENABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> on
+	CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = MISSION_MODE_ALL->MISSION_MODE: $(VHOST3):$(LPORT3):udp & MISSION_MODE: $(VHOST2):$(LPORT2):udp & MISSION_MODE: $(VHOST4):$(LPORT4):udp
+  output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE: $(VHOST3):$(LPORT3):udp & MOOS_MANUAL_OVERRIDE: $(VHOST2):$(LPORT2):udp & MOOS_MANUAL_OVERRIDE: $(VHOST4):$(LPORT4):udp
+  output = SCHEDULED_TRANSMITS_ALL->SCHEDULED_TRANSMITS: $(VHOST3):$(LPORT3):udp & SCHEDULED_TRANSMITS: $(VHOST1):$(LPORT1):udp
+  output = SCHEDULED_TRANSMITS_ALL->SCHEDULED_TRANSMITS: $(VHOST2):$(LPORT2):udp & SCHEDULED_TRANSMITS: $(VHOST4):$(LPORT4):udp
+  
+  output = MISSION_MODE_$(VNAME4)->MISSION_MODE:$(VHOST4):$(LPORT4):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME4)->MOOS_MANUAL_OVERRIDE:$(VHOST4):$(LPORT4):udp
+  output = GOTO_UPDATES_$(VNAME4)->GOTO_UPDATES:$(VHOST4):$(LPORT4):udp
+  
+  output = MISSION_MODE_$(VNAME3)->MISSION_MODE:$(VHOST3):$(LPORT3):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME3)->MOOS_MANUAL_OVERRIDE:$(VHOST3):$(LPORT3):udp
+  output = GOTO_UPDATES_$(VNAME3)->GOTO_UPDATES:$(VHOST3):$(LPORT3):udp
+  
+  output = MISSION_MODE_$(VNAME2)->MISSION_MODE:$(VHOST2):$(LPORT2):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME2)->MOOS_MANUAL_OVERRIDE:$(VHOST2):$(LPORT2):udp
+  output = GOTO_UPDATES_$(VNAME2)->GOTO_UPDATES:$(VHOST2):$(LPORT2):udp
+  
+  input = route=localhost:$(LPORT)
+}
+
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pMarineViewer.moos
