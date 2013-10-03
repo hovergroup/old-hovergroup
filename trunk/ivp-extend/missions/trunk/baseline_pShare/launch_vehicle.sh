@@ -105,7 +105,7 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    nsplug meta_vehicle_tritech_rtk.moos targ_$VNAME.moos -f   \
+    nsplug meta_vehicle_rtk.moos targ_$VNAME.moos -f   \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
         VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
         VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
