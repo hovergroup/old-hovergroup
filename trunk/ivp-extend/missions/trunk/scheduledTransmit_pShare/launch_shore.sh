@@ -50,14 +50,15 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT      VPORT=$SPORT                     \
     VNAME=$SNAME       WARP=$WARP                       \
     VHOST=$SHOREHOST                                    \
-    LOITER_PT1=$LOITER_PT1                              \
-    LOITER_PT2=$LOITER_PT2                              \
-    VHOST2=$VHOST_NOSTROMO                              \
-    VNAME2=$VNAME_NOSTROMO                              \
-    LPORT2=$LPORT_NOSTROMO                              \
-    VHOST3=$VHOST_SILVANA                               \
-    VNAME3=$VNAME_SILVANA                               \
-    LPORT3=$LPORT_SILVANA
+    VNAME2=${HARD_CONFIG["NOSTROMO:VNAME"]}             \
+    VHOST2=${HARD_CONFIG["NOSTROMO:VHOST"]}             \
+    LPORT2=${HARD_CONFIG["NOSTROMO:LPORT"]}             \
+    VNAME3=${HARD_CONFIG["SILVANA:VNAME"]}              \
+    VHOST3=${HARD_CONFIG["SILVANA:VHOST"]}              \
+    LPORT3=${HARD_CONFIG["SILVANA:LPORT"]}              \
+    VNAME4=${HARD_CONFIG["KESTREL:VNAME"]}              \
+    VHOST4=${HARD_CONFIG["KESTREL:VHOST"]}              \
+    LPORT4=${HARD_CONFIG["KESTREL:LPORT"]}              \
 
 if [ ${JUST_BUILD} = "yes" ] ; then
     exit 0

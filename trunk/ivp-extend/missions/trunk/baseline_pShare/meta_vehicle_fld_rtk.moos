@@ -7,7 +7,7 @@ Community  = $(VNAME)
 //------------------------------------------------------------
 Processconfig = ANTLER
 {
-  MSBetweenLaunches = 1000
+  MSBetweenLaunches = 500
    
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
@@ -27,21 +27,6 @@ Processconfig = ANTLER
 #ifdef ALTIMETER cruzpro
   Run = iAltimeter_cruzPro     @ NewConsole = false
 #endif
-}
-
-ProcessConfig = uXMS
-{
-  DISPLAY_TIME = true
-  DISPLAY_SOURCE = true
-    
-  VAR=VOLTAGE
-  VAR=CPU_BOX_TEMP
-  VAR=ROBOTEQ_HEATSINK_TEMP
-  VAR=ROBOTEQ_INTERNAL_TEMP
-  VAR=ROBOTEQ_BATTERY_CURRENT
-  VAR=ROBOTEQ_MOTOR_CURRENT
-  VAR=ARDUINO_THRUST
-  VAR=ARDUINO_RUDDER
 }
 
 #include ../../trunk/plugs/plug_pShareV.moos
