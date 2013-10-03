@@ -105,50 +105,21 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    if $TRITECH ; then
-        nsplug meta_vehicle_tritech_rtk.moos targ_$VNAME.moos -f   \
-            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
-            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
-            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
-            MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
-            TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
-            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
-            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-            ALTIMETER=$ALTIMETER
-            WARP="1"                                               \
-            SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
-    elif $CRUZPRO ; then   \
-            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
-            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
-            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
-            TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
-            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
-            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-            RUDDER_OFFSET="-12"                                    \
-            WARP="1"                                               \
-            SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
-    else
-        nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
-            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
-            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
-            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
-            MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
-            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
-            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-            WARP="1"                                               \
-            SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
-    fi
+    nsplug meta_vehicle_tritech_rtk.moos targ_$VNAME.moos -f   \
+        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+        VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+        VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+        LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+        MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
+        TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
+        OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
+        ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
+        ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+        RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+        ALTIMETER=$ALTIMETER
+        WARP="1"                                               \
+        SHOREHOST=$SHOREHOST                                   \
+        SLPORT=$SLPORT
         
     nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
