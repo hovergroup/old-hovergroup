@@ -1,4 +1,4 @@
-ServerHost = 192.168.1.10
+ServerHost = 192.168.1.61
 ServerPort = 9000
 Community  = NSF
 

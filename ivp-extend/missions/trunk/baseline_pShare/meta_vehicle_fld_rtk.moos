@@ -20,6 +20,13 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
+  
+#ifdef ALTIMETER tritech
+  Run = iAltimeter             @ NewConsole = false
+#endif
+#ifdef ALTIMETER cruzpro
+  Run = iAltimeter_cruzPro     @ NewConsole = false
+#endif
 }
 
 ProcessConfig = uXMS
@@ -48,3 +55,5 @@ ProcessConfig = uXMS
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
 #include ../../trunk/plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_iAltimeter.moos
+#include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
