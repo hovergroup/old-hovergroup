@@ -13,7 +13,7 @@ HELP="no"
 JUST_BUILD="no"
 BAD_ARGS=""
 VNAME=""
-TRITECH=false
+ALTIMETER=""
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -45,8 +45,8 @@ for ARGI; do
         VNAME="KESTREL"
         UNDEFINED_ARG=""
     fi
-    if [ "${ARGI}" = "--tritech" ] ; then
-        TRITECH=true
+    if [ "${ARGI:0:11}" = "--altimeter" ] ; then
+        ALTIMETER="${ARGI#--altimeter=*}"
         UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
@@ -58,14 +58,20 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
+if [ $ALTIMETER != "" ] ; then
+    if [ $ALTIMETER != "tritech" && $ALTIMETER != "cruzpro" ] ; then
+        printf "Invalid altimeter option\n"
+    fi
+fi
+
 if [ "${HELP}" = "yes" ]; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
-    printf "  --nostromo             nostromo vehicle only  \n"
-    printf "  --silvana              silvana vehicle only   \n"
-    printf "  --icarus               icarus vehicle only    \n"
-    printf "  --kestrel              kestrel vehicle only   \n"
-    printf "  --tritech              enable altimeter, disable modem \n"
+    printf "  --nostromo                     nostromo vehicle only  \n"
+    printf "  --silvana                      silvana vehicle only   \n"
+    printf "  --icarus                       icarus vehicle only    \n"
+    printf "  --kestrel                      kestrel vehicle only   \n"
+    printf "  --altimeter=tritech/cruzpro    enable specfied depths sounder\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
     exit 0;
@@ -99,9 +105,23 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    if $TRITECH
-    then
+    if $TRITECH ; then
         nsplug meta_vehicle_tritech_rtk.moos targ_$VNAME.moos -f   \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+            MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
+            TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
+            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
+            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
+            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            ALTIMETER=$ALTIMETER
+            WARP="1"                                               \
+            SHOREHOST=$SHOREHOST                                   \
+            SLPORT=$SLPORT
+    elif $CRUZPRO ; then   \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
             VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
             VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
