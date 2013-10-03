@@ -58,9 +58,11 @@ done
 #  Part 2: Handle Ill-formed command-line arguments
 #-------------------------------------------------------
 
-if [ $ALTIMETER != "" ] ; then
-    if [ $ALTIMETER != "tritech" && $ALTIMETER != "cruzpro" ] ; then
+if [ "${ALTIMETER}" != "" ] ; then
+    if [ "${ALTIMETER}" != "tritech" ] && [ "${ALTIMETER}" != "cruzpro" ] ; then
         printf "Invalid altimeter option\n"
+    else
+	printf "Using %s altimeter\n" $ALTIMETER
     fi
 fi
 
@@ -105,7 +107,7 @@ then
         SHOREHOST=$SHOREHOST                                  \
         SLPORT=$SLPORT                                        
 else
-    nsplug meta_vehicle_rtk.moos targ_$VNAME.moos -f   \
+    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
         VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
         VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
@@ -116,7 +118,7 @@ else
         ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
         ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
         RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-        ALTIMETER=$ALTIMETER
+        ALTIMETER=$ALTIMETER                                   \
         WARP="1"                                               \
         SHOREHOST=$SHOREHOST                                   \
         SLPORT=$SLPORT
