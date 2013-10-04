@@ -106,19 +106,34 @@ fi
 #  Part 3: Launch the processes
 #-------------------------------------------------------
 
+MOOSDATE=$(date +%-d_%-m_%Y)
+FILEDATE=$(date +%-d_%-m_%Y_____%H_%M_%S)
+
+
 # Launch Nostromo
+DIRECTORY_NAME="CONSOLE_${VNAME1}_${MOOSDATE}"
+mkdir /home/josh/logs/$DIRECTORY_NAME
+
 printf "Launching nostromo MOOS Community \n"
-pAntler targ_$VNAME1.moos >& /dev/null &
+pAntler targ_$VNAME1.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$VNAME1_$FILEDATE.clog &
 sleep 0.1
+
 
 # Launch Silvana
+DIRECTORY_NAME="CONSOLE_${VNAME2}_${MOOSDATE}"
+mkdir /home/josh/logs/$DIRECTORY_NAME
+
 printf "Launching silvana MOOS Community \n"
-pAntler targ_$VNAME2.moos >& /dev/null &
+pAntler targ_$VNAME2.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$VNAME2_$FILEDATE.clog &
 sleep 0.1
 
+
 # Launch shorestation 
+DIRECTORY_NAME="CONSOLE_${SNAME}_${MOOSDATE}"
+mkdir /home/josh/logs/$DIRECTORY_NAME
+
 printf "Launching $SNAME MOOS Community \n"
-pAntler targ_shoreside.moos >& /dev/null &
+pAntler targ_shoreside.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$SNAME_$FILEDATE.clog &
 
 #-------------------------------------------------------
 #  Part 4: Exiting and/or killing the simulation
