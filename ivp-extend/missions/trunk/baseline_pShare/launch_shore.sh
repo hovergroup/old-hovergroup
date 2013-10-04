@@ -68,8 +68,15 @@ fi
 #  Part 3: Launch the processes
 #-------------------------------------------------------
 
+MOOSDATE=$(date +%-d_%-m_%Y)
+FILEDATE=$(date +%-d_%-m_%Y_____%H_%M_%S)
+
 printf "Launching $SNAME MOOS Community \n"
-pAntler targ_shoreside.moos >& /dev/null &
+
+DIRECTORY_NAME="CONSOLE_${SNAME}_${MOOSDATE}"
+mkdir /home/josh/logs/$DIRECTORY_NAME
+
+pAntler targ_shoreside.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$SNAME_$FILEDATE.clog &
 
 #-------------------------------------------------------
 #  Part 4: Exiting and/or killing the simulation

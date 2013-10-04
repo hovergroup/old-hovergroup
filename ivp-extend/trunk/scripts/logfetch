@@ -73,7 +73,7 @@ if [ "${LOCAL}" = "no" ] ; then
 
 #scp josh@${VEHICLE}:/home/josh/logs/${TARNAME} ${TARNAME}
 mkdir ${VEHICLE}
-rsync -r --progress josh@${VEHICLE}:/home/josh/logs/LOG_${VEHICLE}_${MOOSDATE}* ${VEHICLE}
+rsync -r --progress josh@${VEHICLE}:/home/josh/logs/*_${VEHICLE}_${MOOSDATE}* ${VEHICLE}
 TARNAME="LOG_${VEHICLE}_${MOOSDATE}.tar.bz2"
 tar cvfj ${TARNAME} ${VEHICLE}/*
 rm -r ${VEHICLE}
