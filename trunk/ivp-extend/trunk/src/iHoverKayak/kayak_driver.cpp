@@ -84,6 +84,45 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 	return(true);
 }
 
+//---------------------------------------------------------
+// Procedure: Iterate()
+
+bool kayak_driver::Iterate()
+{
+	// send at least 4 commands a second
+	if ( MOOSTime() > m_last_command_time + .25 || newCommand) {
+		sendMotorCommands();
+		m_last_command_time = MOOSTime();
+		newCommand = false;
+	}
+
+	// timed out waiting for confirmation of radio switch
+	if (m_radioSetTime!=-1 && MOOSTime()>m_radioSetTime+m_radioWaitTime) {
+		if (m_usingFreewave) {
+			setRadioPower(false);
+		} else {
+			setRadioPower(true);
+		}
+		m_usingFreewave = !m_usingFreewave;
+		m_radioSetTime = -1;
+		postRadioPowerIsLocked();
+	}
+	return(true);
+}
+
+void kayak_driver::postRadioPowerIsLocked() {
+	if (m_usingFreewave)
+		m_Comms.Notify("RADIO_POWER", "freewave_locked");
+	else
+		m_Comms.Notify("RADIO_POWER", "bullet_locked");
+}
+
+void kayak_driver::setRadioPower(bool freewave) {
+	stringstream ss;
+	ss << "!R=" << freewave << "#";
+	writeData(ss.str().c_str(), ss.str().size());
+}
+
 int kayak_driver::mapRudder( int rudder_command ) {
 	rudder_command += RUDDER_OFFSET;
 	// invert and offset rudder
@@ -124,6 +163,7 @@ bool kayak_driver::OnConnectToServer()
 
 	open_port( my_port_name, my_baud_rate );
 	//serial_thread = boost::thread(boost::bind(&kayak_driver::serialLoop, this));
+	postRadioPowerIsLocked();
 
 	return(true);
 }
@@ -150,38 +190,6 @@ void kayak_driver::sendMotorCommands() {
 //	writeData( &tmp[0], size );
 
 //	cout << "sending command string: " << ss.str() << endl;
-}
-
-void kayak_driver::setRadioPower(bool freewave) {
-	stringstream ss;
-	ss << "!R=" << freewave << "#";
-	writeData(ss.str().c_str(), ss.str().size());
-}
-
-//---------------------------------------------------------
-// Procedure: Iterate()
-
-bool kayak_driver::Iterate()
-{
-	// send at least 4 commands a second
-	if ( MOOSTime() > m_last_command_time + .25 || newCommand) {
-		sendMotorCommands();
-		m_last_command_time = MOOSTime();
-		newCommand = false;
-	}
-
-	if (m_radioSetTime!=-1 && MOOSTime()>m_radioSetTime+m_radioWaitTime) {
-		if (m_usingFreewave) {
-			setRadioPower(false);
-			m_Comms.Notify("RADIO_POWER", "bullet");
-		} else {
-			setRadioPower(true);
-			m_Comms.Notify("RADIO_POWER", "freewave");
-		}
-		m_usingFreewave = !m_usingFreewave;
-		m_radioSetTime = -1;
-	}
-	return(true);
 }
 
 //---------------------------------------------------------
