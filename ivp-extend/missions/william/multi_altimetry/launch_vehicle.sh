@@ -133,7 +133,7 @@ else
         SHOREHOST=$SHOREHOST                                      \
         SLPORT=$SLPORT
         
-    nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
+    nsplug meta_$VNAME.bhv targ_$VNAME.bhv -f                 \
         VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
         CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
         RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
