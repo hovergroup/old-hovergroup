@@ -75,3 +75,31 @@ Behavior = BHV_StationKeep
     outer_speed   = 1.0
     swing_time    = 3
 }
+
+
+// ===================================== mission =========================================
+Behavior = BHV_Waypoint
+{
+	name      	= lawnmower_altimetry
+	pwt		= 100
+	condition	= MISSION_MODE = STARTMISSION
+	endflag   	= MISSION_MODE = INACTIVE
+	perpetual	= true
+	updates         = MISSION_SURVEY_UPDATES
+
+	speed	   	= $(CRUISESPEED)
+	radius        = 4.0
+        slip_radius   = 10.0
+	nm_radius  	= 8.0
+	lead        = 8.0
+#ifdef NOSTROMO
+        points=format=lawnmower,label=remus_survey,x=-48,y=-260,width=120,height=200,lane_width=10,rows=north,degs=-25
+#endif
+#ifdef KESTREL
+        points=format=lawnmower,label=remus_survey,x=110,y=-190,width=120,height=200,lane_width=10,rows=north,degs=-25
+#endif
+#ifdef SILVANA
+        points=format=lawnmower,label=remus_survey,x=250,y=-110,width=120,height=200,lane_width=10,rows=north,degs=-25
+#endif
+    //points    = 20,-80,2
+}
