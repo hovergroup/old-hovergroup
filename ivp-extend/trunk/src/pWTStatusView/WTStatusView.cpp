@@ -195,15 +195,15 @@ void StatusViewApplication::update() {
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("green");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_FLOAT:
-			gps_quality = "fix";
+			gps_quality = "float";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_SINGLE:
-			gps_quality = "fix";
+			gps_quality = "single";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_MISSING_GPS:
-			gps_quality = "fix";
+			gps_quality = "missing";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red");
 			break;
 		default:
