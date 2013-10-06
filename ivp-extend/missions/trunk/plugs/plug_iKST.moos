@@ -1,0 +1,15 @@
+ProcessConfig = iKST
+{
+    AppTick   = 4
+
+    output_path = "/home/josh/kst_$(VNAME).csv"
+
+    LOG = NAV_X
+    LOG = NAV_Y
+    LOG = NAV_HEADING
+    LOG = NAV_SPEED
+    LOG = DESIRED_HEADING
+    LOG = DESIRED_SPEED
+    LOG = ARDUINO_RUDDER
+    LOG = ARDUINO_THRUST
+}

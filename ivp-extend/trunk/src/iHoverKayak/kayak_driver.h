@@ -82,6 +82,8 @@ private:
 	void sendMotorCommands();
 	void toggleCompassCalibration();
 	void setRadioPower(bool freewave);
+
+	void postRadioPowerIsLocked();
 };
 
 #endif

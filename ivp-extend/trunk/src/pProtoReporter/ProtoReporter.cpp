@@ -107,6 +107,17 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 			//active_bhvs=goto_and_station$1379176756.94$100.00000$9$0.01000$1/1$1:
 			//goto_and_return$1379176756.94$100.00000$9$0.01000$1/1$1,
 			//idle_bhvs=return$0.00$n/a:Archie_Stationkeep$1379176756.94$n/a"
+		} else if (key == "RADIO_POWER") {
+			string val = MOOSToUpper(msg.GetString());
+			if (val == "BULLET") {
+				nr.set_radio_state(ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED);
+			} else if (val == "BULLET_LOCKED") {
+				nr.set_radio_state(ProtoNodeReport_RadioStateEnum_BULLET_LOCKED);
+			} else if (val == "FREEWAVE") {
+				nr.set_radio_state(ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED);
+			} else if (val == "FREEWAVE_LOCKED") {
+				nr.set_radio_state(ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED);
+			}
 		}
 	}
 

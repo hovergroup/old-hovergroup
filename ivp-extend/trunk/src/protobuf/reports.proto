@@ -41,4 +41,12 @@ message ProtoNodeReport {
         SINGLE = 5;
         MISSING_GPS = 10;
     }
+    
+    optional RadioStateEnum radio_state = 14;
+    enum RadioStateEnum {
+        BULLET_LOCKED = 1;
+        FREEWAVE_LOCKED = 2;
+        BULLET_UNLOCKED = 3;
+        FREEWAVE_UNLOCKED = 4;
+    }
 }

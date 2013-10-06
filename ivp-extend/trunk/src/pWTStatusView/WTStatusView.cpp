@@ -19,7 +19,7 @@ std::vector<std::string> vnames;
 std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
 
-const int NUM_ROWS = 9;
+const int NUM_ROWS = 10;
 const int AGE_ROW = 1;
 const int HEALTH_ROW = 2;
 const int VOLTAGE_ROW = 3;
@@ -28,6 +28,7 @@ const int GPS_QUALITY_ROW = 5;
 const int ACOMMS_DRIVER_STATUS_ROW = 6;
 const int HELM_STATE_ROW = 7;
 const int ACTIVE_BEHAVIORS_ROW = 8;
+const int RADIO_STATE_ROW = 9;
 
 //---------------------------------------------------------
 // Constructor
@@ -88,6 +89,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts[pair<int,int>(ACOMMS_DRIVER_STATUS_ROW,0)]->setText("Acomms Status");
 	tableTexts[pair<int,int>(HELM_STATE_ROW,0)]->setText("Helm State");
 	tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW,0)]->setText("Active Behaviors");
+	tableTexts[pair<int,int>(RADIO_STATE_ROW,0)]->setText("Radio Mode");
 
 	for (int col=0; col<num_vehicles; col++) {
 		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -208,6 +210,30 @@ void StatusViewApplication::update() {
 			break;
 		}
 		tableTexts[pair<int,int>(GPS_QUALITY_ROW, col+1)]->setText(gps_quality);
+
+		// ---------------- radio mode -------------------
+		string radio_mode;
+		switch(data[vname].radio_state()) {
+		case ProtoNodeReport_RadioStateEnum_BULLET_LOCKED:
+			radio_mode = "bullet";
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green");
+			break;
+		case ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED:
+			radio_mode = "bullet";
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow");
+			break;
+		case ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED:
+			radio_mode = "freewave";
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green");
+			break;
+		case ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED:
+			radio_mode = "freewave";
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow");
+			break;
+		default:
+			break;
+		}
+		tableTexts[pair<int,int>(RADIO_STATE_ROW, col+1)]->setText(radio_mode);
 	}
 }
 

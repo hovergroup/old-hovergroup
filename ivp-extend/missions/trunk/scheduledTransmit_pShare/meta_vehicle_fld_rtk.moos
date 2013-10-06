@@ -41,6 +41,7 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
+#include ../../trunk/plugs/plug_iKST.moos
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pProtoReporter.moos
