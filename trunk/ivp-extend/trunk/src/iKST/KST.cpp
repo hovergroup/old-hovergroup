@@ -14,6 +14,7 @@
 
 KST::KST() {
 	m_outputFilePath = "~/kst.csv";
+	m_started = false;
 }
 
 //---------------------------------------------------------
@@ -44,35 +45,39 @@ bool KST::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool KST::OnConnectToServer() {
-	m_startTime = MOOSTime();
+    if (!m_started) {
+        m_startTime = MOOSTime();
 
-    STRING_LIST Params;
-	m_MissionReader.GetConfiguration(m_sAppName,Params);
+        STRING_LIST Params;
+        m_MissionReader.GetConfiguration(m_sAppName,Params);
 
-	//this will make columns in sync log in order they
-	//were declared in *.moos file
-	Params.reverse();
+        //this will make columns in sync log in order they
+        //were declared in *.moos file
+        Params.reverse();
 
-	STRING_LIST::iterator p;
-	for(p=Params.begin();p!=Params.end();p++)
-	{
-		std::string sParam = *p;
-		std::string sWhat = MOOSChomp(sParam,"=");
+        STRING_LIST::iterator p;
+        for(p=Params.begin();p!=Params.end();p++)
+        {
+            std::string sParam = *p;
+            std::string sWhat = MOOSChomp(sParam,"=");
 
-		if(MOOSStrCmp(sWhat,"LOG"))
-		{
-			std::string sNewVar = stripBlankEnds(sParam);
-			m_vars.push_back(sNewVar);
-			m_values[sNewVar] = sqrt(-1.0);
-		}
-	}
+            if(MOOSStrCmp(sWhat,"LOG"))
+            {
+                std::string sNewVar = stripBlankEnds(sParam);
+                m_vars.push_back(sNewVar);
+                m_values[sNewVar] = sqrt(-1.0);
+            }
+        }
 
-	m_MissionReader.GetConfigurationParam("output_path", m_outputFilePath);
+        m_MissionReader.GetConfigurationParam("output_path", m_outputFilePath);
 
-	RegisterVariables();
+        out.open(m_outputFilePath.c_str());
+        printHeader();
+    }
 
-	out.open(m_outputFilePath.c_str());
-	printHeader();
+    RegisterVariables();
+
+	m_started = true;
 
 	return (true);
 }

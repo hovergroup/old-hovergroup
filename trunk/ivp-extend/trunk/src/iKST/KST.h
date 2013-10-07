@@ -39,6 +39,8 @@ private:
 	void printHeader();
 	void printLine();
 
+	bool m_started;
+
 };
 
 #endif 

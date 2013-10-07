@@ -94,7 +94,8 @@ Behavior = BHV_Waypoint
 	lead        = 8.0
 
         points=format=lawnmower,label=remus_survey,x=-48,y=-260,width=120,height=200,lane_width=10,rows=north,degs=-25
-
+        
+        //points=format=lawnmower,label=remus_survey,x=260,y=-120,width=200,height=100,lane_width=10,rows=north,degs=65
     //points    = 20,-80,2
 }
 
