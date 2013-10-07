@@ -29,49 +29,45 @@
 
 class PIDEngine {
 public:
-  PIDEngine();
-  ~PIDEngine() {};
+	PIDEngine();
+	~PIDEngine() {
+	};
 
-  void setPID(int, ScalarPID);
-  void setSpeedFactor(double v)     {m_speed_factor = v;};
-  void updateTime(double ctime)     {m_current_time = ctime;};
+	void setPID(int, ScalarPID);
+	void setSpeedFactor(double v) {
+		m_speed_factor = v;
+	};
 
-  double getDesiredRudder(double desired_heading, 
-			  double current_heading,
-			  double max_rudder);
-  double getDesiredThrust(double desired_speed, 
-			  double current_speed,
-			  double current_thrust,
-			  double max_thrust);
-  double getDesiredElevator(double desired_depth, 
-			    double current_depth,
-			    double current_pitch,
-			    double max_pitch,
-			    double max_elevator);
+	void updateTime(double ctime) {
+		m_current_time = ctime;
+	};
 
-  void clearReport() {m_pid_report.clear();};
-  std::vector<std::string> getPIDReport() {return(m_pid_report);};
+	double getDesiredRudder(double desired_heading, double current_heading,
+			double max_rudder);
+	double getDesiredThrust(double desired_speed, double current_speed,
+			double current_thrust, double max_thrust);
+	double getDesiredElevator(double desired_depth, double current_depth,
+			double current_pitch, double max_pitch, double max_elevator);
 
+	void clearReport() {
+		m_pid_report.clear();
+	};
+
+	std::vector<std::string> getPIDReport() {
+		return (m_pid_report);
+	};
+
+public:
+	ScalarPID m_heading_pid;
 protected:
-  ScalarPID m_heading_pid;
-  ScalarPID m_speed_pid;
-  ScalarPID m_z_to_pitch_pid;
-  ScalarPID m_pitch_pid;
+	ScalarPID m_speed_pid;
+	ScalarPID m_z_to_pitch_pid;
+	ScalarPID m_pitch_pid;
 
-  double  m_current_time;
-  double  m_speed_factor;
+	double m_current_time;
+	double m_speed_factor;
 
-  std::vector<std::string> m_pid_report;
+	std::vector<std::string> m_pid_report;
 };
 #endif
-
-
-
-
-
-
-
-
-
-
 

@@ -78,6 +78,8 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 			{
 				m_radioSetTime = -1;
 			}
+		} else if (key == "RUDDER_OFFSET") {
+			RUDDER_OFFSET = msg.GetDouble();
 		}
 	}
 
@@ -175,7 +177,9 @@ void kayak_driver::RegisterVariables()
 {
 	m_Comms.Register("DESIRED_RUDDER", 0);
 	m_Comms.Register("DESIRED_THRUST", 0);
-	m_Comms.Register("RADIO_POWER", 1);
+	m_Comms.Register("RADIO_POWER", 0);
+
+	m_Comms.Register("RUDDER_OFFSET", 0);
 }
 
 

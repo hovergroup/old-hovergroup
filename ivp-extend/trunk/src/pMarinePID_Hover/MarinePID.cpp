@@ -80,77 +80,80 @@ MarinePID::MarinePID()
 //--------------------------------------------------------------------
 // Procedure: OnNewMail()
 
-bool MarinePID::OnNewMail(MOOSMSG_LIST &NewMail)
-{
-  double curr_time = MOOSTime();
+bool MarinePID::OnNewMail(MOOSMSG_LIST &NewMail) {
+	double curr_time = MOOSTime();
 
-  MOOSMSG_LIST::iterator p;
-  for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-    CMOOSMsg &msg = *p;
-    double dfT;
+	MOOSMSG_LIST::iterator p;
+	for (p = NewMail.begin(); p != NewMail.end(); p++) {
+		CMOOSMsg &msg = *p;
+		double dfT;
 
-    msg.IsSkewed(curr_time, &dfT);
+		msg.IsSkewed(curr_time, &dfT);
 
-    string key = toupper(stripBlankEnds(msg.m_sKey));
-    if(key == "SPEED_FACTOR") {
-      m_speed_factor = msg.m_dfVal;
-      m_pengine.setSpeedFactor(m_speed_factor);
-    }
+		string key = toupper(stripBlankEnds(msg.m_sKey));
+		if (key == "SPEED_FACTOR") {
+			m_speed_factor = msg.m_dfVal;
+			m_pengine.setSpeedFactor(m_speed_factor);
+		}
 
-    #define ACCEPTABLE_SKEW_FIX_ME 360.0
-    if(fabs(dfT)<ACCEPTABLE_SKEW_FIX_ME) {
-      if((key == "MOOS_MANUAL_OVERIDE") ||
-	 (key == "MOOS_MANUAL_OVERRIDE")) {
-	if(MOOSStrCmp(msg.m_sVal, "FALSE")) {
-	  m_has_control = true;
-	  MOOSTrace("\n");
-	  MOOSDebugWrite("pMarinePID Control Is On");
+#define ACCEPTABLE_SKEW_FIX_ME 360.0
+		if (fabs(dfT) < ACCEPTABLE_SKEW_FIX_ME) {
+			if ((key == "MOOS_MANUAL_OVERIDE")
+					|| (key == "MOOS_MANUAL_OVERRIDE")) {
+				if (MOOSStrCmp(msg.m_sVal, "FALSE")) {
+					m_has_control = true;
+					MOOSTrace("\n");
+					MOOSDebugWrite("pMarinePID Control Is On");
+				} else if (MOOSStrCmp(msg.m_sVal, "TRUE")) {
+					if (m_allow_overide) {
+						m_has_control = false;
+						MOOSTrace("\n");
+						MOOSDebugWrite("pMarinePID Control Is Off");
+					}
+				}
+			} else if (key == "PID_VERBOSE") {
+				if (msg.m_sVal == "verbose")
+					m_verbose = "verbose";
+				else if (msg.m_sVal == "quiet")
+					m_verbose = "quiet";
+				else
+					m_verbose = "terse";
+			} else if (key == "NAV_YAW")
+				m_current_heading = -MOOSRad2Deg(msg.m_dfVal);
+			else if (key == "NAV_HEADING")
+				m_current_heading = msg.m_dfVal;
+			else if (key == "NAV_SPEED")
+				m_current_speed = msg.m_dfVal;
+			else if (key == "NAV_DEPTH")
+				m_current_depth = msg.m_dfVal;
+			else if (key == "NAV_PITCH")
+				m_current_pitch = msg.m_dfVal;
+
+			if (!strncmp(key.c_str(), "NAV_", 4))
+				m_time_of_last_nav_msg = curr_time;
+
+			else if (key == "DESIRED_THRUST")
+				m_current_thrust = msg.m_dfVal;
+			else if (key == "DESIRED_HEADING") {
+				m_desired_heading = msg.m_dfVal;
+				m_time_of_last_helm_msg = curr_time;
+			} else if (key == "DESIRED_SPEED") {
+				m_desired_speed = msg.m_dfVal;
+				m_time_of_last_helm_msg = curr_time;
+			} else if (key == "DESIRED_DEPTH") {
+				m_desired_depth = msg.m_dfVal;
+			} else if (key == "YAW_PID_KP") {
+				m_pengine.m_heading_pid.SetKp(msg.GetDouble());
+			} else if (key == "YAW_PID_KD") {
+				m_pengine.m_heading_pid.SetKd(msg.GetDouble());
+			} else if (key == "YAW_PID_KI") {
+				m_pengine.m_heading_pid.SetKi(msg.GetDouble());
+			} else if (key == "YAW_PID_INTEGRAL_LIMIT") {
+				m_pengine.m_heading_pid.SetIntegralLimit(msg.GetDouble());
+			}
+		}
 	}
-	else if(MOOSStrCmp(msg.m_sVal, "TRUE")) {
-	  if(m_allow_overide) {
-	    m_has_control = false;
-	    MOOSTrace("\n");
-	    MOOSDebugWrite("pMarinePID Control Is Off");
-	  }
-	}
-      }
-      else if(key == "PID_VERBOSE") {
-	if(msg.m_sVal == "verbose")
-	  m_verbose = "verbose";
-	else if(msg.m_sVal == "quiet")
-	  m_verbose = "quiet";
-	else
-	  m_verbose = "terse";
-      }
-      else if(key == "NAV_YAW")
-	m_current_heading = -MOOSRad2Deg(msg.m_dfVal);
-      else if(key == "NAV_HEADING")
-	m_current_heading = msg.m_dfVal;
-      else if(key == "NAV_SPEED")
-	m_current_speed = msg.m_dfVal;
-      else if(key == "NAV_DEPTH")
-	m_current_depth = msg.m_dfVal;
-      else if(key == "NAV_PITCH")
-	m_current_pitch = msg.m_dfVal;
-      
-      if(!strncmp(key.c_str(), "NAV_", 4))
-	m_time_of_last_nav_msg = curr_time;
-
-      else if(key == "DESIRED_THRUST")
-	m_current_thrust = msg.m_dfVal;
-      else if(key == "DESIRED_HEADING") {
-	m_desired_heading = msg.m_dfVal;
-	m_time_of_last_helm_msg = curr_time;
-      }
-      else if(key == "DESIRED_SPEED") {
-	m_desired_speed = msg.m_dfVal;
-	m_time_of_last_helm_msg = curr_time;
-      }
-      else if(key == "DESIRED_DEPTH")
-	m_desired_depth = msg.m_dfVal;
-      }
-  }
-  return(true);
+	return (true);
 }
 
 //--------------------------------------------------------------------
@@ -304,6 +307,11 @@ void MarinePID::registerVariables()
   m_Comms.Register("SPEED_FACTOR", 0);
   m_Comms.Register("MOOS_MANUAL_OVERIDE", 0);
   m_Comms.Register("MOOS_MANUAL_OVERRIDE", 0);
+
+  m_Comms.Register("YAW_PID_KP", 0);
+  m_Comms.Register("YAW_PID_KD", 0);
+  m_Comms.Register("YAW_PID_KI", 0);
+  m_Comms.Register("YAW_PID_INTEGRAL_LIMIT", 0);
 }
 
 //--------------------------------------------------------

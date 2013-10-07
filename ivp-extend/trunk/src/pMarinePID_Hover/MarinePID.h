@@ -70,7 +70,10 @@ protected:
   double   m_max_thrust;
   double   m_max_elevator;
 
+public:
   PIDEngine    m_pengine;
+
+protected:
   std::string  m_verbose;
 
   int     m_iteration;
