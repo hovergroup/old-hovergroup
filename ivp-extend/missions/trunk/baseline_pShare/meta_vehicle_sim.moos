@@ -19,7 +19,7 @@ Processconfig = ANTLER
   Run = pEchoVar           @ NewConsole = false
 }
 
-#include ../../trunk/plugs/iKST.moos
+#include ../../trunk/plugs/plug_iKST.moos
 #include ../../trunk/plugs/plug_uSimMarine.moos
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
