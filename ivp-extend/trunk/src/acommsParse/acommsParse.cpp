@@ -470,7 +470,11 @@ int main (	int argc, char *argv[] ) {
 
 	// open output file and print header
 	string file_out = alogfile_in;
-	file_out.replace( file_out.size()-4, 4, "csv");
+	if (mode == RECEIVE) {
+		file_out.replace( file_out.size()-5, 13, "_receive.csv");
+	} else {
+		file_out.replace( file_out.size()-5, 14, "_transmit.csv");
+	}
 	output.open(file_out.c_str());
 	printHeader();
 
