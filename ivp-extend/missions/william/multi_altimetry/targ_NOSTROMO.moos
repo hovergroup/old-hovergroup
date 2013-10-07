@@ -28,7 +28,6 @@ Processconfig = ANTLER
   Run = pScheduledTransmit     @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   
-  Run = iAltimeter             @ NewConsole = false
 }
 
 Processconfig = uTimerScript_Config
@@ -55,6 +54,9 @@ ProcessConfig = iKST
     LOG = DESIRED_SPEED
     LOG = ARDUINO_RUDDER
     LOG = ARDUINO_THRUST
+    LOG = COMPASS_ROLL
+    LOG = COMPASS_PITCH
+    LOG = ALTIMETER_DEPTH
 }
 
 //---------------------------------------------------------

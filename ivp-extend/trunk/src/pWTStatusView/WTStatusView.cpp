@@ -320,7 +320,7 @@ WApplication *createApplication(const WEnvironment& env) {
 void WTStatusView::startWT() {
 	char *myArgv[] = {"hello",
 			"--docroot=.",
-			"--http-address=127.0.0.1",
+			"--http-address=0.0.0.0",
 			"--http-port=8080"
 	};
 
