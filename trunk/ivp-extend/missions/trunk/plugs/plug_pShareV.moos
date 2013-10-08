@@ -10,8 +10,5 @@ ProcessConfig = pShare
   output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
   output = VIEW_*->:$(SHOREHOST):$(SLPORT)
   
-  output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT):udp
-  output = VIEW_*->:$(SHOREHOST):$(SLPORT):udp
-  
   input = route=$(VHOST):$(LPORT) 
 }
