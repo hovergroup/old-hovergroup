@@ -29,6 +29,7 @@ points=format=lawnmower,label=remus_survey,x=-50,y=-260,width=200,height=100,lan
 
 MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=65,y=-120,width=500,height=90,lane_width=5,rows=north,degs=-25"
 
+MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=65,y=-120,width=500,height=90,lane_width=5,rows=north,degs=155"
 
 
 MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=100,y=-200,width=500,height=90,lane_width=5,rows=north,degs=-25"
