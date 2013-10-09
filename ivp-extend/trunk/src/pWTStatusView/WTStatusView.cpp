@@ -74,7 +74,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 			if (column==0)
 				t->setStyleClass("col0");
 			else
-				table->elementAt(row, column)->setStyleClass("center");
+				t->setStyleClass("center");
 			tableTexts[pair<int,int>(row,column)] = t;
 			table->elementAt(row, column)->addWidget(t);
 //			grid_->addWidget(t, row, column);
@@ -114,8 +114,17 @@ void StatusViewApplication::update() {
 
 		// ---------------- voltage -------------------
 		ss << fixed << setprecision(1);
-		ss << data[vname].voltage();
+		double volts = data[vname].voltage();
+		ss << volts;
 		tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
+		if (volts >= 12.2)
+		    table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
+		else if (volts >= 11.7)
+            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
+		else
+            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("red center");
+
+
 
 		// ---------------- age -------------------
 		ss.str("");
@@ -158,6 +167,7 @@ void StatusViewApplication::update() {
 				ss << endl;
 		}
 		tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW, col+1)]->setText(ss.str());
+		table->elementAt(ACTIVE_BEHAVIORS_ROW, col+1)->setStyleClass("center");
 
 		// ---------------- acomms driver status -------------------
 		string acomms_running;
@@ -192,19 +202,19 @@ void StatusViewApplication::update() {
 		switch(data[vname].gps_quality()) {
 		case ProtoNodeReport_GPSQualityEnum_FIX:
 			gps_quality = "fix";
-			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("green");
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("green center");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_FLOAT:
 			gps_quality = "float";
-			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow center");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_SINGLE:
 			gps_quality = "single";
-			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow");
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow center");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_MISSING_GPS:
 			gps_quality = "missing";
-			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red");
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red center");
 			break;
 		default:
 			break;
@@ -216,19 +226,19 @@ void StatusViewApplication::update() {
 		switch(data[vname].radio_state()) {
 		case ProtoNodeReport_RadioStateEnum_BULLET_LOCKED:
 			radio_mode = "bullet";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green");
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
 			break;
 		case ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED:
 			radio_mode = "bullet";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow");
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
 			break;
 		case ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED:
 			radio_mode = "freewave";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green");
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
 			break;
 		case ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED:
 			radio_mode = "freewave";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow");
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
 			break;
 		default:
 			break;
