@@ -77,6 +77,7 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 			else if (m_radioSetTime!=-1 && freewave==m_usingFreewave)
 			{
 				m_radioSetTime = -1;
+				postRadioPowerIsLocked();
 			}
 		} else if (key == "RUDDER_OFFSET") {
 			RUDDER_OFFSET = msg.GetDouble();

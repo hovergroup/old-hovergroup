@@ -47,6 +47,7 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 
 	reDraw(0);
 	current_num_vehicles = -1;
+	iterations = 0;
 
 	WTimer *timer = new WTimer();
 	timer->setInterval(1000);
@@ -71,9 +72,9 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	for (int column=0; column<num_vehicles+1; column++) {
 		for (int row=0; row<NUM_ROWS; row++) {
 			WText *t = new WText();
-			if (column==0)
+			if (column==0 && row!=0)
 				t->setStyleClass("col0");
-			else
+			else if (column!=0)
 				t->setStyleClass("center");
 			tableTexts[pair<int,int>(row,column)] = t;
 			table->elementAt(row, column)->addWidget(t);
@@ -105,14 +106,19 @@ void StatusViewApplication::update() {
 		reDraw(current_num_vehicles);
 	}
 
-	reDraw(current_num_vehicles);
+//	reDraw(current_num_vehicles);
+
+	std::stringstream ss;
+	ss << iterations;
+	tableTexts[pair<int,int>(0, 0)]->setText(ss.str());
+	iterations++;
 
 	// loop over all vehicles
 	for (int col=0; col<current_num_vehicles; col++) {
 		string vname = vnames[col];
-		std::stringstream ss;
 
 		// ---------------- voltage -------------------
+		ss.str("");
 		ss << fixed << setprecision(1);
 		double volts = data[vname].voltage();
 		ss << volts;

@@ -51,6 +51,7 @@ private:
 	void update();
 
 	int current_num_vehicles;
+	int iterations;
 
 private:
 
