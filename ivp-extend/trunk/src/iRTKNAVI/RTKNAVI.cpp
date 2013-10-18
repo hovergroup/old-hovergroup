@@ -106,29 +106,29 @@ void RTKNAVI::parseLine(std::string sline) {
 //	std::cout << date << std::endl;
 	try {
 		boost::posix_time::ptime t(boost::posix_time::time_from_string(date));
-		m_Comms.Notify("GPS_PTIME", boost::posix_time::to_simple_string(t));
+		m_Comms.Notify("RTK_PTIME", boost::posix_time::to_simple_string(t));
 		double seconds = t.time_of_day().total_milliseconds()/1000.0;
-		m_Comms.Notify("GPS_TIME_SECONDS", seconds);
+		m_Comms.Notify("RTK_TIME_SECONDS", seconds);
 	} catch ( ... ) {
 		std::cout << "ptime exception" << std::endl;
 		return;
 	}
 
 	double lat = atof(MOOSChomp(sline, "  ").c_str());
-	m_Comms.Notify("GPS_LATITUDE", lat);
+	m_Comms.Notify("RTK_LATITUDE", lat);
 	double lon = atof(MOOSChomp(sline, "  ").c_str());
-	m_Comms.Notify("GPS_LONGITUDE", lon);
+	m_Comms.Notify("RTK_LONGITUDE", lon);
 	double height = atof(MOOSChomp(sline, "  ").c_str());
-	m_Comms.Notify("GPS_HEIGHT", height);
+	m_Comms.Notify("RTK_HEIGHT", height);
 	int quality = atoi(MOOSChomp(sline, "  ").c_str());
-	m_Comms.Notify("GPS_QUALITY", quality);
+	m_Comms.Notify("RTK_QUALITY", quality);
 	int ns = atoi(MOOSChomp(sline, "  ").c_str());
-	m_Comms.Notify("GPS_NUM_SV", ns);
+	m_Comms.Notify("RTK_NUM_SV", ns);
 
 	double dfXLocal, dfYLocal;
 	if ( m_Geodesy.LatLong2LocalUTM(lat, lon, dfYLocal, dfXLocal) ) {
-		m_Comms.Notify("GPS_X", dfXLocal);
-		m_Comms.Notify("GPS_Y", dfYLocal);
+		m_Comms.Notify("RTK_X", dfXLocal);
+		m_Comms.Notify("RTK_Y", dfYLocal);
 
 		if (time_prev!=-1) {
 			double vel = sqrt(pow(dfXLocal-x_prev,2) + pow(dfYLocal-y_prev,2))/(MOOSTime()-time_prev);
@@ -138,7 +138,7 @@ void RTKNAVI::parseLine(std::string sline) {
 				for (int i=0; i<vel_history.size(); i++) {
 					sum += vel_history[i];
 				}
-				m_Comms.Notify("GPS_SPEED", sum/vel_history.size());
+				m_Comms.Notify("RTK_SPEED", sum/vel_history.size());
 				vel_history.pop_front();
 			}
 		}
