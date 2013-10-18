@@ -1,0 +1,8 @@
+ProcessConfig = pNavManager
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 4    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+  
+    timeout = 5      // timeout before abandoning a nav source
+}
