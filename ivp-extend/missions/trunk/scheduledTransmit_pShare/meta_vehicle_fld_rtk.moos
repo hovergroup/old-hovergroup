@@ -20,6 +20,7 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
+  Run = pNavManager            @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   
@@ -56,3 +57,4 @@ Processconfig = uTimerScript_Config
 #include ../../trunk/plugs/plug_iAltimeter.moos
 #include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
+#include ../../trunk/plugs/plug_pNavManager.moos

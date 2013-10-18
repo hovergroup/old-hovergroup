@@ -1,10 +1,11 @@
 ProcessConfig = iKST
 {
-    AppTick   = 4
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
 
     output_path = "/home/josh/kst_$(VNAME).csv"
 
-    LOG = NAV_X
+	LOG = NAV_X
     LOG = NAV_Y
     LOG = NAV_HEADING
     LOG = NAV_SPEED

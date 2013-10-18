@@ -1,7 +1,7 @@
 ProcessConfig = pLogger
 {
-    AppTick   = 10
-    CommsTick = 10
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 10
 
     File            = LOG_%(VNAME)
     PATH            = /home/josh/logs/

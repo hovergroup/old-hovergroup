@@ -1,11 +1,8 @@
-//------------------------------------------------------
-// uSimMarine Configuration Block  (Created from plugin)
-
 ProcessConfig = uSimMarine
 {
-  AppTick  = 10
-  CommsTic = 10
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 10
 
-  START_POS = $(START_POS), 180, 0
-  PREFIX    = NAV
+    START_POS = $(START_POS), 180, 0
+    PREFIX    = NAV
 }

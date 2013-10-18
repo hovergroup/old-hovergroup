@@ -1,7 +1,8 @@
 ProcessConfig = iGPS_Hover
 {
-  AppTick = 1
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1 
   
-  PORT_NAME = $(GPSPORT)
-  BAUD_RATE = $(GPSBAUD)
+    PORT_NAME = $(GPSPORT)
+    BAUD_RATE = $(GPSBAUD)
 }

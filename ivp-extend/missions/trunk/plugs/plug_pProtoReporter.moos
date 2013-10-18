@@ -1,9 +1,7 @@
-//--------------------------------------------------------
-// pNodeReporter Configuration Block (Created from Plugin)
-
 ProcessConfig = pProtoReporter
 {
-  AppTick   = 1
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
   
-  PLATFORM_TYPE = KAYAK
+    PLATFORM_TYPE = KAYAK
 }
