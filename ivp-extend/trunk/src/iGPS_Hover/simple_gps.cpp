@@ -307,9 +307,10 @@ void SIMPLE_GPS::serialLoop() {
 
 void SIMPLE_GPS::processReadBuffer() {
     int start_index, stop_index;
-    while ((stop_index = string_buffer.find("\r\n", 2)) != string::npos
-            && (start_index = string_buffer.find("$", 0))
+    while ((stop_index = string_buffer.find("*", 2)) != string::npos
+            && (start_index = string_buffer.find("$GP", 0))
                     != string::npos) {
+    	stop_index+=3;
         parseLine(
                 string_buffer.substr(start_index,
                         stop_index - start_index));
