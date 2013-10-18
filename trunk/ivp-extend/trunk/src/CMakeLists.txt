@@ -29,6 +29,7 @@ ADD_SUBDIRECTORY(pScheduledTransmit)
 ADD_SUBDIRECTORY(pAcommsScheduler)
 ADD_SUBDIRECTORY(pProtoReporter)
 ADD_SUBDIRECTORY(pProtoReportParser)
+ADD_SUBDIRECTORY(pNavManager)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)

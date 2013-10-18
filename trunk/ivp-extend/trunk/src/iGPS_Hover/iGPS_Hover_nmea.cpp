@@ -26,8 +26,8 @@ void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 
 	// field 2 - fix status
 	sTmp = MOOSChomp(sNMEAString, ",");
-	if ( sTmp == "A" ) m_Comms.Notify("GPS_LOCK", "true");
-	else m_Comms.Notify("GPS_LOCK", "false");
+	if ( sTmp == "A" ) m_Comms.Notify("GPS_LOCK", 1.0);
+	else m_Comms.Notify("GPS_LOCK", 0.0);
 
 	// field 3 - latitude
 	sTmp = MOOSChomp(sNMEAString, ",");
