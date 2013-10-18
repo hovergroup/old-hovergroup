@@ -1,7 +1,7 @@
 ProcessConfig = iAltimeter
 {
-  AppTick   = 10
-  CommsTick = 10
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
   
-  PORT_NAME = $(TRITECHPORT)
+    PORT_NAME = $(TRITECHPORT)
 }

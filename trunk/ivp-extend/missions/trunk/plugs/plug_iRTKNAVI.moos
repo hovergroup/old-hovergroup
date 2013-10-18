@@ -1,5 +1,8 @@
 ProcessConfig = iRTKNAVI
 {
-  HOST=$(VHOST)
-  PORT=50001
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
+    
+    HOST=$(VHOST)
+    PORT=50001
 }

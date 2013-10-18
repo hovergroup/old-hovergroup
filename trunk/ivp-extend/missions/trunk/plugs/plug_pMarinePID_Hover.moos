@@ -1,7 +1,7 @@
 ProcessConfig = pMarinePID_Hover
 {
-    AppTick   = 5
-    CommsTick = 5
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 10
 
     Verbose       = false
     DEPTH_CONTROL = false

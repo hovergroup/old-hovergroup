@@ -1,8 +1,8 @@
 //--------------------------------------------------------
 ProcessConfig = pMarineViewer
 {
-  AppTick    = 4
-  CommsTick  = 4
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
 
   //TIFF_FILE     = ../../trunk/data/AerialMIT.tif
   

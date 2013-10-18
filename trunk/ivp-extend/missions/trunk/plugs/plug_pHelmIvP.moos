@@ -1,13 +1,14 @@
 ProcessConfig = pHelmIvP
 {
-  AppTick = 2
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 2
 
-  ok_skew = any
+    ok_skew = any
   
-  Behaviors = targ_$(VNAME).bhv  
-  Verbose   = true
-  Domain    = course:0:359:360
-  Domain    = speed:0:5:51
+    Behaviors = targ_$(VNAME).bhv  
+    Verbose   = true
+    Domain    = course:0:359:360
+    Domain    = speed:0:5:51
   
 //  IVP_BEHAVIOR_DIR = /home/student/moos-ivp-jleight/ivp-extend/trunk/lib
 }

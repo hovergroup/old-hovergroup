@@ -1,8 +1,8 @@
 ProcessConfig = pScheduledTransmit
 {
-   IterateMode = 0 // regular iterate and mail
-   AppTick = 20
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 20
    
-   period = $(TransmitPeriod)
-   offset = $(TransmitOffset)
+    period = $(TransmitPeriod)
+    offset = $(TransmitOffset)
 }
