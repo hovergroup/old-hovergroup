@@ -5,7 +5,7 @@ ProcessConfig = iKST
 
     output_path = "/home/josh/kst_$(VNAME).csv"
 
-	LOG = NAV_X
+    LOG = NAV_X
     LOG = NAV_Y
     LOG = NAV_HEADING
     LOG = NAV_SPEED
