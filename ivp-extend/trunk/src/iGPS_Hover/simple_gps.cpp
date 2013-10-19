@@ -319,17 +319,17 @@ void SIMPLE_GPS::processReadBuffer() {
     while (1) {
     	if ((start_index = string_buffer.find("$GP", 0)) != string::npos) {
     		if ((stop_index = string_buffer.find("*", start_index+2)) != string::npos) {
-				std::cout << "pre buffer: " << string_buffer << std::endl << std::endl;
-				std::cout << "stop index " << dec << stop_index << ", ";
-				std::cout << "start index " << start_index << std::endl << std::endl;
+//				std::cout << "pre buffer: " << string_buffer << std::endl << std::endl;
+//				std::cout << "stop index " << dec << stop_index << ", ";
+//				std::cout << "start index " << start_index << std::endl << std::endl;
 				stop_index+=3;
-				std::cout << "running parse on: " << string_buffer.substr(start_index, stop_index-start_index) << std::endl << std::endl;
+//				std::cout << "running parse on: " << string_buffer.substr(start_index, stop_index-start_index) << std::endl << std::endl;
 				parseLine(
 						string_buffer.substr(start_index,
 								stop_index - start_index));
 				string_buffer = string_buffer.substr(stop_index,
 						string_buffer.size() - stop_index);
-				std::cout << "post buffer: " << string_buffer << std::endl << std::endl;
+//				std::cout << "post buffer: " << string_buffer << std::endl << std::endl;
     		} else {
     			break;
     		}

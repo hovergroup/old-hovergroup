@@ -16,8 +16,11 @@ SET(SRC
 ADD_EXECUTABLE(pNavManager ${SRC})
 
 TARGET_LINK_LIBRARIES(pNavManager
-   ${MOOS_LIBRARIES}
-   mbutil
-   m
-   pthread)
+    geometry
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
+    mbutil
+    m
+    pthread
+    geometry)
 
