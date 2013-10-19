@@ -13,6 +13,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT( IVP_EXTEND )
 
+include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIR})
+
 SET(BUILD_SHORE_APPS TRUE CACHE BOOL "Build shore apps")
 
 #=============================================================================
@@ -25,7 +29,9 @@ find_path( HOVERGROUP_TRUNK_BASE
 			NO_DEFAULT_PATH
 )
 
-FILE(GLOB HOVERGROUP_LIB_DIRECTORIES ${HOVERGROUP_TRUNK_BASE}/src/lib_*)
+FILE(GLOB HOVERGROUP_LIB_DIRECTORIES 
+    ${HOVERGROUP_TRUNK_BASE}/src/lib_*
+    ${HOVERGROUP_TRUNK_BASE}/src/protobuf)
 
 set ( HOVERGROUP_INCLUDE_DIRECTORIES
 		${HOVERGROUP_LIB_DIRECTORIES}

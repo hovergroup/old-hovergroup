@@ -9,6 +9,7 @@
 #define NavManager_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include "XYPoint.h"
 
 enum NAV_SOURCE {
 	gps = 0,
@@ -35,6 +36,11 @@ private:
 	NAV_SOURCE source;
 	bool gps_lock;
 	double gps_update_time, rtk_update_time;
+
+	double gps_x, gps_y;
+	double last_point_post_time;
+
+	std::string my_name;
 
 	void setSource(NAV_SOURCE new_val);
 };
