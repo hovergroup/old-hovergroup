@@ -16,6 +16,7 @@ Processconfig = ANTLER
   Run = pMarinePID_Hover       @ NewConsole = false
   Run = pHelmIvP               @ NewConsole = false
   Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
   Run = iOS5000_Hover          @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
@@ -45,3 +46,4 @@ Processconfig = ANTLER
 #include ../../trunk/plugs/plug_iAltimeter.moos
 #include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
 #include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
