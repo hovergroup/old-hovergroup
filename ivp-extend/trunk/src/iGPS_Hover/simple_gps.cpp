@@ -318,6 +318,7 @@ void SIMPLE_GPS::processReadBuffer() {
     int start_index, stop_index;
     while ((stop_index = string_buffer.find("*", 2)) != string::npos
             && (start_index = string_buffer.find("$GP", 0)) != string::npos) {
+    	std::cout << "buffer: " << string_buffer << std::endl << std::endl;
     	std::cout << "stop index " << stop_index << ", ";
     	std::cout << "start index " << start_index << std::endl << std::endl;
     	stop_index+=3;
@@ -326,6 +327,7 @@ void SIMPLE_GPS::processReadBuffer() {
                         stop_index - start_index));
         string_buffer = string_buffer.substr(stop_index,
                 string_buffer.size() - stop_index);
+    	std::cout << "buffer: " << string_buffer << std::endl << std::endl;
     }
 
 }
