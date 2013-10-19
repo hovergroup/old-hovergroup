@@ -318,6 +318,8 @@ void SIMPLE_GPS::processReadBuffer() {
     int start_index, stop_index;
     while ((stop_index = string_buffer.find("*", 2)) != string::npos
             && (start_index = string_buffer.find("$GP", 0)) != string::npos) {
+    	std::cout << "stop index " << stop_index << ", ";
+    	std::cout << "start index " << start_index << std::endl << std::endl;
     	stop_index+=3;
         parseLine(
                 string_buffer.substr(start_index,
