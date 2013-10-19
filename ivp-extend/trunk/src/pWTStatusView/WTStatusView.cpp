@@ -207,19 +207,27 @@ void StatusViewApplication::update() {
 		string gps_quality;
 		switch(data[vname].gps_quality()) {
 		case ProtoNodeReport_GPSQualityEnum_FIX:
-			gps_quality = "fix";
+			gps_quality = "rtk fix";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("green center");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_FLOAT:
-			gps_quality = "float";
+			gps_quality = "rtk float";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow center");
 			break;
 		case ProtoNodeReport_GPSQualityEnum_SINGLE:
-			gps_quality = "single";
+			gps_quality = "rtk single";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow center");
 			break;
-		case ProtoNodeReport_GPSQualityEnum_MISSING_GPS:
-			gps_quality = "missing";
+		case ProtoNodeReport_GPSQualityEnum_INTERNAL:
+			gps_quality = "internal";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("yellow center");
+			break;
+		case ProtoNodeReport_GPSQualityEnum_NO_GPS:
+			gps_quality = "unavailable";
+			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red center");
+			break;
+		case ProtoNodeReport_GPSQualityEnum_NO_MANAGER:
+			gps_quality = "no manager";
 			table->elementAt(GPS_QUALITY_ROW, col+1)->setStyleClass("red center");
 			break;
 		default:

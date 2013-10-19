@@ -39,7 +39,9 @@ message ProtoNodeReport {
         FIX = 1;
         FLOAT = 2;
         SINGLE = 5;
-        MISSING_GPS = 10;
+        INTERNAL = 9;
+        NO_GPS = 10;
+        NO_MANAGER = 11;
     }
     
     optional RadioStateEnum radio_state = 14;

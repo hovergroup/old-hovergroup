@@ -16,6 +16,11 @@ using namespace std;
 // Constructor
 
 ProtoReporter::ProtoReporter() {
+	rtk = true;
+	m_lastNavSourceUpdate = -1;
+	m_lastAcommsStatusUpdate = -1;
+	m_lastHelmStateUpdate = -1;
+	m_lastGPSQualityUpdate = -1;
 }
 
 //---------------------------------------------------------
@@ -70,7 +75,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 				nr.set_helm_state(ProtoNodeReport_HelmStateEnum_PARK);
 			}
 			m_lastHelmStateUpdate = msg.GetTime();
-		} else if (key == "GPS_QUALITY") {
+		} else if (key == "GPS_QUALITY" && rtk) {
 			switch ((int) msg.GetDouble()) {
 			case 1:
 				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_FIX);
@@ -118,6 +123,21 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 			} else if (val == "FREEWAVE_LOCKED") {
 				nr.set_radio_state(ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED);
 			}
+		} else if (key == "NAV_SOURCE") {
+			m_lastNavSourceUpdate = msg.GetTime();
+			string val = MOOSToUpper(msg.GetString());
+			if (val == "RTK") {
+				rtk = true;
+			} else if (val == "GPS") {
+				rtk = false;
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_INTERNAL);
+			} else if (val == "NONE") {
+				rtk = false;
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_GPS);
+			} else {
+				rtk = false;
+				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
+			}
 		}
 	}
 
@@ -163,8 +183,11 @@ bool ProtoReporter::Iterate() {
 	if (MOOSTime() - m_lastHelmStateUpdate > 5) {
 		nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MISSING);
 	}
-	if (MOOSTime() - m_lastGPSQualityUpdate > 5) {
-		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_MISSING_GPS);
+	if (MOOSTime() - m_lastGPSQualityUpdate > 5 && rtk) {
+		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_GPS);
+	}
+	if (MOOSTime() - m_lastNavSourceUpdate > 5) {
+		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
 	}
 
 	nr.set_time_stamp(MOOSTime());
@@ -198,5 +221,6 @@ void ProtoReporter::RegisterVariables() {
 	m_Comms.Register("IVPHELM_STATE", 0);
 	m_Comms.Register("IVPHELM_SUMMARY", 0);
 	m_Comms.Register("GPS_QUALITY", 0);
+	m_Comms.Register("NAV_SOURCE", 0);
 }
 
