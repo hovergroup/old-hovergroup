@@ -302,12 +302,12 @@ void SIMPLE_GPS::serialLoop() {
 //			cout << string_buffer << endl;
 
             // clear the string buffer if if it doesn't contain the start of a sentence
-            if (string_buffer.size()>3 && string_buffer.find("$GP", 0)==string::npos) {
-            	string_buffer = "";
-            }
+//            if (string_buffer.size()>3 && string_buffer.find("$GP", 0)==string::npos) {
+//            	string_buffer = "";
+//            }
 
             // look for a sentence if buffer is full enough
-            else if (string_buffer.size()>20) {
+            if (string_buffer.size()>20) {
             	processReadBuffer();
             }
         }
@@ -330,7 +330,11 @@ void SIMPLE_GPS::processReadBuffer() {
 				string_buffer = string_buffer.substr(stop_index,
 						string_buffer.size() - stop_index);
 				std::cout << "post buffer: " << string_buffer << std::endl << std::endl;
+    		} else {
+    			break;
     		}
+		} else {
+			break;
 		}
     }
 
