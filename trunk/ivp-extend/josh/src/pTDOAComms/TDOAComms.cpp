@@ -14,103 +14,70 @@ using namespace std;
 //---------------------------------------------------------
 // Constructor
 
-TDOAComms::TDOAComms()
-{
-  m_iterations = 0;
-  m_timewarp   = 1;
+TDOAComms::TDOAComms() {
+
 }
 
 //---------------------------------------------------------
 // Destructor
 
-TDOAComms::~TDOAComms()
-{
+TDOAComms::~TDOAComms() {
 }
 
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
-bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail)
-{
-  MOOSMSG_LIST::iterator p;
-   
-  for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-    CMOOSMsg &msg = *p;
+bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
+	MOOSMSG_LIST::iterator p;
 
-#if 0 // Keep these around just for template
-    string key   = msg.GetKey();
-    string comm  = msg.GetCommunity();
-    double dval  = msg.GetDouble();
-    string sval  = msg.GetString(); 
-    string msrc  = msg.GetSource();
-    double mtime = msg.GetTime();
-    bool   mdbl  = msg.IsDouble();
-    bool   mstr  = msg.IsString();
-#endif
-   }
-	
-   return(true);
+	for (p = NewMail.begin(); p != NewMail.end(); p++) {
+		CMOOSMsg &msg = *p;
+
+	}
+
+	return (true);
 }
 
 //---------------------------------------------------------
 // Procedure: OnConnectToServer
 
-bool TDOAComms::OnConnectToServer()
-{
-   // register for variables here
-   // possibly look at the mission file?
-   // m_MissionReader.GetConfigurationParam("Name", <string>);
-   // m_Comms.Register("VARNAME", 0);
-	
-   RegisterVariables();
-   return(true);
+bool TDOAComms::OnConnectToServer() {
+	m_MissionReader.GetConfigurationParam("ID", m_id);
+
+	m_outgoingUpdate.set_local_id(m_id);
+	m_outgoingUpdate.set_cycle_state(TDOAUpdate_StateEnum_PAUSED);
+
+	RegisterVariables();
+	return (true);
 }
 
 //---------------------------------------------------------
 // Procedure: Iterate()
 //            happens AppTick times per second
 
-bool TDOAComms::Iterate()
-{
-  m_iterations++;
-  return(true);
+bool TDOAComms::Iterate() {
+	return (true);
 }
 
 //---------------------------------------------------------
 // Procedure: OnStartUp()
 //            happens before connection is open
 
-bool TDOAComms::OnStartUp()
-{
-  list<string> sParams;
-  m_MissionReader.EnableVerbatimQuoting(false);
-  if(m_MissionReader.GetConfiguration(GetAppName(), sParams)) {
-    list<string>::iterator p;
-    for(p=sParams.begin(); p!=sParams.end(); p++) {
-      string original_line = *p;
-      string param = stripBlankEnds(toupper(biteString(*p, '=')));
-      string value = stripBlankEnds(*p);
-      
-      if(param == "FOO") {
-        //handled
-      }
-      else if(param == "BAR") {
-        //handled
-      }
-    }
-  }
-  
-  m_timewarp = GetMOOSTimeWarp();
+bool TDOAComms::OnStartUp() {
+	return (true);
+}
 
-  RegisterVariables();	
-  return(true);
+void TDOAComms::resetOutput() {
+	m_outgoingUpdate.mutable_data()->Clear();
 }
 
 //---------------------------------------------------------
 // Procedure: RegisterVariables
 
-void TDOAComms::RegisterVariables()
-{
-  // m_Comms.Register("FOOBAR", 0);
+void TDOAComms::RegisterVariables() {
+	m_Comms.Register("ACOMMS_RECEIVED", 0);
+	m_Comms.Register("NAV_X", 0);
+	m_Comms.Register("NAV_Y", 0);
+
 }
 
