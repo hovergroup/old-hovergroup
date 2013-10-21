@@ -5,9 +5,7 @@ message TDOAUpdate {
     repeated double y = 3;
     repeated double toa = 4;
     
-    required bool got_f1 = 5;
-    required bool got_f2 = 6;
-    required bool got_f3 = 7;
+    repeated bool got_data = 5;
     
     required StateEnum cycle_state = 10;
     enum StateEnum {
