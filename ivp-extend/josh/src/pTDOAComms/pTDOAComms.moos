@@ -1,9 +1,10 @@
-//------------------------------------------------
-// pTDOAComms config block
-
 ProcessConfig = pTDOAComms
 {
-   AppTick   = 4
-   CommsTick = 4
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 4    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+    
+    ID = $(ACOMMSID)   // our local id
+    
 }
 

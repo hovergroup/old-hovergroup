@@ -12,24 +12,28 @@
 #include "tdoa.pb.h"
 #include "tdoa_acomms.pb.h"
 
-class TDOAComms : public CMOOSApp
-{
- public:
-   TDOAComms();
-   ~TDOAComms();
+class TDOAComms: public CMOOSApp {
+public:
+	TDOAComms();
+	~TDOAComms();
 
- protected:
-   bool OnNewMail(MOOSMSG_LIST &NewMail);
-   bool Iterate();
-   bool OnConnectToServer();
-   bool OnStartUp();
-   void RegisterVariables();
+protected:
+	bool OnNewMail(MOOSMSG_LIST &NewMail);
+	bool Iterate();
+	bool OnConnectToServer();
+	bool OnStartUp();
+	void RegisterVariables();
 
- private: // Configuration variables
+private:
+	// Configuration variables
 
- private: // State variables
-   unsigned int m_iterations;
-   double       m_timewarp;
+private:
+	// State variables
+	int m_id;
+
+	TDOAUpdate m_outgoingUpdate;
+
+	void resetOutput();
 };
 
 #endif 
