@@ -1,5 +1,5 @@
 message TDOAUpdate {
-    required int my_index = 1;
+    required int32 local_id = 1;
 
     repeated double x = 2;
     repeated double y = 3;
@@ -11,6 +11,7 @@ message TDOAUpdate {
     
     required StateEnum cycle_state = 10;
     enum StateEnum {
+        PAUSED = 0;
         LEADER_SLOT_COMPLETE = 1;
         F1_SLOT_COMPLETE = 2;
         F2_SLOT_COMPLETE = 3;
