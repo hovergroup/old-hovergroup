@@ -1,0 +1,21 @@
+import "goby/acomms/protobuf/dccl_option_extensions.proto";
+
+
+message TDOAPSK1
+{
+    option (dccl.msg).id = 127;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated int32 id = 1    [(dccl.field).max=3,
+                              (dccl.field).min=1,
+                              (dccl.field).precision=0];
+    repeated double x = 2    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    repeated double y = 3    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    repeated double toa = 4  [(dccl.field).max=1,
+                              (dccl.field).min=0,
+                              (dccl.field).precision=5];
+} 
