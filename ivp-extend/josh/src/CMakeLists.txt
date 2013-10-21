@@ -14,13 +14,14 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
-ADD_SUBDIRECTORY(lib_timed-acomms)
-ADD_SUBDIRECTORY(pTulip26bit)
-ADD_SUBDIRECTORY(pTulipTarget)
-ADD_SUBDIRECTORY(lib_RangeSensorTypes)
-ADD_SUBDIRECTORY(pRelay)
-ADD_SUBDIRECTORY(pRandomTransmit)
-ADD_SUBDIRECTORY(pSimpleAck)
+#ADD_SUBDIRECTORY(lib_timed-acomms)
+#ADD_SUBDIRECTORY(pTulip26bit)
+#ADD_SUBDIRECTORY(pTulipTarget)
+#ADD_SUBDIRECTORY(lib_RangeSensorTypes)
+#ADD_SUBDIRECTORY(pRelay)
+#ADD_SUBDIRECTORY(pSimpleAck)
+
+ADD_SUBDIRECTORY(protobuf)
 
 IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(lib_TargetSim)
