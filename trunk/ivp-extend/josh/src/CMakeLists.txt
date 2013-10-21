@@ -9,7 +9,8 @@
 # Add the libraries in the current directory to the include path
 #============================================================================
 FILE(GLOB LOCAL_LIBRARY_DIRS ./lib_*)
-INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
+INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS}
+                    "./protobuf")
 
 #============================================================================
 # List the subdirectories to build...
@@ -22,6 +23,8 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #ADD_SUBDIRECTORY(pSimpleAck)
 
 ADD_SUBDIRECTORY(protobuf)
+
+ADD_SUBDIRECTORY(pTDOAComms)
 
 IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(lib_TargetSim)
