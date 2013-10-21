@@ -75,7 +75,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 				nr.set_helm_state(ProtoNodeReport_HelmStateEnum_PARK);
 			}
 			m_lastHelmStateUpdate = msg.GetTime();
-		} else if (key == "GPS_QUALITY" && rtk) {
+		} else if (key == "RTK_QUALITY" && rtk) {
 			switch ((int) msg.GetDouble()) {
 			case 1:
 				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_FIX);
@@ -220,7 +220,7 @@ void ProtoReporter::RegisterVariables() {
 	m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
 	m_Comms.Register("IVPHELM_STATE", 0);
 	m_Comms.Register("IVPHELM_SUMMARY", 0);
-	m_Comms.Register("GPS_QUALITY", 0);
+	m_Comms.Register("RTK_QUALITY", 0);
 	m_Comms.Register("NAV_SOURCE", 0);
 }
 
