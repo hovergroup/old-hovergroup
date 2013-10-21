@@ -20,6 +20,7 @@ NavManager::NavManager() {
 	TIMEOUT = 5;
 
 	last_point_post_time = -1;
+	last_source_post_time = -1;
 }
 
 //---------------------------------------------------------
@@ -92,6 +93,12 @@ bool NavManager::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool NavManager::Iterate() {
+    // post source periodically as a heartbeat
+    if (MOOSTime()-last_source_post_time > 5) {
+        postSource();
+        last_source_post_time = MOOSTime();
+    }
+
 	// post gps point when using rtk every second
 	if (source == rtk && MOOSTime()-last_point_post_time > 1) {
 		last_point_post_time == MOOSTime();
@@ -127,21 +134,25 @@ bool NavManager::Iterate() {
 	return (true);
 }
 
+void NavManager::postSource() {
+    switch (source) {
+    case gps:
+        m_Comms.Notify("NAV_SOURCE", "gps");
+        break;
+    case rtk:
+        m_Comms.Notify("NAV_SOURCE", "rtk");
+        break;
+    case none:
+        m_Comms.Notify("NAV_SOURCE", "none");
+        break;
+    default:
+        break;
+    }
+}
+
 void NavManager::setSource(NAV_SOURCE new_val) {
 	source = new_val;
-	switch (new_val) {
-	case gps:
-		m_Comms.Notify("NAV_SOURCE", "gps");
-		break;
-	case rtk:
-		m_Comms.Notify("NAV_SOURCE", "rtk");
-		break;
-	case none:
-		m_Comms.Notify("NAV_SOURCE", "none");
-		break;
-	default:
-		break;
-	}
+	postSource();
 }
 
 //---------------------------------------------------------
