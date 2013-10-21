@@ -40,9 +40,12 @@ private:
 	double gps_x, gps_y;
 	double last_point_post_time;
 
+	double last_source_post_time;
+
 	std::string my_name;
 
 	void setSource(NAV_SOURCE new_val);
+	void postSource();
 };
 
 #endif 

@@ -186,7 +186,7 @@ bool ProtoReporter::Iterate() {
 	if (MOOSTime() - m_lastGPSQualityUpdate > 5 && rtk) {
 		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_GPS);
 	}
-	if (MOOSTime() - m_lastNavSourceUpdate > 5) {
+	if (MOOSTime() - m_lastNavSourceUpdate > 6) {
 		nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
 	}
 
