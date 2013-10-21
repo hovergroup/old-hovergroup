@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pTDOAComms config block
+
+ProcessConfig = pTDOAComms
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+
