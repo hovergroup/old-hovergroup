@@ -34,7 +34,7 @@ private:
 
 private:
 	NAV_SOURCE source;
-	bool gps_lock;
+	bool gps_lock, rtk_available, gps_available;
 	double gps_update_time, rtk_update_time;
 
 	double gps_x, gps_y;
@@ -48,4 +48,4 @@ private:
 	void postSource();
 };
 
-#endif 
+#endif
