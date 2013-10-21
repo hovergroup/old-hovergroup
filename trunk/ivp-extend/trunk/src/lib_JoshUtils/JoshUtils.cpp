@@ -193,3 +193,13 @@ double JoshUtil::getSystemTimeSeconds() {
 	boost::posix_time::ptime p(boost::posix_time::microsec_clock::universal_time());
 	return p.time_of_day().total_milliseconds()/1000.0;
 }
+
+double JoshUtil::getSlot(double time, double period, double base_offset=0) {
+	return time/period;
+}
+
+double JoshUtil::getSlot(double period, double base_offset=0) {
+	return getSlot(getSystemTimeSeconds(), period, base_offset);
+}
+
+//double JoshUtil::getSlotPosition

@@ -33,6 +33,13 @@ namespace JoshUtil {
 			std::string wild );
 
 	double getSystemTimeSeconds();
+
+	/** Get a current slot using time, period, and optional base_offset. */
+	double getSlot(double time, double period, double offset);
+
+	/** Get current slot using current time, period, and optional base_offset. */
+	double getSlot(double period, double offset);
+
 };
 
 #endif /* LIB_JOSHUTIL_H_ */

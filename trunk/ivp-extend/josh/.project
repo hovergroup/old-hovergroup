@@ -4,11 +4,12 @@
 	<comment></comment>
 	<projects>
 		<project>goby</project>
-		<project>hovergroup-trunk</project>
+		<project>hovergroup</project>
 		<project>MOOS-IvP</project>
 		<project>MOOSCore</project>
+		<project>MOOSEssentials</project>
 		<project>MOOSGeodesy</project>
-		<project>trunk</project>
+		<project>MOOSToolsUI</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
