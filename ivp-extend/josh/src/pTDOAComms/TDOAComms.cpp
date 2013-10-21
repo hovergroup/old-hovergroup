@@ -8,6 +8,7 @@
 #include <iterator>
 #include "MBUtils.h"
 #include "TDOAComms.h"
+#include "HoverAcomms.h"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ using namespace std;
 // Constructor
 
 TDOAComms::TDOAComms() {
-
+	resetOutput();
 }
 
 //---------------------------------------------------------
@@ -32,6 +33,23 @@ bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 	for (p = NewMail.begin(); p != NewMail.end(); p++) {
 		CMOOSMsg &msg = *p;
+		string key = msg.GetKey();
+
+		// handle incoming acomms events
+		if (key=="ACOMMS_RECEIVED") {
+			HoverAcomms::AcommsReception reception;
+			if (reception.parseFromString(msg.GetString())) {
+//				if (reception.getSource()==m_sourceID)
+//					m_dataComplete = true;
+			} else {
+			    std::cout << "parse error" << std::endl;
+			}
+		}
+
+		// set offset of target according to acomms scheduler
+		else if (key == "ACOMMS_SCHEDULER_OFFSET") {
+			m_targetOffset = msg.GetDouble();
+		}
 
 	}
 
@@ -78,6 +96,6 @@ void TDOAComms::RegisterVariables() {
 	m_Comms.Register("ACOMMS_RECEIVED", 0);
 	m_Comms.Register("NAV_X", 0);
 	m_Comms.Register("NAV_Y", 0);
-
+	m_Comms.Register("ACOMMS_SCHEDULER_OFFSET", 0);
 }
 

@@ -30,6 +30,7 @@ private:
 private:
 	// State variables
 	int m_id;
+	double m_targetOffset;
 
 	TDOAUpdate m_outgoingUpdate;
 
