@@ -1,26 +1,15 @@
 message TDOAUpdate {
-    optional double local_x = 1;
-    optional double local_y = 2;
-    optional double local_toa = 3;
+    required int my_index = 1;
+
+    repeated double x = 2;
+    repeated double y = 3;
+    repeated double toa = 4;
     
-    optional double f1_x = 4;
-    optional double f1_y = 5;
-    optional double f1_toa = 6;
+    required bool got_f1 = 5;
+    required bool got_f2 = 6;
+    required bool got_f3 = 7;
     
-    optional double f2_x = 7;
-    optional double f2_y = 8;
-    optional double f2_toa = 9;
-    
-    optional double f3_x = 10;
-    optional double f3_y = 11;
-    optional double f3_toa = 12;
-        
-    required bool got_local = 14;
-    required bool got_f1 = 15;
-    required bool got_f2 = 16;
-    required bool got_f3 = 17;
-    
-    required StateEnum cycle_state = 20;
+    required StateEnum cycle_state = 10;
     enum StateEnum {
         LEADER_SLOT_COMPLETE = 1;
         F1_SLOT_COMPLETE = 2;
