@@ -19,6 +19,8 @@ NavManager::NavManager() {
 
 	TIMEOUT = 5;
 
+	rtk_available = false;
+	gps_available = false;
 	last_point_post_time = -1;
 	last_source_post_time = -1;
 }
@@ -93,6 +95,20 @@ bool NavManager::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool NavManager::Iterate() {
+    // check rtk availability
+    if (MOOSTime()-rtk_update_time < TIMEOUT) {
+        rtk_available = true;
+    } else {
+        rtk_available = false;
+    }
+
+    // check gps availability
+    if (MOOSTime()-gps_update_time < TIMEOUT && gps_lock) {
+        gps_available = true;
+    } else {
+        gps_available = false;
+    }
+
     // post source periodically as a heartbeat
     if (MOOSTime()-last_source_post_time > 5) {
         postSource();
@@ -109,7 +125,7 @@ bool NavManager::Iterate() {
 	}
 
 	// rtk timeout - try to fallback to gps
-	if (MOOSTime()-rtk_update_time > TIMEOUT && source==rtk) {
+	if (source == rtk && !rtk_available) {
 		if (gps_lock && MOOSTime()-gps_update_time < 2) {
 			setSource(gps);
 		} else {
@@ -117,16 +133,21 @@ bool NavManager::Iterate() {
 		}
 	}
 
+	// try to move from gps to rtk
+	if (source == gps && rtk_available) {
+	    setSource(rtk);
+	}
+
 	// gps timeout / lock lost
-	if ((MOOSTime()-gps_update_time > TIMEOUT || !gps_lock) && source==gps) {
+	if (source==gps && !gps_available) {
 		setSource(none);
 	}
 
 	// if no nav, try rtk then gps
 	if (source == none) {
-		if (MOOSTime()-rtk_update_time < TIMEOUT) {
+		if (rtk_available) {
 			setSource(rtk);
-		} else if (MOOSTime()-gps_update_time < TIMEOUT && gps_lock) {
+		} else if (gps_available) {
 			setSource(gps);
 		}
 	}
