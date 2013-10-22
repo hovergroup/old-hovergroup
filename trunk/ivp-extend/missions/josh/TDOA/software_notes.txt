@@ -1,0 +1,7 @@
+watch ACOMMS_SCHEDULER_STATE
+
+SCHEDULED_TRANSMITS = "on"/"off
+SCHEDULED_TRANSMITS_PERIOD and _OFFSET
+
+post to TDOA_OFFSET and TDOA_PERIOD to adjust timing after launch
+TDOA_COMMAND = "run"/"pause"
