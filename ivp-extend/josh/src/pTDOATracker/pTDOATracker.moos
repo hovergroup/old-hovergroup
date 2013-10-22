@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pTDOATracker config block
+
+ProcessConfig = pTDOATracker
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+

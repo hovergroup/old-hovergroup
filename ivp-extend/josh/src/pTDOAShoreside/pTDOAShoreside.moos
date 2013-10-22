@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pTDOAShoreside config block
+
+ProcessConfig = pTDOAShoreside
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+
