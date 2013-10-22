@@ -34,12 +34,33 @@ namespace JoshUtil {
 
 	double getSystemTimeSeconds();
 
-	/** Get a current slot using time, period, and optional base_offset. */
-	double getSlot(double time, double period, double offset);
 
-	/** Get current slot using current time, period, and optional base_offset. */
-	double getSlot(double period, double offset);
+	// Slot functions:
+	class SlotFunctions {
+	public:
+		SlotFunctions() { base_offset = 0; }
 
+		double period, base_offset;
+
+		// get the previous/current slot
+		int getLastSlot(double time) { return floor((time-base_offset)/period); }
+		int getLastSlot() { return getLastSlot(getSystemTimeSeconds()); }
+
+		// get fractional position inside a slot
+		double getSlotFraction(double time) { double d; return modf((time-base_offset)/period, &d); }
+		double getSlotFraction() { return getSlotFraction(getSystemTimeSeconds()); }
+
+		// get seconds into a slot
+		double getSlotFractionSeconds(double time) { return getSlotFraction(time)*period; }
+		double getSlotFractionSeconds() { return getSlotFractionSeconds(getSystemTimeSeconds()); }
+
+		// get the next slot
+		int getNextSlot(double time) { return ceil((time-base_offset)/period); }
+		int getNextSlot() { return getNextSlot(getSystemTimeSeconds()); }
+
+		// convert slot to system time
+		double slot2seconds(int slot) { return slot*period + base_offset; }
+	};
 };
 
 #endif /* LIB_JOSHUTIL_H_ */

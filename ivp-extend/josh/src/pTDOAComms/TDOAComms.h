@@ -11,6 +11,7 @@
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "tdoa.pb.h"
 #include "tdoa_acomms.pb.h"
+#include "JoshUtils.h"
 
 class TDOAComms: public CMOOSApp {
 public:
@@ -26,15 +27,19 @@ protected:
 
 private:
 	// Configuration variables
+	int m_id, m_targetID;
+	double m_targetOffset, m_localOffset;
+	std::vector<double> m_offsets;
 
 private:
 	// State variables
-	int m_id;
-	double m_targetOffset;
+	bool m_paused;
 
+private:
+	// other stuff
 	TDOAUpdate m_outgoingUpdate;
-
 	void resetOutput();
+	JoshUtil::SlotFunctions m_slotFunctions;
 };
 
 #endif 

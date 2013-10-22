@@ -17,6 +17,9 @@ using namespace std;
 
 TDOAComms::TDOAComms() {
 	resetOutput();
+	m_offsets = std::vector<double>(3, 0);
+
+	m_paused = true;
 }
 
 //---------------------------------------------------------
@@ -49,8 +52,25 @@ bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
 		// set offset of target according to acomms scheduler
 		else if (key == "ACOMMS_SCHEDULER_OFFSET") {
 			m_targetOffset = msg.GetDouble();
+			m_slotFunctions.base_offset = m_targetOffset;
 		}
 
+		// adjust offset or period after launch
+		else if (key == "TDOA_OFFSET") {
+			m_localOffset = msg.GetDouble();
+		} else if (key == "TDOA_PERIOD") {
+			m_slotFunctions.period = msg.GetDouble();
+		}
+
+		// pause/unpause
+		else if (key == "TDOA_COMMAND") {
+			string sval = MOOSToUpper(msg.GetString());
+			if (sval == "RUN") {
+				m_paused = false;
+			} else if (sval == "PAUSE") {
+				m_paused = true;
+			}
+		}
 	}
 
 	return (true);
@@ -61,6 +81,13 @@ bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 bool TDOAComms::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("ID", m_id);
+	m_MissionReader.GetConfigurationParam("period", m_slotFunctions.period);
+	m_MissionReader.GetConfigurationParam("f1_offset", m_offsets[0]);
+	m_MissionReader.GetConfigurationParam("f2_offset", m_offsets[1]);
+	m_MissionReader.GetConfigurationParam("f3_offset", m_offsets[2]);
+	m_MissionReader.GetConfigurationParam("target_id", m_targetID);
+
+	m_localOffset = m_offsets[m_id];
 
 	m_outgoingUpdate.set_local_id(m_id);
 	m_outgoingUpdate.set_cycle_state(TDOAUpdate_StateEnum_PAUSED);
@@ -74,6 +101,15 @@ bool TDOAComms::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool TDOAComms::Iterate() {
+	// do nothing if paused
+	if (m_paused)
+		return true;
+
+//	switch (m_outgoingUpdate.cycle_state()) {
+//	case TDOAUpdate_StateEnum_LEADER_SLOT_COMPLETE:
+//		if ()
+//	}
+
 	return (true);
 }
 
@@ -97,5 +133,8 @@ void TDOAComms::RegisterVariables() {
 	m_Comms.Register("NAV_X", 0);
 	m_Comms.Register("NAV_Y", 0);
 	m_Comms.Register("ACOMMS_SCHEDULER_OFFSET", 0);
+	m_Comms.Register("TDOA_OFFSET", 0);
+	m_Comms.Register("TDOA_PERIOD", 0);
+	m_Comms.Register("TDOA_COMMAND", 0);
 }
 
