@@ -19,6 +19,7 @@ TARGET_LINK_LIBRARIES(pTDOAComms
     goby_acomms
     josh_proto
     HoverAcomms
+    JoshUtils
     boost_system
     mbutil
     ${MOOS_LIBRARIES}

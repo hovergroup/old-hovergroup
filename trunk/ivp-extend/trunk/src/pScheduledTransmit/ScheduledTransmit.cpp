@@ -35,6 +35,10 @@ bool ScheduledTransmit::OnNewMail(MOOSMSG_LIST &NewMail) {
 			} else if (MOOSToUpper(msg.GetString())=="OFF") {
 				enabled = false;
 			}
+		} else if (msg.GetKey()=="SCHEDULED_TRANSMITS_PERIOD") {
+			m_period = msg.GetDouble();
+		} else if (msg.GetKey()=="SCHEDULED_TRANSMITS_OFFSET") {
+			m_offset = msg.GetDouble();
 		}
 	}
 
@@ -56,6 +60,8 @@ bool ScheduledTransmit::OnConnectToServer() {
 	}
 
 	m_Comms.Register("SCHEDULED_TRANSMITS",0);
+	m_Comms.Register("SCHEDULED_TRANSMITS_PERIOD", 0);
+	m_Comms.Register("SCHEDULED_TRANSMITS_OFFSET", 0);
 
 	return (true);
 }
