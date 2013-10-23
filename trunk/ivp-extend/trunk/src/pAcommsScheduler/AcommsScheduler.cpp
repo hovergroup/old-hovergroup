@@ -61,8 +61,7 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 			}
 		} else if (key=="ACOMMS_TRANSMIT_DATA_BINARY") {
 			m_haveTransmission = true;
-			m_binaryTranmissionData.resize(0);
-			msg.GetBinaryData(m_binaryTranmissionData);
+			m_transmissionData = msg.GetString();
 			m_transmissionSource = ACOMMS_TRANSMIT_DATA_BINARY;
 		} else if (key=="ACOMMS_TRANSMIT_DATA") {
 			m_haveTransmission = true;
@@ -70,8 +69,7 @@ bool AcommsScheduler::OnNewMail(MOOSMSG_LIST &NewMail) {
 			m_transmissionSource = ACOMMS_TRANSMIT_DATA;
 		} else if (key=="ACOMMS_TRANSMIT") {
 			m_haveTransmission = true;
-			m_binaryTranmissionData.resize(0);
-			msg.GetBinaryData(m_binaryTranmissionData);
+            m_transmissionData = msg.GetString();
 			m_transmissionSource = ACOMMS_TRANSMIT;
 		}
 	}
@@ -176,11 +174,11 @@ bool AcommsScheduler::Iterate() {
 			break;
 
 		case ACOMMS_TRANSMIT_DATA_BINARY:
-			m_Comms.Notify("SCHEDULER_TRANSMIT_DATA_BINARY", &m_binaryTranmissionData, m_binaryTranmissionData.size());
+			m_Comms.Notify("SCHEDULER_TRANSMIT_DATA_BINARY", (void*) m_transmissionData.data(), m_transmissionData.size());
 			break;
 
 		case ACOMMS_TRANSMIT:
-			m_Comms.Notify("SCHEDULER_TRANSMIT", &m_binaryTranmissionData, m_binaryTranmissionData.size());
+			m_Comms.Notify("SCHEDULER_TRANSMIT",  (void*) m_transmissionData.data(), m_transmissionData.size());
 			break;
 
 		default:
