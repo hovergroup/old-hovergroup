@@ -1,12 +1,10 @@
 => collab cross the river
 
-MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=-48,y=-260,width=120,height=200,lane_width=10,rows=north,degs=-25"
+uPokeDB targ_NOSTROMO.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=-48,y=-260,width=120,height=200,lane_width=10,rows=north,degs=-25"
 
+uPokeDB targ_SILVANA.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=110,y=-190,width=120,height=200,lane_width=10,rows=north,degs=-25,order=normal"
 
-MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=110,y=-190,width=120,height=200,lane_width=10,rows=north,degs=-25"
-
-
-MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=250,y=-110,width=120,height=200,lane_width=10,rows=north,degs=-25"
+uPokeDB targ_KESTREL.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=250,y=-110,width=120,height=200,lane_width=10,rows=north,degs=-25"
 
 
 
@@ -20,6 +18,10 @@ uPokeDB targ_NOSTROMO.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label
 uPokeDB targ_SILVANA.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=260,y=-120,width=200,height=150,lane_width=10,rows=north,degs=65"
 
 uPokeDB targ_KESTREL.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=100,y=-180,width=200,height=150,lane_width=10,rows=north,degs=65"
+
+
+
+
 
 =========================================================================================================
 
