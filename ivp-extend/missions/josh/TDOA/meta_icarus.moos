@@ -12,10 +12,9 @@ Processconfig = ANTLER
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
-  Run = pNodeReporter          @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
   Run = iRTKNAVI               @ NewConsole = false
   Run = iGPS_Hover             @ NewConsole = false
-  Run = pEchoVar               @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
   Run = pNavManager            @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
@@ -49,8 +48,7 @@ ProcessConfig = iAcommsDriver
 
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
-#include ../../trunk/plugs/plug_pNodeReporter.moos
-#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_pProtoReporter.moos
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
 #include ../../trunk/plugs/plug_pNavManager.moos
