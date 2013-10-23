@@ -18,7 +18,6 @@ Processconfig = ANTLER
   Run = pLogger              @ NewConsole = false
   Run = pProtoReportParser   @ NewConsole = false
   Run = uTermCommand         @ NewConsole = true
-  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
@@ -59,18 +58,5 @@ ProcessConfig = pShare
   input = route=localhost:$(LPORT)
 }
 
-Processconfig = uTimerScript_Config
-{
-  AppTick = 4
-  CommsTick = 4
-
-  event = var=VIEW_MARKER,val="type=sqaure,x=-180,y=-180"
-  event = var=VIEW_MARKER,val="type=sqaure,x=275,y=25"
-  event = var=VIEW_MARKER,val="type=sqaure,x=-72,y=-418"
-  event = var=VIEW_MARKER,val="type=sqaure,x=379,y=-213"
-  event = quit, time=2
-}
-
-
 #include ../../trunk/plugs/plug_pLogger.moos
-#include plug_pMarineViewer.moos
+#include ../../trunk/plugs/plug_pMarineViewer.moos
