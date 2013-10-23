@@ -21,6 +21,7 @@ TDOAComms::TDOAComms() {
 
 	m_paused = true;
 	m_state = PAUSED;
+	m_lastOutputState = -1;
 
 	m_codec = goby::acomms::DCCLCodec::get();
     try {
@@ -121,8 +122,11 @@ bool TDOAComms::Iterate() {
 	if (testAdvanceSlot(m_offsets[m_state])) {
 	    cout << "advancing state past offset " << m_offsets[m_state] << endl;
 
-		// advance slot
-		postOutput();
+	    // post output if we didn't already through an acomms reception
+	    if (m_lastOutputState != m_state)
+	        postOutput();
+
+        // advance slot
 		advanceSlot();
 
         // transmit if it's our turn
@@ -160,6 +164,7 @@ void TDOAComms::acommsTransmit() {
 	for (int i=0; i<m_outgoingUpdate.data_size(); i++) {
 		packet.add_data()->CopyFrom(m_outgoingUpdate.data(i));
 	}
+
 	std::string bytes;
 	m_codec->encode(&bytes, packet);
 
@@ -190,12 +195,12 @@ void TDOAComms::acommsReceive(string msg) {
 			// post data and advance if not paused
 			if (!m_paused) {
 				postOutput();
-				advanceSlot();
+//				advanceSlot();
 			}
 		}
 
 		// if not from target, try to parse data if data is good
-		else if (reception.getStatus() == HoverAcomms::GOOD) {
+		else if (reception.getStatus() == HoverAcomms::GOOD && !m_paused) {
 			// check our state matches if we're not paused
 			if (!m_paused && reception.getSource()!=m_state) {
 				cout << "Source " << reception.getSource() << " different from state " << m_state << endl;
@@ -214,24 +219,25 @@ void TDOAComms::acommsReceive(string msg) {
 
             // add data to output if we don't already have it
             for (int i=0; i<packet.data_size(); i++) {
-                bool already_have = false;
-                for (int j=0; j<m_outgoingUpdate.data_size(); j++) {
-                    if (packet.data(i).id() == m_outgoingUpdate.data(i).id()) {
-                        already_have = true;
-                        break;
+                // check if this is fill data
+                if (packet.data(i).id()!=0) {
+                    bool already_have = false;
+                    for (int j=0; j<m_outgoingUpdate.data_size(); j++) {
+                        if (packet.data(i).id() == m_outgoingUpdate.data(j).id()) {
+                            already_have = true;
+                            break;
+                        }
                     }
-                }
 
-                if (!already_have) {
-                    m_outgoingUpdate.add_data()->CopyFrom(packet.data(i));
+                    if (!already_have) {
+                        m_outgoingUpdate.add_data()->CopyFrom(packet.data(i));
+                    }
                 }
             }
 
             // post data and advance if not paused
-            if (!m_paused) {
-                postOutput();
-                advanceSlot();
-            }
+            postOutput();
+//            advanceSlot();
 		}
 	} else {
 	    std::cout << "failed to parse acomms reception" << std::endl;
@@ -240,6 +246,7 @@ void TDOAComms::acommsReceive(string msg) {
 
 void TDOAComms::postOutput() {
 	m_outgoingUpdate.set_cycle_state((TDOAUpdate_StateEnum) m_state);
+	m_lastOutputState = m_state;
 	string out = m_outgoingUpdate.SerializeAsString();
 	m_Comms.Notify("TDOA_PROTOBUF", (void*) out.data(), out.size());
 	out = m_outgoingUpdate.DebugString();
