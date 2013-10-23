@@ -12,6 +12,15 @@
 #include "tdoa.pb.h"
 #include "tdoa_acomms.pb.h"
 #include "JoshUtils.h"
+#include "goby/acomms/dccl.h"
+
+enum StateEnum {
+	LEADER_SLOT = 0,
+	F1_SLOT,
+	F2_SLOT,
+	F3_SLOT,
+	PAUSED
+};
 
 class TDOAComms: public CMOOSApp {
 public:
@@ -34,12 +43,26 @@ private:
 private:
 	// State variables
 	bool m_paused;
+	int m_state;
+	double m_lastStateAdvanceTime;
+
+	double m_navX, m_navY;
 
 private:
 	// other stuff
 	TDOAUpdate m_outgoingUpdate;
 	void resetOutput();
 	JoshUtil::SlotFunctions m_slotFunctions;
+
+	bool testAdvanceSlot(double offset);
+	void advanceSlot();
+
+	void acommsTransmit();
+	void acommsReceive(std::string msg);
+
+	void postOutput();
+
+	goby::acomms::DCCLCodec* m_codec;
 };
 
 #endif 

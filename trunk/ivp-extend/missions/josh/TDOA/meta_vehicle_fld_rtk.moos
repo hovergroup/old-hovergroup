@@ -23,6 +23,7 @@ Processconfig = ANTLER
   Run = iAcommsDriver          @ NewConsole = false
   Run = pNavManager            @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  Run = pAcommsScheduler       @ NewConsole = false
   
 #ifdef ALTIMETER tritech
   Run = iAltimeter             @ NewConsole = false
@@ -35,7 +36,7 @@ Processconfig = ANTLER
 ProcessConfig = pTDOAComms
 {
     IterateMode = 1    // comms driven iterate and mail
-    AppTick     = 4    // iterate lower bound
+    AppTick     = 20    // iterate lower bound
     MaxAppTick  = 0    // no limit
     
     ID = $(ACOMMSID)   // our local id
@@ -47,6 +48,18 @@ ProcessConfig = pTDOAComms
     f3_offset = $(F3_OFFSET)
 }
 
+ProcessConfig = pAcommsScheduler
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+   
+    period = $(TRANSMIT_PERIOD) // auv's transmit period
+    pre_lock = 0 // time before expected receive start
+    post_lock = 0 // time after expected receive end
+    source_ID = $(TARGET_ID) // source ID of remus
+}
+
 Processconfig = uTimerScript_Config
 {
   AppTick = 4
@@ -55,6 +68,21 @@ Processconfig = uTimerScript_Config
   event = var=NAV_HEADING,val=0,time=1
   event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
   event = quit, time=2
+}
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = $(MODEMPORT)
+    ID       = $(ACOMMSID)
+
+    PSK_minipackets   = false
+    enable_ranging    = true
+    show_range_pulses = true
+    enable_legacy     = false
+    use_scheduler     = true
 }
 
 #include ../../trunk/plugs/plug_iKST.moos
@@ -68,7 +96,6 @@ Processconfig = uTimerScript_Config
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
 #include ../../trunk/plugs/plug_iAltimeter.moos
 #include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
 #include ../../trunk/plugs/plug_pNavManager.moos
