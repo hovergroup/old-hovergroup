@@ -20,8 +20,15 @@ TDOAComms::TDOAComms() {
 	m_offsets = std::vector<double>(4, 0);
 
 	m_paused = true;
+	m_state = PAUSED;
 
 	m_codec = goby::acomms::DCCLCodec::get();
+    try {
+        m_codec->validate<TDOAPSK1>();
+    } catch (goby::acomms::DCCLException& e) {
+        std::cout << "failed to validate" << std::endl;
+        exit(1);
+    }
 }
 
 //---------------------------------------------------------
@@ -85,12 +92,10 @@ bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
 bool TDOAComms::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("ID", m_id);
 	m_MissionReader.GetConfigurationParam("period", m_slotFunctions.period);
-	m_MissionReader.GetConfigurationParam("f1_offset", m_offsets[1]);
-	m_MissionReader.GetConfigurationParam("f2_offset", m_offsets[2]);
-	m_MissionReader.GetConfigurationParam("f3_offset", m_offsets[3]);
+	m_MissionReader.GetConfigurationParam("f1_offset", m_offsets[0]);
+	m_MissionReader.GetConfigurationParam("f2_offset", m_offsets[1]);
+	m_MissionReader.GetConfigurationParam("f3_offset", m_offsets[2]);
 	m_MissionReader.GetConfigurationParam("target_id", m_targetID);
-
-	m_localOffset = m_offsets[m_id];
 
 	m_outgoingUpdate.set_local_id(m_id);
 	m_outgoingUpdate.set_cycle_state(TDOAUpdate_StateEnum_PAUSED);
@@ -108,24 +113,33 @@ bool TDOAComms::Iterate() {
 	if (m_paused || m_state==PAUSED)
 		return true;
 
+	cout << m_slotFunctions.getSlotFractionSeconds() << endl;
+
 	// check if next slot by time
 	if (testAdvanceSlot(m_offsets[m_state])) {
-		// transmit if it's our turn
-		if (m_state == m_id) {
-			acommsTransmit();
-		}
+	    cout << "advancing state past offset " << m_offsets[m_state] << endl;
+
 		// advance slot
 		postOutput();
 		advanceSlot();
 
+        // transmit if it's our turn
+        if (m_state == m_id) {
+            acommsTransmit();
+        }
+
 		if (m_state == LEADER_SLOT)
 			resetOutput();
+
+        cout << "next offset: " << m_offsets[m_state] << endl;
 	}
 
 	return (true);
 }
 
 bool TDOAComms::testAdvanceSlot(double offset) {
+    if (offset == 0 && m_slotFunctions.getSlotFractionSeconds() > m_slotFunctions.period/2)
+        return false;
 	// advance if past specified offset and more than 1 sec since last state change
 	return (m_slotFunctions.getSlotFractionSeconds() > offset && MOOSTime()-m_lastStateAdvanceTime > 1);
 }
@@ -144,16 +158,13 @@ void TDOAComms::acommsTransmit() {
 	for (int i=0; i<m_outgoingUpdate.data_size(); i++) {
 		packet.add_data()->CopyFrom(m_outgoingUpdate.data(i));
 	}
-	try {
-		m_codec->validate<TDOAPSK1>();
-	} catch (goby::acomms::DCCLException& e) {
-		std::cout << "failed to validate" << std::endl;
-		return;
-	}
 	std::string bytes;
 	m_codec->encode(&bytes, packet);
 
 	m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+
+	cout << "sent " << bytes.size() << " bytes" << endl;
+	cout << packet.DebugString() << endl;
 }
 
 void TDOAComms::acommsReceive(string msg) {

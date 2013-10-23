@@ -35,5 +35,5 @@ message TDOAPSK1
     option (dccl.msg).id = 127;
     option (dccl.msg).max_bytes = 192;
     
-    repeated TDOAData data = 1;
+    repeated TDOAData data = 1  [(dccl.field).max_repeat=3];
 } 
