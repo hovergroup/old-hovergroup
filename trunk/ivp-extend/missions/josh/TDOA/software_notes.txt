@@ -5,3 +5,5 @@ SCHEDULED_TRANSMITS_PERIOD and _OFFSET
 
 post to TDOA_OFFSET and TDOA_PERIOD to adjust timing after launch
 TDOA_COMMAND = "run"/"pause"
+
+data sent out on TDOA_PROTOBUF and TDOA_PROTOBUF_DEBUG
