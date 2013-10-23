@@ -42,7 +42,7 @@ private:
 private:
 	// State variables
 	bool m_paused;
-	int m_state;
+	int m_state, m_lastOutputState;
 	double m_lastStateAdvanceTime;
 
 	double m_navX, m_navY;

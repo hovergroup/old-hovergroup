@@ -2,7 +2,7 @@ import "goby/acomms/protobuf/dccl_option_extensions.proto";
 
 message TDOAData {    
     required int32 id = 1    [(dccl.field).max=3,
-                              (dccl.field).min=1,
+                              (dccl.field).min=0,
                               (dccl.field).precision=0];
     required double x = 2    [(dccl.field).max=1000,
                               (dccl.field).min=-1000,
