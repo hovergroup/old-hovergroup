@@ -68,7 +68,6 @@ private:
 	// transmissions
 	bool m_haveTransmission;
 	std::string m_transmissionData;
-	std::vector<unsigned char> m_binaryTranmissionData;
 	TransmissionSource m_transmissionSource;
 
 };
