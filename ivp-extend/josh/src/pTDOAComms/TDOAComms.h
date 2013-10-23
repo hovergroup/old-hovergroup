@@ -10,7 +10,6 @@
 
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "tdoa.pb.h"
-#include "tdoa_acomms.pb.h"
 #include "JoshUtils.h"
 #include "goby/acomms/dccl.h"
 

@@ -14,8 +14,10 @@ Processconfig = ANTLER
   Run = pLogger                @ NewConsole = false
   Run = pNodeReporter          @ NewConsole = false
   Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
+  Run = pNavManager            @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   Run = pScheduledTransmit     @ NewConsole = false
 }
@@ -30,10 +32,26 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = $(MODEMPORT)
+    ID       = $(ACOMMSID)
+
+    PSK_minipackets   = false
+    enable_ranging    = false
+    show_range_pulses = true
+    enable_legacy     = false
+    use_scheduler     = false
+}
+
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
+#include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
