@@ -70,8 +70,10 @@ bool TDOAComms::OnNewMail(MOOSMSG_LIST &NewMail) {
 			string sval = MOOSToUpper(msg.GetString());
 			if (sval == "RUN") {
 				m_paused = false;
+				resetOutput();
 			} else if (sval == "PAUSE") {
 				m_paused = true;
+				m_state = PAUSED;
 			}
 		}
 
@@ -202,32 +204,34 @@ void TDOAComms::acommsReceive(string msg) {
 
 			// try to parse packet
 			TDOAPSK1 packet;
-			if (packet.ParseFromString(reception.getData())) {
-				cout << "received packet: " << endl << packet.DebugString() << endl;
-
-				// add data to output if we don't already have it
-				for (int i=0; i<packet.data_size(); i++) {
-					bool already_have = false;
-					for (int j=0; j<m_outgoingUpdate.data_size(); j++) {
-						if (packet.data(i).id() == m_outgoingUpdate.data(i).id()) {
-							already_have = true;
-							break;
-						}
-					}
-
-					if (!already_have) {
-						m_outgoingUpdate.add_data()->CopyFrom(packet.data(i));
-					}
-				}
-
-				// post data and advance if not paused
-				if (!m_paused) {
-					postOutput();
-					advanceSlot();
-				}
-			} else {
-				cout << "failed to parse acomms data" << endl;
+			try {
+			    m_codec->decode(reception.getData(), &packet);
+			} catch(goby::acomms::DCCLException&) {
+			    cout << "failed to decode acomms message" << endl;
+			    return;
 			}
+            cout << "received packet: " << endl << packet.DebugString() << endl;
+
+            // add data to output if we don't already have it
+            for (int i=0; i<packet.data_size(); i++) {
+                bool already_have = false;
+                for (int j=0; j<m_outgoingUpdate.data_size(); j++) {
+                    if (packet.data(i).id() == m_outgoingUpdate.data(i).id()) {
+                        already_have = true;
+                        break;
+                    }
+                }
+
+                if (!already_have) {
+                    m_outgoingUpdate.add_data()->CopyFrom(packet.data(i));
+                }
+            }
+
+            // post data and advance if not paused
+            if (!m_paused) {
+                postOutput();
+                advanceSlot();
+            }
 		}
 	} else {
 	    std::cout << "failed to parse acomms reception" << std::endl;
