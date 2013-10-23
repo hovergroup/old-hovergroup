@@ -105,7 +105,7 @@ bool TDOAComms::OnConnectToServer() {
 
 bool TDOAComms::Iterate() {
 	// do nothing if paused
-	if (m_paused)
+	if (m_paused || m_state==PAUSED)
 		return true;
 
 	// check if next slot by time
