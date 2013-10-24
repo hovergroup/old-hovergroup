@@ -16,6 +16,10 @@ SET(SRC
 ADD_EXECUTABLE(pTDOATracker ${SRC})
 
 TARGET_LINK_LIBRARIES(pTDOATracker
+    josh_proto
+    goby_acomms
+    gsl
+    gslcblas
     mbutil
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES})

@@ -9,6 +9,8 @@
 #include "MBUtils.h"
 #include "KST.h"
 
+using namespace std;
+
 //---------------------------------------------------------
 // Constructor
 
@@ -27,16 +29,19 @@ KST::~KST() {
 // Procedure: OnNewMail
 
 bool KST::OnNewMail(MOOSMSG_LIST &NewMail) {
+std::cout << "got mail" << std::endl;
 	MOOSMSG_LIST::iterator p;
 
 	for (p = NewMail.begin(); p != NewMail.end(); p++) {
 		CMOOSMsg &msg = *p;
+std::cout << msg.GetKey() << "  ";
 
 		if (msg.IsDouble())
 			m_values[msg.GetKey()] = msg.GetDouble();
 		else
 			m_values[msg.GetKey()] = sqrt(-1.0);
 	}
+std::cout << endl << endl;
 
 	return (true);
 }
@@ -45,7 +50,9 @@ bool KST::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool KST::OnConnectToServer() {
+	std::cout << "connecting" << std::endl;
     if (!m_started) {
+	std::cout << "first time" << std::endl;
         m_startTime = MOOSTime();
 
         STRING_LIST Params;
@@ -87,6 +94,13 @@ bool KST::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool KST::Iterate() {
+
+MOOSMSG_LIST list;
+	if (m_Comms.Fetch(list)) {
+		std::cout << "there is mail" << std::endl;
+} else {
+std::cout << "0" << std::endl;
+}
 	printLine();
 	return (true);
 }
