@@ -1,0 +1,19 @@
+#!/bin/bash
+
+for ARGI; do
+    UNDEFINED_ARG=$ARGI
+    if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
+        HELP="yes"
+        UNDEFINED_ARG=""
+    fi
+done
+
+if [ "${HELP}" = "yes" ]; then
+    printf "Usage: hover_update [location] [-j4] \n"
+    exit 0;
+fi
+
+if [ ! -d "$HOME/hovergroup" ]; then
+    printf "Could find hovergroup directory, please specify manually.\n"
+    exit 0;
+fi
