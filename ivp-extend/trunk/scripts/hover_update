@@ -1,12 +1,20 @@
 #!/bin/bash
 
+NUM_THREADS=1
+
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
         HELP="yes"
         UNDEFINED_ARG=""
     fi
+    if [ "${ARGI:0:1}" = "-j" ] ; then
+        NUM_THREADS="${ARGI#-j*}"
+        UNDEFINED_ARG=""
+    fi
 done
+
+echo $NUM_THREADS
 
 if [ "${HELP}" = "yes" ]; then
     printf "Usage: hover_update [location] [-j4] \n"
