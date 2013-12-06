@@ -1,27 +1,48 @@
 #!/bin/bash
 
 NUM_THREADS=1
+START_DIRECTORY="$HOME/hovergroup"
 
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
         HELP="yes"
         UNDEFINED_ARG=""
-    fi
-    if [ "${ARGI:0:1}" = "-j" ] ; then
+    elif [ "${ARGI:0:2}" = "-j" ] ; then
         NUM_THREADS="${ARGI#-j*}"
         UNDEFINED_ARG=""
+    else
+        START_DIRECTORY=${ARGI}
     fi
 done
 
-echo $NUM_THREADS
-
 if [ "${HELP}" = "yes" ]; then
     printf "Usage: hover_update [location] [-j4] \n"
-    exit 0;
+    exit 1;
 fi
 
-if [ ! -d "$HOME/hovergroup" ]; then
-    printf "Could find hovergroup directory, please specify manually.\n"
-    exit 0;
+if [ ! -d $START_DIRECTORY ]; then
+    printf "Could not find hovergroup directory, please specify manually.\n"
+    exit 1;
 fi
+
+SVN_URL=$(svn info $START_DIRECTORY | grep URL | sed 's/URL: //g')
+
+if [ ! "${SVN_URL}" = "https://hovergroup.googlecode.com/svn/trunk" ]; then
+    printf "$START_DIRECTORY doesn't seem right\n"
+    exit 1;
+fi
+
+SVN_VAL=$(svn up $START_DIRECTORY)
+
+echo $SVN_VAL
+
+if [ -z "$SVN_VAL" ]; then
+    printf "svn update failed\n"
+    exit 1;
+fi
+
+cd $START_DIRECTORY/ivp-extend/trunk
+make -j$NUM_THREADS
+
+exit 0;
