@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 HOVERGROUP_SVN_URL="https://hovergroup.googlecode.com/svn/trunk"
 MOOS_IVP_URL="https://oceanai.mit.edu/svn/moos-ivp-aro/releases/moos-ivp-13.5"
@@ -11,19 +12,19 @@ MOOS_INFO["0:TAG"]="10.0.1-release"
 
 MOOS_INFO["1:NAME"]="essential"
 MOOS_INFO["1:URL"]="https://github.com/themoos/essential-moos.git"
-MOOS_INFO["1:TAG"]="10.0.1-release"
+MOOS_INFO["1:TAG"]="10.0.0-release"
 
 MOOS_INFO["2:NAME"]="ui"
 MOOS_INFO["2:URL"]="https://github.com/themoos/ui-moos.git"
-MOOS_INFO["2:TAG"]="10.0.0"
+MOOS_INFO["2:TAG"]=""
 
 MOOS_INFO["3:NAME"]="matlab"
 MOOS_INFO["3:URL"]="https://github.com/themoos/matlab-moos.git"
-MOOS_INFO["3:TAG"]="10.0.0"
+MOOS_INFO["3:TAG"]=""
 
 MOOS_INFO["4:NAME"]="geodesy"
 MOOS_INFO["4:URL"]="https://github.com/themoos/geodesy-moos.git"
-MOOS_INFO["4:TAG"]="10.0.0"
+MOOS_INFO["4:TAG"]=""
 
 NUM_THREADS=1
 START_DIRECTORY=$HOME
@@ -44,7 +45,7 @@ ynprompt() {
         printf "\n"
         return 1
     fi
-}  
+}
 
 for ARGI; do
     UNDEFINED_ARG=$ARGI
@@ -88,36 +89,35 @@ if [ ! -d $START_DIRECTORY ] ; then
 fi
 
 # check for sub-directories and prompt to create
-if [ $DO_MOOS -a ! -d $START_DIRECTORY/moos ] ; then
+if [[ "${DO_MOOS}" = "true" && ! -d $START_DIRECTORY/moos ]] ; then
     if ynprompt "$START_DIRECTORY/moos does not exist, create? [y/N]" ; then
         mkdir $START_DIRECTORY/moos
     else
         exit 1;
     fi
 fi
-if [ $DO_IVP -a ! -d $START_DIRECTORY/moos-ivp ] ; then
-    printf "Could not find $START_DIRECTORY/moos-ivp\n"
-    exit 1;
+if [[ "${DO_IVP}" = "true" && ! -d $START_DIRECTORY/moos-ivp ]] ; then
+    if ! ynprompt "$START_DIRECTORY/moos-ivp does not exist. Continue anyway? [y/N]" ; then
+        exit 1;
+    fi
 fi
-if [ $DO_HOVER -a ! -d $START_DIRECTORY/hovergroup ] ; then
+if [[ "${DO_HOVER}" = "true" && ! -d $START_DIRECTORY/hovergroup ]] ; then
     printf "Could not find $START_DIRECTORY/hovergroup\n"
     exit 1;
 fi
 
-
-if [ $DO_MOOS ] ; then
-    echo -e "\e[1;35mUpdating MOOS\e[0m"
+# --------  MOOS update block --------
+if $DO_MOOS ; then
+    echo -e "\e[1;93mUpdating MOOS\e[0m"
     
     for INDEX in {0..4} ; do
         cd $START_DIRECTORY/moos
-        REBUILD=false
         
         # check for subdirectory
         SUBDIR="${MOOS_INFO["$INDEX:NAME"]}-moos"
-        echo -e "Updating $SUBDIR"
+        echo -e "\e[93mUpdating $SUBDIR\e[0m"
         if [ ! -d $SUBDIR ] ; then
             git clone ${MOOS_INFO["$INDEX:URL"]} $SUBDIR
-            REBUILD=true
         fi
         cd $SUBDIR
         
@@ -125,7 +125,7 @@ if [ $DO_MOOS ] ; then
         GIT_URL=$(git config --get remote.origin.url)
         if [ ! "${GIT_URL}" = "${MOOS_INFO["$INDEX:URL"]}" ] ; then
             # if incorrect, wipe directory and recreate
-            if [ $INTERACTIVE ] ; then
+            if $INTERACTIVE ; then
                 if ! ynprompt "Wipe $START_DIRECTORY/moos/$SUBDIR? [y/N]"; then
                     exit 1;
                 fi
@@ -134,20 +134,139 @@ if [ $DO_MOOS ] ; then
             rm -rf $SUBDIR
             git clone ${MOOS_INFO["$INDEX:URL"]} $SUBDIR
             cd $SUBDIR
-            REBUILD=true
         fi
         
         # check local modifications
-          
-    done
-    
-    
-fi
+        git update-index -q --refresh  
+        CHANGED=$(git diff-index --name-only HEAD --)
+        if [ -n "$CHANGED" ] ; then
+            REVERT=true
+            if $INTERACTIVE ; then
+                if ! ynprompt "Overwrite local modifications in $START_DIRECTORY/moos/$SUBDIR? [y/N]"; then
+                    REVERT=false
+                fi
+            fi
+            # revert local modifications
+            if $REVERT ; then
+                git checkout .
+            fi
+        fi
+        
+        # check tag
+        if [ -z "${MOOS_INFO["$INDEX:TAG"]}" ] ; then
+            # if no tag specified, just use master
+            git checkout master
+        else
+            TAG=$(git describe --exact-match --tags HEAD)
+            if [ ! "${TAG}" = "${MOOS_INFO["$INDEX:TAG"]}" ] ; then
+                # tag mismatch
+                REVERT=true
+                if $INTERACTIVE ; then
+                    if ! ynprompt "Reset to tag ${MOOS_INFO["$INDEX:TAG"]}? [y/N]"; then
+                        REVERT=false
+                    fi
+                fi
+                if $REVERT ; then
+                    # check that tag exists
+                    TAG=$(git tag -l | grep ${MOOS_INFO["$INDEX:TAG"]})
+                    if [ -z "${TAG}" ] ; then
+                        # if tag doesn't exist, try pulling the latest master
+                        git checkout master
+                        git pull
+                        TAG=$(git tag -l | grep ${MOOS_INFO["$INDEX:TAG"]})
+                        if [ -z "${TAG}" ] ; then
+                            echo "Error: tag ${MOOS_INFO["$INDEX:TAG"]} does not exist."
+                            exit 1;
+                        fi
+                    fi
+                    git checkout tags/${MOOS_INFO["$INDEX:TAG"]}
+                fi
+            fi
+        fi
+        
+        case "$INDEX" in
+        # core
+        0)  cmake -D DISABLE_NAMES_LOOKUP=ON -D USE_ASYNC_COMMS=ON .
+            make -j$NUM_THREADS
+            ;;
+            
+        # matlab
+        3)  ;;
+        
+        # geodesy
+        4)  cmake .
+            make -j$NUM_THREADS
+            ;;
+            
+        # essential, ui
+        *)  cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
+            make -j$NUM_THREADS
+            ;;
+            
+        esac
+    done # for INDEX in {0..4}
+fi # if $DO_MOOS
 
-exit 0;
+# --------  IVP update block --------
+if $DO_IVP ; then
+    echo -e "\e[1;93mUpdating IVP\e[0m"
+    
+    # if directory does not exist, do fresh checkout
+    if [ ! -d $START_DIRECTORY/moos-ivp ] ; then
+        svn checkout $MOOS_IVP_URL moos-ivp
+    fi
+    cd $START_DIRECTORY/moos-ivp
+    
+    # pull out the svn url
+    SVN_URL=$(svn info . | grep URL | sed 's/URL: //g')
+    
+    # check that we got a url - is this an svn directory?
+    if [ -z "${SVN_URL}" ] ; then
+        if $INTERACTIVE ; then
+            if ! ynprompt "$START_DIRECTORY/moos-ivp is not an svn directory, wipe and fresh checkout? [y/N]"; then
+                exit 1
+            fi
+        fi
+        
+        # fresh checkout
+        cd ..; rm -rf moos-ivp
+        svn checkout $MOOS_IVP_URL moos-ivp
+        cd moos-ivp
+    fi
+    
+    # check that url is correct
+    if [ ! "${SVN_URL}" = "${MOOS_IVP_URL}" ] ; then
+        SWITCH=true
+        if $INTERACTIVE ; then
+            if ! ynprompt "SVN URL is $SVN_URL. \nWipe directory and switch to ${MOOS_IVP_URL}? [y/N]"; then
+                SWITCH=false
+            fi
+        fi
+        
+        # do fresh checkout
+        if $SWITCH ; then
+            cd ..; rm -rf moos-ivp
+            svn checkout $MOOS_IVP_URL moos-ivp
+            cd moos-ivp
+        fi
+    fi
+    
+    # update
+    svn up
+    
+    # make sure link is correct
+    rm MOOS
+    ln -s $START_DIRECTORY/moos MOOS
+    
+    # build
+    cd ivp/src
+    cmake -D IVP_BUILD_GUI_CODE=ON .
+    make -j$NUM_THREADS
+fi # if $DO_IVP
+
+exit 1
 
 if [ $DO_HOVER ] ; then
-
 SVN_URL=$(svn info $START_DIRECTORY | grep URL | sed 's/URL: //g')
 
 if [ ! "${SVN_URL}" = "${HOVERGROUP_SVN_URL}" ]; then
