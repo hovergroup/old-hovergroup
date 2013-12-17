@@ -91,7 +91,7 @@ for ARGI; do
     fi
 done
 
-if [ $#=0 ] ; then
+if [ "${#}" = "0" ] ; then
     HELP=true
 fi
 
