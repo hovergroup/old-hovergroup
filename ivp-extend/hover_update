@@ -51,6 +51,9 @@ SUM_SELF=$(md5sum $0 | awk '{print $1}')
 if [[ "$SUM_LATEST" != "$SUM_SELF" ]]; then
     echo "NOTE: New version available!"
     runSelfUpdate
+else
+    echo "No update required."
+    rm "$0.tmp"
 fi
 
 exit 0;
