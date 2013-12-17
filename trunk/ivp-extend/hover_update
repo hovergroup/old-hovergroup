@@ -56,8 +56,6 @@ else
     rm "$0.tmp"
 fi
 
-exit 0;
-
 set -e
 
 HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
