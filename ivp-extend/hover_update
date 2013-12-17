@@ -14,3 +14,5 @@ if ! wget --quiet --output-document="hover_update_actual" $UPDATE_BASE ; then
     exit 1
 fi
 echo "Done."
+
+hover_update_actual "$@"
