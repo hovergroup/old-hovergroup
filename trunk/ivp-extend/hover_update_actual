@@ -91,6 +91,10 @@ for ARGI; do
     fi
 done
 
+if [ $#=0 ] ; then
+    HELP=true
+fi
+
 if $HELP ; then
     printf "Usage: hover_update [location] [-j4] [options]\n"
     printf "Options:                                      \n"

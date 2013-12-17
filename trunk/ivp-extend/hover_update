@@ -15,4 +15,4 @@ if ! wget --quiet --output-document="hover_update_actual" $UPDATE_BASE ; then
 fi
 echo "Done."
 
-hover_update_actual "$@"
+/bin/bash hover_update_actual "$@"
