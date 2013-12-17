@@ -12,15 +12,6 @@ UPDATE_BASE=https://hovergroup.googlecode.com/svn/trunk/ivp-extend/
 runSelfUpdate() {
     echo "Performing self-update..."
 
-    # Download new version
-    echo -n "Downloading latest version..."
-    if ! wget --quiet --output-document="$0.tmp" $UPDATE_BASE/$SELF ; then
-        echo "Failed: Error while trying to wget new version!"
-        echo "File requested: $UPDATE_BASE/$SELF"
-        exit 1
-    fi
-    echo "Done."
-
     # Copy over modes from old version
     OCTAL_MODE=$(stat -c '%a' $SELF)
     if ! chmod $OCTAL_MODE "$0.tmp" ; then
@@ -45,7 +36,17 @@ EOF
 }
  
 # Update check
-SUM_LATEST=$(curl $UPDATE_BASE/versions 2>&1 | grep $SELF | awk '{print $1}')
+
+# Download new version
+echo -n "Downloading latest version..."
+if ! wget --quiet --output-document="$0.tmp" $UPDATE_BASE/$SELF ; then
+    echo "Failed: Error while trying to wget new version!"
+    echo "File requested: $UPDATE_BASE/$SELF"
+    exit 1
+fi
+echo "Done."
+
+SUM_LATEST=$(md5sum "$0.tmp" | awk '{print $1}')
 SUM_SELF=$(md5sum $0 | awk '{print $1}')
 if [[ "$SUM_LATEST" != "$SUM_SELF" ]]; then
     echo "NOTE: New version available!"
