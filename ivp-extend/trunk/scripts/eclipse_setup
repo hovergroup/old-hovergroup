@@ -28,17 +28,13 @@ for ARGI; do
     fi
 done
 
-if [ "${#}" = "0" ] ; then
-    HELP=true
-fi
-
 if $HELP ; then
     printf "Usage: hover_update [location] [-j4] [options]\n"
     printf "Options:                                      \n"
     printf "  --eclipse-dir=[$HOME/eclipse]         directory where eclipse can be found \n"
     printf "  --workspace-dir=[$HOME/workspace]     workspace directory to use           \n"
     printf "  --project-dir=[$HOME]                 location of moos, ivp, goby, and hovergroup\n"
-    printf "  --copy-workbench, -c                  copy workbench (perspectives)        \n"
+    printf "  --copy-workbench, -c                       copy workbench (perspectives)        \n"
     exit 1;
 fi
 
