@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+#test update
+
 HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
 MOOS_IVP_URL="https://oceanai.mit.edu/svn/moos-ivp-aro/releases/moos-ivp-13.5"
 GOBY_URL="http://bazaar.launchpad.net/~goby-dev/goby/2.0/"
