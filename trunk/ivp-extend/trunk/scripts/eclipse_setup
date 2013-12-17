@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+#default directories
 ECLIPSE_DIR=$HOME/eclipse
 WORKSPACE_DIR=$HOME/workspace
 PROJECT_DIR=$HOME
@@ -29,8 +30,8 @@ for ARGI; do
 done
 
 if $HELP ; then
-    printf "Usage: hover_update [location] [-j4] [options]\n"
-    printf "Options:                                      \n"
+    printf "Usage: eclipse_setup [options] \n"
+    printf "Options:                       \n"
     printf "  --eclipse-dir=[$HOME/eclipse]         directory where eclipse can be found \n"
     printf "  --workspace-dir=[$HOME/workspace]     workspace directory to use           \n"
     printf "  --project-dir=[$HOME]                 location of moos, ivp, goby, and hovergroup\n"
@@ -38,6 +39,8 @@ if $HELP ; then
     exit 1;
 fi
 
+# check that directories exist
+# could be more thorough than it is
 if [ ! -d "$PROJECT_DIR/moos-ivp" ] ; then
     printf "Could not find $PROJECT_DIR/moos-ivp. \n"
     exit 1;
@@ -63,6 +66,7 @@ if [ ! -d "$ECLIPSE_DIR" ] ; then
     exit 1;
 fi
 
+# copy eclipse project files into each directory
 PROJECT_FILES_DIR="$PROJECT_DIR/hovergroup/ivp-extend/project_files/"
 cp $PROJECT_FILES_DIR/core-moos.project $PROJECT_DIR/moos/core-moos/.project
 cp $PROJECT_FILES_DIR/geodesy-moos.project $PROJECT_DIR/moos/geodesy-moos/.project
@@ -71,6 +75,7 @@ cp $PROJECT_FILES_DIR/goby.project $PROJECT_DIR/goby/.project
 cp $PROJECT_FILES_DIR/trunk.project $PROJECT_DIR/hovergroup/ivp-extend/trunk/.project
 cp $PROJECT_FILES_DIR/josh.project $PROJECT_DIR/hovergroup/ivp-extend/josh/.project
 
+# add projects in eclipse
 $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $PROJECT_DIR/moos/core-moos -data $WORKSPACE_DIR
 $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $PROJECT_DIR/moos/geodesy-moos -data $WORKSPACE_DIR
 $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $PROJECT_DIR/moos-ivp/ivp/src -data $WORKSPACE_DIR
@@ -78,6 +83,7 @@ $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.
 $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $PROJECT_DIR/hovergroup/ivp-extend/trunk -data $WORKSPACE_DIR
 $ECLIPSE_DIR/eclipse -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $PROJECT_DIR/hovergroup/ivp-extend/josh -data $WORKSPACE_DIR
 
+# copy workbench to get "my c++" perspective
 if $COPY_WORKBENCH ; then
     mv "$WORKSPACE_DIR/.metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi" "$WORKSPACE_DIR/.metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi.bck"
     cp "$PROJECT_FILES_DIR/workbench.xmi" "$WORKSPACE_DIR/.metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi"
