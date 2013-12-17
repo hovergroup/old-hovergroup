@@ -414,4 +414,17 @@ if $DO_HOVER ; then
     make -j$NUM_THREADS
 fi # if $DO_HOVER
 
+if $COMPLETE_INSTALL ; then
+    cp ~/.bashrc ~/.bashrc.bck
+    echo "" >> ~/.bashrc
+    echo "" >> ~/.bashrc
+    echo "# Created by hover_update script" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/moos/core-moos/bin" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/moos/essential-moos/bin" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/moos/ui-moos/bin" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/moos-ivp/bin" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/bin" >> ~/.bashrc
+    echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/scripts" >> ~/.bashrc
+fi
+
 exit 0
