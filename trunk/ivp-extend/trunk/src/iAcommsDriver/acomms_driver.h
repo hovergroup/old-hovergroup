@@ -10,77 +10,86 @@
 #define acomms_driver_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include "MOOS/libMOOS/Comms/MOOSAsyncCommClient.h"
+
 #include "goby/acomms/modem_driver.h"
 #include "goby/acomms/protobuf/mm_driver.pb.h"
 #include "goby/util/binary.h"
 #include "goby/common/logger.h"
 #include "goby/acomms/connect.h"
+
 #include "XYRangePulse.h"
+
 #include "HoverAcomms.h"
 #include "JoshUtils.h"
 
 class acomms_driver : public CMOOSApp
 {
 public:
-	acomms_driver();
-	virtual ~acomms_driver();
+    acomms_driver();
+    virtual ~acomms_driver();
 
-	bool OnNewMail(MOOSMSG_LIST &NewMail);
-	bool Iterate();
-	bool OnConnectToServer();
-	bool OnStartUp();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
 
 protected:
-	// configuration variables
-	google::protobuf::uint32 my_id;
-	std::string port_name, my_name;
-	bool use_psk_for_minipackets, enable_one_way_ranging, enable_range_pulses;
+    // configuration variables
+    google::protobuf::uint32 my_id;
+    std::string port_name, my_name;
+    bool use_psk_for_minipackets, enable_one_way_ranging, enable_range_pulses;
+    bool in_sim, enable_legacy, m_useScheduler;
 
-	// not user configurable
-	static const double transmission_pulse_range = 30;
-	static const double transmission_pulse_duration = 3;
-	static const double receive_pulse_range = 20;
-	static const double receive_pulse_duration = 2;
-	double m_navx, m_navy;
+    // constants for range pulses
+    static const double transmission_pulse_range = 30;
+    static const double transmission_pulse_duration = 3;
+    static const double receive_pulse_range = 20;
+    static const double receive_pulse_duration = 2;
 
-	goby::acomms::ModemDriverBase* driver;
-	goby::acomms::protobuf::DriverConfig cfg;
+    // vehicle state information
+    double m_navx, m_navy;
 
-	void transmit_data();
+    // underlying driver stuff
+    goby::acomms::ModemDriverBase* driver;
+    goby::acomms::protobuf::DriverConfig cfg;
 
-	// on incoming receptions
-	void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
+    void transmit_data();
 
-	// handle raw modem messages
-	void handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg );
-	bool RXD_received, CST_received;
+    // on incoming receptions
+    void handle_data_receive( const goby::acomms::protobuf::ModemTransmission& data_msg );
 
-	// driver startup and status
-	void startDriver( std::string logDirectory );
-	bool driver_ready, driver_initialized, connect_complete;
-	HoverAcomms::DriverStatus m_status;
-	double status_set_time, receive_set_time, transmit_set_time;
+    // handle raw modem messages
+    void handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg );
 
-	// utility functions
-	void publishWarning( std::string message );
-	void publishStatus(HoverAcomms::DriverStatus status_update);
-	void postRangePulse( std::string label, double range, double duration, std::string color = "yellow" );
-	void RegisterVariables();
-	bool file_exists( std::string filename );
+    // application state
+    HoverAcomms::DriverStatus m_status;
+    bool m_transmitLockout;
+    void startDriver( std::string logDirectory );
+    void publishStatus(HoverAcomms::DriverStatus status_update);
 
-	std::ofstream verbose_log;
+    // time keeping
+    double status_set_time, receive_set_time, transmit_set_time, start_time;
 
-	HoverAcomms::AcommsTransmission m_transmission;
+    // utility functions
+    void publishWarning( std::string message );
+    void postRangePulse( std::string label, double range, double duration, std::string color = "yellow" );
+    void RegisterVariables();
+    bool file_exists( std::string filename );
 
-	bool in_sim, enable_legacy, m_transmitLockout, m_useScheduler;
+    std::ofstream verbose_log;
 
-	// simulation stuff
-	static const double mini_packet_transmission_length = 1.5;
-	static const double packet_transmission_length = 5;
+    // protobuf used for transmissions
+    HoverAcomms::AcommsTransmission m_transmission;
 
-	HoverAcomms::AcommsReception scheduled_reception;
+    // simulation
+    MOOS::MOOSAsyncCommClient sim_Comms;
+public:
+    bool OnSimConnect(void * pParam);
+    bool OnSimMail(void * pParam);
+protected:
+    std::string m_simReceiveVarName;
 
-	void handle_sim_receive( std::string msg );
 };
 
 #endif 
