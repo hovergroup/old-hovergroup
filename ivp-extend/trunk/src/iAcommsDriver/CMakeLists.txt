@@ -8,6 +8,7 @@ FILE(GLOB SRC *.cpp)
 ADD_EXECUTABLE(iAcommsDriver ${SRC})
 
 TARGET_LINK_LIBRARIES(iAcommsDriver
+    hovergroup_proto
     HoverAcomms
 	goby_common
 	goby_acomms

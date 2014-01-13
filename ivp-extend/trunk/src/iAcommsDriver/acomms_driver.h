@@ -9,6 +9,8 @@
 #ifndef acomms_driver_HEADER
 #define acomms_driver_HEADER
 
+#include <boost/thread.hpp>
+
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "MOOS/libMOOS/Comms/MOOSAsyncCommClient.h"
 
@@ -20,6 +22,7 @@
 
 #include "XYRangePulse.h"
 
+#include "acommsSim.pb.h"
 #include "HoverAcomms.h"
 #include "JoshUtils.h"
 
@@ -82,14 +85,30 @@ protected:
     // protobuf used for transmissions
     HoverAcomms::AcommsTransmission m_transmission;
 
-    // simulation
+    // simulation ------------------------------------------------------
+
+    // comms client to connect to shoreside
     MOOS::MOOSAsyncCommClient sim_Comms;
+
+    // sim comms connect and mail functions
 public:
     bool OnSimConnect(void * pParam);
     bool OnSimMail(void * pParam);
+
 protected:
+    // mutex and variables for passing data into normal driver thread
+    boost::mutex m_simReceiveMutex;
+    goby::acomms::protobuf::ModemTransmission m_simReception;
+    bool m_newSimReception, m_newSimRaw;
+    std::string m_simRaw;
+
+    // name of variable subscribed to on shoreside
     std::string m_simReceiveVarName;
 
+    // reports sent to shoreside
+    double m_lastSimReportTime;
+    AcommsSimReport m_simReport;
+    void publishSimReport();
 };
 
 #endif 

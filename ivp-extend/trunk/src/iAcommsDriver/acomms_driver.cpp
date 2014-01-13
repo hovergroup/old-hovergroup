@@ -33,6 +33,8 @@ acomms_driver::acomms_driver()
     // state variables
     m_transmitLockout = false;
     m_status = HoverAcomms::NOT_RUNNING;
+    m_newSimReception = false;
+    m_newSimRaw = false;
 
     // port info
     port_name = "/dev/ttyUSB0";
@@ -42,6 +44,7 @@ acomms_driver::acomms_driver()
     receive_set_time = 0;
     status_set_time = 0;
     start_time = -1;
+    m_lastSimReportTime = -1;
 
     // configuration
     use_psk_for_minipackets = false;
@@ -188,6 +191,7 @@ bool acomms_driver::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("PortName", port_name);
     m_MissionReader.GetConfigurationParam("ID", my_id);
     m_MissionReader.GetValue("Community", my_name);
+    MOOSToUpper(my_name);
     m_MissionReader.GetConfigurationParam("PSK_minipackets",
             use_psk_for_minipackets);
     m_MissionReader.GetConfigurationParam("enable_ranging",
@@ -210,6 +214,10 @@ bool acomms_driver::OnConnectToServer() {
             std::cout << "Simulation server and port not specified in process config" << std::endl;
             return false;
         }
+
+        // configure reports
+        m_simReport.set_vehicle_name(my_name);
+        m_simReport.set_ranging_enabled(enable_one_way_ranging);
 
         // construct app name
         std::string app_name = GetAppName() + "_" + my_name;
@@ -255,9 +263,44 @@ bool acomms_driver::Iterate()
     if ( m_status == HoverAcomms::NOT_RUNNING )
         return true;
 
+    // simulation reports
+    if (in_sim && MOOSTime()-m_lastSimReportTime>1) {
+        publishSimReport();
+    }
+
     // run the driver
-    if (!in_sim)
+    if (!in_sim) {
         driver->do_work();
+    } else {
+        // simulation version
+        goby::acomms::protobuf::ModemTransmission tmp;
+        goby::acomms::protobuf::ModemRaw raw_msg;
+        bool new_reception = false;
+        bool new_raw = false;
+
+        // check for new messages
+        m_simReceiveMutex.lock();
+        if (m_newSimReception) {
+            tmp.CopyFrom(m_simReception);
+            m_newSimReception = false;
+            new_reception = true;
+        }
+        if (m_newSimRaw) {
+            new_raw = true;
+            raw_msg.set_raw(m_simRaw);
+        }
+        m_simReceiveMutex.unlock();
+
+        // handle raw messages first
+        if (new_raw) {
+            handle_raw_incoming(raw_msg);
+        }
+
+        // handle incoming receptions
+        if (new_reception) {
+            handle_data_receive(tmp);
+        }
+    }
 
     // receive status timeout
     if ( m_status==HoverAcomms::RECEIVING && MOOSTime()-receive_set_time > 8 ) {
@@ -592,10 +635,43 @@ bool acomms_driver::OnSimMail(void * pParam) {
     MOOSMSG_LIST::iterator q;
     for (q=M.begin(); q!=M.end(); q++) {
         std::string key = q->GetKey();
+
+        // complete receptions
         if (key == m_simReceiveVarName) {
-            std::cout << "Got incoming message" << std::endl;
+            std::string msg = q->GetString();
+            goby::acomms::protobuf::ModemTransmission tmp;
+
+            // got completed reception
+            if(tmp.ParseFromString(msg)) {
+                m_simReceiveMutex.lock();
+                m_simReception.Clear();
+                m_simReception.CopyFrom(tmp);
+                m_newSimReception = true;
+                m_simReceiveMutex.unlock();
+            }
+
+            // got raw data - start of transmission
+            else {
+                m_simReceiveMutex.lock();
+                m_newSimRaw = true;
+                m_simRaw = msg;
+                m_simReceiveMutex.unlock();
+            }
         }
     }
 
     return true;
+}
+
+void acomms_driver::publishSimReport() {
+    m_simReport.set_x(m_navx);
+    m_simReport.set_y(m_navy);
+
+    std::string out = m_simReport.SerializeAsString();
+    if (!out.empty())
+        sim_Comms.Notify("ACOMMS_SIM_REPORT", (void*) out.data(), out.size());
+
+    out = m_simReport.DebugString();
+    if (!out.empty())
+        sim_Comms.Notify("ACOMMS_SIM_REPORT_DEBUG", out);
 }
