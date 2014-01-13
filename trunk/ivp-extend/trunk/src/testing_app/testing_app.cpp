@@ -12,31 +12,37 @@
 #include <vector>
 #include <string>
 
+#include "MOOS/libMOOS/Comms/MOOSAsyncCommClient.h"
+
+MOOS::MOOSAsyncCommClient sim_Comms;
+
 using namespace std;
+
+bool OnConnect(void * pParam) {
+    cout << "Registering for MY_VAR" << endl;
+    sim_Comms.Register("MY_VAR", 0);
+    return true;
+}
+
+bool OnMail(void *pParam) {
+    MOOSMSG_LIST M;
+    sim_Comms.Fetch(M);
+    MOOSMSG_LIST::iterator q;
+    for (q=M.begin(); q!=M.end(); q++) {
+        q->Trace();
+    }
+    return true;
+}
 
 int main(int argc,char **argv)
 {
+    sim_Comms.SetOnConnectCallBack(OnConnect, &sim_Comms);
+    sim_Comms.SetOnMailCallBack(OnMail, &sim_Comms);
+    sim_Comms.Run("localhost", 9000, "appname");
 
-	//string input = "iter=45,utc_time=1379176756.94,ofnum=2,var=speed:2,var=course:163,active_bhvs=goto_and_station$1379176756.94$100.00000$9$0.01000$1/1$1:goto_and_return$1379176756.94$100.00000$9$0.01000$1/1$1,idle_bhvs=return$0.00$n/a:Archie_Stationkeep$1379176756.94$n/a";
-	string input = "iter=45,utc_time=1379176756.94,ofnum=2,var=speed:2,var=course:163,active_bhvs=goto_and_station$1379176756.94$100.00000$9$0.01000$1/1$1,idle_bhvs=return$0.00$n/a:Archie_Stationkeep$1379176756.94$n/a";
-
-	vector<string> svector = parseStringQ(input, ',');
-	unsigned int i, vsize = svector.size();
-	for (i = 0; i < vsize; i++) {
-		string left = biteStringX(svector[i], '=');
-		string right = svector[i];
-
-		if (left == "active_bhvs") {
-			std::string actives = biteStringX(right, '$');
-
-			while (right.find(":")!=string::npos) {
-				biteStringX(right, ':');
-				actives += (", " + biteStringX(right, '$'));
-			}
-			std::cout << actives << endl;
-		}
-
-	}
+    while (true) {
+        MOOSPause(1000);
+    }
 
 	return 0;
 }

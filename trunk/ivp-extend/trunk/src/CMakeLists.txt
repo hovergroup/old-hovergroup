@@ -56,6 +56,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(protobufExample)
 	ADD_SUBDIRECTORY(wtExample)
 	ADD_SUBDIRECTORY(pWTStatusView)
+	ADD_SUBDIRECTORY(pAcommsSimulator)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
