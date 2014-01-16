@@ -10,6 +10,17 @@
 
 #include "MOOS/libMOOS/MOOSLib.h"
 
+#include "goby/acomms/protobuf/mm_driver.pb.h"
+
+#include "acommsSim.pb.h"
+
+#include <map>
+
+enum ChannelState {
+    AVAILABLE,
+    BUSY
+};
+
 class AcommsSimulator: public CMOOSApp {
 public:
     AcommsSimulator();
@@ -23,12 +34,20 @@ protected:
     void RegisterVariables();
 
 private:
-    // Configuration variables
+    std::map<std::string, AcommsSimReport> m_vehicleStatus;
 
-private:
-    // State variables
-    unsigned int m_iterations;
-    double m_timewarp;
+
+    // data handling
+    void handleReport(const AcommsSimReport &asr);
+    void handleNewTransmission(
+            const goby::acomms::protobuf::ModemTransmission & trans,
+            std::string source_vehicle);
+
+    // state variables
+    ChannelState m_channelState;
+
+    // utility
+    void publishWarning(std::string msg);
 };
 
 #endif 
