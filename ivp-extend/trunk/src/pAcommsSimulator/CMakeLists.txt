@@ -17,6 +17,7 @@ ADD_EXECUTABLE(pAcommsSimulator ${SRC})
 
 TARGET_LINK_LIBRARIES(pAcommsSimulator
    hovergroup_proto
+    goby_acomms
    ${MOOS_LIBRARIES}
    mbutil
    m

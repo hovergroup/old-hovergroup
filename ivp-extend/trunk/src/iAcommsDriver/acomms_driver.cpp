@@ -220,7 +220,7 @@ bool acomms_driver::OnConnectToServer() {
         m_simReport.set_ranging_enabled(enable_one_way_ranging);
 
         // construct app name
-        std::string app_name = GetAppName() + "_" + my_name;
+        std::string app_name = my_name + "_" + GetAppName();
 
         // set callbacks and run
         sim_Comms.SetOnConnectCallBack(OnSimConnectCallback, this);
@@ -386,9 +386,15 @@ void acomms_driver::transmit_data() {
     // pull out modem transmission
     goby::acomms::protobuf::ModemTransmission trans = m_transmission.getProtobuf();
 
-    // pass to driver
-    if (!in_sim)
+    if (!in_sim) {
+        // pass to goby driver
         driver->handle_initiate_transmission( trans );
+    } else {
+        // post to shoreside variable for simulation
+        std::string out = trans.SerializeAsString();
+        if (!out.empty())
+            sim_Comms.Notify("ACOMMS_SIM_IN", (void*) out.data(), out.size());
+    }
 
     // post summary and hex data
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
