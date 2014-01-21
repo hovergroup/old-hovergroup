@@ -139,6 +139,8 @@ if ! $COMPLETE_INSTALL ; then
             exit 1;
         fi
     fi
+else
+    mkdir $START_DIRECTORY/moos
 fi
 
 # --------  MOOS update block --------
