@@ -140,7 +140,9 @@ if ! $COMPLETE_INSTALL ; then
         fi
     fi
 else
-    mkdir $START_DIRECTORY/moos
+    if [ ! -d $START_DIRECTORY/moos ] ; then
+        mkdir $START_DIRECTORY/moos
+    fi
 fi
 
 # --------  MOOS update block --------
@@ -250,7 +252,7 @@ if $DO_IVP ; then
     
     # if directory does not exist, do fresh checkout
     if [ ! -d $START_DIRECTORY/moos-ivp ] ; then
-        svn checkout $MOOS_IVP_URL moos-ivp
+        svn checkout $MOOS_IVP_URL $START_DIRECTORY/moos-ivp
     fi
     cd $START_DIRECTORY/moos-ivp
     
@@ -311,7 +313,7 @@ if $DO_GOBY ; then
     
     # if directory does not exist, do fresh checkout
     if [ ! -d $START_DIRECTORY/goby ] ; then
-        bzr checkout $GOBY_URL goby
+        bzr checkout $GOBY_URL $START_DIRECTORY/goby
     fi
     cd $START_DIRECTORY/goby
     
@@ -364,7 +366,7 @@ if $DO_HOVER ; then
     
     # if directory does not exist, do fresh checkout
     if [ ! -d $START_DIRECTORY/hovergroup ] ; then
-        svn checkout $HOVERGROUP_URL hovergroup
+        svn checkout $HOVERGROUP_URL $START_DIRECTORY/hovergroup
     fi
     cd $START_DIRECTORY/hovergroup
     
