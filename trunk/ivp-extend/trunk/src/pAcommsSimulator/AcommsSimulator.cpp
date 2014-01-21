@@ -126,3 +126,7 @@ void AcommsSimulator::handleNewTransmission(
         return;
     }
 }
+
+void AcommsSimulator::publishWarning(string msg) {
+
+}
