@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
 MOOS_IVP_URL="https://oceanai.mit.edu/svn/moos-ivp-aro/releases/moos-ivp-13.5"
 GOBY_URL="http://bazaar.launchpad.net/~goby-dev/goby/2.0/"
 
@@ -37,6 +36,7 @@ DO_GOBY=false
 COMPLETE_INSTALL=false
 INTERACTIVE=true
 HELP=false
+VEHICLE=false
 
 ynprompt() {
     printf "$1 "
@@ -86,6 +86,9 @@ for ARGI; do
         DO_IVP="true"
         DO_GOBY="true"
         UNDEFINED_ARG=""
+    elif [ "${ARGI}" = "--vehicle" -o "${ARGI}" = "-v" ] ; then
+        VEHICLE="true"
+        UNDEFINED_ARG=""
     else
         START_DIRECTORY=${ARGI}
     fi
@@ -105,7 +108,17 @@ if $HELP ; then
     printf "  --goby, -g             update goby          \n"
     printf "  --install              first time install (all)\n"
     printf "  --all                  update all           \n"
+    printf "  --vehicle, -v          install for vehicle (no gui or shore apps)\n"
     exit 1;
+fi
+
+# set hovergroup directories for vehicles vs. not vehicle
+if $VEHICLE ; then
+    HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk/ivp-extend"
+    HOVERGROUP_SUB_DIR="hovergroup-extend"
+else
+    HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
+    HOVERGROUP_SUB_DIR="hovergroup"
 fi
 
 # check start directory exists
@@ -117,7 +130,10 @@ fi
 # install packages for first time install
 if $COMPLETE_INSTALL ; then
     sudo apt-get update
-    sudo apt-get install build-essential freeglut3-dev libboost-all-dev xterm libtiff4-dev libpng12-dev libgsl0-dev subversion bzr cmake-curses-gui libxft-dev libxinerama-dev fluid default-jre libgmp3-dev witty witty-dev witty-doc witty-dbg
+    sudo apt-get install build-essential libboost-all-dev libgsl0-dev subversion bzr cmake-curses-gui
+    if ! $VEHICLE ; then
+        sudo apt-get install xterm libtiff4-dev freeglut3-dev libpng12-dev libxft-dev libxinerama-dev fluid default-jre libgmp3-dev witty witty-dev witty-doc witty-dbg
+    fi
 fi
 
 # check for sub-directories and prompt to create
@@ -134,8 +150,8 @@ if ! $COMPLETE_INSTALL ; then
             exit 1;
         fi
     fi
-    if [[ "${DO_HOVER}" = "true" && ! -d $START_DIRECTORY/hovergroup ]] ; then
-        if ! ynprompt "$START_DIRECTORY/hovergroup does not exist. Continue anyway? [y/N]" ; then
+    if [[ "${DO_HOVER}" = "true" && ! -d $START_DIRECTORY/$HOVERGROUP_SUB_DIR ]] ; then
+        if ! ynprompt "$START_DIRECTORY/$HOVERGROUP_SUB_DIR does not exist. Continue anyway? [y/N]" ; then
             exit 1;
         fi
     fi
@@ -229,16 +245,25 @@ if $DO_MOOS ; then
             make -j$NUM_THREADS
             ;;
             
+        # essential
+        1)  cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
+            make -j$NUM_THREADS
+            ;;
+            
+        # ui
+        2)  if $VEHICLE ; then
+                cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" -D BUILD_GRAPHICAL_TOOLS=OFF .
+            else
+                cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
+            fi
+            make -j$NUM_THREADS
+            ;;
+            
         # matlab
         3)  ;;
         
         # geodesy
         4)  cmake .
-            make -j$NUM_THREADS
-            ;;
-            
-        # essential, ui
-        *)  cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
             make -j$NUM_THREADS
             ;;
             
@@ -303,8 +328,13 @@ if $DO_IVP ; then
     
     # build
     cd ivp/src
-    cmake -D IVP_BUILD_GUI_CODE=ON .
-    make -j$NUM_THREADS
+    if $VEHICLE ; then
+        cmake -D IVP_BUILD_GUI_CODE=OFF .
+        distcc-pump make -j$NUM_THREADS
+    else
+        cmake -D IVP_BUILD_GUI_CODE=ON .
+        make -j$NUM_THREADS
+    fi
 fi # if $DO_IVP
 
 # --------  goby update block --------
@@ -365,10 +395,10 @@ if $DO_HOVER ; then
     echo -e "\e[1;93mUpdating hover\e[0m"
     
     # if directory does not exist, do fresh checkout
-    if [ ! -d $START_DIRECTORY/hovergroup ] ; then
-        svn checkout $HOVERGROUP_URL $START_DIRECTORY/hovergroup
+    if [ ! -d $START_DIRECTORY/$HOVERGROUP_SUB_DIR ] ; then
+        svn checkout $HOVERGROUP_URL $START_DIRECTORY/$HOVERGROUP_SUB_DIR
     fi
-    cd $START_DIRECTORY/hovergroup
+    cd $START_DIRECTORY/$HOVERGROUP_SUB_DIR
     
     # pull out the svn url
     SVN_URL=$(svn info . | grep URL | sed 's/URL: //g')
@@ -376,15 +406,15 @@ if $DO_HOVER ; then
     # check that we got a url - is this an svn directory?
     if [ -z "${SVN_URL}" ] ; then
         if $INTERACTIVE ; then
-            if ! ynprompt "$START_DIRECTORY/hovergroup is not an svn directory, wipe and fresh checkout? [y/N]"; then
+            if ! ynprompt "$START_DIRECTORY/$HOVERGROUP_SUB_DIR is not an svn directory, wipe and fresh checkout? [y/N]"; then
                 exit 1
             fi
         fi
         
         # fresh checkout
-        cd ..; rm -rf hovergroup
-        svn checkout $MOOS_IVP_URL hovergroup
-        cd hovergroup
+        cd ..; rm -rf $HOVERGROUP_SUB_DIR
+        svn checkout $HOVERGROUP_URL $HOVERGROUP_SUB_DIR
+        cd $HOVERGROUP_SUB_DIR
     fi
     
     # check that url is correct
@@ -398,9 +428,9 @@ if $DO_HOVER ; then
         
         # do fresh checkout
         if $SWITCH ; then
-            cd ..; rm -rf hovergroup
-            svn checkout $MOOS_IVP_URL hovergroup
-            cd hovergroup
+            cd ..; rm -rf $HOVERGROUP_SUB_DIR
+            svn checkout $HOVERGROUP_URL $HOVERGROUP_SUB_DIR
+            cd $HOVERGROUP_SUB_DIR
         fi
     fi
     
@@ -412,9 +442,15 @@ if $DO_HOVER ; then
     fi
     
     # build
-    cd ivp-extend/trunk
-    ./build_proto.sh
-    cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=ON .
+    if $VEHICLE ; then
+        cd trunk
+        ./build_proto.sh
+        cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=OFF .
+    else
+        cd ivp-extend/trunk
+        ./build_proto.sh
+        cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=ON .
+    fi
     make -j$NUM_THREADS
 fi # if $DO_HOVER
 
@@ -427,8 +463,19 @@ if $COMPLETE_INSTALL ; then
     echo "PATH=\$PATH:$START_DIRECTORY/moos/essential-moos/bin" >> ~/.bashrc
     echo "PATH=\$PATH:$START_DIRECTORY/moos/ui-moos/bin" >> ~/.bashrc
     echo "PATH=\$PATH:$START_DIRECTORY/moos-ivp/bin" >> ~/.bashrc
-    echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/bin" >> ~/.bashrc
-    echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/scripts" >> ~/.bashrc
+    if $VEHICLE ; then
+        echo "PATH=\$PATH:$START_DIRECTORY/hovergroup-extend/trunk/bin" >> ~/.bashrc
+        echo "PATH=\$PATH:$START_DIRECTORY/hovergroup-extend/trunk/scripts" >> ~/.bashrc
+        echo "PATH=\$PATH:/sbin" >> ~/.bashrc
+        echo "" >> ~/.bashrc
+        echo "export DISTCC_HOSTS=\"192.168.1.100\"" >> ~/.bashrc
+        echo "export DISTCC_POTENTIAL_HOSTS=\"192.168.1.100\"" >> ~/.bashrc
+        echo "export CC=\"/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.4\"" >> ~/.bashrc
+        echo "export CXX=\"/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.4\"" >> ~/.bashrc
+    else
+        echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/bin" >> ~/.bashrc
+        echo "PATH=\$PATH:$START_DIRECTORY/hovergroup/ivp-extend/trunk/scripts" >> ~/.bashrc
+    fi
 fi
 
 exit 0
