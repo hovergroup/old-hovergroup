@@ -123,15 +123,11 @@ if $VEHICLE ; then
     HOVERGROUP_SUB_DIR="hovergroup-extend"
     export DISTCC_HOSTS=$DISTCC_HOST
     export DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
-    export CC="/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6"
-    export CXX="/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6"
-    DISTCC_HOSTS=$DISTCC_HOST
-    DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
-    CC="/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6"
-    CXX="/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6"
+    VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6 -D CMAKE_CXX_COMPILER=/usr/local/lib/distcc/g++-4.6"
 else
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
     HOVERGROUP_SUB_DIR="hovergroup"
+    VEHICLE_CMAKE_ARGS=""
 fi
 
 # check start directory exists
@@ -254,18 +250,18 @@ if $DO_MOOS ; then
         
         case "$INDEX" in
         # core
-        0)  cmake -D DISABLE_NAMES_LOOKUP=ON -D USE_ASYNC_COMMS=ON .
+        0)  cmake -D DISABLE_NAMES_LOOKUP=ON -D USE_ASYNC_COMMS=ON $VEHICLE_CMAKE_ARGS .
             make -j$NUM_THREADS
             ;;
             
         # essential
-        1)  cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
+        1)  cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" $VEHICLE_CMAKE_ARGS .
             make -j$NUM_THREADS
             ;;
             
         # ui
         2)  if $VEHICLE ; then
-                cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" -D BUILD_GRAPHICAL_TOOLS=OFF .
+                cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" -D BUILD_GRAPHICAL_TOOLS=OFF $VEHICLE_CMAKE_ARGS .
             else
                 cmake -D MOOS_DIR="$START_DIRECTORY/moos/core-moos" .
             fi
@@ -276,7 +272,7 @@ if $DO_MOOS ; then
         3)  ;;
         
         # geodesy
-        4)  cmake .
+        4)  cmake $VEHICLE_CMAKE_ARGS .
             make -j$NUM_THREADS
             ;;
             
