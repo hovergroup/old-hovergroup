@@ -123,7 +123,7 @@ if $VEHICLE ; then
     HOVERGROUP_SUB_DIR="hovergroup-extend"
     export DISTCC_HOSTS=$DISTCC_HOST
     export DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
-    VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-gcc-4.6 -D CMAKE_CXX_COMPILER=/usr/lib/distcc/g++-4.6"
+    VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-gcc-4.6 -D CMAKE_CXX_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-g++-4.6"
 else
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
     HOVERGROUP_SUB_DIR="hovergroup"
