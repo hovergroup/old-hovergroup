@@ -13,8 +13,7 @@ if ! wget --quiet --output-document="hover_update_actual_new" $UPDATE_BASE ; the
     echo "File requested: $UPDATE_BASE/$SELF"
     exit 1
 else
-    rm hover_update_actual
-    mv hover_update_actual_new hover_update_actual
+    mv hover_update_actual_new hover_update_actual -f
 fi
 echo "Done."
 
