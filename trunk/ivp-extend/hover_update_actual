@@ -37,6 +37,7 @@ COMPLETE_INSTALL=false
 INTERACTIVE=true
 HELP=false
 VEHICLE=false
+DISTCC_HOST="192.168.1.100"
 
 ynprompt() {
     printf "$1 "
@@ -89,6 +90,9 @@ for ARGI; do
     elif [ "${ARGI}" = "--vehicle" -o "${ARGI}" = "-v" ] ; then
         VEHICLE="true"
         UNDEFINED_ARG=""
+    elif [ "${ARGI:0:14}" = "--distcc_host=" ] ; then
+        DISTCC_HOST="${ARGI#--distcc_host=*}"
+        UNDEFINED_ARG=""
     else
         START_DIRECTORY=${ARGI}
     fi
@@ -109,6 +113,7 @@ if $HELP ; then
     printf "  --install              first time install (all)\n"
     printf "  --all                  update all           \n"
     printf "  --vehicle, -v          install for vehicle (no gui or shore apps)\n"
+    printf "  --distcc_host=[ip]     set distcc host (default 192.168.1.100)\n"
     exit 1;
 fi
 
@@ -116,6 +121,10 @@ fi
 if $VEHICLE ; then
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk/ivp-extend"
     HOVERGROUP_SUB_DIR="hovergroup-extend"
+    export DISTCC_HOSTS=$DISTCC_HOST
+    export DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
+    export CC="/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.4"
+    export CXX="/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.4"
 else
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
     HOVERGROUP_SUB_DIR="hovergroup"
@@ -130,7 +139,7 @@ fi
 # install packages for first time install
 if $COMPLETE_INSTALL ; then
     sudo apt-get update
-    sudo apt-get install build-essential libboost-all-dev libgsl0-dev subversion bzr cmake-curses-gui
+    sudo apt-get install build-essential libboost-all-dev libgsl0-dev subversion bzr cmake-curses-gui git
     if ! $VEHICLE ; then
         sudo apt-get install xterm libtiff4-dev freeglut3-dev libpng12-dev libxft-dev libxinerama-dev fluid default-jre libgmp3-dev witty witty-dev witty-doc witty-dbg
     fi
