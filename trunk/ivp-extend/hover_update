@@ -8,10 +8,13 @@ UPDATE_BASE=https://hovergroup.googlecode.com/svn/trunk/ivp-extend/hover_update_
 
 # Download new version
 echo -n "Downloading latest version..."
-if ! wget --quiet --output-document="hover_update_actual" $UPDATE_BASE ; then
+if ! wget --quiet --output-document="hover_update_actual_new" $UPDATE_BASE ; then
     echo "Failed: Error while trying to wget new version!"
     echo "File requested: $UPDATE_BASE/$SELF"
     exit 1
+else
+    rm hover_update_actual
+    mv hover_update_actual_new hover_update_actual
 fi
 echo "Done."
 
