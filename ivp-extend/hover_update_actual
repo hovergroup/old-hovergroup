@@ -272,7 +272,7 @@ if $DO_MOOS ; then
         3)  ;;
         
         # geodesy
-        4)  cmake  $VEHICLE_CMAKE_ARGS .
+        4)  cmake $VEHICLE_CMAKE_ARGS .
             make -j$NUM_THREADS
             ;;
             
@@ -338,7 +338,7 @@ if $DO_IVP ; then
     # build
     cd ivp/src
     if $VEHICLE ; then
-        cmake -D IVP_BUILD_GUI_CODE=OFF .
+        cmake -D IVP_BUILD_GUI_CODE=OFF $VEHICLE_CMAKE_ARGS .
         distcc-pump make -j$NUM_THREADS
     else
         cmake -D IVP_BUILD_GUI_CODE=ON .
@@ -395,7 +395,7 @@ if $DO_GOBY ; then
     if $COMPLETE_INSTALL ; then
         sudo ./DEPENDENCIES ubuntu
     fi
-    cmake -D build_apps=OFF -D build_moos=OFF .
+    cmake -D build_apps=OFF -D build_moos=OFF $VEHICLE_CMAKE_ARGS .
     make -j$NUM_THREADS
 fi # if $DO_GOBY
 
@@ -454,7 +454,7 @@ if $DO_HOVER ; then
     if $VEHICLE ; then
         cd trunk
         ./build_proto.sh
-        cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=OFF .
+        cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=OFF $VEHICLE_CMAKE_ARGS .
     else
         cd ivp-extend/trunk
         ./build_proto.sh
