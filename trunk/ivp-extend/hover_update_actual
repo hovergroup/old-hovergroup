@@ -125,6 +125,10 @@ if $VEHICLE ; then
     export DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
     export CC="/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6"
     export CXX="/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6"
+    DISTCC_HOSTS=$DISTCC_HOST
+    DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
+    CC="/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6"
+    CXX="/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6"
 else
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
     HOVERGROUP_SUB_DIR="hovergroup"
