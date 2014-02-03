@@ -451,9 +451,9 @@ if $DO_HOVER ; then
     
     # check if protobuf file has changed
     if $VEHICLE ; then
-        PROTO_DIFF_RESULT=$(svn diff trunk/build_proto.sh)
+        PROTO_DIFF_RESULT=$(svn diff trunk/src/protobuf)
     else
-        PROTO_DIFF_RESULT=$(svn diff ivp-extend/trunk/build_proto.sh)
+        PROTO_DIFF_RESULT=$(svn diff ivp-extend/trunk/src/protobuf)
     fi
     if [ ! -z "${PROTO_DIFF_RESULT}" ] ; then
         BUILD_PROTO=true
