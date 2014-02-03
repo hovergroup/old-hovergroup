@@ -52,10 +52,10 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 		// check for new commands from moosdb
 		if (key == "DESIRED_RUDDER") {
 			m_desired_rudder = mapRudder( roundFloat( msg.GetDouble() ) );
-			newCommand = true;
+			m_last_command_time = MOOSTime();
 		} else if (key == "DESIRED_THRUST" ) {
 			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
-			newCommand = true;
+			m_last_command_time = MOOSTime();
 		} else if (key == "RADIO_POWER" && msg.GetSource()!=GetAppName()) {
 			bool freewave = false;
 			if (MOOSToUpper(msg.GetString()) == "FREEWAVE")
@@ -92,12 +92,13 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool kayak_driver::Iterate()
 {
-	// send at least 4 commands a second
-	if ( MOOSTime() > m_last_command_time + .25 || newCommand) {
-		sendMotorCommands();
-		m_last_command_time = MOOSTime();
-		newCommand = false;
+	// commands expire after 5 seconds
+	if (MOOSTime() - m_last_command_time > 5.0) {
+		m_desired_thrust = 0;
+		m_desired_rudder = 0;
 	}
+
+	sendMotorCommands();
 
 	// timed out waiting for confirmation of radio switch
 	if (m_radioSetTime!=-1 && MOOSTime()>m_radioSetTime+m_radioWaitTime) {

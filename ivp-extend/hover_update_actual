@@ -403,9 +403,13 @@ fi # if $DO_GOBY
 if $DO_HOVER ; then
     echo -e "\e[1;93mUpdating hover\e[0m"
     
+    # only rebuild protobuf if we later decide we need to
+    BUILD_PROTO=false
+    
     # if directory does not exist, do fresh checkout
     if [ ! -d $START_DIRECTORY/$HOVERGROUP_SUB_DIR ] ; then
         svn checkout $HOVERGROUP_URL $START_DIRECTORY/$HOVERGROUP_SUB_DIR
+        BUILD_PROTO=true
     fi
     cd $START_DIRECTORY/$HOVERGROUP_SUB_DIR
     
@@ -424,6 +428,7 @@ if $DO_HOVER ; then
         cd ..; rm -rf $HOVERGROUP_SUB_DIR
         svn checkout $HOVERGROUP_URL $HOVERGROUP_SUB_DIR
         cd $HOVERGROUP_SUB_DIR
+        BUILD_PROTO=true
     fi
     
     # check that url is correct
@@ -440,7 +445,20 @@ if $DO_HOVER ; then
             cd ..; rm -rf $HOVERGROUP_SUB_DIR
             svn checkout $HOVERGROUP_URL $HOVERGROUP_SUB_DIR
             cd $HOVERGROUP_SUB_DIR
+            BUILD_PROTO=true
         fi
+    fi
+    
+    # check if protobuf file has changed
+    if $VEHICLE ; then
+        PROTO_DIFF_RESULT=$(svn diff trunk/build_proto.sh)
+    else
+        PROTO_DIFF_RESULT=$(svn diff ivp-extend/trunk/build_proto.sh)
+    fi
+    if [ -z "${PROTO_DIFF_RESULT}" ] ; then
+        # protobuf file unchanged
+    else
+        BUILD_PROTO=true
     fi
     
     # update
@@ -453,11 +471,15 @@ if $DO_HOVER ; then
     # build
     if $VEHICLE ; then
         cd trunk
-        ./build_proto.sh
+        if $BUILD_PROTO ; then
+            ./build_proto.sh
+        fi
         cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=OFF $VEHICLE_CMAKE_ARGS .
     else
         cd ivp-extend/trunk
-        ./build_proto.sh
+        if $BUILD_PROTO ; then
+            ./build_proto.sh
+        fi
         cmake -D BOOST_146=ON -D BUILD_SHORE_APPS=ON .
     fi
     make -j$NUM_THREADS
