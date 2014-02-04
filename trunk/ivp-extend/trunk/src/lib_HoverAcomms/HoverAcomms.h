@@ -21,7 +21,8 @@ enum DriverStatus {
 	READY = 0,
 	TRANSMITTING,
 	RECEIVING,
-	NOT_RUNNING
+	NOT_RUNNING,
+	STARTING
 };
 
 enum Rate {

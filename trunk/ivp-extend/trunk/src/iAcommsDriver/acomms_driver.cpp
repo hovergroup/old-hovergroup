@@ -260,7 +260,7 @@ bool acomms_driver::Iterate()
     }
 
     // do nothing if driver is not initialized
-    if ( m_status == HoverAcomms::NOT_RUNNING )
+    if ( m_status == HoverAcomms::NOT_RUNNING || m_status == HoverAcomms::STARTING )
         return true;
 
     // simulation reports
@@ -546,6 +546,8 @@ bool acomms_driver::file_exists( std::string filename ) {
 }
 
 void acomms_driver::startDriver( std::string logDirectory ) {
+	publishStatus(HoverAcomms::STARTING);
+
     if (!in_sim) {
         cout << "opening goby log file..." << endl;
 
