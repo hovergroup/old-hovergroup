@@ -30,6 +30,8 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 	m_usingFreewave = false;
 	m_radioSetTime = -1;
 	m_radioWaitTime = 120;
+
+	first_radio_message = true;
 }
 
 int kayak_driver::roundFloat( double val ) {
@@ -57,27 +59,36 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
 			m_last_command_time = MOOSTime();
 		} else if (key == "RADIO_POWER" && msg.GetSource()!=GetAppName()) {
-			bool freewave = false;
-			if (MOOSToUpper(msg.GetString()) == "FREEWAVE")
+			bool freewave, valid;
+			if (MOOSToUpper(msg.GetString()) == "FREEWAVE") {
 				freewave = true;
-
-			// change requested
-			if (freewave!=m_usingFreewave)
-			{
-				if (freewave) {
-					setRadioPower(true);
-					m_usingFreewave = true;
-				} else {
-					setRadioPower(false);
-					m_usingFreewave = false;
-				}
-				m_radioSetTime = MOOSTime();
+				valid = true;
+			} else if (MOOSToUpper(msg.GetString())=="BULLET") {
+				freewave = false;
+				valid = true;
+			} else {
+				valid = false;
 			}
-			// waiting for confirmation & got confirmation
-			else if (m_radioSetTime!=-1 && freewave==m_usingFreewave)
-			{
-				m_radioSetTime = -1;
-				postRadioPowerIsLocked();
+
+			if (valid) {
+				// change requested
+				if (freewave!=m_usingFreewave)
+				{
+					if (freewave) {
+						setRadioPower(true);
+						m_usingFreewave = true;
+					} else {
+						setRadioPower(false);
+						m_usingFreewave = false;
+					}
+					m_radioSetTime = MOOSTime();
+				}
+				// waiting for confirmation & got confirmation
+				else if (m_radioSetTime!=-1 && freewave==m_usingFreewave)
+				{
+					m_radioSetTime = -1;
+					postRadioPowerIsLocked();
+				}
 			}
 		} else if (key == "RUDDER_OFFSET") {
 			RUDDER_OFFSET = msg.GetDouble();
@@ -410,6 +421,7 @@ void kayak_driver::parseSlow(int index, int stopIndex) {
 				&internal_temp,
 				&thrust_limit,
 				&radio_power);
+
 		m_Comms.Notify("VOLTAGE", battery_voltage/10.0);
 		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp/10.0);
 		m_Comms.Notify("ROBOTEQ_HEATSINK_TEMP", heatsink_temp);
@@ -417,6 +429,19 @@ void kayak_driver::parseSlow(int index, int stopIndex) {
 		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps/10.0);
 		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps/10.0);
 		m_Comms.Notify("THRUST_LIMIT", thrust_limit);
+
+		bool freewaveIsPowered;
+		if (radio_power==0)
+			freewaveIsPowered = false;
+		else
+			freewaveIsPowered = true;
+
+		if (freewaveIsPowered != m_usingFreewave || first_radio_message) {
+			m_usingFreewave = freewaveIsPowered;
+			m_radioSetTime = -1;
+			postRadioPowerIsLocked();
+			first_radio_message = false;
+		}
 	} else {
 		cout << "bad parse" << endl;
 	}
