@@ -336,6 +336,10 @@ int kayak_driver::processBuffer() {
 			parseActuators(bytesUsed, stopIndex);
 			bytesUsed = stopIndex;
 			break;
+		case 'S':
+			parseSlow(bytesUsed, stopIndex);
+			bytesUsed = stopIndex;
+			break;
 		}
 		bytesUsed++;
 	}
@@ -382,6 +386,37 @@ void kayak_driver::parseCurrents(int index, int stopIndex) {
 		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps/10.0);
 		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps/10.0);
 		m_Comms.Notify("CPU_BOX_CURRENT", cpu_amps/1000.0);
+	} else {
+		cout << "bad parse" << endl;
+	}
+}
+
+void kayak_driver::parseSlow(int index, int stopIndex) {
+	if (readBuffer[index] == 'S' && readBuffer[index + 1] == '=') {
+		int battery_voltage,
+		    battery_amps,
+		    motor_amps,
+		    cpu_temp,
+		    heatsink_temp,
+		    internal_temp,
+		    thrust_limit,
+		    radio_power;
+		sscanf(&readBuffer[index], "C=%d,%d,%d,%d,%d,%d,%d,%d",
+				&battery_voltage,
+				&battery_amps,
+				&motor_amps,
+				&cpu_temp,
+				&heatsink_temp,
+				&internal_temp,
+				&thrust_limit,
+				&radio_power);
+		m_Comms.Notify("VOLTAGE", battery_voltage/10.0);
+		m_Comms.Notify("CPU_BOX_TEMP", cpu_temp/10.0);
+		m_Comms.Notify("ROBOTEQ_HEATSINK_TEMP", heatsink_temp);
+		m_Comms.Notify("ROBOTEQ_INTERNAL_TEMP", internal_temp);
+		m_Comms.Notify("ROBOTEQ_BATTERY_CURRENT", battery_amps/10.0);
+		m_Comms.Notify("ROBOTEQ_MOTOR_CURRENT", motor_amps/10.0);
+		m_Comms.Notify("THRUST_LIMIT", thrust_limit);
 	} else {
 		cout << "bad parse" << endl;
 	}

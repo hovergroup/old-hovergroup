@@ -65,6 +65,7 @@ private:
 	void parseTemperatures( int index, int stopIndex );
 	void parseCurrents( int index, int stopIndex );
 	void parseActuators( int index, int stopIndex );
+	void parseSlow( int index, int stopIndex );
 
 	// commands
 	int m_desired_rudder, m_desired_thrust;
