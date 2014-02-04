@@ -89,6 +89,11 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 					m_radioSetTime = -1;
 					postRadioPowerIsLocked();
 				}
+				// was already locked
+				else
+				{
+					postRadioPowerIsLocked();
+				}
 			}
 		} else if (key == "RUDDER_OFFSET") {
 			RUDDER_OFFSET = msg.GetDouble();
