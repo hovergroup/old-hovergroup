@@ -182,8 +182,6 @@ bool kayak_driver::OnConnectToServer()
 	RegisterVariables();
 
 	open_port( my_port_name, my_baud_rate );
-	//serial_thread = boost::thread(boost::bind(&kayak_driver::serialLoop, this));
-	postRadioPowerIsLocked();
 
 	return(true);
 }
@@ -441,7 +439,8 @@ void kayak_driver::parseSlow(int index, int stopIndex) {
 		else
 			freewaveIsPowered = true;
 
-		if (freewaveIsPowered != m_usingFreewave || first_radio_message) {
+		if ( ((freewaveIsPowered != m_usingFreewave) && (MOOSTime()-m_radioSetTime>2))||
+		     first_radio_message) {
 			m_usingFreewave = freewaveIsPowered;
 			m_radioSetTime = -1;
 			postRadioPowerIsLocked();
