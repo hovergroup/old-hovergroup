@@ -76,6 +76,7 @@ private:
 
 	bool m_usingFreewave;
 	double m_radioSetTime, m_radioWaitTime;
+	bool first_radio_message;
 
 	int mapThrust( int thrust_command );
 	int mapRudder( int rudder_command );
