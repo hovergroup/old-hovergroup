@@ -401,7 +401,7 @@ void kayak_driver::parseSlow(int index, int stopIndex) {
 		    internal_temp,
 		    thrust_limit,
 		    radio_power;
-		sscanf(&readBuffer[index], "C=%d,%d,%d,%d,%d,%d,%d,%d",
+		sscanf(&readBuffer[index], "S=%d,%d,%d,%d,%d,%d,%d,%d",
 				&battery_voltage,
 				&battery_amps,
 				&motor_amps,
