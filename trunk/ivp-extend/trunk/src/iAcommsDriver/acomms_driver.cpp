@@ -620,6 +620,8 @@ void acomms_driver::startDriver( std::string logDirectory ) {
 
     // record start time
     start_time = MOOSTime();
+
+	publishStatus(HoverAcomms::READY);
 }
 
 // on connect to shoreside (simulation only)
