@@ -43,9 +43,11 @@ NSFModem::NSFModem() : m_state(Starting),
   // set tx power to minimum
   for (unsigned short int i = 0; i < 32; i++)
   {
-    m_power_decrease_pin_value << "0"; // set GPIO6 to LOW
+    m_power_decrease_pin_value << 0; // set GPIO6 to LOW
+    m_power_decrease_pin_value.flush();
     boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
-    m_power_decrease_pin_value << "1";// set GPIO6 to HIGH
+    m_power_decrease_pin_value << 1;// set GPIO6 to HIGH
+    m_power_decrease_pin_value.flush();
     boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
   }
 
@@ -169,8 +171,10 @@ void NSFModem::power_write_loop()
       // power needs to be increased (delta > 0)
       std::cout << "Increasing TX power.\n";
       m_power_increase_pin_value << 0;  // set GPIO5 to LOW
+      m_power_increase_pin_value.flush();
       boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
       m_power_increase_pin_value << 1; // set GPIO5 to HIGH
+      m_power_increase_pin_value.flush();
       m_current_power_level++;
       print_power_status();
     }
@@ -179,8 +183,10 @@ void NSFModem::power_write_loop()
       // power needs to be decreased (delta < 0)
       std::cout << "Decreasing TX power.\n";
       m_power_decrease_pin_value << 0; // set GPIO6 to LOW
+      m_power_decrease_pin_value.flush();
       boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
       m_power_decrease_pin_value << 1;// set GPIO6 to HIGH
+      m_power_decrease_pin_value.flush();
       m_current_power_level--;
       print_power_status();
     }
