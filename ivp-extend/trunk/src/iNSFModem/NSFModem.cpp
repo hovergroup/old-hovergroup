@@ -46,6 +46,7 @@ NSFModem::NSFModem() : m_state(Starting),
     m_power_decrease_pin_value << "0"; // set GPIO6 to LOW
     boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
     m_power_decrease_pin_value << "1";// set GPIO6 to HIGH
+    boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
   }
 
   m_requested_power_level = 0;
@@ -106,7 +107,8 @@ bool NSFModem::OnNewMail(MOOSMSG_LIST &NewMail)
     bool   mstr  = msg.IsString();
 #endif
    }
-	
+
+  boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
    return(true);
 }
 
@@ -192,6 +194,7 @@ void NSFModem::power_write_loop()
       m_power_decrease_pin_value.flush();
       */
     }
+    boost::this_thread::sleep( boost::posix_time::milliseconds(30) ); // sleep
   }
 }
 
