@@ -15,14 +15,19 @@
 
 #include <iostream>
 
-enum NSFModemState {
-	Starting, Stopping, Running
-};
-
 class NSFModem: public CMOOSApp {
 public:
 	NSFModem();
 	~NSFModem();
+
+	enum NSFModemState {
+		Starting, Stopping, Running
+	};
+
+	enum NSFVoltage {
+		OKAY,
+		LOW
+	};
 
 protected:
 	bool OnNewMail(MOOSMSG_LIST &NewMail);
@@ -43,8 +48,9 @@ private:
 		m_power_increase_pin_direction,
 		m_power_decrease_pin_value,
 		m_power_decrease_pin_direction,
-		m_voltage_sense_pin_direction,
-		m_voltage_sense_pin_value;
+		m_voltage_sense_pin_direction;
+
+    std::ifstream m_voltage_sense_pin_value;
 
 	boost::thread m_power_write_thread; // a thread that takes care of writing to
 										// the pins to prevent OnNewMail from
