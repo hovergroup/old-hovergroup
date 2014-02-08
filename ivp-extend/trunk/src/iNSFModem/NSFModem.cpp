@@ -15,33 +15,61 @@ using namespace std;
 // Constructor
 
 NSFModem::NSFModem() :
-		m_state(Starting), m_power_increase_pin_value(c_gpio5_val.c_str()), m_power_increase_pin_direction(
-				c_gpio5_dir.c_str()), m_power_decrease_pin_value(
-				c_gpio6_val.c_str()), m_power_decrease_pin_direction(
-				c_gpio6_dir.c_str()) {
+		m_power_increase_pin_value("/gpio/boardio5/value"),
+		m_power_increase_pin_direction("/gpio/boardio5/direction"),
+		m_power_decrease_pin_value("/gpio/boardio6/value"),
+		m_power_decrease_pin_direction("/gpio/boardio6/direction"),
+		m_voltage_sense_pin_value("/gpio/boardio7/value"),
+		m_voltage_sense_pin_direction("/gpio/boardio7/direction")
+{
+	m_state = Starting;
+
 	if (!m_power_increase_pin_direction.is_open()) {
 		std::cerr << "Unable to open TX power increase pin (direction)\n";
+		exit (1);
 	}
 	if (!m_power_increase_pin_value.is_open()) {
 		std::cerr << "Unable to open TX power increase pin (value)\n";
+		exit (1);
 	}
 	if (!m_power_decrease_pin_direction.is_open()) {
 		std::cerr << "Unable to open TX power decrease pin (direction)\n";
+		exit (1);
 	}
 	if (!m_power_decrease_pin_value.is_open()) {
 		std::cerr << "Unable to open TX power decrease pin (value)\n";
+		exit (1);
 	}
 
-	m_power_increase_pin_direction << "out";
-	m_power_decrease_pin_direction << "out";
 
-	// set tx power to minimum
+	// seems like pins may need to have their state changed to ensure
+	// they work correctly
+
+	// configure pins opposite at first
+	m_power_increase_pin_direction << "in";
+	m_power_increase_pin_direction.flush();
+	m_power_decrease_pin_direction << "in";
+	m_power_decrease_pin_direction.flush();
+	m_voltage_sense_pin_direction << "out";
+	m_voltage_sense_pin_direction.flush();
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+	// now configure pins to what we want
+	m_power_increase_pin_direction << "out";
+	m_power_increase_pin_direction.flush();
+	m_power_decrease_pin_direction << "out";
+	m_power_decrease_pin_direction.flush();
+	m_voltage_sense_pin_direction << "in";
+	m_voltage_sense_pin_direction.flush();
+
+	// set tx power to maximum
 	for (unsigned short int i = 0; i < 32; i++) {
-		m_power_decrease_pin_value << 0; // set GPIO6 to LOW
-		m_power_decrease_pin_value.flush();
+		m_power_increase_pin_value << 0; // set GPIO6 to LOW
+		m_power_increase_pin_value.flush();
 		boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time)); // sleep
-		m_power_decrease_pin_value << 1; // set GPIO6 to HIGH
-		m_power_decrease_pin_value.flush();
+		m_power_increase_pin_value << 1; // set GPIO6 to HIGH
+		m_power_increase_pin_value.flush();
 		boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time)); // sleep
 	}
 
