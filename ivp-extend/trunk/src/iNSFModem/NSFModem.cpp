@@ -40,6 +40,13 @@ NSFModem::NSFModem() :
 		std::cerr << "Unable to open TX power decrease pin (value)\n";
 		exit (1);
 	}
+	if (!m_voltage_sense_pin_direction.is_open()) {
+		std::cerr << "Unable to open TX power decrease pin (direction)\n";
+		exit (1);
+	}
+	if (!m_voltage_sense_pin_value.is_open()) {
+		std::cerr << "Unable to open Voltage sense pin (value)\n" ;
+	}
 
 
 	// seems like pins may need to have their state changed to ensure
@@ -143,6 +150,13 @@ bool NSFModem::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool NSFModem::Iterate() {
+	char c = m_voltage_sense_pin_value.peek();
+	if (c == '1') {
+		m_Comms.Notify("NSF_VOLTAGE", OKAY);
+	} else if (c == '0') {
+		m_Comms.Notify("NSF_VOLTAGE", LOW);
+	}
+
 	return (true);
 }
 
@@ -188,12 +202,6 @@ void NSFModem::power_write_loop() {
 			print_power_status();
 		} else {
 			boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-			/*
-			 m_power_increase_pin_direction.flush();
-			 m_power_increase_pin_value.flush();
-			 m_power_decrease_pin_direction.flush();
-			 m_power_decrease_pin_value.flush();
-			 */
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time)); // sleep
 	}
