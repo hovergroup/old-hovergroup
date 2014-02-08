@@ -15,11 +15,6 @@
 
 #include <iostream>
 
-const std::string c_gpio5_dir = "/gpio/boardio5/direction";
-const std::string c_gpio5_val = "/gpio/boardio5/value";
-const std::string c_gpio6_dir = "/gpio/boardio6/direction";
-const std::string c_gpio6_val = "/gpio/boardio6/value";
-
 enum NSFModemState {
 	Starting, Stopping, Running
 };
@@ -44,10 +39,12 @@ private:
 	static const int debounce_time = 30; // ms
 	static const int gap_time = 5; // ms
 
-	std::ofstream m_power_increase_pin_value;
-	std::ofstream m_power_increase_pin_direction;
-	std::ofstream m_power_decrease_pin_value;
-	std::ofstream m_power_decrease_pin_direction;
+	std::ofstream m_power_increase_pin_value,
+		m_power_increase_pin_direction,
+		m_power_decrease_pin_value,
+		m_power_decrease_pin_direction,
+		m_voltage_sense_pin_direction,
+		m_voltage_sense_pin_value;
 
 	boost::thread m_power_write_thread; // a thread that takes care of writing to
 										// the pins to prevent OnNewMail from
