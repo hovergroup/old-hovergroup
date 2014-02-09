@@ -118,18 +118,27 @@ void StatusViewApplication::update() {
 		string vname = vnames[col];
 
 		// ---------------- voltage -------------------
-		ss.str("");
-		ss << fixed << setprecision(1);
-		double volts = data[vname].voltage();
-		ss << volts;
-		tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
-		if (volts >= 12.2)
-		    table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
-		else if (volts >= 11.7)
-            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
-		else
-            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("red center");
-
+		if (data[vname].has_nsf_power()) { // for nsf nodes
+			if (data[vname].nsf_power() == ProtoNodeReport_NSFPowerEnum_OKAY) {
+				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("okay");
+			    table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
+			} else {
+				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("low");
+	            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
+			}
+		} else { // for normal vehicles
+			ss.str("");
+			ss << fixed << setprecision(1);
+			double volts = data[vname].voltage();
+			ss << volts;
+			tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
+			if (volts >= 12.2)
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
+			else if (volts >= 11.7)
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
+			else
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("red center");
+		}
 
 
 		// ---------------- age -------------------
