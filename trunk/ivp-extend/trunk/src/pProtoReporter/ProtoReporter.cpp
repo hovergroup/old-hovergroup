@@ -68,6 +68,12 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 			nr.set_depth(msg.GetDouble());
 		} else if (key == "VOLTAGE") {
 			nr.set_voltage(msg.GetDouble());
+		} else if (key == "NSF_VOLTAGE") {
+			if (MOOSToUpper(msg.GetString()) == "OKAY") {
+				nr.set_nsf_power(ProtoNodeReport_NSFPowerEnum_OKAY);
+			} else {
+				nr.set_nsf_power(ProtoNodeReport_NSFPowerEnum_LOW);
+			}
 		} else if (key == "IVPHELM_STATE") {
 			if (msg.GetString()=="DRIVE") {
 				nr.set_helm_state(ProtoNodeReport_HelmStateEnum_DRIVE);
@@ -222,5 +228,6 @@ void ProtoReporter::RegisterVariables() {
 	m_Comms.Register("IVPHELM_SUMMARY", 0);
 	m_Comms.Register("RTK_QUALITY", 0);
 	m_Comms.Register("NAV_SOURCE", 0);
+	m_Comms.Register("NSF_VOLTAGE", 0);
 }
 

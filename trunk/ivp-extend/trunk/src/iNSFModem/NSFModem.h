@@ -24,11 +24,6 @@ public:
 		Starting, Stopping, Running
 	};
 
-	enum NSFVoltage {
-		OKAY,
-		LOW
-	};
-
 protected:
 	bool OnNewMail(MOOSMSG_LIST &NewMail);
 	bool Iterate();
@@ -43,12 +38,15 @@ private:
 
 	static const int debounce_time = 30; // ms
 	static const int gap_time = 5; // ms
+	static const int reset_timer = 5000;
 
 	std::ofstream m_power_increase_pin_value,
 		m_power_increase_pin_direction,
 		m_power_decrease_pin_value,
 		m_power_decrease_pin_direction,
 		m_voltage_sense_pin_direction;
+
+	boost::mutex powerLevelMutex;
 
     std::ifstream m_voltage_sense_pin_value;
 

@@ -51,4 +51,10 @@ message ProtoNodeReport {
         BULLET_UNLOCKED = 3;
         FREEWAVE_UNLOCKED = 4;
     }
+    
+    optional NSFPowerEnum nsf_power = 15;
+    enum NSFPowerEnum {
+    	OKAY = 1;
+    	LOW = 2;
+    }
 }

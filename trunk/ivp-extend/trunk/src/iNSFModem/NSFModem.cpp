@@ -62,28 +62,32 @@ NSFModem::NSFModem() :
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-	// now configure pins to what we want
+	// reset power level to maximum
+	m_power_increase_pin_value << 0;
+	m_power_increase_pin_value.flush();
+	boost::this_thread::sleep(boost::posix_time::milliseconds(reset_timer)); // sleep
+	m_power_increase_pin_value << 1;
+	m_power_increase_pin_value.flush();
+
+	// update power level and set requested to match
+	m_requested_power_level = 31;
+	m_current_power_level = 31;
+	print_power_status();
+
+	// start up thread
+	m_power_write_thread = boost::thread(
+			boost::bind(&NSFModem::power_write_loop, this));
+
+	// set state to running
+	m_state = Running;
+
+	// now configure pins to what we actually want
 	m_power_increase_pin_direction << "out";
 	m_power_increase_pin_direction.flush();
 	m_power_decrease_pin_direction << "out";
 	m_power_decrease_pin_direction.flush();
 	m_voltage_sense_pin_direction << "in";
 	m_voltage_sense_pin_direction.flush();
-
-	// set tx power to maximum
-	for (unsigned short int i = 0; i < 32; i++) {
-		m_power_increase_pin_value << 0; // set GPIO6 to LOW
-		m_power_increase_pin_value.flush();
-		boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time)); // sleep
-		m_power_increase_pin_value << 1; // set GPIO6 to HIGH
-		m_power_increase_pin_value.flush();
-		boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time)); // sleep
-	}
-
-	m_requested_power_level = 0;
-	m_current_power_level = 0;
-
-	print_power_status();
 }
 
 //---------------------------------------------------------
@@ -108,15 +112,10 @@ bool NSFModem::OnNewMail(MOOSMSG_LIST &NewMail) {
 
 		std::string key = msg.GetKey();
 
-		if (key == "NSFMODEM_POWER_LEVEL") {
-			m_requested_power_level = static_cast<int>(msg.GetDouble());
-			if (m_requested_power_level > 31) {
-				m_requested_power_level = 31;
-				std::cout << "Limiting TX power level to 31.\n";
-			} else if (m_requested_power_level < 0) {
-				m_requested_power_level = 0;
-				std::cout << "Limiting TX power level to 0.\n";
-			}
+		if (key == "NSFMODEM_SET_POWER_LEVEL") {
+			powerLevelMutex.lock();
+			m_requested_power_level = msg.GetDouble();
+			powerLevelMutex.unlock();
 			std::cout << "TX power: " << m_requested_power_level << "/"
 					<< m_current_power_level << " (requested/current)\n";
 		}
@@ -130,17 +129,10 @@ bool NSFModem::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool NSFModem::OnConnectToServer() {
-	// register for variables here
-	// possibly look at the mission file?
-	// m_MissionReader.GetConfigurationParam("Name", <string>);
-	// m_Comms.Register("VARNAME", 0);
-
-	m_state = Running;
-
 	RegisterVariables();
 
-	m_power_write_thread = boost::thread(
-			boost::bind(&NSFModem::power_write_loop, this));
+	// output current state
+	print_power_status();
 
 	return (true);
 }
@@ -152,9 +144,9 @@ bool NSFModem::OnConnectToServer() {
 bool NSFModem::Iterate() {
 	char c = m_voltage_sense_pin_value.peek();
 	if (c == '1') {
-		m_Comms.Notify("NSF_VOLTAGE", OKAY);
+		m_Comms.Notify("NSF_VOLTAGE", "LOW");
 	} else if (c == '0') {
-		m_Comms.Notify("NSF_VOLTAGE", LOW);
+		m_Comms.Notify("NSF_VOLTAGE", "OKAY");
 	}
 
 	return (true);
@@ -172,42 +164,108 @@ bool NSFModem::OnStartUp() {
 // Procedure: RegisterVariables
 
 void NSFModem::RegisterVariables() {
-	m_Comms.Register("NSFMODEM_POWER_LEVEL", 0);
+	m_Comms.Register("NSFMODEM_SET_POWER_LEVEL", 0);
 }
 
 void NSFModem::power_write_loop() {
 	while (m_state == Running) {
-		// check current power level wrt latest request
-		int delta = m_requested_power_level - m_current_power_level;
+		// get latest request
+		powerLevelMutex.lock();
+		int request = m_requested_power_level;
 
-		if (delta > 0) {
-			// power needs to be increased (delta > 0)
-			std::cout << "Increasing TX power.\n";
-			m_power_increase_pin_value << 0;  // set GPIO5 to LOW
+		// reset to max
+		if (request > 31) {
+			// set desired to max
+			m_requested_power_level=31;
+			powerLevelMutex.unlock();
+
+			// hold increase till reset
+			m_power_increase_pin_value << 0;
 			m_power_increase_pin_value.flush();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time)); // sleep
-			m_power_increase_pin_value << 1; // set GPIO5 to HIGH
+			boost::this_thread::sleep(boost::posix_time::milliseconds(reset_timer)); // sleep
+			m_power_increase_pin_value << 1;
 			m_power_increase_pin_value.flush();
-			m_current_power_level++;
+
+			// update power level
+			m_current_power_level=31;
 			print_power_status();
-		} else if (delta < 0) {
-			// power needs to be decreased (delta < 0)
-			std::cout << "Decreasing TX power.\n";
-			m_power_decrease_pin_value << 0; // set GPIO6 to LOW
-			m_power_decrease_pin_value.flush();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time)); // sleep
-			m_power_decrease_pin_value << 1; // set GPIO6 to HIGH
-			m_power_decrease_pin_value.flush();
-			m_current_power_level--;
-			print_power_status();
-		} else {
-			boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time)); // sleep
+
+		// reset to min
+		else if (request < 0) {
+			// set desired to min
+			m_requested_power_level=0;
+			powerLevelMutex.unlock();
+
+			// hold decrease till reset
+			m_power_decrease_pin_value << 0;
+			m_power_decrease_pin_value.flush();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(reset_timer)); // sleep
+			m_power_decrease_pin_value << 1;
+			m_power_decrease_pin_value.flush();
+
+			// update power level
+			m_current_power_level=0;
+			print_power_status();
+		}
+
+		// increment normally
+		else {
+			powerLevelMutex.unlock();
+
+			// calculate delta
+			int delta = request - m_current_power_level;
+
+			// increase power
+			if (delta > 0) {
+				std::cout << "Increasing TX power.\n";
+
+				// pulse increase pin once
+				m_power_increase_pin_value << 0;
+				m_power_increase_pin_value.flush();
+				boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time));
+				m_power_increase_pin_value << 1;
+				m_power_increase_pin_value.flush();
+
+				// update power level
+				m_current_power_level++;
+				print_power_status();
+
+				// gap time
+				boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time));
+			}
+
+			// decrease power
+			else if (delta < 0) {
+				std::cout << "Decreasing TX power.\n";
+
+				// pulse decrease pin once
+				m_power_decrease_pin_value << 0;
+				m_power_decrease_pin_value.flush();
+				boost::this_thread::sleep(boost::posix_time::milliseconds(debounce_time));
+				m_power_decrease_pin_value << 1;
+				m_power_decrease_pin_value.flush();
+
+				// update power level
+				m_current_power_level--;
+				print_power_status();
+
+				// gap time
+				boost::this_thread::sleep(boost::posix_time::milliseconds(gap_time));
+			}
+
+				// no command
+			else {
+				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			}
+
+		}
 	}
 }
 
 void NSFModem::print_power_status() {
-	std::cout << "TX power: current=" << m_current_power_level << ", requested="
-			<< m_requested_power_level << "\n";
+	std::cout << "TX power: current=" << m_current_power_level
+			  << ", requested=" << m_requested_power_level
+			  << std::endl;
+	m_Comms.Notify("NSFMODEM_CURRENT_POWER_LEVEL", m_current_power_level);
 }
