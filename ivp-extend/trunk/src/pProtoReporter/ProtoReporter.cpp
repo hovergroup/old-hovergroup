@@ -144,6 +144,8 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 				rtk = false;
 				nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
 			}
+		} else if (key == "NSFMODEM_CURRENT_POWER_LEVEL") {
+			nr.set_nsf_power_level((int) msg.GetDouble());
 		}
 	}
 
@@ -168,8 +170,12 @@ bool ProtoReporter::OnConnectToServer() {
 		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_KAYAK);
 	} else if (platform == "GLIDER") {
 		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_GLIDER);
-	} else if (platform == "AUV") {
-		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_AUV);
+	} else if (platform == "REMUS") {
+		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_REMUS);
+	} else if (platform == "NSF") {
+		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_NSF);
+	} else if (platform == "ICARUS") {
+		nr.set_platform_type(ProtoNodeReport_PlatformTypeEnum_ICARUS);
 	}
 
 	RegisterVariables();
@@ -222,12 +228,19 @@ void ProtoReporter::RegisterVariables() {
 	m_Comms.Register("NAV_HEADING", 0);
 	m_Comms.Register("NAV_SPEED", 0);
 	m_Comms.Register("NAV_DEPTH", 0);
-	m_Comms.Register("VOLTAGE", 0);
 	m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
 	m_Comms.Register("IVPHELM_STATE", 0);
 	m_Comms.Register("IVPHELM_SUMMARY", 0);
 	m_Comms.Register("RTK_QUALITY", 0);
 	m_Comms.Register("NAV_SOURCE", 0);
-	m_Comms.Register("NSF_VOLTAGE", 0);
+	switch (nr.platform_type()) {
+	case ProtoNodeReport_PlatformTypeEnum_NSF:
+		m_Comms.Register("NSF_VOLTAGE", 0);
+		m_Comms.Register("NSFMODEM_CURRENT_POWER_LEVEL", 0);
+		break;
+	case ProtoNodeReport_PlatformTypeEnum_KAYAK || ProtoNodeReport_PlatformTypeEnum_ICARUS:
+		m_Comms.Register("VOLTAGE", 0);
+		break;
+	}
 }
 

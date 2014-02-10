@@ -49,10 +49,13 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
 				case ProtoNodeReport_PlatformTypeEnum_KAYAK:
 					nr.setType("KAYAK");
 					break;
-				case ProtoNodeReport_PlatformTypeEnum_AUV:
+				case ProtoNodeReport_PlatformTypeEnum_REMUS:
 					nr.setType("AUV");
 					break;
 				case ProtoNodeReport_PlatformTypeEnum_GLIDER:
+					nr.setType("GLIDER");
+					break;
+				case ProtoNodeReport_PlatformTypeEnum_NSF:
 					nr.setType("GLIDER");
 					break;
 				default:
