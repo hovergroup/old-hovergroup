@@ -21,7 +21,7 @@ std::map<std::string, ProtoNodeReport> data;
 
 const int NUM_ROWS = 10;
 const int AGE_ROW = 1;
-const int HEALTH_ROW = 2;
+const int TYPE_ROW = 2;
 const int VOLTAGE_ROW = 3;
 const int BATT_PERCENT_ROW = 4;
 const int GPS_QUALITY_ROW = 5;
@@ -29,6 +29,7 @@ const int ACOMMS_DRIVER_STATUS_ROW = 6;
 const int HELM_STATE_ROW = 7;
 const int ACTIVE_BEHAVIORS_ROW = 8;
 const int RADIO_STATE_ROW = 9;
+const int NSF_POWER_LEVEL_ROW = 10;
 
 //---------------------------------------------------------
 // Constructor
@@ -44,6 +45,7 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 	styleSheet().addRule(".StatusView .green", "background-color: #58FA58;");
 	styleSheet().addRule(".StatusView .yellow", "background-color: #F7FE2E;");
 	styleSheet().addRule(".StatusView .red", "background-color: #FE2E2E;");
+	styleSheet().addRule(".StatusView .greyout", "background-color: #F4F4F4;");
 
 	reDraw(0);
 	current_num_vehicles = -1;
@@ -83,7 +85,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	}
 
 	tableTexts[pair<int,int>(AGE_ROW,0)]->setText("Age");
-	tableTexts[pair<int,int>(HEALTH_ROW,0)]->setText("Health");
+	tableTexts[pair<int,int>(TYPE_ROW,0)]->setText("Type");
 	tableTexts[pair<int,int>(VOLTAGE_ROW,0)]->setText("Voltage");
 	tableTexts[pair<int,int>(BATT_PERCENT_ROW,0)]->setText("Batt. %");
 	tableTexts[pair<int,int>(GPS_QUALITY_ROW,0)]->setText("GPS Quality");
@@ -91,6 +93,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts[pair<int,int>(HELM_STATE_ROW,0)]->setText("Helm State");
 	tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW,0)]->setText("Active Behaviors");
 	tableTexts[pair<int,int>(RADIO_STATE_ROW,0)]->setText("Radio Mode");
+	tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW,0)]->setText("NSF Power Level");
 
 	for (int col=0; col<num_vehicles; col++) {
 		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -116,30 +119,7 @@ void StatusViewApplication::update() {
 	// loop over all vehicles
 	for (int col=0; col<current_num_vehicles; col++) {
 		string vname = vnames[col];
-
-		// ---------------- voltage -------------------
-		if (data[vname].has_nsf_power()) { // for nsf nodes
-			if (data[vname].nsf_power() == ProtoNodeReport_NSFPowerEnum_OKAY) {
-				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("okay");
-			    table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
-			} else {
-				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("low");
-	            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
-			}
-		} else { // for normal vehicles
-			ss.str("");
-			ss << fixed << setprecision(1);
-			double volts = data[vname].voltage();
-			ss << volts;
-			tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
-			if (volts >= 12.2)
-				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
-			else if (volts >= 11.7)
-				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
-			else
-				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("red center");
-		}
-
+		ProtoNodeReport_PlatformTypeEnum type = data[vname].platform_type();
 
 		// ---------------- age -------------------
 		ss.str("");
@@ -153,26 +133,79 @@ void StatusViewApplication::update() {
 		else
 			table->elementAt(AGE_ROW, col+1)->setStyleClass("yellow center");
 
-		// ---------------- helm state -------------------
-		string helm_state;
-		switch(data[vname].helm_state()) {
-		case ProtoNodeReport_HelmStateEnum_DRIVE:
-			helm_state = "DRIVE";
-			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("green center");
+		// ---------------- type -------------------
+		ss.str("");
+		switch(type) {
+		case ProtoNodeReport_PlatformTypeEnum_KAYAK:
+			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("kayak");
 			break;
-		case ProtoNodeReport_HelmStateEnum_PARK:
-			helm_state = "PARK";
-			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("yellow center");
+		case ProtoNodeReport_PlatformTypeEnum_REMUS:
+			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("remus");
 			break;
-		case ProtoNodeReport_HelmStateEnum_MISSING:
-			helm_state = "MISSING";
-			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("red center");
+		case ProtoNodeReport_PlatformTypeEnum_NSF:
+			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("nsf");
 			break;
-		default:
-			helm_state = "";
+		case ProtoNodeReport_PlatformTypeEnum_ICARUS:
+			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("icarus");
 			break;
 		}
-		tableTexts[pair<int,int>(HELM_STATE_ROW, col+1)]->setText(helm_state);
+		table->elementAt(TYPE_ROW, col+1)->setStyleClass("center");
+
+		// ---------------- voltage -------------------
+		switch (type) {
+		case ProtoNodeReport_PlatformTypeEnum_NSF:
+			if (data[vname].nsf_power() == ProtoNodeReport_NSFPowerEnum_OKAY) {
+				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("okay");
+			    table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
+			} else {
+				tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText("low");
+	            table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
+			}
+			break;
+
+		case ProtoNodeReport_PlatformTypeEnum_KAYAK || ProtoNodeReport_PlatformTypeEnum_ICARUS:
+			ss.str("");
+			ss << fixed << setprecision(1);
+			double volts = data[vname].voltage();
+			ss << volts;
+			tableTexts[pair<int,int>(VOLTAGE_ROW, col+1)]->setText(ss.str());
+			if (volts >= 12.2)
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("green center");
+			else if (volts >= 11.7)
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("yellow center");
+			else
+				table->elementAt(VOLTAGE_ROW, col+1)->setStyleClass("red center");
+			break;
+		}
+
+		// ---------------- helm state -------------------
+		string helm_state;
+		switch (type) {
+		case ProtoNodeReport_PlatformTypeEnum_KAYAK:
+			switch(data[vname].helm_state()) {
+			case ProtoNodeReport_HelmStateEnum_DRIVE:
+				helm_state = "DRIVE";
+				table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("green center");
+				break;
+			case ProtoNodeReport_HelmStateEnum_PARK:
+				helm_state = "PARK";
+				table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("yellow center");
+				break;
+			case ProtoNodeReport_HelmStateEnum_MISSING:
+				helm_state = "MISSING";
+				table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("red center");
+				break;
+			default:
+				helm_state = "";
+				break;
+			}
+			tableTexts[pair<int,int>(HELM_STATE_ROW, col+1)]->setText(helm_state);
+			break;
+
+		default:
+			table->elementAt(HELM_STATE_ROW, col+1)->setStyleClass("greyout");
+			break;
+		}
 
 		// ---------------- active behaviors -------------------
 		ss.str("");
@@ -245,28 +278,40 @@ void StatusViewApplication::update() {
 		tableTexts[pair<int,int>(GPS_QUALITY_ROW, col+1)]->setText(gps_quality);
 
 		// ---------------- radio mode -------------------
-		string radio_mode;
-		switch(data[vname].radio_state()) {
-		case ProtoNodeReport_RadioStateEnum_BULLET_LOCKED:
-			radio_mode = "bullet";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
-			break;
-		case ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED:
-			radio_mode = "bullet";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
-			break;
-		case ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED:
-			radio_mode = "freewave";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
-			break;
-		case ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED:
-			radio_mode = "freewave";
-			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
-			break;
-		default:
-			break;
+		if (ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+			string radio_mode;
+			switch(data[vname].radio_state()) {
+			case ProtoNodeReport_RadioStateEnum_BULLET_LOCKED:
+				radio_mode = "bullet";
+				table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
+				break;
+			case ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED:
+				radio_mode = "bullet";
+				table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
+				break;
+			case ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED:
+				radio_mode = "freewave";
+				table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("green center");
+				break;
+			case ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED:
+				radio_mode = "freewave";
+				table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("yellow center");
+				break;
+			default:
+				break;
+			}
+			tableTexts[pair<int,int>(RADIO_STATE_ROW, col+1)]->setText(radio_mode);
+		} else {
+			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("greyout");
 		}
-		tableTexts[pair<int,int>(RADIO_STATE_ROW, col+1)]->setText(radio_mode);
+
+		// ---------------- radio mode -------------------
+		if (ProtoNodeReport_PlatformTypeEnum_NSF) {
+			stringstream nsf_power_level;
+			nsf_power_level << data[vname].nsf_power_level();
+			tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW, col+1)]->setText(nsf_power_level.str());
+			table->elementAt(NSF_POWER_LEVEL_ROW, col+1)->setStyleClass("center");
+		}
 	}
 }
 

@@ -24,7 +24,9 @@ message ProtoNodeReport {
     enum PlatformTypeEnum {
         KAYAK = 0;
         GLIDER = 1;
-        AUV = 2; 
+        REMUS = 2; 
+        NSF = 3;
+        ICARUS = 4;
     }
     
     optional HelmStateEnum helm_state = 12;
@@ -57,4 +59,6 @@ message ProtoNodeReport {
     	OKAY = 1;
     	LOW = 2;
     }
+    
+    optional int32 nsf_power_level = 16;
 }
