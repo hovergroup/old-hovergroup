@@ -30,6 +30,7 @@ const int HELM_STATE_ROW = 7;
 const int ACTIVE_BEHAVIORS_ROW = 8;
 const int RADIO_STATE_ROW = 9;
 const int NSF_POWER_LEVEL_ROW = 10;
+const int THRUST_LIMIT_ROW = 11;
 
 //---------------------------------------------------------
 // Constructor
@@ -311,6 +312,20 @@ void StatusViewApplication::update() {
 			nsf_power_level << data[vname].nsf_power_level();
 			tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW, col+1)]->setText(nsf_power_level.str());
 			table->elementAt(NSF_POWER_LEVEL_ROW, col+1)->setStyleClass("center");
+		}
+
+		// ---------------- radio mode -------------------
+		if (ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+			stringstream kayak_thrust_limit;
+			kayak_thrust_limit << data[vname].thrust_limit();
+			tableTexts[pair<int,int>(THRUST_LIMIT_ROW, col+1)]->setText(kayak_thrust_limit.str());
+			if (data[vname].thrust_limit()==1000) {
+				table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("green center");
+			} else if (data[vname].thrust_limit()==0) {
+				table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("red center");
+			} else {
+				table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("yellow center");
+			}
 		}
 	}
 }
