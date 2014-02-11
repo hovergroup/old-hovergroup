@@ -146,6 +146,8 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
 			}
 		} else if (key == "NSFMODEM_CURRENT_POWER_LEVEL") {
 			nr.set_nsf_power_level((int) msg.GetDouble());
+		} else if (key == "THRUST_LIMIT") {
+			nr.set_thrust_limit((int) msg.GetDouble());
 		}
 	}
 
@@ -240,6 +242,8 @@ void ProtoReporter::RegisterVariables() {
 		break;
 	case ProtoNodeReport_PlatformTypeEnum_KAYAK || ProtoNodeReport_PlatformTypeEnum_ICARUS:
 		m_Comms.Register("VOLTAGE", 0);
+	case ProtoNodeReport_PlatformTypeEnum_KAYAK:
+		m_Comms.Register("THRUST_LIMIT", 0);
 		break;
 	}
 }

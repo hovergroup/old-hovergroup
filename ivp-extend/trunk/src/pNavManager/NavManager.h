@@ -10,6 +10,7 @@
 
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "XYPoint.h"
+#include <vector>
 
 enum NAV_SOURCE {
 	gps = 0,
@@ -37,7 +38,7 @@ private:
 	bool gps_lock, rtk_available, gps_available;
 	double gps_update_time, rtk_update_time;
 
-	double gps_x, gps_y;
+	double alt_x, alt_y;
 	double last_point_post_time;
 
 	double last_source_post_time;
@@ -46,6 +47,22 @@ private:
 
 	void setSource(NAV_SOURCE new_val);
 	void postSource();
+
+	enum RTK_STATUS {
+		FIX,
+		FLOAT,
+		SINGLE,
+		NONE
+	};
+	RTK_STATUS rtk_status;
+
+	enum DETAILED_SOURCE {
+		gps_internal,
+		rtk_fix,
+		rtk_float,
+		rtk_single
+	};
+	std::vector<DETAILED_SOURCE> source_priorities;
 };
 
 #endif

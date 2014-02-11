@@ -15,7 +15,7 @@ using namespace std;
 // Constructor
 
 NavManager::NavManager() {
-	source = rtk;
+	source = none;
 
 	TIMEOUT = 5;
 
@@ -48,31 +48,54 @@ bool NavManager::OnNewMail(MOOSMSG_LIST &NewMail) {
 		}
 
 		// if using gps, mirror gps, else post point
-		if (key == "GPS_X") {
+		else if (key == "GPS_X") {
 			if (source == gps)
 				m_Comms.Notify("NAV_X", msg.GetDouble());
-			gps_x = msg.GetDouble();
+			else
+				alt_x = msg.GetDouble();
 			gps_update_time = MOOSTime();
 		} else if (key == "GPS_Y") {
 			if (source == gps)
 				m_Comms.Notify("NAV_Y", msg.GetDouble());
-			gps_y = msg.GetDouble();
+			else
+				alt_y = msg.GetDouble();
 		} else if (key == "GPS_SPEED") {
 			if (source == gps)
 				m_Comms.Notify("NAV_SPEED", msg.GetDouble());
 		}
 
 		// if using rtk, mirror rtk
-		if (key == "RTK_X") {
+		else if (key == "RTK_X") {
 			if (source == rtk)
 				m_Comms.Notify("NAV_X", msg.GetDouble());
+			else
+				alt_x = msg.GetDouble();
 			rtk_update_time = MOOSTime();
 		} else if (key == "RTK_Y") {
 			if (source == rtk)
 				m_Comms.Notify("NAV_Y", msg.GetDouble());
+			else
+				alt_y = msg.GetDouble();
 		} else if (key == "RTK_SPEED") {
 			if (source == rtk)
 				m_Comms.Notify("NAV_SPEED", msg.GetDouble());
+		}
+
+		else if (key == "RTK_QUALITY" && rtk) {
+			switch ((int) msg.GetDouble()) {
+			case 1:
+				rtk_status = FIX;
+				break;
+			case 2:
+				rtk_status = FLOAT;
+				break;
+			case 5:
+				rtk_status = SINGLE;
+				break;
+			default:
+				rtk_status = NONE;
+				break;
+			}
 		}
 	}
 
@@ -85,6 +108,34 @@ bool NavManager::OnNewMail(MOOSMSG_LIST &NewMail) {
 bool NavManager::OnConnectToServer() {
 	m_MissionReader.GetConfigurationParam("timeout", TIMEOUT);
 	m_MissionReader.GetValue("Community", my_name);
+
+	bool ok1, ok2, ok3, ok4;
+	vector<string> sources (4, "");
+	ok1 = m_MissionReader.GetConfigurationParam("source1", sources[1]);
+	ok2 = m_MissionReader.GetConfigurationParam("source2", sources[2]);
+	ok3 = m_MissionReader.GetConfigurationParam("source3", sources[3]);
+	ok4 = m_MissionReader.GetConfigurationParam("source4", sources[4]);
+
+	if (!ok1 || !ok2 || !ok3 || !ok4) {
+		cout << "Missing source preference." << endl;
+		exit (1);
+	}
+
+	for (int i=0; i<sources.size(); i++) {
+		MOOSToUpper(sources[i]);
+		if (sources[i] == "RTK_FIX")
+			source_priorities.push_back(rtk_fix);
+		else if (sources[i] == "RTK_FLOAT")
+			source_priorities.push_back(rtk_float);
+		else if (sources[i] == "RTK_SINGLE")
+			source_priorities.push_back(rtk_single);
+		else if (sources[i] == "GPS")
+			source_priorities.push_back(gps_internal);
+		else {
+			cout << "Invalid source preference." << endl;
+			exit (1);
+		}
+	}
 
 	RegisterVariables();
 	return (true);
@@ -112,50 +163,59 @@ bool NavManager::Iterate() {
     // post source periodically as a heartbeat
     if (MOOSTime()-last_source_post_time > 5) {
         postSource();
-        last_source_post_time = MOOSTime();
     }
 
-	// post gps point when using rtk every second
+	// post alternate point
 	if (source == rtk && MOOSTime()-last_point_post_time > 1) {
 		last_point_post_time == MOOSTime();
-		XYPoint p(gps_x, gps_y);
-		p.set_label(my_name + "_gps");
+		XYPoint p(alt_x, alt_y);
+		p.set_label(my_name + "_alt");
 		p.set_vertex_size(3);
 		m_Comms.Notify("VIEW_POINT", p.get_spec());
 	}
 
-	// rtk timeout - try to fallback to gps
-	if (source == rtk && !rtk_available) {
-		if (gps_lock && MOOSTime()-gps_update_time < 2) {
-			setSource(gps);
-		} else {
-			setSource(none);
+	int i = 0;
+	bool decided = false;
+	while (i < source_priorities.size() && !decided) {
+		switch (source_priorities[i]) {
+		case gps_internal:
+			if (gps_available && gps_lock) {
+				setSource(gps);
+				decided = true;
+			}
+			break;
+
+		case rtk_fix:
+			if (rtk_available && rtk_status==FIX) {
+				setSource(rtk);
+				decided = true;
+			}
+			break;
+
+		case rtk_float:
+			if (rtk_available && rtk_status==FLOAT) {
+				setSource(rtk);
+				decided = true;
+			}
+			break;
+
+		case rtk_single:
+			if (rtk_available && rtk_status==SINGLE) {
+				setSource(rtk);
+				decided = true;
+			}
+			break;
 		}
+		i++;
 	}
-
-	// try to move from gps to rtk
-	if (source == gps && rtk_available) {
-	    setSource(rtk);
-	}
-
-	// gps timeout / lock lost
-	if (source==gps && !gps_available) {
+	if (!decided)
 		setSource(none);
-	}
-
-	// if no nav, try rtk then gps
-	if (source == none) {
-		if (rtk_available) {
-			setSource(rtk);
-		} else if (gps_available) {
-			setSource(gps);
-		}
-	}
 
 	return (true);
 }
 
 void NavManager::postSource() {
+    last_source_post_time = MOOSTime();
     switch (source) {
     case gps:
         m_Comms.Notify("NAV_SOURCE", "gps");
@@ -172,8 +232,10 @@ void NavManager::postSource() {
 }
 
 void NavManager::setSource(NAV_SOURCE new_val) {
-	source = new_val;
-	postSource();
+	if (new_val != source) {
+		source = new_val;
+		postSource();
+	}
 }
 
 //---------------------------------------------------------
