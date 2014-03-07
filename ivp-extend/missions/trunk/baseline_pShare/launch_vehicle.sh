@@ -14,6 +14,7 @@ JUST_BUILD="no"
 BAD_ARGS=""
 VNAME=""
 ALTIMETER=""
+SIMULATION=false
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -49,6 +50,10 @@ for ARGI; do
         ALTIMETER="${ARGI#--altimeter=*}"
         UNDEFINED_ARG=""
     fi
+    if [ "${ARGI}" = "--sim" ] ; then
+        SIMULATION=true
+        UNDEFINED_ARG=""
+    fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
         BAD_ARGS=$UNDEFINED_ARG
     fi
@@ -62,7 +67,7 @@ if [ "${ALTIMETER}" != "" ] ; then
     if [ "${ALTIMETER}" != "tritech" ] && [ "${ALTIMETER}" != "cruzpro" ] ; then
         printf "Invalid altimeter option\n"
     else
-	printf "Using %s altimeter\n" $ALTIMETER
+    printf "Using %s altimeter\n" $ALTIMETER
     fi
 fi
 
@@ -76,6 +81,7 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --altimeter=tritech/cruzpro    enable specfied depths sounder\n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
+    printf "  --sim             \n" 
     exit 0;
 fi
 
@@ -93,42 +99,74 @@ fi
 #  Part 3: Create the .moos and .bhv files. 
 #-------------------------------------------------------
 
-# Conditionally Prepare icarus files
-if [ "${VNAME}" = "ICARUS" ]
-then
-    nsplug meta_icarus.moos targ_$VNAME.moos -f               \
-        VHOST=$VHOST_ICARUS                                   \
-        VNAME=$VNAME_ICARUS                                   \
-        VPORT=$VPORT_ICARUS                                   \
-        LPORT=$LPORT_ICARUS                                   \
-        WARP="1"                                              \
-        ACOMMSID=$ACOMMSID_ICARUS                             \
-        MODEMPORT=$MODEMPORT_ICARUS                           \
-        SHOREHOST=$SHOREHOST                                  \
-        SLPORT=$SLPORT                                        
-else
-    nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
-        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-        VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
-        VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
-        LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
-        MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
-        TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
-        OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
-        ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
-        ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
-        RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-        ALTIMETER=$ALTIMETER                                   \
-        WARP="1"                                               \
-        SHOREHOST=$SHOREHOST                                   \
-        SLPORT=$SLPORT
-        
-    nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
-        VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
-        CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
-        RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
+# if in simulation, change some configuration
+if $SIMULATION ; then
+    HARD_CONFIG["NOSTROMO:VHOST"]="localhost"
+    HARD_CONFIG["SILVANA:VHOST"]="localhost"
+    HARD_CONFIG["KESTREL:VHOST"]="localhost"
+    VHOST_ICARUS="localhost"
+    SHOREHOST="localhost"
 fi
 
+# Conditionally Prepare icarus files
+if $SIMULATION ; then
+    if [ "${VNAME}" = "ICARUS" ] ; then
+        nsplug meta_icarus_sim.moos targ_$VNAME.moos -f           \
+            VHOST=$VHOST_ICARUS                                   \
+            VNAME=$VNAME_ICARUS                                   \
+            VPORT=$VPORT_ICARUS                                   \
+            LPORT=$LPORT_ICARUS                                   \
+            WARP="1"                                              \
+            ACOMMSID=$ACOMMSID_ICARUS                             \
+            SHOREHOST=$SHOREHOST                                  \
+            SLPORT=$SLPORT                        
+    else
+        nsplug meta_vehicle_sim.moos targ_$VNAME.moos -f           \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+            WARP="1"                                               \
+            SHOREHOST=$SHOREHOST                                   \
+            SLPORT=$SLPORT
+    fi
+else
+    if [ "${VNAME}" = "ICARUS" ] ; then
+        nsplug meta_icarus.moos targ_$VNAME.moos -f               \
+            VHOST=$VHOST_ICARUS                                   \
+            VNAME=$VNAME_ICARUS                                   \
+            VPORT=$VPORT_ICARUS                                   \
+            LPORT=$LPORT_ICARUS                                   \
+            WARP="1"                                              \
+            ACOMMSID=$ACOMMSID_ICARUS                             \
+            MODEMPORT=$MODEMPORT_ICARUS                           \
+            SHOREHOST=$SHOREHOST                                  \
+            SLPORT=$SLPORT                                        
+    else
+        nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            VHOST=${HARD_CONFIG["${VNAME}:VHOST"]}                 \
+            VPORT=${HARD_CONFIG["${VNAME}:VPORT"]}                 \
+            LPORT=${HARD_CONFIG["${VNAME}:LPORT"]}                 \
+            MODEMPORT=${HARD_CONFIG["${VNAME}:MODEMPORT"]}         \
+            TRITECHPORT=${HARD_CONFIG["${VNAME}:TRITECHPORT"]}     \
+            OS5000PORT=${HARD_CONFIG["${VNAME}:OS5000PORT"]}       \
+            ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
+            ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
+            RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            ALTIMETER=$ALTIMETER                                   \
+            WARP="1"                                               \
+            SHOREHOST=$SHOREHOST                                   \
+            SLPORT=$SLPORT
+            
+        nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
+            RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
+    fi
+fi
+    
 if [ "${JUST_BUILD}" = "yes" ] ; then
     exit 0
 fi

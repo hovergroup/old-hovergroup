@@ -5,10 +5,11 @@ MISSIONS_HOME="../.."
 source ${MISSIONS_HOME}/trunk/config/hard_config
 source ${MISSIONS_HOME}/trunk/config/soft_config
 
-HELP="no"
-JUST_BUILD="no"
+HELP=false
+JUST_BUILD=false
 BAD_ARGS=""
 WARP=1
+SIMULATION=false
 
 #-------------------------------------------------------
 #  Part 1: Check for and handle command-line arguments
@@ -17,15 +18,19 @@ let COUNT=0
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
-	HELP="yes"
-	UNDEFINED_ARG=""
+    HELP="yes"
+    UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
-	JUST_BUILD="yes"
-	UNDEFINED_ARG=""
+    JUST_BUILD="yes"
+    UNDEFINED_ARG=""
+    fi
+    if [ "${ARGI}" = "--sim" ] ; then
+    SIMULATION=true
+    UNDEFINED_ARG=""
     fi
     if [ "${UNDEFINED_ARG}" != "" ] ; then
-	BAD_ARGS=$UNDEFINED_ARG
+    BAD_ARGS=$UNDEFINED_ARG
     fi
 done
 
@@ -34,17 +39,27 @@ if [ "${BAD_ARGS}" != "" ] ; then
     exit 0
 fi
 
-if [ "${HELP}" = "yes" ]; then
+if $HELP  ; then
     printf "%s [SWITCHES]            \n" $0
     printf "Switches:                \n"
     printf "  --just_build, -j       \n" 
     printf "  --help, -h             \n" 
+    printf "  --sim                  \n"
     exit 0;
 fi
 
 #-------------------------------------------------------
 #  Part 2: Create the shoreside.moos file
 #-------------------------------------------------------
+
+# if in simulation, change some configuration
+if $SIMULATION ; then
+    HARD_CONFIG["NOSTROMO:VHOST"]="localhost"
+    HARD_CONFIG["SILVANA:VHOST"]="localhost"
+    HARD_CONFIG["KESTREL:VHOST"]="localhost"
+    VHOST_ICARUS="localhost"
+    SHOREHOST="localhost"
+fi
 
 nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT      VPORT=$SPORT                     \
@@ -60,7 +75,7 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     VHOST4=${HARD_CONFIG["KESTREL:VHOST"]}              \
     LPORT4=${HARD_CONFIG["KESTREL:LPORT"]}              \
 
-if [ ${JUST_BUILD} = "yes" ] ; then
+if $JUST_BUILD ; then
     exit 0
 fi
 
