@@ -398,6 +398,7 @@ if $DO_GOBY ; then
     
     if $COMPLETE_INSTALL ; then
         sudo ./DEPENDENCIES ubuntu
+        sudo apt-get install libgmp3-dev
     fi
     cmake -D build_apps=OFF -D build_moos=OFF $VEHICLE_CMAKE_ARGS .
     make -j$NUM_THREADS
