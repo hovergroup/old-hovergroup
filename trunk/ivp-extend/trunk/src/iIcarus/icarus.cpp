@@ -94,7 +94,7 @@ void icarus_driver::read_handler(bool& data_available, deadline_timer& timeout,
 		data_available = false;
 		return;
 	}
-//	cout << "data available: " << bytes_transferred << endl;
+	cout << "data available: " << bytes_transferred << endl;
 	data_available = true;
 	buffer_index+=bytes_transferred;
 	timeout.cancel();
