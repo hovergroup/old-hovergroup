@@ -66,6 +66,8 @@ bool icarus_driver::OnStartUp()
 }
 
 void icarus_driver::open_port( string port_name, int baudRate ) {
+	cout << "Opening " << port_name << " at " << baudRate << endl;
+
 	// open the serial port
 	port.open(port_name);
 
