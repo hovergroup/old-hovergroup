@@ -141,6 +141,7 @@ else
             WARP="1"                                              \
             ACOMMSID=$ACOMMSID_ICARUS                             \
             MODEMPORT=$MODEMPORT_ICARUS                           \
+            ARDUINO_PORT=$ARDUINOPORT_ICARUS                      \
             SHOREHOST=$SHOREHOST                                  \
             SLPORT=$SLPORT                                        
     else
