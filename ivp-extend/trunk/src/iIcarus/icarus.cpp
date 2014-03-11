@@ -91,6 +91,7 @@ void icarus_driver::read_handler(bool& data_available, deadline_timer& timeout,
 {
 	if (error || !bytes_transferred) {
 		// no data read
+		cout << "no data" << endl;
 		data_available = false;
 		return;
 	}
