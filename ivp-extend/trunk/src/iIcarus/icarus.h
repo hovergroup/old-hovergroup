@@ -46,7 +46,7 @@ private:
 	void null_handler(const boost::system::error_code& error, std::size_t bytes_transferred) {};
 
 	std::vector<char> readBuffer;
-	int bytesToWrite, buffer_index;;
+	int buffer_index;
 
 	// the background loop responsible for interacting with the serial port
 	void serialLoop();
