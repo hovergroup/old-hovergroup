@@ -111,10 +111,10 @@ bool NavManager::OnConnectToServer() {
 
 	bool ok1, ok2, ok3, ok4;
 	vector<string> sources (4, "");
-	ok1 = m_MissionReader.GetConfigurationParam("source1", sources[1]);
-	ok2 = m_MissionReader.GetConfigurationParam("source2", sources[2]);
-	ok3 = m_MissionReader.GetConfigurationParam("source3", sources[3]);
-	ok4 = m_MissionReader.GetConfigurationParam("source4", sources[4]);
+	ok1 = m_MissionReader.GetConfigurationParam("source1", sources[0]);
+	ok2 = m_MissionReader.GetConfigurationParam("source2", sources[1]);
+	ok3 = m_MissionReader.GetConfigurationParam("source3", sources[2]);
+	ok4 = m_MissionReader.GetConfigurationParam("source4", sources[3]);
 
 	if (!ok1 || !ok2 || !ok3 || !ok4) {
 		cout << "Missing source preference." << endl;
