@@ -30,11 +30,19 @@ Processconfig = uTimerScript_Config
   event = quit, time=2
 }
 
+ProcessConfig = pProtoReporter
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
+  
+    PLATFORM_TYPE = ICARUS
+}
+
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
-#include ../../trunk/plugs/plug_pNodeReporter.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iAcommsDriver.moos
 #include ../../trunk/plugs/plug_pNavManager.moos
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iIcarus.moos
