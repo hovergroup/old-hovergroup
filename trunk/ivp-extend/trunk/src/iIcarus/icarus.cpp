@@ -118,11 +118,11 @@ int icarus_driver::findLine(int index) {
 }
 
 int icarus_driver::processBuffer() {
-//	cout << "processing: ";
-//	for (int i=0; i<buffer_index; i++ ) {
-//		cout << readBuffer[i];
-//	}
-//	cout << endl;
+	cout << "processing: ";
+	for (int i=0; i<buffer_index; i++ ) {
+		cout << readBuffer[i];
+	}
+	cout << endl;
 
 	int bytesUsed = 0;
 	int stopIndex = findLine(bytesUsed);
@@ -172,7 +172,6 @@ void icarus_driver::shiftBuffer(int shift) {
 
 void icarus_driver::serialLoop() {
 	while (!stop_requested) {
-//		cout << "async fun: " << buffer_index << endl;
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
 		port.async_read_some( buffer( &readBuffer[buffer_index], 1000-buffer_index ),
@@ -188,7 +187,6 @@ void icarus_driver::serialLoop() {
 		io.reset();
 		io.run();
 
-//		cout << "async fun done" << endl;
 		if (data_available) {
 			shiftBuffer( processBuffer() );
 		}
