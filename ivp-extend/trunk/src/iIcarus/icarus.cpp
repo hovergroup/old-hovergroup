@@ -172,6 +172,7 @@ void icarus_driver::shiftBuffer(int shift) {
 
 void icarus_driver::serialLoop() {
 	while (!stop_requested) {
+		cout << "async start" << endl;
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
 		port.async_read_some( buffer( &readBuffer[buffer_index], 1000-buffer_index ),
@@ -186,6 +187,8 @@ void icarus_driver::serialLoop() {
 		// reset then run the io service to start the asynchronous operation
 		io.reset();
 		io.run();
+
+		cout << "async end" << endl;
 
 		if (data_available) {
 			shiftBuffer( processBuffer() );
