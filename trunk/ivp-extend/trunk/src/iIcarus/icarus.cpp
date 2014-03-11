@@ -7,6 +7,12 @@ using namespace boost::asio;
 using namespace boost::posix_time;
 
 icarus_driver::icarus_driver() : port(io), timeout(io) {
+	readBuffer = vector<char> (1000, 0);
+
+	buffer_index = 0;
+	data_available = false;
+	stop_requested = false;
+
 	my_baud_rate = 9600;
 	my_port_name = "/dev/ttyO1";
 }
@@ -66,7 +72,7 @@ bool icarus_driver::OnStartUp()
 }
 
 void icarus_driver::open_port( string port_name, int baudRate ) {
-	cout << "Opening " << port_name << " at " << baudRate << endl;
+//	cout << "Opening " << port_name << " at " << baudRate << endl;
 
 	// open the serial port
 	port.open(port_name);
@@ -93,11 +99,11 @@ void icarus_driver::read_handler(bool& data_available, deadline_timer& timeout,
 {
 	if (error || !bytes_transferred) {
 		// no data read
-		cout << "no data" << endl;
+//		cout << "no data" << endl;
 		data_available = false;
 		return;
 	}
-	cout << "data available: " << bytes_transferred << endl;
+//	cout << "data available: " << bytes_transferred << endl;
 	data_available = true;
 	buffer_index+=bytes_transferred;
 	timeout.cancel();
@@ -121,11 +127,11 @@ int icarus_driver::findLine(int index) {
 }
 
 int icarus_driver::processBuffer() {
-	cout << "processing: ";
-	for (int i=0; i<buffer_index; i++ ) {
-		cout << readBuffer[i];
-	}
-	cout << endl;
+//	cout << "processing: ";
+//	for (int i=0; i<buffer_index; i++ ) {
+//		cout << readBuffer[i];
+//	}
+//	cout << endl;
 
 	int bytesUsed = 0;
 	int stopIndex = findLine(bytesUsed);
@@ -175,7 +181,7 @@ void icarus_driver::shiftBuffer(int shift) {
 
 void icarus_driver::serialLoop() {
 	while (!stop_requested) {
-		cout << "async start" << endl;
+//		cout << "async start" << endl;
 		// set up an asynchronous read that will read up to 100 bytes, but will return as soon as any bytes area read
 		// bytes read will be placed into readBuffer starting at index 0
 		port.async_read_some( buffer( &readBuffer[buffer_index], 1000-buffer_index ),
@@ -191,7 +197,7 @@ void icarus_driver::serialLoop() {
 		io.reset();
 		io.run();
 
-		cout << "async end" << endl;
+//		cout << "async end" << endl;
 
 		if (data_available) {
 			shiftBuffer( processBuffer() );
