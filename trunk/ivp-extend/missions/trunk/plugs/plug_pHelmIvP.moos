@@ -1,6 +1,5 @@
 ProcessConfig = pHelmIvP
 {
-    IterateMode = 0    // regular iterate and mail
     AppTick     = 2
 
     ok_skew = any

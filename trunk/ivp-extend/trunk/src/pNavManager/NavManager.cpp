@@ -257,5 +257,6 @@ void NavManager::RegisterVariables() {
 	m_Comms.Register("RTK_X", 0);
 	m_Comms.Register("RTK_Y", 0);
 	m_Comms.Register("RTK_SPEED", 0);
+	m_Comms.Register("RTK_QUALITY", 0);
 }
 
