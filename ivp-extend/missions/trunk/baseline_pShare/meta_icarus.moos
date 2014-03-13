@@ -12,7 +12,7 @@ Processconfig = ANTLER
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
   Run = pLogger                @ NewConsole = false
-  Run = pNodeReporter          @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
   Run = iRTKNAVI               @ NewConsole = false
   Run = iGPS_Hover             @ NewConsole = false
   Run = pEchoVar               @ NewConsole = false
