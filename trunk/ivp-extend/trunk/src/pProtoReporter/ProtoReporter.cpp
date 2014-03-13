@@ -243,6 +243,7 @@ void ProtoReporter::RegisterVariables() {
     case ProtoNodeReport_PlatformTypeEnum_KAYAK:
         m_Comms.Register("VOLTAGE", 0);
         m_Comms.Register("THRUST_LIMIT", 0);
+        m_Comms.Register("RADIO_POWER", 0);
         break;
     case ProtoNodeReport_PlatformTypeEnum_ICARUS:
         m_Comms.Register("VOLTAGE", 0);
