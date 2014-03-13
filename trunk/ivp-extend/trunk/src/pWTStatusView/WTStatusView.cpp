@@ -19,7 +19,7 @@ std::vector<std::string> vnames;
 std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
 
-const int NUM_ROWS = 10;
+const int NUM_ROWS = 12;
 const int AGE_ROW = 1;
 const int TYPE_ROW = 2;
 const int VOLTAGE_ROW = 3;
@@ -95,6 +95,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts[pair<int,int>(ACTIVE_BEHAVIORS_ROW,0)]->setText("Active Behaviors");
 	tableTexts[pair<int,int>(RADIO_STATE_ROW,0)]->setText("Radio Mode");
 	tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW,0)]->setText("NSF Power Level");
+	tableTexts[pair<int,int>(THRUST_LIMIT_ROW,0)]->setText("Thrust Limit");
 
 	for (int col=0; col<num_vehicles; col++) {
 		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -138,16 +139,16 @@ void StatusViewApplication::update() {
 		ss.str("");
 		switch(type) {
 		case ProtoNodeReport_PlatformTypeEnum_KAYAK:
-			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("kayak");
+			tableTexts[pair<int,int>(TYPE_ROW, col+1)]->setText("kayak");
 			break;
 		case ProtoNodeReport_PlatformTypeEnum_REMUS:
-			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("remus");
+			tableTexts[pair<int,int>(TYPE_ROW, col+1)]->setText("remus");
 			break;
 		case ProtoNodeReport_PlatformTypeEnum_NSF:
-			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("nsf");
+			tableTexts[pair<int,int>(TYPE_ROW, col+1)]->setText("nsf");
 			break;
 		case ProtoNodeReport_PlatformTypeEnum_ICARUS:
-			tableTexts[pair<int,int>(AGE_ROW, col+1)]->setText("icarus");
+			tableTexts[pair<int,int>(TYPE_ROW, col+1)]->setText("icarus");
 			break;
 		}
 		table->elementAt(TYPE_ROW, col+1)->setStyleClass("center");
