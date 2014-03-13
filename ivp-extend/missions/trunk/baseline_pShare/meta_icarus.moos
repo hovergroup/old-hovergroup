@@ -18,6 +18,7 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
   Run = pNavManager            @ NewConsole = false
+  Run = iIcarus                @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
 }
 
