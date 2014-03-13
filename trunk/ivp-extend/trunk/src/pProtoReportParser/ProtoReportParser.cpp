@@ -38,6 +38,7 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
 				NodeRecord nr;
 				nr.setX(pnr.x());
 				nr.setY(pnr.y());
+				nr.setLength(2.0);
 				nr.setHeading(pnr.heading());
 				nr.setSpeed(pnr.speed());
 				if (pnr.has_depth())
@@ -58,6 +59,9 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
 				case ProtoNodeReport_PlatformTypeEnum_NSF:
 					nr.setType("GLIDER");
 					break;
+				case ProtoNodeReport_PlatformTypeEnum_ICARUS:
+				    nr.setType("SHIP");
+				    break;
 				default:
 					nr.setType("unknown");
 					break;
