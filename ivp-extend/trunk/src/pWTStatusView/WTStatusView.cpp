@@ -165,7 +165,8 @@ void StatusViewApplication::update() {
 			}
 			break;
 
-		case ProtoNodeReport_PlatformTypeEnum_KAYAK || ProtoNodeReport_PlatformTypeEnum_ICARUS:
+		case ProtoNodeReport_PlatformTypeEnum_KAYAK:
+		case ProtoNodeReport_PlatformTypeEnum_ICARUS:
 			ss.str("");
 			ss << fixed << setprecision(1);
 			double volts = data[vname].voltage();
