@@ -281,7 +281,7 @@ void StatusViewApplication::update() {
 		tableTexts[pair<int,int>(GPS_QUALITY_ROW, col+1)]->setText(gps_quality);
 
 		// ---------------- radio mode -------------------
-		if (ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+		if (type == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
 			string radio_mode;
 			switch(data[vname].radio_state()) {
 			case ProtoNodeReport_RadioStateEnum_BULLET_LOCKED:
@@ -308,16 +308,16 @@ void StatusViewApplication::update() {
 			table->elementAt(RADIO_STATE_ROW, col+1)->setStyleClass("greyout");
 		}
 
-		// ---------------- radio mode -------------------
-		if (ProtoNodeReport_PlatformTypeEnum_NSF) {
+		// ---------------- nsf power level -------------------
+		if (type == ProtoNodeReport_PlatformTypeEnum_NSF) {
 			stringstream nsf_power_level;
 			nsf_power_level << data[vname].nsf_power_level();
 			tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW, col+1)]->setText(nsf_power_level.str());
 			table->elementAt(NSF_POWER_LEVEL_ROW, col+1)->setStyleClass("center");
 		}
 
-		// ---------------- radio mode -------------------
-		if (ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+		// ---------------- thrust limit -------------------
+		if (type == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
 			stringstream kayak_thrust_limit;
 			kayak_thrust_limit << data[vname].thrust_limit();
 			tableTexts[pair<int,int>(THRUST_LIMIT_ROW, col+1)]->setText(kayak_thrust_limit.str());
@@ -359,6 +359,8 @@ bool WTStatusView::OnNewMail(MOOSMSG_LIST &NewMail) {
 //				report_ages[pnr.name()] = MOOSTime()-pnr.time();
 				if (find(vnames.begin(), vnames.end(), pnr.vehicle_name())==vnames.end())
 					vnames.push_back(pnr.vehicle_name());
+
+				std::cout << pnr.DebugString() << std::endl;
 			}
 		}
 
