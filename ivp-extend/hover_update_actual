@@ -124,9 +124,9 @@ if $VEHICLE ; then
     export DISTCC_HOSTS=$DISTCC_HOST
     export DISTCC_POTENTIAL_HOSTS=$DISTCC_HOST
     if [ -d "/usr/local/lib/distcc" ] ; then
-        VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6 -D CMAKE_CXX_COMPILER=/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6"
+        VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.4 -D CMAKE_CXX_COMPILER=/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.4"
     else
-        VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-gcc-4.6 -D CMAKE_CXX_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-g++-4.6"
+        VEHICLE_CMAKE_ARGS="-D CMAKE_C_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-gcc-4.4 -D CMAKE_CXX_COMPILER=/usr/lib/distcc/arm-linux-gnueabi-g++-4.4"
     fi
 else
     HOVERGROUP_URL="https://hovergroup.googlecode.com/svn/trunk"
