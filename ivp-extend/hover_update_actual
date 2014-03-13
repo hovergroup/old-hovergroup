@@ -225,7 +225,7 @@ if $DO_MOOS ; then
             # if no tag specified, just use master
             git checkout master
         else
-            TAG=$(git describe --exact-match --tags HEAD)
+            TAG=$(git describe --tags HEAD)
             if [ ! "${TAG}" = "${MOOS_INFO["$INDEX:TAG"]}" ] ; then
                 # tag mismatch
                 REVERT=true
