@@ -76,9 +76,11 @@ bool NavManager::OnNewMail(MOOSMSG_LIST &NewMail) {
 				m_Comms.Notify("NAV_Y", msg.GetDouble());
 			else
 				alt_y = msg.GetDouble();
+            rtk_update_time = MOOSTime();
 		} else if (key == "RTK_SPEED") {
 			if (source == rtk)
 				m_Comms.Notify("NAV_SPEED", msg.GetDouble());
+            rtk_update_time = MOOSTime();
 		}
 
 		else if (key == "RTK_QUALITY" && rtk) {
@@ -96,6 +98,7 @@ bool NavManager::OnNewMail(MOOSMSG_LIST &NewMail) {
 				rtk_status = NONE;
 				break;
 			}
+            rtk_update_time = MOOSTime();
 		}
 	}
 
