@@ -290,7 +290,7 @@ if $DO_IVP ; then
     
     # if directory does not exist, do fresh checkout
     if [ ! -d $START_DIRECTORY/moos-ivp ] ; then
-        svn checkout $MOOS_IVP_URL $START_DIRECTORY/moos-ivp
+        svn checkout --non-interactive --trust-server-cert $MOOS_IVP_URL $START_DIRECTORY/moos-ivp
     fi
     cd $START_DIRECTORY/moos-ivp
     
@@ -307,7 +307,7 @@ if $DO_IVP ; then
         
         # fresh checkout
         cd ..; rm -rf moos-ivp
-        svn checkout $MOOS_IVP_URL moos-ivp
+        svn checkout --non-interactive --trust-server-cert $MOOS_IVP_URL moos-ivp
         cd moos-ivp
     fi
     
@@ -323,7 +323,7 @@ if $DO_IVP ; then
         # do fresh checkout
         if $SWITCH ; then
             cd ..; rm -rf moos-ivp
-            svn checkout $MOOS_IVP_URL moos-ivp
+            svn checkout --non-interactive --trust-server-cert $MOOS_IVP_URL moos-ivp
             cd moos-ivp
         fi
     fi
