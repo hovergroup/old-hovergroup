@@ -530,7 +530,7 @@ void acomms_driver::publishStatus(HoverAcomms::DriverStatus status_update) {
     m_Comms.Notify("ACOMMS_DRIVER_STATUS", status_update);
     status_set_time = MOOSTime();
 
-    m_Comms.Notify("SYSTEM_TIME_SECONDS", JoshUtil::getSystemTimeSeconds());
+//    m_Comms.Notify("SYSTEM_TIME_SECONDS", JoshUtil::getSystemTimeSeconds());
 }
 
 // check if a file exists

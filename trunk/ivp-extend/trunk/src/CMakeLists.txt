@@ -30,6 +30,7 @@ ADD_SUBDIRECTORY(pAcommsScheduler)
 ADD_SUBDIRECTORY(pProtoReporter)
 ADD_SUBDIRECTORY(pProtoReportParser)
 ADD_SUBDIRECTORY(pNavManager)
+ADD_SUBDIRECTORY(pResourceMon)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)

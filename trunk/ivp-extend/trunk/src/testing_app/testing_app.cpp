@@ -1,71 +1,68 @@
-//#include <QtGui/QApplication>
-//#include <QtGui/QMainWindow>
-//#include <QtGui/QScrollArea>
-//#include <mgl2/qmathgl.h>
-
-//#include "HoverAcomms.h"
-//#include "goby/acomms/modem_driver.h"
-//#include "goby/acomms/protobuf/mm_driver.pb.h"
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include "HelmReportUtils.h"
-#include "MBUtils.h"
-#include <vector>
 #include <string>
-
-#include "MOOS/libMOOS/Comms/MOOSAsyncCommClient.h"
-
-MOOS::MOOSAsyncCommClient sim_Comms;
+#include <iostream>
+#include <fstream>
+#include <vector>
 
 using namespace std;
 
-bool OnConnect(void * pParam) {
-    cout << "Registering for MY_VAR" << endl;
-    sim_Comms.Register("MY_VAR", 0);
-    return true;
-}
-
-bool OnMail(void *pParam) {
-    MOOSMSG_LIST M;
-    sim_Comms.Fetch(M);
-    MOOSMSG_LIST::iterator q;
-    for (q=M.begin(); q!=M.end(); q++) {
-        q->Trace();
-    }
-    return true;
-}
-
 int main(int argc,char **argv)
 {
-    sim_Comms.SetOnConnectCallBack(OnConnect, &sim_Comms);
-    sim_Comms.SetOnMailCallBack(OnMail, &sim_Comms);
-    sim_Comms.Run("localhost", 9000, "appname");
+	ifstream fs;
+
+	unsigned long last_active=0, last_idle=0;
 
     while (true) {
-        MOOSPause(1000);
+    	fs.open("/proc/stat", ifstream::in);
+    	char input[256];
+    	fs.getline(input, 256);
+    	cout << input << endl;
+    	unsigned long user, nice, system, idle, iowait, irq, softirq;
+    	sscanf(input,"%*s %lu %lu %lu %lu %lu %lu %lu",
+    			&user,
+    			&nice,
+    			&system,
+    			&idle,
+    			&iowait,
+    			&irq,
+    			&softirq);
+
+    	unsigned long total_active = user + nice + system + iowait + irq + softirq;
+
+    	double percent = 100 * (total_active - last_active) / (total_active - last_active + idle - last_idle);
+    	last_active = total_active;
+    	last_idle = idle;
+
+    	cout << "Percent: " << percent << endl;
+
+    	fs.close();
+
+    	fs.open("/proc/meminfo", ifstream::in);
+
+    	unsigned int memtotal, memfree, buffers, cached;
+    	int complete = 0;
+    	while (complete < 4) {
+    		fs.getline(input, 256);
+//    		cout << input << endl;
+    		if (fs.eof()) break;
+    		if (sscanf(input, "MemTotal: %u kB", &memtotal) != 0)
+    			complete++;
+    		else if (sscanf(input, "MemFree: %u kB", &memfree) != 0)
+    			complete++;
+    		else if (sscanf(input, "Buffers: %u kB", &buffers) != 0)
+    			complete++;
+    		else if (sscanf(input, "Cached: %u kB", &cached) != 0)
+    			complete++;
+    	}
+    	if (complete == 4) {
+    		int total_free = memfree + buffers + cached;
+    		double percent_use = 100 * (memtotal - total_free) / memtotal;
+    		cout << percent_use << endl;
+    	}
+//    		cout << memtotal << "  " << memfree << "  " << buffers << "  " << cached << endl;
+    	fs.close();
+
+    	usleep(1000000);
     }
 
 	return 0;
 }
-
-
-
-	//  QApplication a(argc,argv);
-//  QMainWindow *Wnd = new QMainWindow;
-//  Wnd->resize(810,610);  // for fill up the QMGL, menu and toolbars
-//  Wnd->setWindowTitle("QMathGL sample");
-//  // here I allow to scroll QMathGL -- the case
-//  // then user want to prepare huge picture
-//  QScrollArea *scroll = new QScrollArea(Wnd);
-//
-//  // Create and setup QMathGL
-//  QMathGL *QMGL = new QMathGL(Wnd);
-////QMGL->setPopup(popup); // if you want to setup popup menu for QMGL
-//  QMGL->setDraw(sample);
-//  // or use QMGL->setDraw(foo); for instance of class Foo:public mglDraw
-//  QMGL->update();
-//
-//  // continue other setup (menu, toolbar and so on)
-//  scroll->setWidget(QMGL);
-//  Wnd->setCentralWidget(scroll);
-//  Wnd->show();
-//  return a.exec();
