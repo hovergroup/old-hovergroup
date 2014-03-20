@@ -17,6 +17,7 @@ Processconfig = ANTLER
   Run = pMarinePID_Hover   @ NewConsole = false
   Run = pHelmIvP           @ NewConsole = false
   Run = pEchoVar           @ NewConsole = false
+  Run = pResourceMon       @ NewConsole = false
 }
 
 #include ../../trunk/plugs/plug_iKST.moos
@@ -27,3 +28,4 @@ Processconfig = ANTLER
 #include ../../trunk/plugs/plug_pMarinePID_Hover.moos
 #include ../../trunk/plugs/plug_pHelmIvP.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
