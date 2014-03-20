@@ -503,11 +503,11 @@ if $COMPLETE_INSTALL ; then
         echo "PATH=\$PATH:/sbin" >> ~/.bashrc
         echo "" >> ~/.bashrc
         if [ -d "/usr/local/lib/distcc" ] ; then
-            echo "export CC=\"/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.6\"" >> ~/.bashrc
-            echo "export CXX=\"/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.6\"" >> ~/.bashrc
+            echo "export CC=\"/usr/local/lib/distcc/arm-linux-gnueabi-gcc-4.4\"" >> ~/.bashrc
+            echo "export CXX=\"/usr/local/lib/distcc/arm-linux-gnueabi-g++-4.4\"" >> ~/.bashrc
         else
-            echo "export CC=\"/usr/lib/distcc/arm-linux-gnueabi-gcc-4.6\"" >> ~/.bashrc
-            echo "export CXX=\"/usr/lib/distcc/arm-linux-gnueabi-g++-4.6\"" >> ~/.bashrc
+            echo "export CC=\"/usr/lib/distcc/arm-linux-gnueabi-gcc-4.4\"" >> ~/.bashrc
+            echo "export CXX=\"/usr/lib/distcc/arm-linux-gnueabi-g++-4.4\"" >> ~/.bashrc
         fi
         echo "export DISTCC_HOSTS=\"192.168.1.100\"" >> ~/.bashrc
         echo "export DISTCC_POTENTIAL_HOSTS=\"192.168.1.100\"" >> ~/.bashrc
