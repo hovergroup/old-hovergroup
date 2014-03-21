@@ -19,7 +19,8 @@ std::vector<std::string> vnames;
 std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
 
-const int NUM_ROWS = 12;
+const int NUM_ROWS = 13;
+
 const int AGE_ROW = 1;
 const int TYPE_ROW = 2;
 const int VOLTAGE_ROW = 3;
@@ -31,6 +32,7 @@ const int ACTIVE_BEHAVIORS_ROW = 8;
 const int RADIO_STATE_ROW = 9;
 const int NSF_POWER_LEVEL_ROW = 10;
 const int THRUST_LIMIT_ROW = 11;
+const int CPU_MEM_ROW = 12;
 
 //---------------------------------------------------------
 // Constructor
@@ -96,6 +98,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	tableTexts[pair<int,int>(RADIO_STATE_ROW,0)]->setText("Radio Mode");
 	tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW,0)]->setText("NSF Power Level");
 	tableTexts[pair<int,int>(THRUST_LIMIT_ROW,0)]->setText("Thrust Limit");
+    tableTexts[pair<int,int>(CPU_MEM_ROW,0)]->setText("cpu% / mem%");
 
 	for (int col=0; col<num_vehicles; col++) {
 		tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -328,6 +331,20 @@ void StatusViewApplication::update() {
 			} else {
 				table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("yellow center");
 			}
+		}
+
+        // ---------------- thrust limit -------------------
+		stringstream cpu_mem_usage;
+		int cpu = data[vname].cpu_percent_use();
+		int mem = data[vname].mem_percent_use();
+		cpu_mem_usage << cpu << "% / " << mem << "%";
+		tableTexts[pair<int,int>(CPU_MEM_ROW, col+1)]->setText(cpu_mem_usage.str());
+		if (cpu > 90 || mem > 90) {
+            table->elementAt(CPU_MEM_ROW, col+1)->setStyleClass("red center");
+		} else if (cpu > 75 || mem > 75) {
+            table->elementAt(CPU_MEM_ROW, col+1)->setStyleClass("yellow center");
+		} else {
+            table->elementAt(CPU_MEM_ROW, col+1)->setStyleClass("green center");
 		}
 	}
 }

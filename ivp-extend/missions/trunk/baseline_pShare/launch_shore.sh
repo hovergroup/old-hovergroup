@@ -18,11 +18,11 @@ let COUNT=0
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
-    HELP="yes"
+    HELP=true
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
-    JUST_BUILD="yes"
+    JUST_BUILD=true
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--sim" ] ; then
