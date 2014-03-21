@@ -62,4 +62,7 @@ message ProtoNodeReport {
     
     optional int32 nsf_power_level = 16;
     optional int32 thrust_limit = 17;
+    
+    optional int32 cpu_percent_use = 18;
+    optional int32 mem_percent_use = 19;
 }

@@ -148,6 +148,10 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             nr.set_nsf_power_level((int) msg.GetDouble());
         } else if (key == "THRUST_LIMIT") {
             nr.set_thrust_limit((int) msg.GetDouble());
+        } else if (key == "CPU_PERCENT_USE") {
+            nr.set_cpu_percent_use((int) msg.GetDouble());
+        } else if (key == "MEM_PERCENT_USE") {
+            nr.set_mem_percent_use((int) msg.GetDouble());
         }
     }
 
@@ -235,6 +239,8 @@ void ProtoReporter::RegisterVariables() {
     m_Comms.Register("IVPHELM_SUMMARY", 0);
     m_Comms.Register("RTK_QUALITY", 0);
     m_Comms.Register("NAV_SOURCE", 0);
+    m_Comms.Register("CPU_PERCENT_USE", 0);
+    m_Comms.Register("MEM_PERCENT_USE", 0);
     switch (nr.platform_type()) {
     case ProtoNodeReport_PlatformTypeEnum_NSF:
         m_Comms.Register("NSF_VOLTAGE", 0);
