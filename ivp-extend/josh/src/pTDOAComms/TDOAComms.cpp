@@ -183,6 +183,7 @@ void TDOAComms::acommsReceive(string msg) {
 			if (!m_paused && m_state!=LEADER_SLOT) {
 				cout << "Source " << reception.getSource() << " different from state " << m_state << endl;
 				m_state = LEADER_SLOT;
+				resetOutput();
 			}
 
 			// save data
