@@ -19,12 +19,22 @@ STATE PROCESS
     When unpaused, will wait to receive a transmission.
 
 On incoming acomms:
-    from target -> go to leader slot -> save data -> post output
+    from target -> go to leader slot and reset output -> save data -> post output
     from follower -> set state to source -> save data we don't have -> post
-neither of these actually advance the state, only make sure we are in the state we
-already should be.  
+Neither of these actually advance the state, only make sure we are in the state 
+we already should be.  
     
-Other state changes:
-    if reach next transmit time without hearing anything, advance to that state
+In iterate, will automatically advance slot based on time:
+	if we haven't posted output for the old state yet (after receiving acomms), 
+	  do so now.   
     if new state is ours, send our own data
     if new state is leader slot, reset output
+    
+OUTPUT
+	Data output in binary serialized form to TDOA_PROTOBUF and in debug form 
+	  to TDOA_PROTOBUF_DEBUG
+	Output is posted when:
+		a) On acomms reception - target or follower.
+		b) When advancing to the next slot if either:
+			1 - The last slot was our own
+			2 - The last slot was not our own and we did not receive any acomms
