@@ -7,7 +7,7 @@ Community  = $(VNAME)
 //------------------------------------------------------------
 Processconfig = ANTLER
 {
-  MSBetweenLaunches = 500
+  MSBetweenLaunches = 200
    
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
@@ -23,6 +23,7 @@ Processconfig = ANTLER
   Run = iAcommsDriver          @ NewConsole = false
   Run = pNavManager            @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
+  Run = pResourceMon           @ NewConsole = false
   
 #ifdef ALTIMETER tritech
   Run = iAltimeter             @ NewConsole = false
@@ -49,3 +50,4 @@ Processconfig = ANTLER
 #include ../../trunk/plugs/plug_pNavManager.moos
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
