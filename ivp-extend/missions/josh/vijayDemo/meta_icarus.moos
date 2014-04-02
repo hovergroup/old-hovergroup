@@ -45,7 +45,20 @@ ProcessConfig = pProtoReporter
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iAcommsDriver.moos
-#include ../../trunk/plugs/plug_pNavManager.moos
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_iIcarus.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
+
+ProcessConfig = pNavManager
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 4    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+  
+    timeout = 5      // timeout before abandoning a nav source
+    
+    source1 = rtk_fix
+    source2 = gps
+    source3 = rtk_float
+    source4 = rtk_single
+}

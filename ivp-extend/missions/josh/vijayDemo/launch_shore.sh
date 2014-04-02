@@ -18,11 +18,11 @@ let COUNT=0
 for ARGI; do
     UNDEFINED_ARG=$ARGI
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
-    HELP="yes"
+    HELP=true
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--just_build" -o "${ARGI}" = "-j" ] ; then
-    JUST_BUILD="yes"
+    JUST_BUILD=true
     UNDEFINED_ARG=""
     fi
     if [ "${ARGI}" = "--sim" ] ; then
@@ -65,6 +65,9 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT      VPORT=$SPORT                     \
     VNAME=$SNAME       WARP=$WARP                       \
     VHOST=$SHOREHOST                                    \
+    VNAME1=$VNAME_ICARUS                                \
+    VHOST1=$VHOST_ICARUS                                \
+    LPORT1=$LPORT_ICARUS                                \
     VNAME2=${HARD_CONFIG["NOSTROMO:VNAME"]}             \
     VHOST2=${HARD_CONFIG["NOSTROMO:VHOST"]}             \
     LPORT2=${HARD_CONFIG["NOSTROMO:LPORT"]}             \
