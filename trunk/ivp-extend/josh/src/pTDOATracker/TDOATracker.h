@@ -28,7 +28,6 @@ class TDOATracker : public CMOOSApp
    TDOATracker();
    ~TDOATracker();
 
-   void GetHermite(std::string);
    void GetPriors(gsl_vector*, gsl_matrix*);
    void TempUpdate(gsl_vector*, gsl_matrix*);
    void FullUpdate(gsl_vector*, gsl_matrix*);
@@ -41,12 +40,13 @@ class TDOATracker : public CMOOSApp
    bool OnConnectToServer();
    bool OnStartUp();
 
-   gsl_matrix *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8, *s9;
+   std::vector<gsl_matrix*> sigma_points;
    gsl_vector *w;
    double vol;
    int s_dim;
    TDOAUpdate TDOA_protobuf;
    std::vector<bool> acomms_heard;
+   std::vector<int> slots_heard;
 
  private: // Configuration variables
    int  tdoa_id;
