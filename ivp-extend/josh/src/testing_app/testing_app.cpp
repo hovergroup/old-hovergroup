@@ -9,6 +9,7 @@
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -111,28 +112,59 @@ unsigned char FlexibleEncode(double val,
     return range_divs.size();
 }
 
-
-
 int main () {
+	int s_dim = 3;
+	std::vector<gsl_matrix*> sigma_points (3*s_dim);
+	for(int i=0;i<3*s_dim;i++){
+		sigma_points[i] = gsl_matrix_alloc(s_dim, s_dim);
+	    }
 
-    double data[] = { 7.0  , 10.0,
-                       15.0, 22.0 };
+	gsl_vector *w = gsl_vector_alloc(s_dim);
+	double vol;
 
-    gsl_matrix_view m = gsl_matrix_view_array(data, 2, 2);
+	string txtfile = "HermiteMatrices.txt";
+	FILE* f = fopen(txtfile.c_str(),"r");
+	for(int i=0;i<3*s_dim;i++){
+		cout << "scanning\n";
+		gsl_matrix *A = gsl_matrix_alloc(s_dim, s_dim);
+		gsl_matrix_fscanf(f,A);
 
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-          cout << gsl_matrix_get (&m.matrix, i, j)<<endl;;
-        }
-    }
+		for(int j=0;j<s_dim;j++){
+			for(int k=0;k<s_dim;k++){
+				cout << gsl_matrix_get(A,j,k);
+			}
+			cout << "\n";
+		}
+		cout << "\n";
 
-    gsl_matrix* matrix_out = MatrixSquareRoot(2,&m.matrix);
+	}
+	gsl_vector_fscanf(f,w);
+	fscanf (f, "%lf", &vol);
 
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-          cout << gsl_matrix_get (matrix_out, i, j)<<endl;;
-        }
-    }
+	for(int j=0;j<s_dim;j++){
+		cout << gsl_vector_get(w,j);
+	}
+	cout << "\n";
+	cout << vol;
+
+//    double data[] = { 7.0  , 10.0,
+//                       15.0, 22.0 };
+//
+//    gsl_matrix_view m = gsl_matrix_view_array(data, 2, 2);
+//
+//    for (int i = 0; i < 2; i++){
+//        for (int j = 0; j < 2; j++){
+//          cout << gsl_matrix_get (&m.matrix, i, j)<<endl;;
+//        }
+//    }
+//
+//    gsl_matrix* matrix_out = MatrixSquareRoot(2,&m.matrix);
+//
+//    for (int i = 0; i < 2; i++){
+//        for (int j = 0; j < 2; j++){
+//          cout << gsl_matrix_get (matrix_out, i, j)<<endl;;
+//        }
+//    }
 //    unsigned char a = 22;
 //    unsigned char b = 4;
 //    cout << hex << (int) ( (a<<3) + b ) << endl;
