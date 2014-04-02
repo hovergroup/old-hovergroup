@@ -145,7 +145,7 @@ else
             SHOREHOST=$SHOREHOST                                  \
             SLPORT=$SLPORT                                        \
             TransmitOffset=0                                      \
-            TransmitPeriod=16
+            TransmitPeriod=18
     else
         nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
@@ -158,8 +158,8 @@ else
             ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
             ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
             RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
-            TransmitOffset=8                                       \
-            TransmitPeriod=16                                      \
+            TransmitOffset=9                                       \
+            TransmitPeriod=18                                      \
             ALTIMETER=$ALTIMETER                                   \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
