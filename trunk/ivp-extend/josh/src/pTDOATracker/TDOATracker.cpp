@@ -14,17 +14,13 @@ using namespace std;
 //---------------------------------------------------------
 // Constructor
 
-TDOATracker::TDOATracker()
+TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_distribution<>())
 {
 	acomms_heard = vector<bool>(3,0);
 	s_dim = 3;vol = 0;
 	x_offset = 0;y_offset = 0;
 	tdoa_id = 9;
-
-	boost::mt19937 *rng = new boost::mt19937();
-	rng->seed(time(NULL));
-	boost::normal_distribution<> distribution(0.0, 1.1);
-	dist = boost::variate_generator< boost::mt19937, boost::normal_distribution<> > (*rng, distribution);
+	dt = 5;
 }
 
 //---------------------------------------------------------
@@ -90,6 +86,7 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("XOffset",x_offset);
 	m_MissionReader.GetConfigurationParam("YOffset",y_offset);
 	m_MissionReader.GetConfigurationParam("SDim",s_dim);	//number of sigma points
+	m_MissionReader.GetConfigurationParam("ODEdt",dt);	//ODE system timestep
 
 	// Getting Sigma Points
 	string txtfile = "HermiteMatrices.txt";
@@ -124,7 +121,7 @@ bool TDOATracker::OnConnectToServer()
 	txtfile = "CovMatrices.txt";
 	error_cov = vector<gsl_matrix*>(3);	//3 agents
 
-	FILE* f = fopen(txtfile.c_str(),"r");
+	f = fopen(txtfile.c_str(),"r");
 	cout << "Reading Cov Matrices\n";
 
 	for(int i=0;i<3;i++){
@@ -145,41 +142,52 @@ bool TDOATracker::Iterate()
 	return(true);
 }
 
-void TDOATracker::GetPriors(gsl_vector * xhat, gsl_matrix * P){
-	gsl_vector *current_abs = gsl_vector_alloc(3);
+void TDOATracker::GetPriors(gsl_vector* xhat, gsl_matrix* P){
+	gsl_vector *target = gsl_vector_alloc(3);
 	gsl_vector *dum = gsl_vector_alloc(3);
 	for(int i=0;i<s_dim;i++){	//iterating over sigma points
 		for(int j=0;j<s_dim;j++){
 			for(int k=0;k<s_dim;k++){
 				gsl_matrix *sP = MatrixSquareRoot(s_dim,P);
-				gsl_vector_set(current_abs,1,gsl_matrix_get(s1[i],j,k));
-				gsl_vector_set(current_abs,2,gsl_matrix_get(s2[i],j,k));
-				gsl_vector_set(current_abs,3,gsl_matrix_get(s3[i],j,k));
-				gsl_vector_add(current_abs,xhat);
-				gsl_blas_dgemv(CblasNoTrans,1,sP,current_abs,0,dum);
-				localNoise = sqrt(Q)*dist();
+				gsl_vector_set(target,1,gsl_matrix_get(s1[i],j,k));
+				gsl_vector_set(target,2,gsl_matrix_get(s2[i],j,k));
+				gsl_vector_set(target,3,gsl_matrix_get(s3[i],j,k));
+				gsl_vector_add(target,xhat);
+				gsl_blas_dgemv(CblasNoTrans,1,sP,target,0,dum);
+				localNoise = sqrt(Q)*generator();
+
+				gsl_odeiv2_system sys = {func, jac, 3, &localNoise};
+
+				gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rkf45,1e-6, 1e-6, 0.0);
+				double t = 0.0;
+				double y[] {gsl_vector_get(dum,0),gsl_vector_get(dum,1),gsl_vector_get(dum,2)};
+				int status = gsl_odeiv2_driver_apply (d, &t, dt, y);
+
+				if (status != GSL_SUCCESS){
+					printf ("GSL ODE error, return value=%d\n", status);
+					break;
+				}
+
+				gsl_odeiv2_driver_free (d);
+				gsl_vector_free(target);
+				gsl_vector_free(dum);
 			}
 		}
 	}
-
 }
 
 int TDOATracker::func(double t, const double y[], double f[], void *params){
-  double mu = *(double *)params;
-  f[0] = y[1];
-  f[1] = -y[0] - mu*y[1]*(y[0]*y[0] - 1);
+  f[0] = *(double *)params;
+  f[1] = cos(y[0]);
+  f[2] = sin(y[0]);
   return GSL_SUCCESS;
 }
 
 int TDOATracker::jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
   double mu = *(double *)params;
-  gsl_matrix_view dfdy_mat
-    = gsl_matrix_view_array (dfdy, 2, 2);
+  gsl_matrix_view dfdy_mat = gsl_matrix_view_array (dfdy, 3, 3);
   gsl_matrix * m = &dfdy_mat.matrix;
-  gsl_matrix_set (m, 0, 0, 0.0);
-  gsl_matrix_set (m, 0, 1, 1.0);
-  gsl_matrix_set (m, 1, 0, -2.0*mu*y[0]*y[1] - 1.0);
-  gsl_matrix_set (m, 1, 1, -mu*(y[0]*y[0] - 1.0));
+  gsl_matrix_set_zero(m);
   dfdt[0] = 0.0;
   dfdt[1] = 0.0;
   return GSL_SUCCESS;

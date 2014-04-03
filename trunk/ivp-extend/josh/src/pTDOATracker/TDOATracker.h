@@ -35,7 +35,7 @@ class TDOATracker : public CMOOSApp
    void FullUpdate(gsl_vector*, gsl_matrix*);
    void NotifyStatus(int,std::vector<int>);
    gsl_matrix* MatrixSquareRoot(int, gsl_matrix*);
-   int jac(double, const double[], double[], double);
+   int jac(double, const double[], double*, double[], void*);
    int func(double, const double[], double[], void*);
 
  protected:
@@ -47,12 +47,12 @@ class TDOATracker : public CMOOSApp
    std::vector<gsl_matrix*> s1,s2,s3;
    std::vector<gsl_matrix*> error_cov;
    gsl_vector *w;
-   double vol, Q, R, localNoise;
+   double vol, Q, R, localNoise, dt;
    int s_dim;
    TDOAUpdate TDOA_protobuf;
    std::vector<bool> acomms_heard;
    std::vector<int> slots_heard;
-   boost::variate_generator< boost::mt19937, boost::normal_distribution<> > dist;
+   boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
 
  private: // Configuration variables
    int  tdoa_id;
