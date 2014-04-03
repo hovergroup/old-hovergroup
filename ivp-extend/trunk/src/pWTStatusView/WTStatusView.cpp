@@ -21,8 +21,8 @@ std::map<std::string, ProtoNodeReport> data;
 
 const int NUM_ROWS = 13;
 
-const int AGE_ROW = 1;
-const int TYPE_ROW = 2;
+const int AGE_ROW = 2;
+const int TYPE_ROW = 1;
 const int VOLTAGE_ROW = 3;
 const int BATT_PERCENT_ROW = 4;
 const int GPS_QUALITY_ROW = 5;
@@ -41,14 +41,14 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
 	WApplication(env) {
 	setTitle("Status View");
 
-	styleSheet().addRule(".StatusView table, td, th", "border: 2px solid #DDD; width: 0%; margin-top: 20px; margin-bottom: 20px; padding: 4px 5px;");
-	styleSheet().addRule(".StatusView .table-bordered", "border-left: 4px; border-radius: 4px;");
+	styleSheet().addRule(".StatusView table, td, th", "border: 2px solid #DDD; margin-top: 20px; margin-bottom: 20px; padding: 4px 5px;");
+	styleSheet().addRule(".StatusView .table-bordered", "border-left: 4px; border-radius: 4px; table-layout: fixed;");
 	styleSheet().addRule(".StatusView .col0", "font-weight: bold; text-align: left");
 	styleSheet().addRule(".StatusView .center", "text-align: center");
 	styleSheet().addRule(".StatusView .green", "background-color: #58FA58;");
 	styleSheet().addRule(".StatusView .yellow", "background-color: #F7FE2E;");
 	styleSheet().addRule(".StatusView .red", "background-color: #FE2E2E;");
-	styleSheet().addRule(".StatusView .greyout", "background-color: #F4F4F4;");
+	styleSheet().addRule(".StatusView .greyout", "background-color: #E4E4E4;");
 
 	reDraw(0);
 	current_num_vehicles = -1;
@@ -69,8 +69,8 @@ void StatusViewApplication::reDraw(int num_vehicles) {
 	table = new WTable(container_);
 	table->setHeaderCount(1);
 	table->setStyleClass("table table-bordered");
-    table->columnAt(0)->setWidth(75);
-    for (int i=1; i<table->columnCount(); i++) {
+    table->columnAt(0)->setWidth(100);
+    for (int i=1; i<=num_vehicles; i++) {
     	table->columnAt(i)->setWidth(150);
     }
 
@@ -317,6 +317,8 @@ void StatusViewApplication::update() {
 			nsf_power_level << data[vname].nsf_power_level();
 			tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW, col+1)]->setText(nsf_power_level.str());
 			table->elementAt(NSF_POWER_LEVEL_ROW, col+1)->setStyleClass("center");
+		} else {
+		    table->elementAt(NSF_POWER_LEVEL_ROW, col+1)->setStyleClass("greyout");
 		}
 
 		// ---------------- thrust limit -------------------
@@ -331,9 +333,11 @@ void StatusViewApplication::update() {
 			} else {
 				table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("yellow center");
 			}
+		} else {
+		    table->elementAt(THRUST_LIMIT_ROW, col+1)->setStyleClass("greyout");
 		}
 
-        // ---------------- thrust limit -------------------
+        // ---------------- resource monitor -------------------
 		stringstream cpu_mem_usage;
 		int cpu = data[vname].cpu_percent_use();
 		int mem = data[vname].mem_percent_use();
