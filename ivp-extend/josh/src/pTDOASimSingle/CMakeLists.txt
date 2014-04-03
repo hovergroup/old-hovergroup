@@ -1,21 +1,21 @@
 #--------------------------------------------------------
-# The CMakeLists.txt for:                       pTDOAComms
+# The CMakeLists.txt for:                       pTDOASimSingle
 # Author(s):                              
 #--------------------------------------------------------
 
 # FILE(GLOB SRC *.cpp)
 
 SET(SRC
-  TDOAComms.cpp
-  TDOAComms_Info.cpp
-  main.cpp
+    TDOASimSingle.cpp
+    TDOASimSingle_Info.cpp
+    main.cpp
 )
 
 
 
-ADD_EXECUTABLE(pTDOAComms ${SRC})
+ADD_EXECUTABLE(pTDOASimSingle ${SRC})
 
-TARGET_LINK_LIBRARIES(pTDOAComms
+TARGET_LINK_LIBRARIES(pTDOASimSingle
     josh_proto
     HoverAcomms
     JoshUtils
