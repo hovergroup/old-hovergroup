@@ -10,6 +10,10 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
 #include <stdio.h>
+#include <boost/random.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include "testing_app.h"
+
 
 using namespace std;
 
@@ -112,40 +116,51 @@ unsigned char FlexibleEncode(double val,
     return range_divs.size();
 }
 
+double random_generator(boost::variate_generator<boost::mt19937, boost::normal_distribution<> > &local_gen){
+	return local_gen();
+}
+
 int main () {
-	int s_dim = 3;
-	std::vector<gsl_matrix*> sigma_points (3*s_dim);
-	for(int i=0;i<3*s_dim;i++){
-		sigma_points[i] = gsl_matrix_alloc(s_dim, s_dim);
-	    }
+	boost::variate_generator<boost::mt19937, boost::normal_distribution<> >
+	    generator(boost::mt19937(time(0)),
+	              boost::normal_distribution<>());
 
-	gsl_vector *w = gsl_vector_alloc(s_dim);
-	double vol;
-
-	string txtfile = "HermiteMatrices.txt";
-	FILE* f = fopen(txtfile.c_str(),"r");
-	for(int i=0;i<3*s_dim;i++){
-		cout << "scanning\n";
-		gsl_matrix *A = gsl_matrix_alloc(s_dim, s_dim);
-		gsl_matrix_fscanf(f,A);
-
-		for(int j=0;j<s_dim;j++){
-			for(int k=0;k<s_dim;k++){
-				cout << gsl_matrix_get(A,j,k);
-			}
-			cout << "\n";
-		}
-		cout << "\n";
-
-	}
-	gsl_vector_fscanf(f,w);
-	fscanf (f, "%lf", &vol);
-
-	for(int j=0;j<s_dim;j++){
-		cout << gsl_vector_get(w,j);
-	}
-	cout << "\n";
-	cout << vol;
+for(int i=0;i<5;i++){
+	cout << random_generator(generator);
+}
+//	int s_dim = 3;
+//	std::vector<gsl_matrix*> sigma_points (3*s_dim);
+//	for(int i=0;i<3*s_dim;i++){
+//		sigma_points[i] = gsl_matrix_alloc(s_dim, s_dim);
+//	    }
+//
+//	gsl_vector *w = gsl_vector_alloc(s_dim);
+//	double vol;
+//
+//	string txtfile = "HermiteMatrices.txt";
+//	FILE* f = fopen(txtfile.c_str(),"r");
+//	for(int i=0;i<3*s_dim;i++){
+//		cout << "scanning\n";
+//		gsl_matrix *A = gsl_matrix_alloc(s_dim, s_dim);
+//		gsl_matrix_fscanf(f,A);
+//
+//		for(int j=0;j<s_dim;j++){
+//			for(int k=0;k<s_dim;k++){
+//				cout << gsl_matrix_get(A,j,k);
+//			}
+//			cout << "\n";
+//		}
+//		cout << "\n";
+//
+//	}
+//	gsl_vector_fscanf(f,w);
+//	fscanf (f, "%lf", &vol);
+//
+//	for(int j=0;j<s_dim;j++){
+//		cout << gsl_vector_get(w,j);
+//	}
+//	cout << "\n";
+//	cout << vol;
 
 //    double data[] = { 7.0  , 10.0,
 //                       15.0, 22.0 };
