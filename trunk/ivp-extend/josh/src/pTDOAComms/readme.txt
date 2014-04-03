@@ -38,3 +38,4 @@ OUTPUT
 		b) When advancing to the next slot if either:
 			1 - The last slot was our own
 			2 - The last slot was not our own and we did not receive any acomms
+    Output state will indicate the slot we just finished.  

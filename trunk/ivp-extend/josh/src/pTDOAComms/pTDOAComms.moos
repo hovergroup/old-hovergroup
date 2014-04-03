@@ -1,7 +1,7 @@
 ProcessConfig = pTDOAComms
 {
     IterateMode = 1    // comms driven iterate and mail
-    AppTick     = 4    // iterate lower bound
+    AppTick     = z    // iterate lower bound
     MaxAppTick  = 0    // no limit
     
     ID = $(ACOMMSID)   // our local id

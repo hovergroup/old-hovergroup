@@ -1,0 +1,26 @@
+ServerHost = localhost
+ServerPort = 9001
+Community  = sim
+
+ProcessConfig = pTDOASimSingle
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 10    // iterate lower bound
+	
+	targetx = 0
+	targety = 0
+	
+	f1x = -50
+	f1y = -50
+	
+	f2x = -50
+	f2y = 50
+	
+	f3x = 50
+	f3y = -50
+	
+	// these same variables, all caps, can be used to poke the MOOSDB as well
+	// sounds speed of 1450 is used to calculate times
+	
+	update_period = 5
+}
