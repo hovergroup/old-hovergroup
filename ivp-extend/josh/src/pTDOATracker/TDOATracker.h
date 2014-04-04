@@ -37,7 +37,7 @@ public:
    void GetPriors();
    void TempUpdate();
    void FullUpdate();
-   void NotifyStatus(int,std::vector<int>);
+   void NotifyStatus(int,std::vector<int>, std::string);
    gsl_matrix* MatrixSquareRoot(int, gsl_matrix*);
 
  protected:
@@ -56,6 +56,7 @@ public:
    std::vector<TDOAData> messages;
    std::vector<int> slots_heard, indicator;
    boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
+   std::string msg_out;
 
  private: // Configuration variables
    int  tdoa_id;
