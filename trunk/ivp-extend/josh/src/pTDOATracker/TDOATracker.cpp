@@ -21,7 +21,8 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	navx = 0;navy = 0;
 	tdoa_id = 9;
 	dt = 5;
-	indicator =vector<int> (4,0);
+	indicator =vector<int> (2,0);
+	msg_out = "initialized";
 }
 
 //---------------------------------------------------------
@@ -56,11 +57,12 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		if(key== "TDOA_PROTOBUF"){
 			protobuf.ParseFromString(msg.GetString());
-			slots_heard = vector<int>(3,0);
+			slots_heard = vector<int>(4,0);
 			int data_heard = protobuf.data_size();
 			switch (protobuf.cycle_state()){
 			case 0:
 				indicator = vector<int>(3,0); //Start of new cycle
+				msg_out = "New Cycle";
 				//With just the range ping, do nothing
 				break;
 			case 1: case 2: case 3:
@@ -72,14 +74,27 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 					}
 				}
 
+				msg_out = "Not enough data!";
 
+				if(indicator[1]==0){	//Try to make a FULL update
+					int total_heard = 0;
+					for(std::vector<int>::iterator j=slots_heard.begin();j!=slots_heard.end();++j)
+					    total_heard += *j;
+					if(total_heard==3){
+
+					}
+				}
+
+				else if(indicator[0]==0){	//Try to make TEMP update
+
+				}
 
 				break;
 			case 4:
-				slots_heard[0]=9;
+				msg_out = "Paused";
 				break;
 			}
-			NotifyStatus(protobuf.cycle_state(),slots_heard);
+			NotifyStatus(protobuf.cycle_state(),slots_heard,msg_out);
 		}
 
 		// update nav info
@@ -320,7 +335,7 @@ gsl_matrix* TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in){
 	return matrix_out;
 }
 
-void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids){
+void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids, string msg_out){
 	stringstream tellme;
 	tellme.str("Cycle: ");
 	tellme << cycle_id << ' ';
@@ -328,6 +343,7 @@ void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids){
 	for (vector<int>::iterator it = message_ids.begin() ; it != message_ids.end(); ++it){
 		tellme << *it << ' ';
 	}
+	tellme<<"Message: "<<msg_out;
 	m_Comms.Notify("TRACKER_STATUS",tellme.str());
 }
 
