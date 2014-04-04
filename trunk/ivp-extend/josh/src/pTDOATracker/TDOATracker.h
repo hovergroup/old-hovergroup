@@ -24,19 +24,20 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+int jac(double, const double[], double*, double[], void*);
+int func(double, const double[], double[], void*);
+
 class TDOATracker : public CMOOSApp
 {
- public:
-   TDOATracker();
-   ~TDOATracker();
+public:
+	TDOATracker();
+	~TDOATracker();
 
    void GetPriors();
    void TempUpdate();
    void FullUpdate();
    void NotifyStatus(int,std::vector<int>);
    gsl_matrix* MatrixSquareRoot(int, gsl_matrix*);
-   int jac(double, const double[], double*, double[], void*);
-   int func(double, const double[], double[], void*);
 
  protected:
    bool OnNewMail(MOOSMSG_LIST &NewMail);
