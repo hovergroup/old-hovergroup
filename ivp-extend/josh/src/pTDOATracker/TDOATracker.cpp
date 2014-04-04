@@ -32,9 +32,14 @@ TDOATracker::~TDOATracker()
 		gsl_matrix_free(s1[i]);
 		gsl_matrix_free(s2[i]);
 		gsl_matrix_free(s3[i]);
+		gsl_matrix_free(u1[i]);
+		gsl_matrix_free(u2[i]);
+		gsl_matrix_free(u3[i]);
 		gsl_matrix_free(error_cov[i]);
 	}
+	gsl_matrix_free(P);
 	gsl_vector_free(w);
+	gsl_vector_free(xhat);
 }
 
 //---------------------------------------------------------
@@ -112,6 +117,12 @@ bool TDOATracker::OnConnectToServer()
 		gsl_matrix_fscanf(f,s2[i]);
 	}
 
+	for(int i=0;i<s_dim;i++){
+			u1[i] = gsl_matrix_alloc(s_dim, s_dim);
+			u2[i] = gsl_matrix_alloc(s_dim, s_dim);
+			u3[i] = gsl_matrix_alloc(s_dim, s_dim);
+	}
+
 	w = gsl_vector_alloc(s_dim);
 	gsl_vector_fscanf(f,w);
 	fscanf (f, "%lf", &vol);
@@ -142,7 +153,7 @@ bool TDOATracker::Iterate()
 	return(true);
 }
 
-void TDOATracker::GetPriors(gsl_vector* xhat, gsl_matrix* P){
+void TDOATracker::GetPriors(){
 	gsl_vector *target = gsl_vector_alloc(3);
 	gsl_vector *dum = gsl_vector_alloc(3);
 	for(int i=0;i<s_dim;i++){	//iterating over sigma points
@@ -168,9 +179,18 @@ void TDOATracker::GetPriors(gsl_vector* xhat, gsl_matrix* P){
 					break;
 				}
 
+				gsl_matrix *sP = MatrixSquareRoot(s_dim,P);
+				gsl_vector_set(target,1,gsl_matrix_get(s1[i],j,k));
+				gsl_vector_set(target,2,gsl_matrix_get(s2[i],j,k));
+				gsl_vector_set(target,3,gsl_matrix_get(s3[i],j,k));
+
 				gsl_odeiv2_driver_free (d);
 				gsl_vector_free(target);
 				gsl_vector_free(dum);
+
+				//get quadrature mean
+
+
 			}
 		}
 	}

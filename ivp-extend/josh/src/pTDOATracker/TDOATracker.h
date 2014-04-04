@@ -30,9 +30,9 @@ class TDOATracker : public CMOOSApp
    TDOATracker();
    ~TDOATracker();
 
-   void GetPriors(gsl_vector*, gsl_matrix*);
-   void TempUpdate(gsl_vector*, gsl_matrix*);
-   void FullUpdate(gsl_vector*, gsl_matrix*);
+   void GetPriors();
+   void TempUpdate();
+   void FullUpdate();
    void NotifyStatus(int,std::vector<int>);
    gsl_matrix* MatrixSquareRoot(int, gsl_matrix*);
    int jac(double, const double[], double*, double[], void*);
@@ -44,9 +44,10 @@ class TDOATracker : public CMOOSApp
    bool OnConnectToServer();
    bool OnStartUp();
 
-   std::vector<gsl_matrix*> s1,s2,s3;
+   std::vector<gsl_matrix*> s1,s2,s3,u1,u2,u3;
    std::vector<gsl_matrix*> error_cov;
-   gsl_vector *w;
+   gsl_matrix *P;
+   gsl_vector *w,*xhat;
    double vol, Q, R, localNoise, dt;
    int s_dim;
    TDOAUpdate TDOA_protobuf;
