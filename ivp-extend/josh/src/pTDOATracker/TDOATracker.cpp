@@ -153,9 +153,18 @@ bool TDOATracker::Iterate()
 	return(true);
 }
 
+void TDOATracker::TempUpdate(){
+
+}
+
+void TDOATracker::FullUpdate(){
+
+}
+
 void TDOATracker::GetPriors(){
 	gsl_vector *target = gsl_vector_alloc(3);
 	gsl_vector *dum = gsl_vector_alloc(3);
+	gsl_matrix *Po = gsl_matrix_alloc(3,3);
 	for(int i=0;i<s_dim;i++){	//iterating over sigma points
 		for(int j=0;j<s_dim;j++){
 			for(int k=0;k<s_dim;k++){
@@ -171,7 +180,7 @@ void TDOATracker::GetPriors(){
 
 				gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rkf45,1e-6, 1e-6, 0.0);
 				double t = 0.0;
-				double y[] {gsl_vector_get(dum,0),gsl_vector_get(dum,1),gsl_vector_get(dum,2)};
+				double y[] = {gsl_vector_get(dum,0),gsl_vector_get(dum,1),gsl_vector_get(dum,2)};
 				int status = gsl_odeiv2_driver_apply (d, &t, dt, y);
 
 				if (status != GSL_SUCCESS){
@@ -179,31 +188,68 @@ void TDOATracker::GetPriors(){
 					break;
 				}
 
-				gsl_matrix *sP = MatrixSquareRoot(s_dim,P);
-				gsl_vector_set(target,1,gsl_matrix_get(s1[i],j,k));
-				gsl_vector_set(target,2,gsl_matrix_get(s2[i],j,k));
-				gsl_vector_set(target,3,gsl_matrix_get(s3[i],j,k));
+				gsl_matrix_set(u1[i],j,k,y[0]);
+				gsl_matrix_set(u2[i],j,k,y[1]);
+				gsl_matrix_set(u3[i],j,k,y[2]);
 
 				gsl_odeiv2_driver_free (d);
-				gsl_vector_free(target);
-				gsl_vector_free(dum);
-
-				//get quadrature mean
-
-
 			}
 		}
 	}
+
+	//get quadrature mean
+	for(int i=0;i<s_dim;i++){
+		for(int j=0;j<s_dim;j++){
+			for(int k=0;k<s_dim;k++){
+				gsl_vector_set(target,1,gsl_matrix_get(u1[i],j,k));
+				gsl_vector_set(target,2,gsl_matrix_get(u2[i],j,k));
+				gsl_vector_set(target,3,gsl_matrix_get(u3[i],j,k));
+				double wfactor = gsl_vector_get(w,i)*gsl_vector_get(w,j)*gsl_vector_get(w,k);
+				gsl_vector_scale(target,wfactor);
+				gsl_vector_add(xhat,target);
+			}
+		}
+	}
+	gsl_vector_scale(xhat,1/vol);
+
+	//get quadrature variance
+	for(int i=0;i<s_dim;i++){
+		for(int j=0;j<s_dim;j++){
+			for(int k=0;k<s_dim;k++){
+				gsl_vector_set(target,1,gsl_matrix_get(u1[i],j,k));
+				gsl_vector_set(target,2,gsl_matrix_get(u2[i],j,k));
+				gsl_vector_set(target,3,gsl_matrix_get(u3[i],j,k));
+				gsl_blas_daxpy(-1.0,xhat,target);
+
+				for(int l=0;l<3;l++){
+					gsl_vector_view column = gsl_matrix_column(Po,l);
+					gsl_vector_set(&column.vector,0,gsl_vector_get(target,0));
+					gsl_vector_set(&column.vector,1,gsl_vector_get(target,1));
+					gsl_vector_set(&column.vector,2,gsl_vector_get(target,2));
+
+					gsl_vector_scale(&column.vector,gsl_vector_get(target,l));
+				}
+
+				double wfactor = gsl_vector_get(w,i)*gsl_vector_get(w,j)*gsl_vector_get(w,k);
+				gsl_matrix_scale (Po,wfactor);
+				gsl_matrix_add(P,Po);
+			}
+		}
+	}
+	gsl_matrix_scale(P,1/vol);
+	gsl_vector_free(target);
+	gsl_vector_free(dum);
+	gsl_matrix_free(Po);
 }
 
-int TDOATracker::func(double t, const double y[], double f[], void *params){
+int func(double t, const double y[], double f[], void *params){
   f[0] = *(double *)params;
   f[1] = cos(y[0]);
   f[2] = sin(y[0]);
   return GSL_SUCCESS;
 }
 
-int TDOATracker::jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
+int jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
   double mu = *(double *)params;
   gsl_matrix_view dfdy_mat = gsl_matrix_view_array (dfdy, 3, 3);
   gsl_matrix * m = &dfdy_mat.matrix;
