@@ -16,11 +16,12 @@ using namespace std;
 
 TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_distribution<>())
 {
-	acomms_heard = vector<bool>(3,0);
 	s_dim = 3;vol = 0;
 	x_offset = 0;y_offset = 0;
+	navx = 0;navy = 0;
 	tdoa_id = 9;
 	dt = 5;
+	indicator =vector<int> (4,0);
 }
 
 //---------------------------------------------------------
@@ -54,23 +55,38 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 		string key = msg.GetKey();
 
 		if(key== "TDOA_PROTOBUF"){
-			TDOA_protobuf.ParseFromString(msg.GetString());
+			protobuf.ParseFromString(msg.GetString());
 			slots_heard = vector<int>(3,0);
-			switch (TDOA_protobuf.cycle_state()){
+			int data_heard = protobuf.data_size();
+			switch (protobuf.cycle_state()){
 			case 0:
-				if(TDOA_protobuf.data_size()>0){
-					slots_heard[1] = 1;
+				indicator = vector<int>(3,0); //Start of new cycle
+				//With just the range ping, do nothing
+				break;
+			case 1: case 2: case 3:
+				if(data_heard>0){	//Fill data
+					for(int i=0;i<data_heard;i++){
+						TDOAData temp = protobuf.data(i);
+						slots_heard[temp.id()] = 1;
+						messages[temp.id()] = protobuf.data(i);
+					}
 				}
+
+
+
 				break;
-			case 1:
-				break;
-			case 2:
-				break;
-			case 3:
-				acomms_heard = vector<bool>(3,0);
+			case 4:
+				slots_heard[0]=9;
 				break;
 			}
-			NotifyStatus(TDOA_protobuf.cycle_state(),slots_heard);
+			NotifyStatus(protobuf.cycle_state(),slots_heard);
+		}
+
+		// update nav info
+		else if (key == "NAV_X") {
+			navx = msg.GetDouble();
+		} else if (key == "NAV_Y") {
+			navy = msg.GetDouble();
 		}
 	}
 
@@ -90,6 +106,8 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("TDOAid",tdoa_id);
 	m_MissionReader.GetConfigurationParam("XOffset",x_offset);
 	m_MissionReader.GetConfigurationParam("YOffset",y_offset);
+	m_MissionReader.GetConfigurationParam("Q",Q);
+	m_MissionReader.GetConfigurationParam("R",R);
 	m_MissionReader.GetConfigurationParam("SDim",s_dim);	//number of sigma points
 	m_MissionReader.GetConfigurationParam("ODEdt",dt);	//ODE system timestep
 
@@ -140,6 +158,8 @@ bool TDOATracker::OnConnectToServer()
 		gsl_matrix_fscanf(f,error_cov[i]);
 	}
 	fclose(f);
+
+	RegisterVariables();
 
 	return(true);
 }
@@ -304,7 +324,7 @@ void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids){
 	stringstream tellme;
 	tellme.str("Cycle: ");
 	tellme << cycle_id << ' ';
-	tellme << "Heard";
+	tellme << "Heard: ";
 	for (vector<int>::iterator it = message_ids.begin() ; it != message_ids.end(); ++it){
 		tellme << *it << ' ';
 	}
@@ -318,4 +338,14 @@ void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids){
 bool TDOATracker::OnStartUp()
 {
 	return(true);
+}
+
+//---------------------------------------------------------
+// Procedure: RegisterVariables
+
+void TDOATracker::RegisterVariables() {
+	m_Comms.Register("NAV_X", 0);
+	m_Comms.Register("NAV_Y", 0);
+	m_Comms.Register("TDOA_PROTOBUF", 0);
+
 }
