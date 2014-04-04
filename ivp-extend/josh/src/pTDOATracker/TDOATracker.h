@@ -33,6 +33,7 @@ public:
 	TDOATracker();
 	~TDOATracker();
 
+   void RegisterVariables();
    void GetPriors();
    void TempUpdate();
    void FullUpdate();
@@ -51,9 +52,9 @@ public:
    gsl_vector *w,*xhat;
    double vol, Q, R, localNoise, dt;
    int s_dim;
-   TDOAUpdate TDOA_protobuf;
-   std::vector<bool> acomms_heard;
-   std::vector<int> slots_heard;
+   TDOAUpdate protobuf;
+   std::vector<TDOAData> messages;
+   std::vector<int> slots_heard, indicator;
    boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
 
  private: // Configuration variables
@@ -61,6 +62,7 @@ public:
    double x_offset,y_offset;
 
  private: // State variables
+   double navx,navy;
 
 };
 
