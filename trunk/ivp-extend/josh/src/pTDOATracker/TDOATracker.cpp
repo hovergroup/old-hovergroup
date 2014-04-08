@@ -17,7 +17,6 @@ using namespace std;
 TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_distribution<>())
 {
 	s_dim = 3;vol = 0;
-	x_offset = 0;y_offset = 0;
 	navx = 0;navy = 0;
 	tdoa_id = 9;
 	dt = 5;
