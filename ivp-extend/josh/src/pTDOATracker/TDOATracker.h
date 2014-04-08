@@ -54,9 +54,9 @@ public:
    int s_dim;
    TDOAUpdate protobuf;
    std::vector<TDOAData> messages;
-   std::vector<int> slots_heard, indicator;
+   std::vector<int> slots_heard;
    boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
-   std::string msg_out;
+   std::string msg_out, state;
 
  private: // Configuration variables
    int  tdoa_id;

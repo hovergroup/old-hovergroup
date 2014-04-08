@@ -21,8 +21,10 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	navx = 0;navy = 0;
 	tdoa_id = 9;
 	dt = 5;
-	indicator =vector<int> (2,0);
 	msg_out = "initialized";
+	state = "initial";
+	slots_heard = vector<int>(3,0);
+	messages = vector<TDOAData>(3,TDOAData());
 }
 
 //---------------------------------------------------------
@@ -57,11 +59,12 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 
 		if(key== "TDOA_PROTOBUF"){
 			protobuf.ParseFromString(msg.GetString());
-			slots_heard = vector<int>(4,0);
+			slots_heard = vector<int>(3,0);
 			int data_heard = protobuf.data_size();
+
 			switch (protobuf.cycle_state()){
 			case 0:
-				indicator = vector<int>(3,0); //Start of new cycle
+				state = "initial"; //Start of new cycle
 				msg_out = "New Cycle";
 				//With just the range ping, do nothing
 				break;
@@ -76,17 +79,18 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 
 				msg_out = "Not enough data!";
 
-				if(indicator[1]==0){	//Try to make a FULL update
-					int total_heard = 0;
-					for(std::vector<int>::iterator j=slots_heard.begin();j!=slots_heard.end();++j)
-					    total_heard += *j;
-					if(total_heard==3){
-
+				if(state!="full"){	//Try to make a FULL update
+					if(data_heard==3){	//Make a Full update
+						FullUpdate();
+						msg_out = "Full Update!";
 					}
 				}
 
-				else if(indicator[0]==0){	//Try to make TEMP update
-
+				else if(state=="initial"){	//Try to make TEMP update
+					if(data_heard==2){ //Make a Temp Update
+						TempUpdate();
+						msg_out = "Temp Update";
+					}
 				}
 
 				break;
