@@ -60,7 +60,6 @@ public:
 
  private: // Configuration variables
    int  tdoa_id;
-   double x_offset,y_offset;
 
  private: // State variables
    double navx,navy;
