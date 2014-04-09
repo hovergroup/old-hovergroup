@@ -38,7 +38,7 @@ public:
    void TempUpdate();
    void FullUpdate();
    void NotifyStatus(int,std::vector<int>, std::string);
-   gsl_matrix* MatrixSquareRoot(int, gsl_matrix*);
+   void MatrixSquareRoot(int, gsl_matrix*, gsl_matrix*);
 
  protected:
    bool OnNewMail(MOOSMSG_LIST &NewMail);
@@ -51,15 +51,17 @@ public:
    gsl_matrix *P;
    gsl_vector *w, *xhat;
    double vol, Q, R, localNoise, dt;
-   int s_dim;
+   int s_dim, state_num, temp_control;
    TDOAUpdate protobuf;
    std::vector<TDOAData> messages;
    std::vector<int> slots_heard;
    boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
    std::string msg_out, state;
+   double x_rel,y_rel;	//rel to target at origin
 
  private: // Configuration variables
    int  tdoa_id;
+   std::string my_name;
 
  private: // State variables
    double navx,navy;

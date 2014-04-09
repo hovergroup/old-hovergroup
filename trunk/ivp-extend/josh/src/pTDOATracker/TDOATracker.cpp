@@ -21,10 +21,12 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	tdoa_id = 9;
 	dt = 5;
 	msg_out = "initialized";
-	state = "initial";
+	state = "initial"; state_num = 4;
 	slots_heard = vector<int>(3,0);
 	messages = vector<TDOAData>(3,TDOAData());
 	xhat = gsl_vector_alloc(3);
+	P = gsl_matrix_alloc(3,3);
+	temp_control = 0;
 }
 
 //---------------------------------------------------------
@@ -61,6 +63,7 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 			protobuf.ParseFromString(msg.GetString());
 			slots_heard = vector<int>(3,0);
 			int data_heard = protobuf.data_size();
+			state_num = protobuf.cycle_state();
 
 			switch (protobuf.cycle_state()){
 			case 0:
@@ -124,10 +127,14 @@ bool TDOATracker::OnConnectToServer()
 	// m_Comms.Register("VARNAME", 0);
 
 	m_MissionReader.GetConfigurationParam("TDOAid",tdoa_id);
+	m_MissionReader.GetConfigurationParam("Name",my_name);
 	m_MissionReader.GetConfigurationParam("Q",Q);
 	m_MissionReader.GetConfigurationParam("R",R);
 	m_MissionReader.GetConfigurationParam("SDim",s_dim);	//number of sigma points
 	m_MissionReader.GetConfigurationParam("ODEdt",dt);	//ODE system timestep
+	m_MissionReader.GetConfigurationParam("xRel",x_rel);
+	m_MissionReader.GetConfigurationParam("yRel",y_rel);
+	m_MissionReader.GetConfigurationParam("TempControl",temp_control);
 
 	// Getting Sigma Points
 	string txtfile = "HermiteMatrices.txt";
@@ -192,22 +199,74 @@ bool TDOATracker::Iterate()
 }
 
 void TDOATracker::TempUpdate(){
-	double r1 = sqrt((gsl_vector_get(xhat,1)-navx)^2+(gsl_vector_get(xhat,2)-navy)^2);	//distance from self
-	double r2,heard_x,heard_y;
+	double r1 = sqrt(pow(gsl_vector_get(xhat,1)-navx,2)+pow(gsl_vector_get(xhat,2)-navy,2));	//distance from self
+	double r2,heard_x,heard_y,heard_z,my_z;
 	for(int i=0;i<3;i++){
-		if(i!=tdoa_id && slots_heard[i]==1){
+		if(i==tdoa_id && slots_heard[i]==1){
+			my_z = messages[i].toa();
+		}
+		else if(i!=tdoa_id && slots_heard[i]==1){
 			heard_x = messages[i].x();
 			heard_y = messages[i].y();
-			r2 = sqrt((heard_x-navx)^2+(heard_y-navy)^2);
+			heard_z = messages[i].toa();
+			r2 = sqrt(pow(gsl_vector_get(xhat,1)-heard_x,2)+pow(gsl_vector_get(xhat,2)-heard_y,2));
 		}
 	}
-	double zhat = r1-r2;
+
+	heard_z = my_z-heard_z; //tdoa -- actual observation
+	double zhat = r1-r2;	//estimated observation
+
 	gsl_vector *Hk = gsl_vector_alloc(3);
 	gsl_vector_set(Hk,0,0);
-	double temp = 1/2/r1*2*(xhat[1]-navx)-1/2/r2*2*(xhat[1]-heard_x);
+	double temp = 1/2/r1*2*(gsl_vector_get(xhat,1)-navx)-1/2/r2*2*(gsl_vector_get(xhat,1)-heard_x);
 	gsl_vector_set(Hk,1,temp);
-	temp = 1/2/r1*2*(xhat[2]-navy)-1/2/r2*2*(xhat[2]-heard_y);
+
+	temp = 1/2/r1*2*(gsl_vector_get(xhat,2)-navy)-1/2/r2*2*(gsl_vector_get(xhat,2)-heard_y);
 	gsl_vector_set(Hk,2,temp);
+
+	gsl_vector* tvec = gsl_vector_alloc(3);
+	gsl_blas_dgemv(CblasNoTrans,1,P,Hk,1,tvec); //P*Hk'
+	double sk = 0;
+	gsl_blas_ddot(Hk,tvec,&sk);
+	gsl_vector_scale(tvec,1/sk);				//tvec = Kk
+	gsl_blas_daxpy((heard_z-zhat),tvec,xhat);	//xhat = xhat + Kdz
+
+	gsl_matrix* Po = gsl_matrix_alloc(3,3);
+	gsl_matrix* ident = gsl_matrix_alloc(3,3);
+	gsl_matrix_set_identity(ident);
+
+	//outer product Kk*Hk
+	for(int l=0;l<3;l++){
+		gsl_vector_view column = gsl_matrix_column(Po,l);
+		gsl_vector_set(&column.vector,0,gsl_vector_get(tvec,0));
+		gsl_vector_set(&column.vector,1,gsl_vector_get(tvec,1));
+		gsl_vector_set(&column.vector,2,gsl_vector_get(tvec,2));
+
+		gsl_vector_scale(&column.vector,gsl_vector_get(Hk,l));
+	}
+
+	gsl_matrix_sub(ident,Po);
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,ident,P,0,P);
+
+	//Get Priors, number of delay states
+	for(int i=0;i<state_num+1;i++){
+		GetPriors();
+	}
+
+	gsl_vector_free(Hk);
+	gsl_vector_free(tvec);
+	gsl_matrix_free(Po);
+	gsl_matrix_free(ident);
+
+	if(temp_control==1){
+		double x_control = x_rel + gsl_vector_get(xhat,1);
+		double y_control = y_rel + gsl_vector_get(xhat,2);
+		//Control Action
+		std::stringstream ss;
+		ss << "points=" << navx << "," << navy << ":" << x_control << "," << y_control;
+		m_Comms.Notify("TDOA_WAYPOINT_UPDATES_" + my_name, ss.str());
+		m_Comms.Notify("TDOA_STATION_" + my_name, "false");
+	}
 }
 
 void TDOATracker::FullUpdate(){
@@ -218,10 +277,11 @@ void TDOATracker::GetPriors(){
 	gsl_vector *target = gsl_vector_alloc(3);
 	gsl_vector *dum = gsl_vector_alloc(3);
 	gsl_matrix *Po = gsl_matrix_alloc(3,3);
+	gsl_matrix *sP = gsl_matrix_alloc(s_dim,s_dim);
 	for(int i=0;i<s_dim;i++){	//iterating over sigma points
 		for(int j=0;j<s_dim;j++){
 			for(int k=0;k<s_dim;k++){
-				gsl_matrix *sP = MatrixSquareRoot(s_dim,P);
+				MatrixSquareRoot(s_dim,P, sP);
 				gsl_vector_set(target,1,gsl_matrix_get(s1[i],j,k));
 				gsl_vector_set(target,2,gsl_matrix_get(s2[i],j,k));
 				gsl_vector_set(target,3,gsl_matrix_get(s3[i],j,k));
@@ -274,6 +334,7 @@ void TDOATracker::GetPriors(){
 				gsl_vector_set(target,3,gsl_matrix_get(u3[i],j,k));
 				gsl_blas_daxpy(-1.0,xhat,target);
 
+				//outer product
 				for(int l=0;l<3;l++){
 					gsl_vector_view column = gsl_matrix_column(Po,l);
 					gsl_vector_set(&column.vector,0,gsl_vector_get(target,0));
@@ -293,6 +354,7 @@ void TDOATracker::GetPriors(){
 	gsl_vector_free(target);
 	gsl_vector_free(dum);
 	gsl_matrix_free(Po);
+	gsl_matrix_free(sP);
 }
 
 int func(double t, const double y[], double f[], void *params){
@@ -312,7 +374,7 @@ int jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
   return GSL_SUCCESS;
 }
 
-gsl_matrix* TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in){
+void TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in, gsl_matrix * matrix_out){
 
 	gsl_permutation * perm = gsl_permutation_alloc(dim);
 	int s;
@@ -345,12 +407,15 @@ gsl_matrix* TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in){
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,evec_real,sqrt_e,0.0,matrix_in);
 
 	gsl_matrix * evec_inv = gsl_matrix_alloc(dim,dim);
-	gsl_matrix * matrix_out = gsl_matrix_alloc(dim,dim);
 	gsl_linalg_LU_decomp (evec_real, perm, &s);
 	gsl_linalg_LU_invert (evec_real, perm, evec_inv);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,matrix_in,evec_inv,0.0,matrix_out);
 
-	return matrix_out;
+	gsl_permutation_free(perm);
+	gsl_matrix_free(sqrt_e);
+	gsl_matrix_free(evec_real);
+	gsl_matrix_free(evec_inv);
+
 }
 
 void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids, string msg_out){
