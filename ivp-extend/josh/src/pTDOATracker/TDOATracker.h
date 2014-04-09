@@ -39,6 +39,7 @@ public:
    void FullUpdate();
    void NotifyStatus(int,std::vector<int>, std::string);
    void MatrixSquareRoot(int, gsl_matrix*, gsl_matrix*);
+   void DrawTarget(double, double, std::string);
 
  protected:
    bool OnNewMail(MOOSMSG_LIST &NewMail);
@@ -50,6 +51,7 @@ public:
    std::vector<gsl_matrix*> error_cov;
    gsl_matrix *P;
    gsl_vector *w, *xhat;
+
    double vol, Q, R, localNoise, dt;
    int s_dim, state_num, temp_control;
    TDOAUpdate protobuf;
@@ -61,7 +63,7 @@ public:
 
  private: // Configuration variables
    int  tdoa_id;
-   std::string my_name;
+   std::string my_name, my_label, my_color;
 
  private: // State variables
    double navx,navy;

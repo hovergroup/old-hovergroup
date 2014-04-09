@@ -27,6 +27,7 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	xhat = gsl_vector_alloc(3);
 	P = gsl_matrix_alloc(3,3);
 	temp_control = 0;
+	my_name="default";my_label="default";my_color="pink";
 }
 
 //---------------------------------------------------------
@@ -87,6 +88,10 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 						FullUpdate();
 						msg_out = "Full Update!";
 						state = "full";
+						std::stringstream ss;
+						ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
+						m_Comms.Notify("TDOA_FULL_ESTIMATE_" + my_name, ss.str());
+						DrawTarget(gsl_vector_get(xhat,1),gsl_vector_get(xhat,2),"Full");
 					}
 				}
 
@@ -94,6 +99,10 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 					if(data_heard==2){ //Make a Temp Update
 						TempUpdate();
 						msg_out = "Temp Update";
+						std::stringstream ss;
+						ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
+						m_Comms.Notify("TDOA_TEMP_ESTIMATE_" + my_name, ss.str());
+						DrawTarget(gsl_vector_get(xhat,1),gsl_vector_get(xhat,2),"Temp");
 					}
 				}
 
@@ -135,6 +144,8 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("xRel",x_rel);
 	m_MissionReader.GetConfigurationParam("yRel",y_rel);
 	m_MissionReader.GetConfigurationParam("TempControl",temp_control);
+	m_MissionReader.GetConfigurationParam("Label",my_label);
+	m_MissionReader.GetConfigurationParam("Color",my_color);
 
 	// Getting Sigma Points
 	string txtfile = "HermiteMatrices.txt";
@@ -161,9 +172,9 @@ bool TDOATracker::OnConnectToServer()
 	}
 
 	for(int i=0;i<s_dim;i++){
-			u1[i] = gsl_matrix_alloc(s_dim, s_dim);
-			u2[i] = gsl_matrix_alloc(s_dim, s_dim);
-			u3[i] = gsl_matrix_alloc(s_dim, s_dim);
+		u1[i] = gsl_matrix_alloc(s_dim, s_dim);
+		u2[i] = gsl_matrix_alloc(s_dim, s_dim);
+		u3[i] = gsl_matrix_alloc(s_dim, s_dim);
 	}
 
 	w = gsl_vector_alloc(s_dim);
@@ -213,7 +224,7 @@ void TDOATracker::TempUpdate(){
 		}
 	}
 
-	heard_z = my_z-heard_z; //tdoa -- actual observation
+	heard_z = (my_z-heard_z)*1492; //tdoa -- actual observation
 	double zhat = r1-r2;	//estimated observation
 
 	gsl_vector *Hk = gsl_vector_alloc(3);
@@ -271,6 +282,71 @@ void TDOATracker::TempUpdate(){
 
 void TDOATracker::FullUpdate(){
 
+	vector<double> x (3,0),y (3,0),toa (3,0),r (3,0);
+	for(int i=0;i<3;i++){
+		x[i] = messages[i].x();
+		y[i] = messages[i].y();
+		toa[i] = messages[i].toa();
+		r[i] = sqrt(pow(gsl_vector_get(xhat,1)-x[i],2)+pow(gsl_vector_get(xhat,2)-y[i],2));
+	}
+
+	gsl_vector *z = gsl_vector_alloc(2);
+	gsl_vector_set(z,0,(toa[0]-toa[1])*1492);
+	gsl_vector_set(z,0,(toa[1]-toa[2])*1492);
+
+	gsl_vector *zhat = gsl_vector_alloc(2);
+	gsl_vector_set(zhat,0,r[0]-r[1]);
+	gsl_vector_set(zhat,0,r[1]-r[2]);
+
+	gsl_vector *Hk = gsl_vector_alloc(3);
+	gsl_vector_set(Hk,0,0);
+	double temp = 1/2/r1*2*(gsl_vector_get(xhat,1)-navx)-1/2/r2*2*(gsl_vector_get(xhat,1)-heard_x);
+	gsl_vector_set(Hk,1,temp);
+
+	temp = 1/2/r1*2*(gsl_vector_get(xhat,2)-navy)-1/2/r2*2*(gsl_vector_get(xhat,2)-heard_y);
+	gsl_vector_set(Hk,2,temp);
+
+	gsl_vector* tvec = gsl_vector_alloc(3);
+	gsl_blas_dgemv(CblasNoTrans,1,P,Hk,1,tvec); //P*Hk'
+	double sk = 0;
+	gsl_blas_ddot(Hk,tvec,&sk);
+	gsl_vector_scale(tvec,1/sk);				//tvec = Kk
+	gsl_blas_daxpy((heard_z-zhat),tvec,xhat);	//xhat = xhat + Kdz
+
+	gsl_matrix* Po = gsl_matrix_alloc(3,3);
+	gsl_matrix* ident = gsl_matrix_alloc(3,3);
+	gsl_matrix_set_identity(ident);
+
+	//outer product Kk*Hk
+	for(int l=0;l<3;l++){
+		gsl_vector_view column = gsl_matrix_column(Po,l);
+		gsl_vector_set(&column.vector,0,gsl_vector_get(tvec,0));
+		gsl_vector_set(&column.vector,1,gsl_vector_get(tvec,1));
+		gsl_vector_set(&column.vector,2,gsl_vector_get(tvec,2));
+
+		gsl_vector_scale(&column.vector,gsl_vector_get(Hk,l));
+	}
+
+	gsl_matrix_sub(ident,Po);
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,ident,P,0,P);
+
+	//Get Priors, number of delay states
+	for(int i=0;i<state_num+1;i++){
+		GetPriors();
+	}
+
+	gsl_vector_free(Hk);
+	gsl_vector_free(tvec);
+	gsl_matrix_free(Po);
+	gsl_matrix_free(ident);
+
+	double x_control = x_rel + gsl_vector_get(xhat,1);
+	double y_control = y_rel + gsl_vector_get(xhat,2);
+	//Control Action
+	std::stringstream ss;
+	ss << "points=" << navx << "," << navy << ":" << x_control << "," << y_control;
+	m_Comms.Notify("TDOA_WAYPOINT_UPDATES_" + my_name, ss.str());
+	m_Comms.Notify("TDOA_STATION_" + my_name, "false");
 }
 
 void TDOATracker::GetPriors(){
@@ -358,20 +434,20 @@ void TDOATracker::GetPriors(){
 }
 
 int func(double t, const double y[], double f[], void *params){
-  f[0] = *(double *)params;
-  f[1] = cos(y[0]);
-  f[2] = sin(y[0]);
-  return GSL_SUCCESS;
+	f[0] = *(double *)params;
+	f[1] = cos(y[0]);
+	f[2] = sin(y[0]);
+	return GSL_SUCCESS;
 }
 
 int jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
-  double mu = *(double *)params;
-  gsl_matrix_view dfdy_mat = gsl_matrix_view_array (dfdy, 3, 3);
-  gsl_matrix * m = &dfdy_mat.matrix;
-  gsl_matrix_set_zero(m);
-  dfdt[0] = 0.0;
-  dfdt[1] = 0.0;
-  return GSL_SUCCESS;
+	double mu = *(double *)params;
+	gsl_matrix_view dfdy_mat = gsl_matrix_view_array (dfdy, 3, 3);
+	gsl_matrix * m = &dfdy_mat.matrix;
+	gsl_matrix_set_zero(m);
+	dfdt[0] = 0.0;
+	dfdt[1] = 0.0;
+	return GSL_SUCCESS;
 }
 
 void TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in, gsl_matrix * matrix_out){
@@ -416,6 +492,18 @@ void TDOATracker::MatrixSquareRoot(int dim, gsl_matrix * matrix_in, gsl_matrix *
 	gsl_matrix_free(evec_real);
 	gsl_matrix_free(evec_inv);
 
+}
+
+void TDOATracker::DrawTarget( double x, double y, string my_type ) {
+	std::stringstream ss;
+	ss << "type=" << "diamond";
+	ss << ",x=" << x;
+	ss << ",y=" << y;
+	ss << ",label=" << my_label;
+	ss << ",COLOR=" << my_color;
+	ss << ",msg=" << my_label<<","<< my_type << ": " << (int) x << " " << (int) y;
+
+	m_Comms.Notify("VIEW_MARKER", ss.str() );
 }
 
 void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids, string msg_out){
