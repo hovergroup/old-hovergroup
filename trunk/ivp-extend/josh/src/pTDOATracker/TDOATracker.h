@@ -49,7 +49,7 @@ public:
    std::vector<gsl_matrix*> s1,s2,s3,u1,u2,u3;
    std::vector<gsl_matrix*> error_cov;
    gsl_matrix *P;
-   gsl_vector *w,*xhat;
+   gsl_vector *w, *xhat;
    double vol, Q, R, localNoise, dt;
    int s_dim;
    TDOAUpdate protobuf;
