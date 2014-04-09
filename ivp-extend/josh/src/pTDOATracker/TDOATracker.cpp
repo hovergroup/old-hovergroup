@@ -24,6 +24,7 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	state = "initial";
 	slots_heard = vector<int>(3,0);
 	messages = vector<TDOAData>(3,TDOAData());
+	xhat = gsl_vector_alloc(3);
 }
 
 //---------------------------------------------------------
@@ -82,10 +83,11 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 					if(data_heard==3){	//Make a Full update
 						FullUpdate();
 						msg_out = "Full Update!";
+						state = "full";
 					}
 				}
 
-				else if(state=="initial"){	//Try to make TEMP update
+				if(state=="initial"){	//Try to make TEMP update
 					if(data_heard==2){ //Make a Temp Update
 						TempUpdate();
 						msg_out = "Temp Update";
@@ -122,8 +124,6 @@ bool TDOATracker::OnConnectToServer()
 	// m_Comms.Register("VARNAME", 0);
 
 	m_MissionReader.GetConfigurationParam("TDOAid",tdoa_id);
-	m_MissionReader.GetConfigurationParam("XOffset",x_offset);
-	m_MissionReader.GetConfigurationParam("YOffset",y_offset);
 	m_MissionReader.GetConfigurationParam("Q",Q);
 	m_MissionReader.GetConfigurationParam("R",R);
 	m_MissionReader.GetConfigurationParam("SDim",s_dim);	//number of sigma points
@@ -192,7 +192,22 @@ bool TDOATracker::Iterate()
 }
 
 void TDOATracker::TempUpdate(){
-
+	double r1 = sqrt((gsl_vector_get(xhat,1)-navx)^2+(gsl_vector_get(xhat,2)-navy)^2);	//distance from self
+	double r2,heard_x,heard_y;
+	for(int i=0;i<3;i++){
+		if(i!=tdoa_id && slots_heard[i]==1){
+			heard_x = messages[i].x();
+			heard_y = messages[i].y();
+			r2 = sqrt((heard_x-navx)^2+(heard_y-navy)^2);
+		}
+	}
+	double zhat = r1-r2;
+	gsl_vector *Hk = gsl_vector_alloc(3);
+	gsl_vector_set(Hk,0,0);
+	double temp = 1/2/r1*2*(xhat[1]-navx)-1/2/r2*2*(xhat[1]-heard_x);
+	gsl_vector_set(Hk,1,temp);
+	temp = 1/2/r1*2*(xhat[2]-navy)-1/2/r2*2*(xhat[2]-heard_y);
+	gsl_vector_set(Hk,2,temp);
 }
 
 void TDOATracker::FullUpdate(){
