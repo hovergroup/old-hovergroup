@@ -210,11 +210,13 @@ bool TDOATracker::Iterate()
 }
 
 void TDOATracker::TempUpdate(){
-	double r1 = sqrt(pow(gsl_vector_get(xhat,1)-navx,2)+pow(gsl_vector_get(xhat,2)-navy,2));	//distance from self
-	double r2,heard_x,heard_y,heard_z,my_z;
+	double r1,r2,heard_x,heard_y,heard_z,my_z,my_x,my_y;
 	for(int i=0;i<3;i++){
 		if(i==tdoa_id && slots_heard[i]==1){
+			heard_x = messages[i].x();
+			heard_y = messages[i].y();
 			my_z = messages[i].toa();
+			r1 = sqrt(pow(gsl_vector_get(xhat,1)-navx,2)+pow(gsl_vector_get(xhat,2)-navy,2));	//distance from self
 		}
 		else if(i!=tdoa_id && slots_heard[i]==1){
 			heard_x = messages[i].x();
@@ -222,6 +224,14 @@ void TDOATracker::TempUpdate(){
 			heard_z = messages[i].toa();
 			r2 = sqrt(pow(gsl_vector_get(xhat,1)-heard_x,2)+pow(gsl_vector_get(xhat,2)-heard_y,2));
 		}
+	}
+
+	//Check wraparound
+	if(abs(heard_z-my_z)>0.5){
+		if(heard_z<0.5)
+			heard_z+=1;
+		else
+			my_z+=1;
 	}
 
 	heard_z = (my_z-heard_z)*1492; //tdoa -- actual observation
@@ -290,6 +300,24 @@ void TDOATracker::FullUpdate(){
 		r[i] = sqrt(pow(gsl_vector_get(xhat,1)-x[i],2)+pow(gsl_vector_get(xhat,2)-y[i],2));
 	}
 
+	//Check for wrap around
+	int wraparound = 0;
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			if(i!=j){
+				if(abs(toa[i]-toa[j])>0.5){
+					wraparound = 1;
+				}
+			}
+		}
+	}
+	if(wraparound==1){
+		for(int i=0;i<3;i++){
+			if(toa[i]<0.5)
+				toa[i]+=1;
+		}
+	}
+
 	gsl_vector *z = gsl_vector_alloc(2);
 	gsl_vector_set(z,0,(toa[0]-toa[1])*1492);
 	gsl_vector_set(z,0,(toa[1]-toa[2])*1492);
@@ -298,10 +326,11 @@ void TDOATracker::FullUpdate(){
 	gsl_vector_set(zhat,0,r[0]-r[1]);
 	gsl_vector_set(zhat,0,r[1]-r[2]);
 
-	gsl_vector *Hk = gsl_vector_alloc(3);
-	gsl_vector_set(Hk,0,0);
-	double temp = 1/2/r1*2*(gsl_vector_get(xhat,1)-navx)-1/2/r2*2*(gsl_vector_get(xhat,1)-heard_x);
-	gsl_vector_set(Hk,1,temp);
+	gsl_matrix *Hk = gsl_matrix_alloc(2,3);
+	gsl_matrix_set(Hk,0,0,0);
+	gsl_matrix_set(Hk,1,0,0);
+	double temp = 1/2/r[0]*2*(gsl_vector_get(xhat,1)-x[0])-1/2/r[1]*2*(gsl_vector_get(xhat,1)-x[1]);
+	gsl_matrix_set(Hk,0,,temp);
 
 	temp = 1/2/r1*2*(gsl_vector_get(xhat,2)-navy)-1/2/r2*2*(gsl_vector_get(xhat,2)-heard_y);
 	gsl_vector_set(Hk,2,temp);
