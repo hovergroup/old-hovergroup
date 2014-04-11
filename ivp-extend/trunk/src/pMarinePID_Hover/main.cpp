@@ -31,7 +31,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   string mission_file;
-  string run_command = argv[0];
+  string run_command = "pMarinePID_Hover";
 
   for(int i=1; i<argc; i++) {
     string argi = argv[i];
