@@ -23,12 +23,20 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	msg_out = "initialized";
 	state = "initial"; state_num = 4;
 	slots_heard = vector<int>(3,0);
+
 	xhat = gsl_vector_alloc(3);
 	gsl_vector_set_zero(xhat);
+	xhat_temp = gsl_vector_alloc(3);
+	gsl_vector_set_zero(xhat_temp);
+
 	P = gsl_matrix_alloc(3,3);
 	gsl_matrix_set_identity(P);
+	Ptemp = gsl_matrix_alloc(3,3);
+	gsl_matrix_set_identity(Ptemp);
+
 	temp_control = 0;
 	my_label="default";my_color="orange";
+	target_speed= 1;
 }
 
 //---------------------------------------------------------
@@ -45,8 +53,10 @@ TDOATracker::~TDOATracker()
 		gsl_matrix_free(u3[i]);
 	}
 	gsl_matrix_free(P);
+	gsl_matrix_free(Ptemp);
 	gsl_vector_free(w);
 	gsl_vector_free(xhat);
+	gsl_vector_free(xhat_temp);
 }
 
 //---------------------------------------------------------
@@ -106,10 +116,10 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 						state="temp";
 
 						std::stringstream ss;
-						ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
+						ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
 						m_Comms.Notify("TDOA_TEMP_ESTIMATE", ss.str());
 						cout <<"Temp: " << ss.str() << endl;
-						DrawTarget(gsl_vector_get(xhat,1),gsl_vector_get(xhat,2),"Temp");
+						DrawTarget(gsl_vector_get(xhat_temp,1),gsl_vector_get(xhat_temp,2),"Temp");
 
 					}
 				}
@@ -156,6 +166,7 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("TempControl",temp_control);
 	m_MissionReader.GetConfigurationParam("Label",my_label);
 	m_MissionReader.GetConfigurationParam("Color",my_color);
+	m_MissionReader.GetConfigurationParam("TargetSpeed",target_speed);
 
 	// Getting Sigma Points
 	string txtfile = "HermiteMatrices.txt";
@@ -266,8 +277,8 @@ void TDOATracker::TempUpdate(){
 	gsl_matrix_memcpy(P,Po);
 
 	std::stringstream ss;
-	ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
-	cout <<"X with z: " << ss.str() << endl;
+	ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
+	cout <<"Xt with z: " << ss.str() << endl;
 
 //	for(int i=0;i<3;i++){
 //		cout << gsl_matrix_get(P,i,0) << ","<< gsl_matrix_get(P,i,1) << ","<< gsl_matrix_get(P,i,2) << endl;
@@ -275,9 +286,9 @@ void TDOATracker::TempUpdate(){
 
 	//Get Priors, number of delay states
 	for(int i=0;i<state_num;i++){
-		GetPriors();
+		GetPriors(Ptemp,xhat_temp);
 		std::stringstream ss;
-		ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
+		ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
 		cout <<"X prior: " << ss.str() << endl;
 	}
 
@@ -287,8 +298,8 @@ void TDOATracker::TempUpdate(){
 	gsl_matrix_free(ident);
 
 	if(temp_control==1){
-		double x_control = x_rel + gsl_vector_get(xhat,1);
-		double y_control = y_rel + gsl_vector_get(xhat,2);
+		double x_control = x_rel + gsl_vector_get(xhat_temp,1);
+		double y_control = y_rel + gsl_vector_get(xhat_temp,2);
 		//Control Action
 		std::stringstream ss;
 		ss << "points=" << x_control << "," << y_control;
@@ -380,7 +391,7 @@ void TDOATracker::FullUpdate(){
 
 	//Get Priors, number of delay states
 	for(int i=0;i<state_num;i++){
-		GetPriors();
+		GetPriors(P,xhat);
 	}
 
 	gsl_matrix_free(Hk);
@@ -401,14 +412,14 @@ void TDOATracker::FullUpdate(){
 	m_Comms.Notify("TDOA_STATION", "false");
 }
 
-void TDOATracker::GetPriors(){
+void TDOATracker::GetPriors(gsl_matrix* P_in, gsl_vector* xhat_in){
 
 	gsl_vector *target = gsl_vector_alloc(3);
 	gsl_vector *dum = gsl_vector_alloc(3);
 	gsl_matrix *Po = gsl_matrix_alloc(3,3);
 	gsl_matrix *sP = gsl_matrix_alloc(s_dim,s_dim);
 
-	MatrixSquareRoot(s_dim,P,sP);
+	MatrixSquareRoot(s_dim,P_in,sP);
 
 	for(int i=0;i<s_dim;i++){	//iterating over sigma points
 		for(int j=0;j<s_dim;j++){
@@ -418,16 +429,20 @@ void TDOATracker::GetPriors(){
 				gsl_vector_set(target,1,gsl_matrix_get(s2[i],j,k));
 				gsl_vector_set(target,2,gsl_matrix_get(s3[i],j,k));
 
-				cout << gsl_vector_get(target,0) << "," << gsl_vector_get(target,1) <<  "," << gsl_vector_get(target,2) << endl ;
+				//cout << gsl_vector_get(target,0) << "," << gsl_vector_get(target,1) <<  "," << gsl_vector_get(target,2) << endl ;
 
 				gsl_blas_dgemv(CblasNoTrans,1,sP,target,0,dum);
-				gsl_vector_add(dum,xhat);
+				gsl_vector_add(dum,xhat_in);
 
 				localNoise = sqrt(Q)*generator();
 
 				//cout<< "yin: " << gsl_vector_get(dum,0) << "," << gsl_vector_get(dum,1) <<  "," << gsl_vector_get(dum,2) << endl ;
 
-				gsl_odeiv2_system sys = {func, jac, 3, &localNoise};
+				ode_params PARAM;
+				PARAM.n = localNoise;   //CHANGE ME. damping parameter
+				PARAM.v = target_speed;     //CHANGE ME. damping parameter
+
+				gsl_odeiv2_system sys = {func, jac, 3, &PARAM};
 
 				gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rkf45,1e-6, 1e-6, 0.0);
 				double t = 0.0;
@@ -450,7 +465,7 @@ void TDOATracker::GetPriors(){
 		}
 	}
 
-	gsl_vector_set_zero(xhat);
+	gsl_vector_set_zero(xhat_in);
 	//get quadrature mean
 	for(int i=0;i<s_dim;i++){
 		for(int j=0;j<s_dim;j++){
@@ -460,13 +475,13 @@ void TDOATracker::GetPriors(){
 				gsl_vector_set(target,2,gsl_matrix_get(u3[i],j,k));
 				double wfactor = gsl_vector_get(w,i)*gsl_vector_get(w,j)*gsl_vector_get(w,k);
 				gsl_vector_scale(target,wfactor);
-				gsl_vector_add(xhat,target);
+				gsl_vector_add(xhat_in,target);
 			}
 		}
 	}
-	gsl_vector_scale(xhat,1/vol);
+	gsl_vector_scale(xhat_in,1/vol);
 
-	gsl_matrix_set_zero(P);
+	gsl_matrix_set_zero(P_in);
 	//get quadrature variance
 	for(int i=0;i<s_dim;i++){
 		for(int j=0;j<s_dim;j++){
@@ -474,7 +489,7 @@ void TDOATracker::GetPriors(){
 				gsl_vector_set(target,0,gsl_matrix_get(u1[i],j,k));
 				gsl_vector_set(target,1,gsl_matrix_get(u2[i],j,k));
 				gsl_vector_set(target,2,gsl_matrix_get(u3[i],j,k));
-				gsl_vector_sub(target,xhat);
+				gsl_vector_sub(target,xhat_in);
 
 				//outer product
 				for(int l=0;l<3;l++){
@@ -488,11 +503,11 @@ void TDOATracker::GetPriors(){
 
 				double wfactor = gsl_vector_get(w,i)*gsl_vector_get(w,j)*gsl_vector_get(w,k);
 				gsl_matrix_scale(Po,wfactor);
-				gsl_matrix_add(P,Po);
+				gsl_matrix_add(P_in,Po);
 			}
 		}
 	}
-	gsl_matrix_scale(P,1/vol);
+	gsl_matrix_scale(P_in,1/vol);
 	gsl_vector_free(target);
 	gsl_vector_free(dum);
 	gsl_matrix_free(Po);
@@ -500,14 +515,31 @@ void TDOATracker::GetPriors(){
 }
 
 int func(double t, const double y[], double f[], void *params){
-	f[0] = *(double *)params;
-	f[1] = 0.1*cos(y[0]);
-	f[2] = 0.1*sin(y[0]);
+
+    struct ode_params{
+	 double n;
+	 double v;
+    };
+
+    ode_params PARAM;
+    PARAM = *(ode_params *)params;
+
+	f[0] = PARAM.n;
+	f[1] = PARAM.v*cos(y[0]);
+	f[2] = PARAM.v*sin(y[0]);
 	return GSL_SUCCESS;
 }
 
 int jac(double t, const double y[], double *dfdy, double dfdt[], void *params){
-	double mu = *(double *)params;
+
+    struct ode_params{
+	 double n;
+	 double v;
+    };
+
+    ode_params PARAM;
+    PARAM = *(ode_params *)params;
+
 	gsl_matrix_view dfdy_mat = gsl_matrix_view_array (dfdy, 3, 3);
 	gsl_matrix * m = &dfdy_mat.matrix;
 	gsl_matrix_set_zero(m);
