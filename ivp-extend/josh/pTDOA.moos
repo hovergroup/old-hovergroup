@@ -1,0 +1,49 @@
+ServerHost = localhost
+ServerPort = 9001
+Community  = sim
+
+ProcessConfig = pTDOASimSingle
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 10    // iterate lower bound
+	
+	targetx = 0
+	targety = 0
+	
+	f1x = -40
+	f1y = -40
+	
+	f2x = 20
+	f2y = 40
+	
+	f3x = -40
+	f3y = 20
+
+    update_period = 5
+}
+
+ProcessConfig = pTDOATracker
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 1    // iterate lower bound
+    
+    TDOAid = 1;
+    Q = 0.01;
+    R = 0.04;
+    SDim = 3;
+    ODEdt = 5;
+    xRel = -50
+    yRel = -50
+    TempControl = 0
+    Label = Nostromo
+    Color = blue
+}
+
+ProcessConfig = uXMS
+{
+  AppTick   = 4
+  CommsTick = 4
+
+  VAR            = TDOA_TEMP_ESTIMATE, TDOA_FULL_ESTIMATE
+  DISPLAY_TIME   = true
+}
