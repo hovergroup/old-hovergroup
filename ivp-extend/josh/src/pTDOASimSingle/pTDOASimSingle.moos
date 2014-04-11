@@ -24,3 +24,20 @@ ProcessConfig = pTDOASimSingle
 	
 	update_period = 5
 }
+
+ProcessConfig = pTDOATracker
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = z    // iterate lower bound
+    
+    TDOAid = 1;
+    Q = 0.01;
+    R = 0.04;
+    SDim = 3;
+    ODEdt = 5;
+    xRel = -50
+    yRel = -50
+    TempControl = 0
+    Label = Nostromo
+    Color = blue
+}

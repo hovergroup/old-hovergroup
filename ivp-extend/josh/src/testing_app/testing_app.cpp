@@ -45,23 +45,26 @@ gsl_matrix* MatrixSquareRoot(int dim, gsl_matrix * matrix_in){
         }
     }
 
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-          cout << gsl_matrix_get (evec_real, i, j)<<endl;
-        }
-    }
+	for(int m=0;m<3;m++){
+		cout << gsl_matrix_get(evec_real,m,0) << ","<< gsl_matrix_get(evec_real,m,1) << ","<< gsl_matrix_get(evec_real,m,2) << endl;
+	}
+
     gsl_matrix *sqrt_e = gsl_matrix_alloc(dim,dim);
+    gsl_matrix_set_zero(sqrt_e);
     for(int i=0;i<dim;i++){
         gsl_matrix_set(sqrt_e,i,i,sqrt(gsl_vector_get(eval_real,i)));
     }
 
+	for(int m=0;m<3;m++){
+		cout << gsl_matrix_get(sqrt_e,m,0) << ","<< gsl_matrix_get(sqrt_e,m,1) << ","<< gsl_matrix_get(sqrt_e,m,2) << endl;
+	}
+
+
     gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,evec_real,sqrt_e,0.0,matrix_in);
 
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-          cout << gsl_matrix_get (matrix_in, i, j)<<endl;
-        }
-    }
+	for(int m=0;m<3;m++){
+		cout << gsl_matrix_get(matrix_in,m,0) << ","<< gsl_matrix_get(matrix_in,m,1) << ","<< gsl_matrix_get(matrix_in,m,2) << endl;
+	}
 
     gsl_matrix * evec_inv = gsl_matrix_alloc(dim,dim);
     gsl_matrix * matrix_out = gsl_matrix_alloc(dim,dim);
@@ -69,12 +72,6 @@ gsl_matrix* MatrixSquareRoot(int dim, gsl_matrix * matrix_in){
     gsl_linalg_LU_invert (evec_real, perm, evec_inv);
     gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,matrix_in,evec_inv,0.0,matrix_out);
 
-
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-          cout << gsl_matrix_get (evec_inv, i, j)<<endl;
-        }
-    }
     return matrix_out;
 }
 
@@ -121,13 +118,13 @@ double random_generator(boost::variate_generator<boost::mt19937, boost::normal_d
 }
 
 int main () {
-	boost::variate_generator<boost::mt19937, boost::normal_distribution<> >
-	    generator(boost::mt19937(time(0)),
-	              boost::normal_distribution<>());
-
-for(int i=0;i<5;i++){
-	cout << random_generator(generator);
-}
+//	boost::variate_generator<boost::mt19937, boost::normal_distribution<> >
+//	    generator(boost::mt19937(time(0)),
+//	              boost::normal_distribution<>());
+//
+//for(int i=0;i<5;i++){
+//	cout << random_generator(generator);
+//}
 //	int s_dim = 3;
 //	std::vector<gsl_matrix*> sigma_points (3*s_dim);
 //	for(int i=0;i<3*s_dim;i++){
@@ -162,24 +159,21 @@ for(int i=0;i<5;i++){
 //	cout << "\n";
 //	cout << vol;
 
-//    double data[] = { 7.0  , 10.0,
-//                       15.0, 22.0 };
-//
-//    gsl_matrix_view m = gsl_matrix_view_array(data, 2, 2);
-//
-//    for (int i = 0; i < 2; i++){
-//        for (int j = 0; j < 2; j++){
-//          cout << gsl_matrix_get (&m.matrix, i, j)<<endl;;
-//        }
-//    }
-//
-//    gsl_matrix* matrix_out = MatrixSquareRoot(2,&m.matrix);
-//
-//    for (int i = 0; i < 2; i++){
-//        for (int j = 0; j < 2; j++){
-//          cout << gsl_matrix_get (matrix_out, i, j)<<endl;;
-//        }
-//    }
+    double data[] = { 1  , 0, 0,
+    				0, 0.88387, -0.161121,
+    				0 ,-0.161121, 0.776456};
+
+    gsl_matrix_view m = gsl_matrix_view_array(data, 3, 3);
+
+    for (int i = 0; i < 3; i++){
+          cout << gsl_matrix_get (&m.matrix, i, 0)<<","<< gsl_matrix_get (&m.matrix, i, 1)<<","<< gsl_matrix_get (&m.matrix, i, 2)<<endl;;
+    }
+    cout <<endl;
+    gsl_matrix* matrix_out = MatrixSquareRoot(3,&m.matrix);
+
+    for (int i = 0; i < 3; i++){
+          cout << gsl_matrix_get (matrix_out, i, 0)<<","<< gsl_matrix_get (matrix_out, i, 1)<<","<< gsl_matrix_get (matrix_out, i, 2)<<endl;;
+    }
 //    unsigned char a = 22;
 //    unsigned char b = 4;
 //    cout << hex << (int) ( (a<<3) + b ) << endl;
