@@ -89,6 +89,8 @@ bool TDOASimSingle::OnConnectToServer()
     m_MissionReader.GetConfigurationParam("targety", m_targety);
     m_MissionReader.GetConfigurationParam("update_period", m_period);
 
+    cout << "Period set to " << m_period << endl;
+
     m_outgoingUpdate.set_local_id(1);
     m_outgoingUpdate.set_cycle_state(TDOAUpdate_StateEnum_PAUSED);
 
@@ -113,7 +115,7 @@ bool TDOASimSingle::Iterate()
             m_randomOffset = ((double) rand())/ RAND_MAX;
             cout << "The random offset for this cycle is "
                     << m_randomOffset << " seconds." << endl;
-            addData(m_f1x, m_f1y, 1, m_range1 / 1450 + m_randomOffset);
+            addData(m_f1x, m_f1y, 1, m_range1 / 1492 + m_randomOffset);
             postOutput();
             m_state = F1_SLOT;
             break;
@@ -122,12 +124,12 @@ bool TDOASimSingle::Iterate()
             m_state = F2_SLOT;
             break;
         case F2_SLOT:
-            addData(m_f2x, m_f2y, 2, m_range2 / 1450 + m_randomOffset);
+            addData(m_f2x, m_f2y, 2, m_range2 / 1492 + m_randomOffset);
             postOutput();
             m_state = F3_SLOT;
             break;
         case F3_SLOT:
-            addData(m_f3x, m_f3y, 3, m_range3 / 1450 + m_randomOffset);
+            addData(m_f3x, m_f3y, 3, m_range3 / 1492 + m_randomOffset);
             postOutput();
             m_state = LEADER_SLOT;
             break;

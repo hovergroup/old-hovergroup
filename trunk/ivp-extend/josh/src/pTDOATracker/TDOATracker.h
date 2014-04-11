@@ -48,7 +48,6 @@ public:
    bool OnStartUp();
 
    std::vector<gsl_matrix*> s1,s2,s3,u1,u2,u3;
-   std::vector<gsl_matrix*> error_cov;
    gsl_matrix *P;
    gsl_vector *w, *xhat;
 
@@ -63,7 +62,7 @@ public:
 
  private: // Configuration variables
    int  tdoa_id;
-   std::string my_name, my_label, my_color;
+   std::string my_label, my_color;
 
  private: // State variables
    double navx,navy;
