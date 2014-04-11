@@ -13,13 +13,13 @@ ProcessConfig = pTDOASimSingle
 	f1x = -40
 	f1y = -40
 	
-	f2x = 20
-	f2y = 40
+	f2x = 10
+	f2y = 50
 	
-	f3x = -40
-	f3y = 20
+	f3x = -30
+	f3y = 30
 
-    update_period = 5
+    update_period = 1
 }
 
 ProcessConfig = pTDOATracker
@@ -32,11 +32,12 @@ ProcessConfig = pTDOATracker
     R = 0.04;
     SDim = 3;
     ODEdt = 5;
-    xRel = -50
-    yRel = -50
+    xRel = -40
+    yRel = -40
     TempControl = 0
     Label = Nostromo
     Color = blue
+    TargetSpeed = 0.5;
 }
 
 ProcessConfig = uXMS

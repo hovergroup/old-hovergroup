@@ -33,39 +33,44 @@ public:
 	TDOATracker();
 	~TDOATracker();
 
-   void RegisterVariables();
-   void GetPriors();
-   void TempUpdate();
-   void FullUpdate();
-   void NotifyStatus(int,std::vector<int>, std::string);
-   void MatrixSquareRoot(int, gsl_matrix*, gsl_matrix*);
-   void DrawTarget(double, double, std::string);
+	void RegisterVariables();
+	void GetPriors(gsl_matrix*,gsl_vector*);
+	void TempUpdate();
+	void FullUpdate();
+	void NotifyStatus(int,std::vector<int>, std::string);
+	void MatrixSquareRoot(int, gsl_matrix*, gsl_matrix*);
+	void DrawTarget(double, double, std::string);
 
- protected:
-   bool OnNewMail(MOOSMSG_LIST &NewMail);
-   bool Iterate();
-   bool OnConnectToServer();
-   bool OnStartUp();
+protected:
+	bool OnNewMail(MOOSMSG_LIST &NewMail);
+	bool Iterate();
+	bool OnConnectToServer();
+	bool OnStartUp();
 
-   std::vector<gsl_matrix*> s1,s2,s3,u1,u2,u3;
-   gsl_matrix *P;
-   gsl_vector *w, *xhat;
+    struct ode_params{
+	 double n;
+	 double v;
+    };
 
-   double vol, Q, R, localNoise, dt;
-   int s_dim, state_num, temp_control;
-   TDOAUpdate protobuf;
-   std::vector<TDOAData> messages;
-   std::vector<int> slots_heard;
-   boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
-   std::string msg_out, state;
-   double x_rel,y_rel;	//rel to target at origin
+	std::vector<gsl_matrix*> s1,s2,s3,u1,u2,u3;
+	gsl_matrix *P, *Ptemp;
+	gsl_vector *w, *xhat, *xhat_temp;
 
- private: // Configuration variables
-   int  tdoa_id;
-   std::string my_label, my_color;
+	double vol, Q, R, localNoise, dt, target_speed;
+	int s_dim, state_num, temp_control;
+	TDOAUpdate protobuf;
+	std::vector<TDOAData> messages;
+	std::vector<int> slots_heard;
+	boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
+	std::string msg_out, state;
+	double x_rel,y_rel;	//rel to target at origin
 
- private: // State variables
-   double navx,navy;
+private: // Configuration variables
+	int  tdoa_id;
+	std::string my_label, my_color;
+
+private: // State variables
+	double navx,navy;
 
 };
 

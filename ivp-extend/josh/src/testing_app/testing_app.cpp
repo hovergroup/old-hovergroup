@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
-#include "testing_app.h"
-
 
 using namespace std;
 
