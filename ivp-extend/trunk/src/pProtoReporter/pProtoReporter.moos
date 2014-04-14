@@ -3,7 +3,9 @@
 
 ProcessConfig = pProtoReporter
 {
-   AppTick   = 4
-   CommsTick = 4
+   AppTick   = 0   // regular iterate and mail
+   CommsTick = 1
+   
+   PLATFORM_TYPE=[KAYAK|GLIDER|REMUS|NSF|ICARUS]
 }
 

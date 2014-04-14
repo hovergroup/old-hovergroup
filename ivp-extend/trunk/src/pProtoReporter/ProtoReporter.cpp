@@ -9,6 +9,7 @@
 #include "MBUtils.h"
 #include "ProtoReporter.h"
 #include "HelmReportUtils.h"
+#include "HoverGeometry.h"
 
 using namespace std;
 
@@ -152,6 +153,86 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             nr.set_cpu_percent_use((int) msg.GetDouble());
         } else if (key == "MEM_PERCENT_USE") {
             nr.set_mem_percent_use((int) msg.GetDouble());
+        } else if (key == "VIEW_POINT") {
+            // parse the message
+            VIEW_POINT point;
+            if (HoverGeometry::parsePoint(msg.GetString(), point)) {
+                // check if we already have a matching label
+                VIEW_POINT * p;
+                bool exists = false;
+                for (int i=0; i<nr.view_points_size(); i++) {
+                    // if we do, replace that one
+                    if (nr.view_points(i).label() == point.label()) {
+                        p = nr.mutable_view_points(i);
+                        exists = true;
+                        break;
+                    }
+                }
+                // if we don't, add a new entry
+                if (!exists)
+                    p = nr.add_view_points();
+                p->CopyFrom(point);
+            }
+        } else if (key == "VIEW_MARKER") {
+            // parse the message
+            VIEW_MARKER marker;
+            if (HoverGeometry::parseMarker(msg.GetString(), marker)) {
+                // check if we already have a matching label
+                VIEW_MARKER * p;
+                bool exists = false;
+                for (int i=0; i<nr.view_markers_size(); i++) {
+                    // if we do, replace that one
+                    if (nr.view_markers(i).label() == marker.label()) {
+                        p = nr.mutable_view_markers(i);
+                        exists = true;
+                        break;
+                    }
+                }
+                // if we don't, add a new entry
+                if (!exists)
+                    p = nr.add_view_markers();
+                p->CopyFrom(marker);
+            }
+        } else if (key == "VIEW_SEGLIST") {
+            // parse the message
+            VIEW_SEGLIST seglist;
+            if (HoverGeometry::parseSeglist(msg.GetString(), seglist)) {
+                // check if we already have a matching label
+                VIEW_SEGLIST * p;
+                bool exists = false;
+                for (int i=0; i<nr.view_seglists_size(); i++) {
+                    // if we do, replace that one
+                    if (nr.view_seglists(i).label() == seglist.label()) {
+                        p = nr.mutable_view_seglists(i);
+                        exists = true;
+                        break;
+                    }
+                }
+                // if we don't, add a new entry
+                if (!exists)
+                    p = nr.add_view_seglists();
+                p->CopyFrom(seglist);
+            }
+        } else if (key == "VIEW_POLYGON") {
+            // parse the message
+            VIEW_POLYGON polygon;
+            if (HoverGeometry::parsePolygon(msg.GetString(), polygon)) {
+                // check if we already have a matching label
+                VIEW_POLYGON * p;
+                bool exists = false;
+                for (int i=0; i<nr.view_polygons_size(); i++) {
+                    // if we do, replace that one
+                    if (nr.view_polygons(i).label() == polygon.label()) {
+                        p = nr.mutable_view_polygons(i);
+                        exists = true;
+                        break;
+                    }
+                }
+                // if we don't, add a new entry
+                if (!exists)
+                    p = nr.add_view_polygons();
+                p->CopyFrom(polygon);
+            }
         }
     }
 
@@ -210,9 +291,18 @@ bool ProtoReporter::Iterate() {
 
     nr.set_time_stamp(MOOSTime());
 
+    cout << nr.DebugString() << endl;
+
     std::string out = nr.SerializeAsString();
+    cout << "size = " << out.size() << endl << endl << endl;
     if (!out.empty())
         m_Comms.Notify("PROTO_REPORT_LOCAL", (void*) out.data(), out.size());
+
+    // clear view objects every time we send
+    nr.clear_view_points();
+    nr.clear_view_markers();
+    nr.clear_view_seglists();
+    nr.clear_view_polygons();
 
     return (true);
 }
@@ -241,6 +331,10 @@ void ProtoReporter::RegisterVariables() {
     m_Comms.Register("NAV_SOURCE", 0);
     m_Comms.Register("CPU_PERCENT_USE", 0);
     m_Comms.Register("MEM_PERCENT_USE", 0);
+    m_Comms.Register("VIEW_POINT", 0);
+    m_Comms.Register("VIEW_SEGLIST", 0);
+    m_Comms.Register("VIEW_MARKER", 0);
+    m_Comms.Register("VIEW_POLYGON", 0);
     switch (nr.platform_type()) {
     case ProtoNodeReport_PlatformTypeEnum_NSF:
         m_Comms.Register("NSF_VOLTAGE", 0);

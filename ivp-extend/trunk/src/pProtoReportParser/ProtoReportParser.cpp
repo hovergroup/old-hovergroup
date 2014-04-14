@@ -8,6 +8,7 @@
 #include <iterator>
 #include "MBUtils.h"
 #include "ProtoReportParser.h"
+#include "HoverGeometry.h"
 
 using namespace std;
 
@@ -68,6 +69,19 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
 				}
 
 				m_Comms.Notify("NODE_REPORT", nr.getSpec());
+			}
+
+			for (int i=0; i<pnr.view_points_size(); i++) {
+			    m_Comms.Notify("VIEW_POINT", HoverGeometry::printPoint(pnr.view_points(i)));
+			}
+			for (int i=0; i<pnr.view_markers_size(); i++) {
+			    m_Comms.Notify("VIEW_MARKER", HoverGeometry::printMarker(pnr.view_markers(i)));
+			}
+			for (int i=0; i<pnr.view_polygons_size(); i++) {
+			    m_Comms.Notify("VIEW_POLYGON", HoverGeometry::printPolygon(pnr.view_polygons(i)));
+			}
+			for (int i=0; i<pnr.view_seglists_size(); i++) {
+			    m_Comms.Notify("VIEW_SEGLIST", HoverGeometry::printSeglist(pnr.view_seglists(i)));
 			}
 		}
 	}

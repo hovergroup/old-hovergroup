@@ -13,4 +13,6 @@ TARGET_LINK_LIBRARIES(HoverGeometry
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
+    marineview
+    geometry
    )
