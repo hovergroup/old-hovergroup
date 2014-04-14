@@ -129,7 +129,13 @@ if $SIMULATION ; then
             ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
+            SLPORT=$SLPORT                                         \
+            RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
+            
+        nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
+            VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
+            CRUISESPEED=${SOFT_CONFIG["${VNAME}:SPEED"]}           \
+            RETURN_PT=${SOFT_CONFIG["${VNAME}:RETURN_PT"]}
     fi
 else
     if [ "${VNAME}" = "ICARUS" ] ; then

@@ -3,6 +3,6 @@ ProcessConfig = uSimMarine
     IterateMode = 0    // regular iterate and mail
     AppTick     = 10
 
-    START_POS = $(START_POS), 180, 0
+    START_POS = $(RETURN_PT), 180, 0
     PREFIX    = NAV
 }
