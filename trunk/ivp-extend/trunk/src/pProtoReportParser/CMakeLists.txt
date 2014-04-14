@@ -17,6 +17,7 @@ ADD_EXECUTABLE(pProtoReportParser ${SRC})
 
 TARGET_LINK_LIBRARIES(pProtoReportParser
    hovergroup_proto
+   HoverGeometry
    mbutil
    ${MOOS_LIBRARIES}
    ${MOOS_DEPEND_LIBRARIES}

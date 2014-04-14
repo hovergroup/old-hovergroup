@@ -17,6 +17,7 @@ ADD_EXECUTABLE(pProtoReporter ${SRC})
 
 TARGET_LINK_LIBRARIES(pProtoReporter
    hovergroup_proto
+   HoverGeometry
    mbutil
    boost_system
    ${MOOS_LIBRARIES}

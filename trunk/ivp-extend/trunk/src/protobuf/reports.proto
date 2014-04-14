@@ -1,3 +1,5 @@
+import "geometry.proto";
+
 message ProtoNodeReport {
     required string vehicle_name = 1;
     required double time_stamp = 8;
@@ -65,4 +67,9 @@ message ProtoNodeReport {
     
     optional int32 cpu_percent_use = 18;
     optional int32 mem_percent_use = 19;
+    
+    repeated VIEW_POINT view_points = 20;
+    repeated VIEW_MARKER view_markers = 21;
+    repeated VIEW_SEGLIST view_seglists = 22;
+    repeated VIEW_POLYGON view_polygons = 23;
 }
