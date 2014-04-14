@@ -22,6 +22,7 @@ ADD_SUBDIRECTORY(protobuf)
 ADD_SUBDIRECTORY(lib_acomms_messages)
 ADD_SUBDIRECTORY(lib_JoshUtils)
 ADD_SUBDIRECTORY(lib_HoverAcomms)
+ADD_SUBDIRECTORY(lib_HoverGeometry)
 
 # programs
 ADD_SUBDIRECTORY(pMarinePID_Hover)
