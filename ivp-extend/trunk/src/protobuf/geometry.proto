@@ -1,0 +1,42 @@
+enum ShapeEnum {
+	SQUARE = 1;
+	TRIANGLE = 2;
+	DIAMOND = 3;
+	CIRCLE = 4;
+	GATEWAY = 5;
+	EFIELD = 6;
+}
+
+message VIEW_POINT {
+	required double x = 1;
+	required double y = 2;
+	optional double z = 3;
+	
+	required string label = 4;
+	optional string msg = 5;
+}
+
+message VIEW_MARKER {
+	required double x = 1;
+	required double y = 2;
+	optional double z = 3;
+	
+	required string label = 4;
+	optional string msg = 5;
+	
+	optional ShapeEnum shape = 6;
+	optional string color = 7; 
+	optional double width = 8;
+}
+
+message VIEW_SEGLIST {
+
+}
+
+message VIEW_RANGE_PULSE {
+
+}
+
+message VIEW_VECTOR {
+
+}
