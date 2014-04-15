@@ -439,12 +439,12 @@ void TDOATracker::GetPriors(gsl_matrix* P_in, gsl_vector* xhat_in){
 				//cout<< "yin: " << gsl_vector_get(dum,0) << "," << gsl_vector_get(dum,1) <<  "," << gsl_vector_get(dum,2) << endl ;
 
 				ode_params PARAM;
-				PARAM.n = localNoise;   //CHANGE ME. damping parameter
-				PARAM.v = target_speed;     //CHANGE ME. damping parameter
+				PARAM.n = localNoise;
+				PARAM.v = target_speed;
 
 				gsl_odeiv2_system sys = {func, jac, 3, &PARAM};
 
-				gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rkf45,1e-6, 1e-6, 0.0);
+				gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rkf45,1e-6, 1e-6, 1e-6);
 				double t = 0.0;
 				double y[] = {gsl_vector_get(dum,0),gsl_vector_get(dum,1),gsl_vector_get(dum,2)};
 				int status = gsl_odeiv2_driver_apply (d, &t, dt, y);
@@ -458,7 +458,7 @@ void TDOATracker::GetPriors(gsl_matrix* P_in, gsl_vector* xhat_in){
 				gsl_matrix_set(u2[i],j,k,y[1]);
 				gsl_matrix_set(u3[i],j,k,y[2]);
 
-				//cout << "yout: "<< y[0] << "," << y[1] <<  "," << y[2] << endl ;
+				cout << "Noise: "<< localNoise << "-->" << "yout: "<< y[0] << "," << y[1] <<  "," << y[2] << endl ;
 
 				gsl_odeiv2_driver_free (d);
 			}
