@@ -1,0 +1,106 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pNavManager            @ NewConsole = false
+  Run = iIcarus                @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  Run = pResourceMon           @ NewConsole = false
+
+#ifdef ROLE target
+  Run = pScheduledTransmit     @ NewConsole = false
+#endif
+#ifdef ROLE follower
+  Run = pAcommsScheduler       @ NewConsole = false
+  Run = pTDOAComms             @ NewConsole = false
+#endif
+}
+
+ProcessConfig = pTDOAComms
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+    
+    ID = $(ID)   // our local id
+    target_id = 4
+    
+    period = $(TRANSMIT_PERIOD)
+    f1_offset = $(F1_OFFSET)
+    f2_offset = $(F2_OFFSET)
+    f3_offset = $(F3_OFFSET)
+}
+
+ProcessConfig = pAcommsScheduler
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+   
+    period = $(TRANSMIT_PERIOD) // auv's transmit period
+    pre_lock = 0 // time before expected receive start
+    post_lock = 0 // time after expected receive end
+    source_ID = 4 // source ID of remus
+}
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = $(MODEMPORT)
+    ID       = $(ID)
+
+    PSK_minipackets   = false
+    show_range_pulses = true
+    enable_legacy     = false
+    use_scheduler     = true
+#ifdef ROLE target
+    enable_ranging    = false
+#endif
+#ifdef ROLE follower
+    enable_ranging    = true
+#endif
+}
+
+Processconfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+    event = var=NAV_HEADING,val=0,time=1
+    event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+    event = quit, time=2
+}
+
+ProcessConfig = pProtoReporter
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
+  
+    PLATFORM_TYPE = ICARUS
+}
+
+#include ../../trunk/plugs/plug_pShareV.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iIcarus.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
