@@ -96,6 +96,15 @@ ProcessConfig = pProtoReporter
     PLATFORM_TYPE = ICARUS
 }
 
+ProcessConfig = pScheduledTransmit
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 20
+   
+    period = $(TRANSMIT_PERIOD)
+    offset = 0
+}
+
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
