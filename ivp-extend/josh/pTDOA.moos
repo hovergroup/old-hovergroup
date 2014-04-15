@@ -14,7 +14,7 @@ ProcessConfig = pTDOASimSingle
 	f1y = -40
 	
 	f2x = 10
-	f2y = 50
+	f2y = 20
 	
 	f3x = -30
 	f3y = 30
@@ -27,17 +27,17 @@ ProcessConfig = pTDOATracker
     IterateMode = 1    // comms driven iterate and mail
     AppTick     = 1    // iterate lower bound
     
-    TDOAid = 1;
-    Q = 0.01;
+    TDOAid = 3;
+    Q = 0.02;
     R = 0.04;
     SDim = 3;
     ODEdt = 5;
-    xRel = -40
-    yRel = -40
+    xRel = -30
+    yRel = 30
     TempControl = 0
     Label = Nostromo
     Color = blue
-    TargetSpeed = 0.5;
+    TargetSpeed = 1;
 }
 
 ProcessConfig = uXMS

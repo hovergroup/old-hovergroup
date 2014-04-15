@@ -203,7 +203,7 @@ bool TDOATracker::OnConnectToServer()
 	w = gsl_vector_alloc(s_dim);
 	gsl_vector_fscanf(f,w);
 	fscanf (f, "%lf", &vol);
-	cout << "Read All\n";
+	cout << "Vol: " << vol << endl;
 	fclose(f);
 
 	RegisterVariables();
@@ -242,6 +242,7 @@ void TDOATracker::TempUpdate(){
 	double z = (toa[0]-toa[1])*1492; //tdoa -- actual observation
 	double zhat = r[0]-r[1];	//estimated observation
 
+	gsl_vector_memcpy(xhat_temp,xhat);
 	gsl_vector *Hk = gsl_vector_alloc(3);
 	gsl_vector_set(Hk,0,0);
 	double temp = 1/r[0]*(gsl_vector_get(xhat,1)-x[0])-1/r[1]*(gsl_vector_get(xhat,1)-x[1]);
@@ -256,7 +257,7 @@ void TDOATracker::TempUpdate(){
 	gsl_blas_ddot(Hk,tvec,&sk);//Hk*P*Hk'
 	gsl_vector_scale(tvec,1/(sk+R));				//tvec = Kk
 	gsl_vector_scale(tvec,(z-zhat));
-	gsl_vector_add(xhat,tvec);
+	gsl_vector_add(xhat_temp,tvec);
 
 	gsl_matrix* Po = gsl_matrix_alloc(3,3);
 	gsl_matrix* ident = gsl_matrix_alloc(3,3);
@@ -274,7 +275,7 @@ void TDOATracker::TempUpdate(){
 
 	gsl_matrix_sub(ident,Po);
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,ident,P,0,Po);
-	gsl_matrix_memcpy(P,Po);
+	gsl_matrix_memcpy(Ptemp,Po);
 
 	std::stringstream ss;
 	ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
@@ -289,7 +290,7 @@ void TDOATracker::TempUpdate(){
 		GetPriors(Ptemp,xhat_temp);
 		std::stringstream ss;
 		ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
-		cout <<"X prior: " << ss.str() << endl;
+		cout <<"Xt prior: " << ss.str() << endl;
 	}
 
 	gsl_vector_free(Hk);
@@ -405,6 +406,8 @@ void TDOATracker::FullUpdate(){
 
 	double x_control = x_rel + gsl_vector_get(xhat,1);
 	double y_control = y_rel + gsl_vector_get(xhat,2);
+	x_rel = x_control;
+	y_rel = y_control;
 	//Control Action
 	std::stringstream ss;
 	ss << "points=" << x_control << "," << y_control;
