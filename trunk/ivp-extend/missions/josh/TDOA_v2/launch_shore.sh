@@ -74,6 +74,9 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     VNAME4=${HARD_CONFIG["KESTREL:VNAME"]}              \
     VHOST4=${HARD_CONFIG["KESTREL:VHOST"]}              \
     LPORT4=${HARD_CONFIG["KESTREL:LPORT"]}              \
+    VNAME1=$VNAME_ICARUS                                \
+    VHOST1=$VHOST_ICARUS                                \
+    LPORT1=$LPORT_ICARUS
 
 if $JUST_BUILD ; then
     exit 0

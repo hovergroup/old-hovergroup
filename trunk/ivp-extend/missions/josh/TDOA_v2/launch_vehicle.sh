@@ -16,7 +16,7 @@ VNAME=""
 ALTIMETER=""
 SIMULATION=false
 
-ROLE = ""
+ROLE=""
 ID=""
 
 F1_OFFSET="8"
@@ -86,9 +86,13 @@ if [ "${ROLE}" = "" ] ; then
     exit 0
 fi
 
-if [ "${ROLE}" != "follower" -a "${ROLE"} != "target" ] ; then
-    printf "Invalid role" $ROLE "\n"
+if [[ "${ROLE}" != "follower" && "${ROLE}" != "target" ]] ; then
+    printf "Invalid role\n"
     exit 0;
+fi
+
+if [ "${ROLE}" = "target" ] ; then
+    ID="4"
 fi
 
 if [ "${ID}" = "" ] ; then
