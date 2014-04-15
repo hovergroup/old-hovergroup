@@ -69,12 +69,13 @@ ProcessConfig = iAcommsDriver
     PSK_minipackets   = false
     show_range_pulses = true
     enable_legacy     = false
-    use_scheduler     = true
 #ifdef ROLE target
     enable_ranging    = false
+    use_scheduler     = false
 #endif
 #ifdef ROLE follower
     enable_ranging    = true
+    use_scheduler     = true
 #endif
 }
 
