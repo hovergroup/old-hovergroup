@@ -36,6 +36,8 @@ message ProtoNodeReport {
         PARK = 0;
         DRIVE = 1;
         MISSING = 2;
+        MALCONFIG = 3;
+        UNKNOWN = 4;
     }
     
     optional GPSQualityEnum gps_quality = 13;
@@ -72,4 +74,9 @@ message ProtoNodeReport {
     repeated VIEW_MARKER view_markers = 21;
     repeated VIEW_SEGLIST view_seglists = 22;
     repeated VIEW_POLYGON view_polygons = 23;
+    
+    repeated ErrorEnum errors = 24;
+    enum ErrorEnum {
+    	NoCompassData = 1;
+    }
 }

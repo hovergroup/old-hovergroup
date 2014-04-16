@@ -78,8 +78,12 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
         } else if (key == "IVPHELM_STATE") {
             if (msg.GetString()=="DRIVE") {
                 nr.set_helm_state(ProtoNodeReport_HelmStateEnum_DRIVE);
-            } else {
+            } else if (msg.GetString()=="MALCONFIG") {
+            	nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MALCONFIG);
+            } else if (msg.GetString()=="PARK") {
                 nr.set_helm_state(ProtoNodeReport_HelmStateEnum_PARK);
+            } else {
+            	nr.set_helm_state(ProtoNodeReport_HelmStateEnum_UNKNOWN);
             }
             m_lastHelmStateUpdate = msg.GetTime();
         } else if (key == "RTK_QUALITY" && rtk) {
