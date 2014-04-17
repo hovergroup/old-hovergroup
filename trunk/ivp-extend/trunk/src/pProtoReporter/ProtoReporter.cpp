@@ -22,6 +22,7 @@ ProtoReporter::ProtoReporter() {
     m_lastAcommsStatusUpdate = -1;
     m_lastHelmStateUpdate = -1;
     m_lastGPSQualityUpdate = -1;
+    m_lastHeadingUpdate = -1;
 }
 
 //---------------------------------------------------------
@@ -63,6 +64,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             nr.set_y(msg.GetDouble());
         } else if (key == "NAV_HEADING") {
             nr.set_heading(msg.GetDouble());
+            m_lastHeadingUpdate = msg.GetTime();
         } else if (key == "NAV_SPEED") {
             nr.set_speed(msg.GetDouble());
         } else if (key == "NAV_DEPTH") {
@@ -292,6 +294,9 @@ bool ProtoReporter::Iterate() {
     if (MOOSTime() - m_lastNavSourceUpdate > 6) {
         nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
     }
+    if (MOOSTime() - m_lastHeadingUpdate > 5 && nr.platform_type() == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+    	nr.add_errors(ProtoNodeReport_ErrorEnum_NoCompassData);
+    }
 
     nr.set_time_stamp(MOOSTime());
 
@@ -307,6 +312,7 @@ bool ProtoReporter::Iterate() {
     nr.clear_view_markers();
     nr.clear_view_seglists();
     nr.clear_view_polygons();
+    nr.clear_errors();
 
     return (true);
 }

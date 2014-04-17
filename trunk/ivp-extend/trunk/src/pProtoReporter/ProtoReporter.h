@@ -28,7 +28,8 @@ private:
 	// Configuration variables
 
 private:
-	double m_lastAcommsStatusUpdate, m_lastHelmStateUpdate, m_lastGPSQualityUpdate, m_lastNavSourceUpdate;
+	double m_lastAcommsStatusUpdate, m_lastHelmStateUpdate, m_lastGPSQualityUpdate, m_lastNavSourceUpdate,
+		m_lastHeadingUpdate;
 
 	double m_navX, m_navY, m_navHeading, m_navSpeed, m_navDepth;
 	double m_voltage;
