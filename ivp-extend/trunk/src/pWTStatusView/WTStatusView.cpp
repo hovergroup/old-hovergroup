@@ -19,7 +19,7 @@ std::vector<std::string> vnames;
 std::map<std::string, double> report_ages;
 std::map<std::string, ProtoNodeReport> data;
 
-const int NUM_ROWS = 13;
+const int NUM_ROWS = 14;
 
 const int AGE_ROW = 2;
 const int TYPE_ROW = 1;
@@ -33,6 +33,7 @@ const int RADIO_STATE_ROW = 9;
 const int NSF_POWER_LEVEL_ROW = 10;
 const int THRUST_LIMIT_ROW = 11;
 const int CPU_MEM_ROW = 12;
+const int ERRORS_ROW = 13;
 
 //---------------------------------------------------------
 // Constructor
@@ -99,6 +100,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
     tableTexts[pair<int,int>(NSF_POWER_LEVEL_ROW,0)]->setText("NSF Power Level");
     tableTexts[pair<int,int>(THRUST_LIMIT_ROW,0)]->setText("Thrust Limit");
     tableTexts[pair<int,int>(CPU_MEM_ROW,0)]->setText("cpu% / mem%");
+    tableTexts[pair<int,int>(ERRORS_ROW,0)]->setText("Other Errors");
 
     for (int col=0; col<num_vehicles; col++) {
         tableTexts[pair<int,int>(0, col+1)]->setText(vnames[col]);
@@ -353,6 +355,23 @@ void StatusViewApplication::update() {
             table->elementAt(CPU_MEM_ROW, col+1)->setStyleClass("yellow center");
         } else {
             table->elementAt(CPU_MEM_ROW, col+1)->setStyleClass("green center");
+        }
+
+        // ---------------- other errors -------------------
+        if (data[vname].errors_size() == 0) {
+            tableTexts[pair<int,int>(ERRORS_ROW, col+1)]->setText("none");
+            table->elementAt(ERRORS_ROW, col+1)->setStyleClass("green center");
+        } else {
+        	string errors;
+        	for (int i=0; i<data[vname].errors_size(); i++) {
+        		switch (data[vname].errors(i)) {
+        		case ProtoNodeReport_ErrorEnum_NoCompassData:
+        			errors += "No compass data\n";
+        			break;
+        		}
+        	}
+            tableTexts[pair<int,int>(ERRORS_ROW, col+1)]->setText(errors);
+            table->elementAt(ERRORS_ROW, col+1)->setStyleClass("red center");
         }
     }
 }
