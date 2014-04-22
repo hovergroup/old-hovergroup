@@ -517,6 +517,12 @@ void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw&
     else if ( descriptor == "IRE" ) {
         m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
     }
+
+    else if ( descriptor == "ERR" ) {
+    	if (msg.raw().find("EXTSYNC timeout") != std::string::npos) {
+    		publishWarning("PPS sync error - transmission not sent");
+    	}
+    }
 }
 
 // publish warning
