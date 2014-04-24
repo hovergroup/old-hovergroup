@@ -107,6 +107,24 @@ ProcessConfig = pScheduledTransmit
     offset = 0
 }
 
+ProcessConfig = pTDOATracker
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 1    // iterate lower bound
+    
+    TDOAid = 3;
+    Q = 0.02;
+    R = 0.04;
+    SDim = 3;
+    ODEdt = 5;
+    xRel = -30
+    yRel = 30
+    TempControl = 0
+    Label = Nostromo
+    Color = blue
+    TargetSpeed = 1;
+}
+
 #include ../../trunk/plugs/plug_iKST.moos
 #include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
