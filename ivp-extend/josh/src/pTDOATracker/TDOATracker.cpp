@@ -161,8 +161,6 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("R",R);
 	m_MissionReader.GetConfigurationParam("SDim",s_dim);	//number of sigma points
 	m_MissionReader.GetConfigurationParam("ODEdt",dt);	//ODE system timestep
-	m_MissionReader.GetConfigurationParam("xRel",x_rel);
-	m_MissionReader.GetConfigurationParam("yRel",y_rel);
 	m_MissionReader.GetConfigurationParam("TempControl",temp_control);
 	m_MissionReader.GetConfigurationParam("Label",my_label);
 	m_MissionReader.GetConfigurationParam("Color",my_color);
@@ -299,8 +297,8 @@ void TDOATracker::TempUpdate(){
 	gsl_matrix_free(ident);
 
 	if(temp_control==1){
-		double x_control = x_rel + gsl_vector_get(xhat_temp,1);
-		double y_control = y_rel + gsl_vector_get(xhat_temp,2);
+		double x_control = navx + gsl_vector_get(xhat_temp,1);
+		double y_control = navy + gsl_vector_get(xhat_temp,2);
 		//Control Action
 		std::stringstream ss;
 		ss << "points=" << x_control << "," << y_control;
@@ -404,10 +402,8 @@ void TDOATracker::FullUpdate(){
 	gsl_matrix_free(ident);
 	gsl_vector_free(txhat);
 
-	double x_control = x_rel + gsl_vector_get(xhat,1);
-	double y_control = y_rel + gsl_vector_get(xhat,2);
-	x_rel = x_control;
-	y_rel = y_control;
+	double x_control = navx + gsl_vector_get(xhat,1);
+	double y_control = navy + gsl_vector_get(xhat,2);
 	//Control Action
 	std::stringstream ss;
 	ss << "points=" << x_control << "," << y_control;
@@ -625,7 +621,7 @@ void TDOATracker::DrawTarget( double x, double y, string my_type ) {
 	ss << ",y=" << y;
 	ss << ",label=" << my_label;
 	ss << ",COLOR=" << my_color;
-	ss << ",msg=" << my_label<<","<< my_type << ": " << (int) x << " " << (int) y;
+	ss << ",msg=" << my_label<<"-"<< my_type << ": " << (int) x << " " << (int) y;
 
 	m_Comms.Notify("VIEW_MARKER", ss.str() );
 }

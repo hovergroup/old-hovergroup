@@ -63,7 +63,6 @@ protected:
 	std::vector<int> slots_heard;
 	boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
 	std::string msg_out, state;
-	double x_rel,y_rel;	//rel to target at origin
 
 private: // Configuration variables
 	int  tdoa_id;
