@@ -168,10 +168,10 @@ bool TDOATracker::OnConnectToServer()
 	m_MissionReader.GetConfigurationParam("TargetX",targx);
 	m_MissionReader.GetConfigurationParam("TargetY",targy);
 
-	gsl_vector_set(xhat,0,targx);
-	gsl_vector_set(xhat,1,targy);
-	gsl_vector_set(xhat_temp,0,targx);
-	gsl_vector_set(xhat_temp,1,targy);
+	gsl_vector_set(xhat,1,targx);
+	gsl_vector_set(xhat,2,targy);
+	gsl_vector_set(xhat_temp,1,targx);
+	gsl_vector_set(xhat_temp,2,targy);
 
 	// Getting Sigma Points
 	string txtfile = "HermiteMatrices.txt";
