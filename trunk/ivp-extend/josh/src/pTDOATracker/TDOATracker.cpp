@@ -256,11 +256,13 @@ void TDOATracker::TempUpdate(){
 	temp = 1/r[0]*(gsl_vector_get(xhat,2)-y[0])-1/r[1]*(gsl_vector_get(xhat,2)-y[1]);
 	gsl_vector_set(Hk,2,temp);
 
+	gsl_vector* Kk = gsl_vector_alloc(3);
 	gsl_vector* tvec = gsl_vector_alloc(3);
-	gsl_blas_dgemv(CblasNoTrans,1,P,Hk,0,tvec); //P*Hk'
+	gsl_blas_dgemv(CblasNoTrans,1,P,Hk,0,Kk); //P*Hk'
 	double sk = 0;
-	gsl_blas_ddot(Hk,tvec,&sk);//Hk*P*Hk'
-	gsl_vector_scale(tvec,1/(sk+R));				//tvec = Kk
+	gsl_blas_ddot(Hk,Kk,&sk);//Hk*P*Hk'
+	gsl_vector_scale(Kk,1/(sk+R));
+	gsl_vector_memcpy(tvec,Kk);
 	gsl_vector_scale(tvec,(z-zhat));
 	gsl_vector_add(xhat_temp,tvec);
 
@@ -271,9 +273,9 @@ void TDOATracker::TempUpdate(){
 	//outer product Kk*Hk
 	for(int l=0;l<3;l++){
 		gsl_vector_view column = gsl_matrix_column(Po,l);
-		gsl_vector_set(&column.vector,0,gsl_vector_get(tvec,0));
-		gsl_vector_set(&column.vector,1,gsl_vector_get(tvec,1));
-		gsl_vector_set(&column.vector,2,gsl_vector_get(tvec,2));
+		gsl_vector_set(&column.vector,0,gsl_vector_get(Kk,0));
+		gsl_vector_set(&column.vector,1,gsl_vector_get(Kk,1));
+		gsl_vector_set(&column.vector,2,gsl_vector_get(Kk,2));
 
 		gsl_vector_scale(&column.vector,gsl_vector_get(Hk,l));
 	}
@@ -300,6 +302,7 @@ void TDOATracker::TempUpdate(){
 
 	gsl_vector_free(Hk);
 	gsl_vector_free(tvec);
+	gsl_vector_free(Kk);
 	gsl_matrix_free(Po);
 	gsl_matrix_free(ident);
 
