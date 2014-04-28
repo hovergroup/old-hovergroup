@@ -8,6 +8,11 @@ MISSIONS_HOME="../.."
 source ${MISSIONS_HOME}/trunk/config/hard_config
 source ${MISSIONS_HOME}/trunk/config/soft_config
 
+SOFT_CONFIG["KESTREL:TARGET_COLOR"]="blue"
+SOFT_CONFIG["NOSTROMO:TARGET_COLOR"]="green"
+SOFT_CONFIG["SILVANA:TARGET_COLOR"]="indigo"
+SOFT_CONFIG["ICARUS:TARGET_COLOR"]="sienna"
+
 # set defaults
 HELP="no"
 JUST_BUILD="no"
@@ -191,7 +196,8 @@ else
             TRANSMIT_PERIOD=$TRANSMIT_PERIOD                      \
             F1_OFFSET=$F1_OFFSET                                  \
             F2_OFFSET=$F2_OFFSET                                  \
-            F3_OFFSET=$F3_OFFSET
+            F3_OFFSET=$F3_OFFSET                                  \
+            TARGET_COLOR=${SOFT_CONFIG["${VNAME}:TARGET_COLOR"]}
     else
         nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
@@ -212,7 +218,8 @@ else
             TRANSMIT_PERIOD=$TRANSMIT_PERIOD                       \
             F1_OFFSET=$F1_OFFSET                                   \
             F2_OFFSET=$F2_OFFSET                                   \
-            F3_OFFSET=$F3_OFFSET
+            F3_OFFSET=$F3_OFFSET                                   \
+            TARGET_COLOR=${SOFT_CONFIG["${VNAME}:TARGET_COLOR"]}
             
         nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \

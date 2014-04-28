@@ -112,17 +112,15 @@ ProcessConfig = pTDOATracker
     IterateMode = 1    // comms driven iterate and mail
     AppTick     = 1    // iterate lower bound
     
-    TDOAid = 3;
-    Q = 0.02;
-    R = 0.04;
-    SDim = 3;
-    ODEdt = 5;
-    xRel = -30
-    yRel = 30
+    TDOAid = $(ID)
+    Q = 0.02
+    R = 0.04
+    SDim = 3
+    ODEdt = $(F1_OFFSET)
     TempControl = 0
-    Label = Nostromo
-    Color = blue
-    TargetSpeed = 1;
+    Label = $(VNAME)
+    Color = $(TARGET_COLOR)
+    TargetSpeed = 1
 }
 
 #include ../../trunk/plugs/plug_iKST.moos

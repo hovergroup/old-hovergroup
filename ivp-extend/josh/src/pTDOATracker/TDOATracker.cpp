@@ -37,6 +37,8 @@ TDOATracker::TDOATracker() : generator(boost::mt19937(time(0)),boost::normal_dis
 	temp_control = 0;
 	my_label="default";my_color="orange";
 	target_speed= 1;
+
+	m_state = PAUSED;
 }
 
 //---------------------------------------------------------
@@ -59,6 +61,18 @@ TDOATracker::~TDOATracker()
 	gsl_vector_free(xhat_temp);
 }
 
+void TDOATracker::ResetTracker() {
+	gsl_vector_set_zero(xhat);
+	gsl_vector_set_zero(xhat_temp);
+	gsl_matrix_set_identity(P);
+	gsl_matrix_set_identity(Ptemp);
+
+	gsl_vector_set(xhat,1,targx);
+	gsl_vector_set(xhat,2,targy);
+	gsl_vector_set(xhat_temp,1,targx);
+	gsl_vector_set(xhat_temp,2,targy);
+}
+
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
@@ -70,7 +84,7 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 		CMOOSMsg &msg = *p;
 		string key = msg.GetKey();
 
-		if(key== "TDOA_PROTOBUF"){
+		if(m_state==RUNNING && key== "TDOA_PROTOBUF"){
 			protobuf.ParseFromString(msg.GetString());
 			slots_heard = vector<int>(3,0);
 			int data_heard = protobuf.data_size();
@@ -106,6 +120,14 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 						m_Comms.Notify("TDOA_FULL_ESTIMATE", ss.str());
 						cout <<"Full: "<< ss.str() << endl;
 						DrawTarget(gsl_vector_get(xhat,1),gsl_vector_get(xhat,2),"Full");
+
+						double x_control = target_x_relative + gsl_vector_get(xhat,1);
+						double y_control = target_y_relative + gsl_vector_get(xhat,2);
+						//Control Action
+						ss.str().clear();
+						ss << "points=" << x_control << "," << y_control;
+						m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
+						m_Comms.Notify("TDOA_STATION", "false");
 					}
 				}
 
@@ -121,6 +143,15 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 						cout <<"Temp: " << ss.str() << endl;
 						DrawTarget(gsl_vector_get(xhat_temp,1),gsl_vector_get(xhat_temp,2),"Temp");
 
+						if(temp_control==1){
+							double x_control = target_x_relative + gsl_vector_get(xhat_temp,1);
+							double y_control = target_y_relative + gsl_vector_get(xhat_temp,2);
+							//Control Action
+							ss.str().clear();
+							ss << "points=" << x_control << "," << y_control;
+							m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
+							m_Comms.Notify("TDOA_STATION", "false");
+						}
 					}
 				}
 
@@ -141,9 +172,55 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 		} else if (key == "NAV_Y") {
 			navy = msg.GetDouble();
 		}
+
+		// resetting and reconfiguring
+		else if (m_state==PAUSED && key == "TRACKER_TARGET_INITIAL_X") {
+			targx = msg.GetDouble();
+		} else if (m_state==PAUSED && key == "TRACKER_TARGET_INITIAL_Y") {
+			targy = msg.GetDouble();
+		} else if (m_state==PAUSED && key == "TRACKER_TARGET_SPEED") {
+			target_speed = msg.GetDouble();
+		} else if (m_state==PAUSED && key == "TARGET_TRACKER_Q") {
+			Q = msg.GetDouble();
+		} else if (m_state==PAUSED && key == "TARGET_TRACKER_R") {
+			R = msg.GetDouble();
+		} else if (key == "TRACKER_COMMAND") {
+			string cmd = MOOSToUpper(msg.GetString());
+			if (cmd == "RUN") {
+				m_state = RUNNING;
+				target_x_relative = navx-targx;
+				target_y_relative = navy-targy;
+				ResetTracker();
+			} else if (cmd == "PAUSE") {
+				m_state = PAUSED;
+			}
+		} else if (m_state==PAUSED && key == "TRACKER_TEMP_WAYPOINTS") {
+			string cmd = MOOSToUpper(msg.GetString());
+			if (cmd == "ON") {
+				temp_control = 1;
+			} else if (cmd == "OFF") {
+				temp_control = 0;
+			}
+		}
 	}
 
 	return(true);
+}
+
+//---------------------------------------------------------
+// Procedure: RegisterVariables
+
+void TDOATracker::RegisterVariables() {
+	m_Comms.Register("NAV_X", 0);
+	m_Comms.Register("NAV_Y", 0);
+	m_Comms.Register("TDOA_PROTOBUF", 0);
+	m_Comms.Register("TRACKER_TARGET_INITIAL_X", 0);
+	m_Comms.Register("TRACKER_TARGET_INITIAL_Y", 0);
+	m_Comms.Register("TRACKER_TARGET_SPEED", 0);
+	m_Comms.Register("TARGET_TRACKER_Q", 0);
+	m_Comms.Register("TARGET_TRACKER_R", 0);
+	m_Comms.Register("TRACKER_COMMAND", 0);
+	m_Comms.Register("TRACKER_TEMP_WAYPOINTS", 0);
 }
 
 //---------------------------------------------------------
@@ -305,16 +382,6 @@ void TDOATracker::TempUpdate(){
 	gsl_vector_free(Kk);
 	gsl_matrix_free(Po);
 	gsl_matrix_free(ident);
-
-	if(temp_control==1){
-		double x_control = navx + gsl_vector_get(xhat_temp,1);
-		double y_control = navy + gsl_vector_get(xhat_temp,2);
-		//Control Action
-		std::stringstream ss;
-		ss << "points=" << x_control << "," << y_control;
-		m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
-		m_Comms.Notify("TDOA_STATION", "false");
-	}
 }
 
 void TDOATracker::FullUpdate(){
@@ -411,14 +478,6 @@ void TDOATracker::FullUpdate(){
 	gsl_matrix_free(Po);
 	gsl_matrix_free(ident);
 	gsl_vector_free(txhat);
-
-	double x_control = navx + gsl_vector_get(xhat,1);
-	double y_control = navy + gsl_vector_get(xhat,2);
-	//Control Action
-	std::stringstream ss;
-	ss << "points=" << x_control << "," << y_control;
-	m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
-	m_Comms.Notify("TDOA_STATION", "false");
 }
 
 void TDOATracker::GetPriors(gsl_matrix* P_in, gsl_vector* xhat_in){
@@ -656,14 +715,4 @@ void TDOATracker::NotifyStatus(int cycle_id, vector<int> message_ids, string msg
 bool TDOATracker::OnStartUp()
 {
 	return(true);
-}
-
-//---------------------------------------------------------
-// Procedure: RegisterVariables
-
-void TDOATracker::RegisterVariables() {
-	m_Comms.Register("NAV_X", 0);
-	m_Comms.Register("NAV_Y", 0);
-	m_Comms.Register("TDOA_PROTOBUF", 0);
-
 }

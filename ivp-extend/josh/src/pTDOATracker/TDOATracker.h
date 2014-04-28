@@ -27,12 +27,18 @@
 int jac(double, const double[], double*, double[], void*);
 int func(double, const double[], double[], void*);
 
+enum TrackerState {
+	PAUSED,
+	RUNNING
+};
+
 class TDOATracker : public CMOOSApp
 {
 public:
 	TDOATracker();
 	~TDOATracker();
 
+private:
 	void RegisterVariables();
 	void GetPriors(gsl_matrix*,gsl_vector*);
 	void TempUpdate();
@@ -40,6 +46,7 @@ public:
 	void NotifyStatus(int,std::vector<int>, std::string);
 	void MatrixSquareRoot(int, gsl_matrix*, gsl_matrix*);
 	void DrawTarget(double, double, std::string);
+	void ResetTracker();
 
 protected:
 	bool OnNewMail(MOOSMSG_LIST &NewMail);
@@ -71,6 +78,9 @@ private: // Configuration variables
 
 private: // State variables
 	double navx,navy;
+	TrackerState m_state;
+
+	double target_x_relative, target_y_relative;
 
 };
 
