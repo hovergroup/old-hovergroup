@@ -38,6 +38,7 @@ Processconfig = ANTLER
 #ifdef ROLE follower
   Run = pAcommsScheduler       @ NewConsole = false
   Run = pTDOAComms             @ NewConsole = false
+  Run = pTDOATracker           @ NewConsole = false
 #endif
 }
 

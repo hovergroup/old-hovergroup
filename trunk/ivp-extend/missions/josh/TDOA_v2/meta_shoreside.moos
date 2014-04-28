@@ -35,6 +35,9 @@ ProcessConfig = uTermCommand
     
     CMD = TDOA_RUN --> TDOA_COMMAND_ALL --> run
     CMD = TDOA_PAUSE --> TDOA_COMMAND_ALL --> pause
+    
+    CMD = TRACKER_RUN --> TRACKER_COMMAND_ALL --> run
+    CMD = TRACKER_PAUSE --> TRACKER_COMMAND_ALL --> pause
 }
 
 ProcessConfig = pShare
@@ -62,6 +65,9 @@ ProcessConfig = pShare
   
     output = TDOA_COMMAND_ALL->TDOA_COMMAND: $(VHOST3):$(LPORT3) & TDOA_COMMAND: $(VHOST1):$(LPORT1)
     output = TDOA_COMMAND_ALL->TDOA_COMMAND: $(VHOST2):$(LPORT2) & TDOA_COMMAND: $(VHOST4):$(LPORT4)
+    
+    output = TRACKER_COMMAND_ALL->TRACKER_COMMAND: $(VHOST3):$(LPORT3) & TRACKER_COMMAND: $(VHOST1):$(LPORT1)
+    output = TRACKER_COMMAND_ALL->TRACKER_COMMAND: $(VHOST2):$(LPORT2) & TRACKER_COMMAND: $(VHOST4):$(LPORT4)
   
     input = route=localhost:$(LPORT)
 }
