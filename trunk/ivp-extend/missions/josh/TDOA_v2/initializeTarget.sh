@@ -7,4 +7,4 @@ TARGET_Y=$(echo $NAV_Y_STRING | awk 'BEGIN {FS=" "}{print $4}')
 
 printf "Target location: $TARGET_X, $TARGET_Y\n"
 
-/bin/bash pokeAll.sh TARGET_X=$TARGET_X TARGET_Y=$TARGET_Y
+/bin/bash pokeAll.sh TRACKER_TARGET_INITIAL_X=$TARGET_X TRACKER_TARGET_INITIAL_Y=$TARGET_Y
