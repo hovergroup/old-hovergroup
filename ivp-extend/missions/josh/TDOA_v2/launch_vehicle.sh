@@ -24,11 +24,11 @@ SIMULATION=false
 ROLE=""
 ID=""
 
-F1_OFFSET="8"
-F2_OFFSET="16"
-F3_OFFSET="24"
+F1_OFFSET="7"
+F2_OFFSET="14"
+F3_OFFSET="21"
 
-TRANSMIT_PERIOD="32"
+TRANSMIT_PERIOD="28"
 TARGET_OFFSET="0"
 
 #-------------------------------------------------------
