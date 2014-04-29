@@ -114,7 +114,7 @@ ProcessConfig = pTDOATracker
     
     TDOAid = $(ID)
     Q = 0.02
-    R = 0.04
+    R = 0.02
     SDim = 3
     ODEdt = $(F1_OFFSET)
     TempControl = 0
