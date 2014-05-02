@@ -30,6 +30,7 @@ ADD_SUBDIRECTORY(tdoa_simple_parser)
 
 IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(pTDOASimSingle)
+	ADD_SUBDIRECTORY(pTDOASimData)
 	#ADD_SUBDIRECTORY(lib_TargetSim)
 	ADD_SUBDIRECTORY(testing_app)
 	#ADD_SUBDIRECTORY(simple_acomms_parser)
