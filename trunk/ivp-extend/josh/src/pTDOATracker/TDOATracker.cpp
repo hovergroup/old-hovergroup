@@ -124,7 +124,7 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 						double x_control = target_x_relative + gsl_vector_get(xhat,1);
 						double y_control = target_y_relative + gsl_vector_get(xhat,2);
 						//Control Action
-						ss.str().clear();
+						ss.str("");
 						ss << "points=" << x_control << "," << y_control;
 						m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
 						m_Comms.Notify("TDOA_STATION", "false");
@@ -147,7 +147,7 @@ bool TDOATracker::OnNewMail(MOOSMSG_LIST &NewMail)
 							double x_control = target_x_relative + gsl_vector_get(xhat_temp,1);
 							double y_control = target_y_relative + gsl_vector_get(xhat_temp,2);
 							//Control Action
-							ss.str().clear();
+							ss.str("");
 							ss << "points=" << x_control << "," << y_control;
 							m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss.str());
 							m_Comms.Notify("TDOA_STATION", "false");
