@@ -30,7 +30,7 @@ Behavior = BHV_StationKeep
 {
     name             = tdoa_station
     pwt              = 100
-    condition        = TDOA_STATION = false
+    condition        = TDOA_STATION = true
     condition        = MISSION_MODE = TDOA
     center_activate  = true
     
