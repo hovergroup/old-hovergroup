@@ -365,9 +365,11 @@ void TDOATracker::TempUpdate(){
 	ss << gsl_vector_get(xhat_temp,1) << "," << gsl_vector_get(xhat_temp,2);
 	cout <<"Xt with z: " << ss.str() << endl;
 
-//	for(int i=0;i<3;i++){
-//		cout << gsl_matrix_get(P,i,0) << ","<< gsl_matrix_get(P,i,1) << ","<< gsl_matrix_get(P,i,2) << endl;
-//	}
+	for(int i=0;i<3;i++){
+		cout << gsl_matrix_get(Ptemp,i,0) << ","<< gsl_matrix_get(Ptemp,i,1) << ","<< gsl_matrix_get(Ptemp,i,2) << endl;
+	}
+
+	cout << endl;
 
 	//Get Priors, number of delay states
 	for(int i=0;i<state_num;i++){
@@ -424,20 +426,29 @@ void TDOATracker::FullUpdate(){
 	gsl_matrix *Hk = gsl_matrix_alloc(2,3);
 	gsl_matrix_set(Hk,0,0,0);
 	gsl_matrix_set(Hk,1,0,0);
-	double temp = 1/2/r[0]*2*(gsl_vector_get(xhat,1)-x[0])-1/2/r[1]*2*(gsl_vector_get(xhat,1)-x[1]);
+	double temp = 1/r[0]*(gsl_vector_get(xhat,1)-x[0])-1/r[1]*(gsl_vector_get(xhat,1)-x[1]);
+	//cout << temp << ",";
 	gsl_matrix_set(Hk,0,1,temp);
-	temp = 1/2/r[0]*2*(gsl_vector_get(xhat,2)-y[0])-1/2/r[1]*2*(gsl_vector_get(xhat,2)-y[1]);
+	temp = 1/r[0]*(gsl_vector_get(xhat,2)-y[0])-1/r[1]*(gsl_vector_get(xhat,2)-y[1]);
+	//cout << temp << ",";
 	gsl_matrix_set(Hk,0,2,temp);
 
-	temp = 1/2/r[1]*2*(gsl_vector_get(xhat,1)-x[1])-1/2/r[2]*2*(gsl_vector_get(xhat,1)-x[2]);
+	temp = 1/r[1]*(gsl_vector_get(xhat,1)-x[1])-1/r[2]*(gsl_vector_get(xhat,1)-x[2]);
 	gsl_matrix_set(Hk,1,1,temp);
-	temp = 1/2/r[1]*2*(gsl_vector_get(xhat,2)-y[1])-1/2/r[2]*2*(gsl_vector_get(xhat,2)-y[2]);
+	//cout << temp << ",";
+	temp = 1/r[1]*(gsl_vector_get(xhat,2)-y[1])-1/r[2]*(gsl_vector_get(xhat,2)-y[2]);
 	gsl_matrix_set(Hk,1,2,temp);
+	//cout << temp << ","<<endl<<endl;
+	for(int i=0;i<2;i++){
+		cout << gsl_matrix_get(Hk,i,0) << ","<< gsl_matrix_get(Hk,i,1)<< ","<< gsl_matrix_get(Hk,i,2) << endl;
+	}
 
 	gsl_matrix* tmat = gsl_matrix_alloc(3,2);
 	gsl_matrix* Kk = gsl_matrix_alloc(3,2);
 	gsl_matrix* hph = gsl_matrix_alloc(2,2);
 	gsl_matrix* Rmat = gsl_matrix_alloc(2,2);
+	gsl_matrix_set_zero(Rmat);
+
 	gsl_blas_dgemm(CblasNoTrans,CblasTrans,1,P,Hk,0,tmat); //P*Hk'
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,Hk,tmat,0,hph); //Hk*P*Hk'
 	gsl_matrix_set(Rmat,0,0,R);
@@ -450,9 +461,19 @@ void TDOATracker::FullUpdate(){
 	gsl_linalg_LU_invert (hph, perm, Rmat); //Rmat contains inv(HPH+R)
 
 	gsl_blas_dgemm(CblasTrans,CblasNoTrans,1,Hk,Rmat,0,tmat);
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,P,tmat,0,Kk); //Kk contains K
+
+	for(int i=0;i<2;i++){
+		cout << gsl_matrix_get(Rmat,i,0) << ","<< gsl_matrix_get(Rmat,i,1) << endl;
+	}
+
+	for(int i=0;i<3;i++){
+		cout << gsl_matrix_get(tmat,i,0) << ","<< gsl_matrix_get(tmat,i,1) << endl;
+	}
+
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,P,tmat,0,Kk); //Kk contains Kk
 
 	gsl_vector_sub(z,zhat); //stored in z
+
 	gsl_vector* txhat = gsl_vector_alloc(3);
 	gsl_blas_dgemv(CblasNoTrans,1,Kk,z,0,txhat);
 	gsl_vector_add(xhat,txhat);
@@ -463,8 +484,17 @@ void TDOATracker::FullUpdate(){
 
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,Kk,Hk,0,Po);
 	gsl_matrix_sub(ident,Po);
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,ident,P,0,P);
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1,ident,P,0,Po);
+	gsl_matrix_memcpy(P,Po);
 
+	stringstream ss;
+	ss << gsl_vector_get(xhat,1) << "," << gsl_vector_get(xhat,2);
+	cout <<"X with z: " << ss.str() << endl;
+
+	for(int i=0;i<3;i++){
+		cout << gsl_matrix_get(P,i,0) << ","<< gsl_matrix_get(P,i,1) << ","<< gsl_matrix_get(P,i,2) << endl;
+	}
+	cout << endl;
 	//Get Priors, number of delay states
 	for(int i=0;i<state_num;i++){
 		GetPriors(P,xhat);
@@ -497,14 +527,12 @@ void TDOATracker::GetPriors(gsl_matrix* P_in, gsl_vector* xhat_in){
 				gsl_vector_set(target,1,gsl_matrix_get(s2[i],j,k));
 				gsl_vector_set(target,2,gsl_matrix_get(s3[i],j,k));
 
-				//cout << gsl_vector_get(target,0) << "," << gsl_vector_get(target,1) <<  "," << gsl_vector_get(target,2) << endl ;
-
 				gsl_blas_dgemv(CblasNoTrans,1,sP,target,0,dum);
 				gsl_vector_add(dum,xhat_in);
 
 				localNoise = sqrt(Q)*generator();
 
-				//cout<< "yin: " << gsl_vector_get(dum,0) << "," << gsl_vector_get(dum,1) <<  "," << gsl_vector_get(dum,2) << endl ;
+				cout<< "yin: " << gsl_vector_get(dum,0) << "," << gsl_vector_get(dum,1) <<  "," << gsl_vector_get(dum,2) << endl ;
 
 				ode_params PARAM;
 				PARAM.n = localNoise;
