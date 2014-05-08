@@ -3,7 +3,12 @@
 MOOSDATE=$(date +%-d_%-m_%Y)
 FOLDERDATE=$(date +%Y_%m_%d)
 
-cd /media/Data
+if [ -d "/media/Data" ]; then
+    cd /media/Data
+else
+    mkdir $HOME/logfetch
+    cd $HOME/logfetch
+fi
 
 if [ -d $FOLDERDATE ]; then
     echo "Directory already exists"
