@@ -38,6 +38,9 @@ ProcessConfig = uTermCommand
     
     CMD = TRACKER_RUN --> TRACKER_COMMAND_ALL --> run
     CMD = TRACKER_PAUSE --> TRACKER_COMMAND_ALL --> pause
+    
+    CMD = MODE_TDOA --> MISSION_MODE_ALL --> TDOA
+    CMD = MODE_GOTO --> MISSION_MODE_ALL --> GOTO
 }
 
 ProcessConfig = pShare
