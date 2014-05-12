@@ -41,6 +41,7 @@ ProcessConfig = uTermCommand
     CMD = RUN_SCRIPT --> UTS_PAUSE --> false
     CMD = PAUSE_SCRIPT --> UTS_PAUSE --> true
     CMD = ZERO_THRUST --> DESIRED_THRUST --> 0
+    CMD = ZR --> DESIRED_RUDDER --> 0
     
     CMD = HEADING_MODE --> MISSION_MODE --> HEADING
     CMD = GOTO_MODE --> MISSION_MODE --> GOTO
@@ -66,14 +67,12 @@ ProcessConfig = iKST
 
     output_path = "/home/josh/kst_$(VNAME).csv"
 
-    LOG = NAV_X
-    LOG = NAV_Y
     LOG = NAV_HEADING
     LOG = NAV_SPEED
     LOG = DESIRED_HEADING
-    LOG = DESIRED_SPEED
-    LOG = DESIRED_RUDDER
-    LOG = DESIRED_THRUST
+    LOG = ARDUINO_RUDDER
+    LOG = ARDUINO_THRUST
+    LOG = COMPASS_HEADING_UNFILTERED
 }
 
 
