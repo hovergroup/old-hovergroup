@@ -59,8 +59,6 @@ ProcessConfig = uTimerScript
   event = var=DESIRED_THRUST,val=60,time=0.1
 }
 
-ProcessConfig = uTimerScript
-
 ProcessConfig = iKST
 {
     IterateMode = 0    // regular iterate and mail
