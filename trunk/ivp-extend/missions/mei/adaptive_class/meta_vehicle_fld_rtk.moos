@@ -23,6 +23,7 @@ Processconfig = ANTLER
   Run = iAcommsDriver          @ NewConsole = false
   Run = pNavManager            @ NewConsole = false
   Run = pResourceMon           @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false
   
 #ifdef ALTIMETER tritech
   Run = iAltimeter             @ NewConsole = false
@@ -32,19 +33,20 @@ Processconfig = ANTLER
 #endif
 }
 
-ProcessConfig = uTimerScript
+ProcessConfig = uTermCommand
 {
     AppTick = 2
     CommsTick = 2
 
     CMD = RUN_SCRIPT --> UTS_PAUSE --> false
     CMD = PAUSE_SCRIPT --> UTS_PAUSE --> true
+    CMD = ZERO_THRUST --> DESIRED_THRUST --> 0
     
     CMD = HEADING_MODE --> MISSION_MODE --> HEADING
     CMD = GOTO_MODE --> MISSION_MODE --> GOTO
 }
 
-ProcessConfig = uTimerScript_Speed
+ProcessConfig = uTimerScript
 {
   AppTick = 4
   CommsTick = 4
@@ -56,6 +58,8 @@ ProcessConfig = uTimerScript_Speed
     
   event = var=DESIRED_THRUST,val=60,time=0.1
 }
+
+ProcessConfig = uTimerScript
 
 ProcessConfig = iKST
 {
