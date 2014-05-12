@@ -7,5 +7,5 @@ ProcessConfig = iOS5000_Hover
     Speed       = 57600
     PreRotation = -15            // -15 for Boston (magnetic declination)
 
-    UpdateFraction = .025
+    FilterTimeConstant = 1
 }
