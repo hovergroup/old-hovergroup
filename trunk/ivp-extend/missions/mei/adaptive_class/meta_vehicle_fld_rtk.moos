@@ -32,6 +32,31 @@ Processconfig = ANTLER
 #endif
 }
 
+ProcessConfig = uTimerScript
+{
+    AppTick = 2
+    CommsTick = 2
+
+    CMD = RUN_SCRIPT --> UTS_PAUSE --> false
+    CMD = PAUSE_SCRIPT --> UTS_PAUSE --> true
+    
+    CMD = HEADING_MODE --> MISSION_MODE --> HEADING
+    CMD = GOTO_MODE --> MISSION_MODE --> GOTO
+}
+
+ProcessConfig = uTimerScript_Speed
+{
+  AppTick = 4
+  CommsTick = 4
+  
+  paused = true
+  
+  reset_time = all-posted
+  reset_max = nolimit
+    
+  event = var=DESIRED_THRUST,val=60,time=0.1
+}
+
 ProcessConfig = iKST
 {
     IterateMode = 0    // regular iterate and mail
