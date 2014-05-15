@@ -17,6 +17,7 @@ using namespace std;
 #include "XYVector.h"
 #include "XYFormatUtilsSegl.h"
 #include "XYSegList.h"
+#include "XYFormatUtilsRangePulse.h"
 //#include "LogUtils.h"
 
 #define MAX_LINE_LENGTH 10000
@@ -57,35 +58,21 @@ int main(int argc, char *argv[]) {
         if ( iteration > 10 /*&& key != "VIEW_SEGLIST" */) {
             new_data.push_back(entry);
         }
-        if ( key == "NAV_X") {
-            navx = atof(entry.getStringVal().c_str());
-            cout << "Nav: " << navx << ", " << navy << endl;
-        } else if (key == "NAV_Y") {
-            navy = atof(entry.getStringVal().c_str());
-        }
-        if ( key == "VIEW_SEGLIST" && entry.getStringVal().find("tdoa")!=string::npos) {
+        if ( key == "VIEW_RANGE_PULSE" && entry.getStringVal().find("ICARUS_transmit")!=string::npos) {
 
-            XYSegList xylist = string2SegList(entry.getStringVal());
-            XYVector vec;
-            vec.set_label(xylist.get_label() + "v");
-            double x1 = navx;
-            double y1 = navy;
-            double x2 = xylist.get_vx(0);
-            double y2 = xylist.get_vy(0);
-
-            vec.setPosition(x1,y1);
-            vec.setVectorXY((x2-x1)/2.0,(y2-y1)/2.0);
-            vec.setHeadSize(3);
-
-            std::string vec_s = vec.get_spec();
+            XYRangePulse xypulse = string2RangePulse(entry.getStringVal());
+            stringstream marker;
+            marker << "x=" << xypulse.get_x();
+            marker << ",y=" << xypulse.get_y();
+            marker << ",type=diamond,color=red,label=TARGET";
 
             ALogEntry new_entry;
             new_entry.set(
                     entry.getTimeStamp(),
-                    "VIEW_VECTOR",
+                    "VIEW_MARKER",
                     entry.getSource(),
                     entry.getSrcAux(),
-                    vec_s);
+                    marker.str());
 
             new_data.push_back(new_entry);
         }
@@ -98,7 +85,7 @@ int main(int argc, char *argv[]) {
     infile.open(argv[1]);
 
     std::ofstream outfile;
-    std::string filename = "vectored_" + std::string(argv[1]);
+    std::string filename = "tdoaMarker_" + std::string(argv[1]);
     outfile.open(filename.c_str());
 
     for ( int i=0; i<5; i++ ) {
