@@ -1,0 +1,17 @@
+ProcessConfig = uTermCommand
+{
+    AppTick = 2
+    CommsTick = 2
+
+    CMD = ENABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> on
+    CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
+    
+    CMD = TDOA_RUN --> TDOA_COMMAND_ALL --> run
+    CMD = TDOA_PAUSE --> TDOA_COMMAND_ALL --> pause
+    
+    CMD = TRACKER_RUN --> TRACKER_COMMAND_ALL --> run
+    CMD = TRACKER_PAUSE --> TRACKER_COMMAND_ALL --> pause
+    
+    CMD = MODE_TDOA --> MISSION_MODE_ALL --> TDOA
+    CMD = MODE_GOTO --> MISSION_MODE_ALL --> GOTO
+}
