@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
             new_data.push_back(entry);
         }
         if ( key == "NAV_X") {
-            navx = atof(entry.getStringVal().c_str());
-            cout << "Nav: " << navx << ", " << navy << endl;
+            navx = entry.getDoubleVal();
+//            cout << "Nav: " << navx << ", " << navy << endl;
         } else if (key == "NAV_Y") {
-            navy = atof(entry.getStringVal().c_str());
+            navy = entry.getDoubleVal();
         }
         if ( key == "VIEW_SEGLIST" && entry.getStringVal().find("tdoa")!=string::npos) {
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
             vec.setPosition(x1,y1);
             vec.setVectorXY((x2-x1)/2.0,(y2-y1)/2.0);
-            vec.setHeadSize(3);
+            vec.setHeadSize(1);
 
             std::string vec_s = vec.get_spec();
 
