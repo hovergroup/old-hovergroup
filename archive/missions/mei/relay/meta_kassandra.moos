@@ -1,0 +1,57 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pMarinePID_Hover   	@ NewConsole = false
+  Run = pHelmIvP           	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iOS5000_Hover      	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = kayak_interface	   	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = iAltimeter			@ NewConsole = false
+  Run = pRelayEnd			@ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+
+	VAR = DESIRED_THRUST
+	VAR = VOLTAGE
+	VAR = ACOMMS_DRIVER_STATUS
+	VAR = ACOMMS_RECEIVED_SIMPLE
+	VAR = END_OFFSET
+	VAR = END_STATUS
+	VAR = RELAY_ACK
+}
+
+#include plug_pMOOSBridgeV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pMarinePID_Hover_kassandra.moos
+#include plug_pHelmIvP.moos
+#include plug_pHostInfo.moos
+#include plug_uFldNodeBroker.moos
+#include plug_uFldMessageHandler.moos
+#include plug_pEchoVar.moos
+#include plug_iOS5000_Hover.moos
+#include plug_iRemote.moos
+#include plug_kayak_interface.moos
+#include plug_iAcommsDriver.moos
+#include plug_iAltimeter.moos
+#include plug_pRelayEnd.moos

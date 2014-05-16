@@ -1,0 +1,8 @@
+ 
+ProcessConfig = pRelayEnd
+{
+        AppTick = 10
+        CommsTick = 10
+
+        
+}

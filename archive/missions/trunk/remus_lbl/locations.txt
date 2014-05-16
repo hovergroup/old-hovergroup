@@ -1,0 +1,9 @@
+D 65,22
+C -77,-36
+A 122,-99.29
+B-63.3,-219.5
+
+moved A to 200,-98 early on
+vehicle was stationing slightly east of MIT dock (towards CRYC)
+
+around 12:45 pm transmit period was increased to 7 seconds

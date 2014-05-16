@@ -1,0 +1,54 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pMOOSBridge        	@ NewConsole = false ~ pMOOSBridge_%(VNAME)
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  
+  Run = uTimerScript            @ NewConsole = false ~ uTimerScript_Config
+  Run = uTimerScript		@ NewConsole = false
+}
+
+Processconfig = uTimerScript_Config
+{
+    AppTick = 4
+    CommsTick = 4
+    
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=0
+}
+
+Processconfig = uTimerScript
+{
+    AppTick = 4
+    CommsTick = 4
+
+    reset_max = nolimit
+    reset_time = all-posted
+
+    event = var=ACOMMS_TRANSMIT_DATA,val="$[TCOUNT]_hello_world",time=8
+}
+
+#include plug_pMOOSBridgeV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pHostInfo.moos
+#include plug_uFldNodeBroker.moos
+#include plug_uFldMessageHandler.moos
+#include plug_pEchoVar.moos
+#include plug_iGPS_Hover.moos
+#include plug_iAcommsDriver.moos

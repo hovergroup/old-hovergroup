@@ -1,0 +1,50 @@
+Community			= nostromo
+ServerHost			= localhost
+ServerPort			= 9003
+
+LatOrigin			=  42.358456	// 0,0 just in front of the MIT sailing pavilion
+LongOrigin			= -71.087589	// 0,0 just in front of the MIT sailing pavilion
+
+ProcessConfig = ANTLER
+{
+	MSBetweenLaunches	= 500
+
+	Run = MOOSDB			@ NewConsole = false
+	Run = pLogger			@ NewConsole = false
+	Run = iAcommsDriver 		@ NewConsole = false
+	Run = uTimerScript		@ NewConsole = false ~uTimerScript_config
+	Run = uTimerScript		@ NewConsole = false ~uTimerScript_ping
+}
+
+ProcessConfig = iAcommsDriver
+{
+        AppTick = 5
+    IterateMode = 0
+
+        PortName = /dev/ttyUSB0
+        ID = 1
+
+        PSK_minipackets = false
+        enable_ranging = true
+        show_range_pulses = true
+}
+
+ProcessConfig = uTimerScript_config
+{
+    AppTick = 4
+    IterateMode = 0
+    
+    EVENT = var=ACOMMS_TRANSMIT_RATE, val=101, time=10
+    EVENT = quit, time=11
+}
+
+ProcessConfig = uTimerScript_ping
+{
+    AppTick = 4
+    IterateMode = 0
+    
+    reset_max = nolimit
+    reset_time = all-posted
+    condition = ACOMMS_TRANSMIT_RATE=101
+    EVENT = var=ACOMMS_TRANSMIT_DATA, val=ping, time=5
+}

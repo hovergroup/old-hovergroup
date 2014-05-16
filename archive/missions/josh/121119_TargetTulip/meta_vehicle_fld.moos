@@ -1,0 +1,82 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pShare               @ NewConsole = false
+  Run = pLogger            	@ NewConsole = false
+  Run = pMarinePID_Hover   	@ NewConsole = false
+  Run = pHelmIvP           	@ NewConsole = false
+  Run = pHostInfo          	@ NewConsole = false
+  Run = uFldNodeBroker     	@ NewConsole = false
+  Run = uFldMessageHandler 	@ NewConsole = false
+  Run = iGPS_Hover         	@ NewConsole = false
+  Run = iOS5000_Hover      	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iHoverKayak		   	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  
+  Run = uTimerScript		@ NewConsole = false ~ uTimerScript_Config
+  
+#ifdef ROLE target
+    Run = pTulipTarget			@ NewConsole = false
+#else
+    Run = pTulip26bit			@ NewConsole = false
+    Run = pNodeReporter      	@ NewConsole = false
+#endif
+}
+
+#ifdef ROLE leader
+    #include plug_pTulip26bit_leader.moos
+#endif
+#ifdef ROLE follower
+    #include plug_pTulip26bit_follower.moos
+#endif
+#ifdef ROLE target
+    #include plug_pTulipTarget.moos
+#endif
+
+ProcessConfig = uXMS
+{
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=VOLTAGE
+	VAR=CPU_BOX_TEMP
+	VAR=ROBOTEQ_HEATSINK_TEMP
+	VAR=ROBOTEQ_INTERNAL_TEMP
+	VAR=ROBOTEQ_BATTERY_CURRENT
+	VAR=ROBOTEQ_MOTOR_CURRENT
+	VAR=ARDUINO_THRUST
+	VAR=ARDUINO_RUDDER
+}
+
+Processconfig = uTimerScript_Config
+{
+    AppTick = 4
+    CommsTick = 4
+    
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+}
+
+#include plug_pShareV.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter.moos
+#include plug_pMarinePID_Hover.moos
+#include plug_pHelmIvP.moos
+#include plug_pHostInfo.moos
+#include plug_uFldNodeBroker.moos
+#include plug_uFldMessageHandler.moos
+#include plug_pEchoVar.moos
+#include plug_iGPS_Hover.moos
+#include plug_iOS5000_Hover.moos
+#include plug_iRemote.moos
+#include plug_iHoverKayak.moos
+#include plug_iAcommsDriver.moos

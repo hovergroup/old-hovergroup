@@ -1,0 +1,177 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = localhost
+ServerPort = $(SPORT)
+Community  = $(SNAME)
+
+#include plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+	MSBetweenLaunches = 200
+
+	Run = MOOSDB          @ NewConsole = false
+	Run = pMOOSBridge     @ NewConsole = false
+	Run = pMarineViewer   @ NewConsole = false
+	Run = pLogger         @ NewConsole = false
+	Run = pHostInfo       @ NewConsole = false
+	Run = uFldShoreBroker @ NewConsole = true,XConfig=2
+	Run = uFldNodeComms   @ NewConsole = true,XConfig=1
+	
+	Run = uXMS            @ NewConsole = true
+	Run = uTermCommand    @ NewConsole = true
+
+	1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+	2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = speed_test --> MISSION_MODE_NOSTROMO --> SPEED-TEST
+	CMD = lawnmower  --> MISSION_MODE_NOSTROMO --> LAWNMOWER
+}
+
+ProcessConfig = uXMS
+{
+	AppTick = 4
+	CommsTick = 4
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR=NAV_X_nostromo
+	VAR=NAV_Y_nostromo
+	VAR=NAV_SPEED_nostromo
+	
+	VAR=ACOMMS_ONE_WAY_TRAVEL_TIME_nostromo
+	VAR=ACOMMS_ONE_WAY_TRAVEL_TIME_icarus
+}
+
+#include plug_pHostInfo.moos
+
+//--------------------------------------------------
+// uFldShoreBroker Configuration Block
+
+ProcessConfig = uFldShoreBroker
+{
+  AppTick       = 1
+  CommsTick     = 1
+
+  QBRIDGE  = MOOS_MANUAL_OVERRIDE, GOSTAY, MISSION_MODE, GOTO_UPDATES
+  QBRIDGE  = NODE_REPORT, NODE_MESSAGE
+  
+  //BRIDGE   = src=LOITER_UPDATES_$V, alias=LOITER_UPDATES
+}
+
+//--------------------------------------------------------
+ProcessConfig = pMOOSBridge
+{
+  AppTick   = 4
+  CommsTick = 4
+
+  UDPListen = $(SLPORT)
+  BridgeFrequency = 0  
+}
+
+//--------------------------------------------------
+// uFldNodeComms Configuration Block
+
+ProcessConfig = uFldNodeComms
+{
+  AppTick       = 2
+  CommsTick     = 2
+
+  COMMS_RANGE      = 0
+  CRITICAL_RANGE   = 0
+  
+  MIN_MSG_INTERVAL = 0
+  MAX_MSG_LENGTH   = 10000
+}
+
+//--------------------------------------------------
+// pLogger Configuration Block
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_%(SNAME)
+	PATH		= /home/josh/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 4
+  CommsTick  = 4
+
+  TIFF_FILE     = ../../data/pavilion.tif
+  
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+  
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+  vehicles_name_viewable = names
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+	scope  = NODE_REPORT
+	scope  = VIEW_POINT
+	scope  = VIEW_SEGLIST
+	scope  = VIEW_POLYGON
+
+	ACTION = GOSTAY_NOSTROMO =false
+	ACTION = GOSTAY_KASSANDRA =false
+	ACTION = GOSTAY_NOSTROMO =true
+	ACTION+ = GOSTAY_KASSANDRA =true
+
+	ACTION = MENU_KEY=STATION_NOSTROMO # MISSION_MODE_NOSTROMO = STATION-KEEP 
+	ACTION+ = MENU_KEY=STATION_NOSTROMO # MOOS_MANUAL_OVERRIDE_NOSTROMO=false
+
+	ACTION = MENU_KEY=ALLSTOP_NOSTROMO # MISSION_MODE_NOSTROMO = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_NOSTROMO # MOOS_MANUAL_OVERRIDE_NOSTROMO=true
+
+	ACTION = MENU_KEY=STATION_KASSANDRA # MISSION_MODE_KASSANDRA = STATION-KEEP
+	ACTION+ = MENU_KEY=STATION_KASSANDRA # MOOS_MANUAL_OVERRIDE_KASSANDRA=false
+
+	ACTION = MENU_KEY=ALLSTOP_KASSANDRA # MISSION_MODE_KASSANDRA = INACTIVE
+	ACTION+ = MENU_KEY=ALLSTOP_KASSANDRA # MOOS_MANUAL_OVERRIDE_KASSANDRA=true
+
+	right_context[nostromo] = GOTO_UPDATES_NOSTROMO= points=$(XPOS),$(YPOS)
+	right_context[nostromo] = MISSION_MODE_NOSTROMO=GOTO
+	right_context[kassandra] = GOTO_UPDATES_KASSANDRA= points=$(XPOS),$(YPOS)
+	right_context[kassandra] = MISSION_MODE_KASSANDRA=GOTO
+
+	BUTTON_ONE   = DEPLOY  # MISSION_MODE_NOSTROMO = GOTO # MISSION_MODE_KASSANDRA = GOTO # MOOS_MANUAL_OVERRIDE_NOSTROMO = false # MOOS_MANUAL_OVERRIDE_KASSANDRA = false
+	BUTTON_TWO   = RETURN  # MISSION_MODE_NOSTROMO = RETURN # MISSION_MODE_KASSANDRA = RETURN # MOOS_MANUAL_OVERRIDE_NOSTROMO = false # MOOS_MANUAL_OVERRIDE_KASSANDRA = false
+	BUTTON_THREE = STATION # MISSION_MODE_NOSTROMO = STATION-KEEP # MISSION_MODE_KASSANDRA = STATION-KEEP # MOOS_MANUAL_OVERRIDE_NOSTROMO = false # MOOS_MANUAL_OVERRIDE_KASSANDRA = false
+	BUTTON_FOUR  = ALLSTOP # MISSION_MODE_NOSTROMO = INACTIVE # MISSION_MODE_KASSANDRA = INACTIVE # MOOS_MANUAL_OVERRIDE_NOSTROMO = true # MOOS_MANUAL_OVERRIDE_KASSANDRA = true
+}
+
