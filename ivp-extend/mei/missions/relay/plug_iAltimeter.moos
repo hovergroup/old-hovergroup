@@ -1,7 +1,0 @@
-ProcessConfig = iAltimeter
-{
-        AppTick = 10
-        CommsTick = 10
-
-        PORT_NAME = $(ALTIMETERPORT)
-}
