@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: ProtoReporter_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * pProtoReporter
+ *        File: ProtoReporter_Info.h
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef ProtoReporter_INFO_HEADER
 #define ProtoReporter_INFO_HEADER

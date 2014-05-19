@@ -1,3 +1,10 @@
+/*
+ * hovergroup_proto
+ *        File: dcclExample.proto
+ *  Created on: Sep 10, 2013
+ *      Author: Josh Leighton
+ */
+
 import "goby/acomms/protobuf/dccl_option_extensions.proto";
 
 message VehicleStatus

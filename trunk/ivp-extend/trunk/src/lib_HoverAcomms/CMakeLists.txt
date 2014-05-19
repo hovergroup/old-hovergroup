@@ -1,13 +1,13 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:              lib_behaviors-test
-# Author(s):                                
-#--------------------------------------------------------
+# ---------------------------------------------
+# lib_HoverAcomms
+#        File: CMakeLists.txt
+#  Created on: Jan 3, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
 
-#--------------------------------------------------------
-#                                      BHV_SimpleWaypoint
-#--------------------------------------------------------
 ADD_LIBRARY(HoverAcomms SHARED
-   HoverAcomms.cpp)
+    HoverAcomms.cpp)
+   
 TARGET_LINK_LIBRARIES(HoverAcomms
     goby_common
     goby_acomms
@@ -15,4 +15,4 @@ TARGET_LINK_LIBRARIES(HoverAcomms
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
-   )
+    )

@@ -1,17 +1,15 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       pProtoReporter
-# Author(s):                              
-#--------------------------------------------------------
-
-# FILE(GLOB SRC *.cpp)
+# ---------------------------------------------
+# pProtoReporter
+#        File: CMakeLists.txt
+#  Created on: Sep 11, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
 
 SET(SRC
-  ProtoReporter.cpp
-  ProtoReporter_Info.cpp
-  main.cpp
+    ProtoReporter.cpp
+    ProtoReporter_Info.cpp
+    main.cpp
 )
-
-
 
 ADD_EXECUTABLE(pProtoReporter ${SRC})
 

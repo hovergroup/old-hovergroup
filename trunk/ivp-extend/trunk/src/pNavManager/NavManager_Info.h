@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: NavManager_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * pNavManager
+ *        File: NavManager_Info.h
+ *  Created on: Oct 18, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef NavManager_INFO_HEADER
 #define NavManager_INFO_HEADER

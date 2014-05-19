@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: ProtoReportParser_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * pProtoReportParser
+ *        File: ProtoReportParser_Info.h
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef ProtoReportParser_INFO_HEADER
 #define ProtoReportParser_INFO_HEADER

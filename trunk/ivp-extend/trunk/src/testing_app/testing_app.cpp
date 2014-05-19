@@ -1,3 +1,10 @@
+/*
+ * testing_app
+ *        File: testing_app.cpp
+ *  Created on: May 24, 2012
+ *      Author: Josh Leighton
+ */
+
 #include <string>
 #include <iostream>
 #include <fstream>

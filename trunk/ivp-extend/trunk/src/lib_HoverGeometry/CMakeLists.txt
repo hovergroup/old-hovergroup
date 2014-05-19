@@ -1,17 +1,17 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:              lib_behaviors-test
-# Author(s):                                
-#--------------------------------------------------------
+# ---------------------------------------------
+# lib_HoverGeometry
+#        File: CMakeLists.txt
+#  Created on: Apr 14, 2014
+#      Author: Josh Leighton
+# ---------------------------------------------
 
-#--------------------------------------------------------
-#                                      BHV_SimpleWaypoint
-#--------------------------------------------------------
 ADD_LIBRARY(HoverGeometry SHARED
-   HoverGeometry.cpp)
+    HoverGeometry.cpp)
+   
 TARGET_LINK_LIBRARIES(HoverGeometry
     protobuf
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
     geometry
-   )
+    )

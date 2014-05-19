@@ -1,7 +1,9 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                         iOS5000
-# Author(s):                          Andrew Patrikalakis
-#--------------------------------------------------------
+# ---------------------------------------------
+# testing_app
+#        File: CMakeLists.txt
+#  Created on: May 24, 2012
+#      Author: Josh Leighton
+# ---------------------------------------------
 
 ADD_EXECUTABLE(testing_app testing_app.cpp)
    

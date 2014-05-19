@@ -1,3 +1,10 @@
+/*
+ * hovergroup_proto
+ *        File: geometry.proto
+ *  Created on: Apr 14, 2014
+ *      Author: Josh Leighton
+ */
+
 enum ShapeEnum {
 	SQUARE = 1;
 	TRIANGLE = 2;

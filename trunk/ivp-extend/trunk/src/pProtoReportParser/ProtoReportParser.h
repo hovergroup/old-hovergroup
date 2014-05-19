@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: ProtoReportParser.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pProtoReportParser
+ *        File: ProtoReportParser.h
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef ProtoReportParser_HEADER
 #define ProtoReportParser_HEADER
@@ -14,21 +14,21 @@
 
 class ProtoReportParser: public CMOOSApp {
 public:
-	ProtoReportParser();
-	~ProtoReportParser();
+    ProtoReportParser();
+    ~ProtoReportParser();
 
 protected:
-	bool OnNewMail(MOOSMSG_LIST &NewMail);
-	bool Iterate();
-	bool OnConnectToServer();
-	bool OnStartUp();
-	void RegisterVariables();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
+    void RegisterVariables();
 
 private:
-	// Configuration variables
+    // Configuration variables
 
 private:
-	// State variables
+    // State variables
 };
 
 #endif 

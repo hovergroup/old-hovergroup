@@ -1,8 +1,8 @@
 /*
- * JoshUtil.cpp
- *
- *  Created on: Nov 11, 2012
- *      Author: josh
+ * lib_HoverAcomms
+ *        File: HoverAcomms.cpp
+ *  Created on: Jan 3, 2013
+ *      Author: Josh Leighton
  */
 
 #include "HoverAcomms.h"

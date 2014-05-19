@@ -1,3 +1,10 @@
+/*
+ * pMarinePID_Hover
+ *        File: MarinePID_Info.cpp
+ *  Created on: Aug 28, 2012
+ *      Author: Josh Leighton
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */

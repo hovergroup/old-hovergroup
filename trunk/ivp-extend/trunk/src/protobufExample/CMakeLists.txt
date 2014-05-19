@@ -1,3 +1,10 @@
+# ---------------------------------------------
+# protobufExample, protobufDCCLExample
+#        File: CMakeLists.txt
+#  Created on: Sep 10, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
+
 add_executable(protobufExample protobufExample.cpp)
 add_executable(protobufDCCLExample protobufDCCLExample.cpp)
 

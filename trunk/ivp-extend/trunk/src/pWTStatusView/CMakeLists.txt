@@ -1,17 +1,15 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       pWTStatusView
-# Author(s):                              
-#--------------------------------------------------------
-
-# FILE(GLOB SRC *.cpp)
+# ---------------------------------------------
+# pWTStatusView
+#        File: CMakeLists.txt
+#  Created on: Sep 11, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
 
 SET(SRC
-  WTStatusView.cpp
-  WTStatusView_Info.cpp
-  main.cpp
+    WTStatusView.cpp
+    WTStatusView_Info.cpp
+    main.cpp
 )
-
-
 
 ADD_EXECUTABLE(pWTStatusView ${SRC})
 

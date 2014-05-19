@@ -1,4 +1,11 @@
 /*
+ * wtExample
+ *        File: hello.cpp
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
+
+/*
  * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
  *
  * See the LICENSE file for terms of use.
@@ -100,11 +107,11 @@ int main(int argc, char **argv) {
 	 * support. The function should return a newly instantiated application
 	 * object.
 	 */
-	char *myArgv[] = {"hello",
-			"--docroot=.",
-			"--http-address=127.0.0.1",
-			"--http-port=8080"
-	};
+    char title[] = "hello";
+    char docroot[] = "--docroot=.";
+    char http_address[]="--http-address=0.0.0.0";
+    char http_port[]="--http-port=8080";
+    char *myArgv[] = {title, docroot, http_address, http_port};
 
 	return WRun(4, myArgv, &createApplication);
 }

@@ -1,7 +1,9 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       pScheduledTransmit
-# Author(s):                              
-#--------------------------------------------------------
+# ---------------------------------------------
+# pScheduledTransmit
+#        File: CMakeLists.txt
+#  Created on: Apr 9, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
 
 FILE(GLOB SRC *.cpp)
 

@@ -1,3 +1,10 @@
+/*
+ * hovergroup_proto
+ *        File: acommsSim.proto
+ *  Created on: Jan 13, 2014
+ *      Author: Josh Leighton
+ */
+
 message AcommsSimReport {
     required string vehicle_name = 1;
     

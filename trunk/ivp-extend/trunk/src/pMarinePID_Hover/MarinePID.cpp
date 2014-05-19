@@ -1,3 +1,16 @@
+/*
+ * pMarinePID_Hover
+ *        File: MarinePID.cpp
+ *  Created on: Aug 28, 2012
+ *      Author: Josh Leighton
+ */
+
+/*
+ * This file is modified from the original MOOS-IvP version to
+ * support a more traditional implementation of the differential
+ * portion of the yaw PID controller.
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */
