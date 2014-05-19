@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: ResourceMon.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pResourceMon
+ *        File: ResourcMon.cpp
+ *  Created on: Mar 20, 2014
+ *      Author: Josh Leighton
+ */
 
 #include <iterator>
 #include "MBUtils.h"
@@ -33,17 +33,11 @@ bool ResourceMon::Iterate() {
     char input[256];
     fs.getline(input, 256);
     unsigned long user, nice, system, idle, iowait, irq, softirq;
-    sscanf(input,"%*s %lu %lu %lu %lu %lu %lu %lu",
-            &user,
-            &nice,
-            &system,
-            &idle,
-            &iowait,
-            &irq,
-            &softirq);
+    sscanf(input, "%*s %lu %lu %lu %lu %lu %lu %lu", &user, &nice, &system,
+            &idle, &iowait, &irq, &softirq);
     unsigned long total_active = user + nice + system + iowait + irq + softirq;
-    double cpu_percent_use = 100 * (total_active-m_lastActive) /
-            (total_active-m_lastActive+idle-m_lastIdle);
+    double cpu_percent_use = 100 * (total_active - m_lastActive)
+            / (total_active - m_lastActive + idle - m_lastIdle);
     m_lastActive = total_active;
     m_lastIdle = idle;
     m_Comms.Notify("CPU_PERCENT_USE", cpu_percent_use);
@@ -54,7 +48,8 @@ bool ResourceMon::Iterate() {
     int complete = 0;
     while (complete < 4) {
         fs.getline(input, 256);
-        if (fs.eof()) break;
+        if (fs.eof())
+            break;
         if (sscanf(input, "MemTotal: %u kB", &memtotal) != 0)
             complete++;
         else if (sscanf(input, "MemFree: %u kB", &memfree) != 0)

@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: AcommsSimulator_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * pAcommsSimulator
+ *        File: AcommsSimulator_Info.h
+ *  Created on: Jan 13, 2014
+ *      Author: Josh Leighton
+ */
 
 #ifndef AcommsSimulator_INFO_HEADER
 #define AcommsSimulator_INFO_HEADER

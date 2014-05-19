@@ -1,8 +1,8 @@
 /*
- * JoshUtil.h
- *
- *  Created on: Nov 11, 2012
- *      Author: josh
+ * lib_HoverGeometry
+ *        File: HoverGeometry.h
+ *  Created on: Apr 14, 2014
+ *      Author: Josh Leighton
  */
 
 #ifndef LIB_HOVERGEOMETRY_H_

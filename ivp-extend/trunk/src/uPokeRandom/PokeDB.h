@@ -1,3 +1,15 @@
+/*
+ * uPokeRandom
+ *        File: PokeDB.h
+ *  Created on: May 12, 2013
+ *      Author: Josh Leighton
+ */
+
+/*
+ * This file is modified from the original MOOS-IvP version to
+ * support poking randomized strings.
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */
@@ -24,49 +36,53 @@
 #include "MOOS/libMOOS/MOOSLib.h"
 #include <string.h>
 
-class PokeDB : public CMOOSApp  
-{
- public:
-  PokeDB(std::string g_server, long int g_port); 
-  PokeDB();
+class PokeDB: public CMOOSApp {
+public:
+    PokeDB(std::string g_server, long int g_port);
+    PokeDB();
 
-  virtual ~PokeDB() {};
-  
-  bool Iterate();
-  bool OnNewMail(MOOSMSG_LIST &NewMail);
-  bool OnConnectToServer();
-  bool OnStartUp();
+    virtual ~PokeDB() {
+    }
+    ;
 
-  void setConfigureCommsLocally(bool v) {m_configure_comms_locally=v;};
+    bool Iterate();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool OnConnectToServer();
+    bool OnStartUp();
 
-  void setPokeDouble(const std::string& varname, const std::string& val);
-  void setPokeString(const std::string& varname, const std::string& val);
+    void setConfigureCommsLocally(bool v) {
+        m_configure_comms_locally = v;
+    }
+    ;
 
- protected:
-  void registerVariables();
-  void updateVariable(CMOOSMsg& msg);
-  void printReport();
-
-  std::vector<unsigned char> hexStringToBinary( std::string hex_data );
-
-  bool ConfigureComms();
+    void setPokeDouble(const std::string& varname, const std::string& val);
+    void setPokeString(const std::string& varname, const std::string& val);
 
 protected:
-  std::vector<std::string>  m_varname;
-  std::vector<std::string>  m_valtype;
-  std::vector<std::string>  m_varvalue;
+    void registerVariables();
+    void updateVariable(CMOOSMsg& msg);
+    void printReport();
 
-  std::vector<std::string>  m_svalue_read;
-  std::vector<std::string>  m_dvalue_read;
-  std::vector<std::string>  m_source_read;
-  std::vector<std::string>  m_valtype_read;
-  std::vector<std::string>  m_wrtime_read;
-  std::vector<bool>         m_varname_recd;
+    std::vector<unsigned char> hexStringToBinary(std::string hex_data);
 
-  double m_db_start_time;
-  int    m_iteration;
-  bool   m_configure_comms_locally;
+    bool ConfigureComms();
 
-  std::string getRandomString(int length);
+protected:
+    std::vector<std::string> m_varname;
+    std::vector<std::string> m_valtype;
+    std::vector<std::string> m_varvalue;
+
+    std::vector<std::string> m_svalue_read;
+    std::vector<std::string> m_dvalue_read;
+    std::vector<std::string> m_source_read;
+    std::vector<std::string> m_valtype_read;
+    std::vector<std::string> m_wrtime_read;
+    std::vector<bool> m_varname_recd;
+
+    double m_db_start_time;
+    int m_iteration;
+    bool m_configure_comms_locally;
+
+    std::string getRandomString(int length);
 };
 

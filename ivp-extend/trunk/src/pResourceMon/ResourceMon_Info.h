@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: ResourceMon_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * pResourceMon
+ *        File: ResourcMon_Info.h
+ *  Created on: Mar 20, 2014
+ *      Author: Josh Leighton
+ */
 
 #ifndef ResourceMon_INFO_HEADER
 #define ResourceMon_INFO_HEADER

@@ -1,8 +1,8 @@
 /*
- * JoshUtil.h
- *
- *  Created on: Nov 11, 2012
- *      Author: josh
+ * lib_HoverAcomms
+ *        File: HoverAcomms.h
+ *  Created on: Jan 3, 2013
+ *      Author: Josh Leighton
  */
 
 #ifndef LIB_HOVERACOMMS_H_

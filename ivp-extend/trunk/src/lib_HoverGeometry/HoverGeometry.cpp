@@ -1,8 +1,8 @@
 /*
- * JoshUtil.cpp
- *
- *  Created on: Nov 11, 2012
- *      Author: josh
+ * lib_HoverGeometry
+ *        File: HoverGeometry.cpp
+ *  Created on: Apr 14, 2014
+ *      Author: Josh Leighton
  */
 
 #include "HoverGeometry.h"
@@ -22,11 +22,12 @@ using namespace std;
 
 bool HoverGeometry::parsePoint(string view_point, VIEW_POINT & proto) {
     XYPoint point = string2Point(view_point);
-    if (!point.valid()) return false;
+    if (!point.valid())
+        return false;
     proto.set_x(point.get_vx());
     proto.set_y(point.get_vy());
     proto.set_label(point.get_label());
-    if (point.get_vz()!=0)
+    if (point.get_vz() != 0)
         proto.set_z(point.get_vz());
     if (!point.get_msg().empty())
         proto.set_msg(point.get_msg());
@@ -65,7 +66,8 @@ string HoverGeometry::printPoint(const VIEW_POINT & proto) {
 
 bool HoverGeometry::parseMarker(string view_marker, VIEW_MARKER & proto) {
     XYMarker mark = string2Marker(view_marker);
-    if (!mark.valid()) return false;
+    if (!mark.valid())
+        return false;
 
     proto.set_x(mark.get_vx());
     proto.set_y(mark.get_vy());
@@ -121,7 +123,7 @@ string HoverGeometry::printMarker(const VIEW_MARKER & proto) {
     }
 
     if (proto.has_shape()) {
-        switch(proto.shape()) {
+        switch (proto.shape()) {
         case SQUARE:
             mark.set_type("square");
             break;
@@ -154,9 +156,10 @@ string HoverGeometry::printMarker(const VIEW_MARKER & proto) {
 
 bool HoverGeometry::parseSeglist(string view_seglist, VIEW_SEGLIST &proto) {
     XYSegList seg = string2SegList(view_seglist);
-    if (!seg.valid()) return false;
+    if (!seg.valid())
+        return false;
 
-    for (int i=0; i<seg.size(); i++) {
+    for (int i = 0; i < seg.size(); i++) {
         proto.add_x(seg.get_vx(i));
         proto.add_y(seg.get_vy(i));
         proto.add_z(seg.get_vz(i));
@@ -184,7 +187,7 @@ bool HoverGeometry::parseSeglist(string view_seglist, VIEW_SEGLIST &proto) {
 
 string HoverGeometry::printSeglist(const VIEW_SEGLIST & proto) {
     XYSegList seg;
-    for (int i=0; i<proto.x_size(); i++) {
+    for (int i = 0; i < proto.x_size(); i++) {
         seg.add_vertex(proto.x(i), proto.y(i), proto.z(i));
     }
     seg.set_label(proto.label());
@@ -198,10 +201,10 @@ string HoverGeometry::printSeglist(const VIEW_SEGLIST & proto) {
         seg.set_edge_size(proto.edge_size());
     }
     if (proto.has_edge_color()) {
-        seg.set_color("edge",proto.edge_color());
+        seg.set_color("edge", proto.edge_color());
     }
     if (proto.has_vertex_color()) {
-        seg.set_color("vertex",proto.vertex_color());
+        seg.set_color("vertex", proto.vertex_color());
     }
     if (proto.has_active())
         seg.set_active(proto.active());

@@ -1,3 +1,15 @@
+/*
+ * uTermCommand_Hover
+ *        File: TermCommand.cpp
+ *  Created on: May 19, 2014
+ *      Author: Josh Leighton
+ */
+
+/*
+ * This file is modified from the original MOOS-IvP version to
+ * support poking of multiple variables via a single command.
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */
@@ -30,124 +42,116 @@ using namespace std;
 //------------------------------------------------------------
 // Constructor
 
-TermCommand::TermCommand()
-{
-  m_iteration = 0;
-  m_memory_ix = -1;
+TermCommand::TermCommand() {
+    m_iteration = 0;
+    m_memory_ix = -1;
 }
 
 //------------------------------------------------------------
 // Procedure: OnNewMail
 
-bool TermCommand::OnNewMail(MOOSMSG_LIST &NewMail)
-{
-  return(true);
+bool TermCommand::OnNewMail(MOOSMSG_LIST &NewMail) {
+    return (true);
 }
 
 //------------------------------------------------------------
 // Procedure: OnConnectToServer()
 
-bool TermCommand::OnConnectToServer()
-{
-  return(true);
+bool TermCommand::OnConnectToServer() {
+    return (true);
 }
 
 //------------------------------------------------------------
 // Procedure: Iterate
 
-bool TermCommand::Iterate()
-{
-  m_tc_mutex.Lock();
-  if(m_iteration==0)
-    handleCharInput('\n');
+bool TermCommand::Iterate() {
+    m_tc_mutex.Lock();
+    if (m_iteration == 0)
+        handleCharInput('\n');
 
-  m_iteration++;
+    m_iteration++;
 
-  m_tc_mutex.UnLock();
+    m_tc_mutex.UnLock();
 
-  return(true);
+    return (true);
 }
 
 //------------------------------------------------------------
 // Procedure: OnStartUp
 
-bool TermCommand::OnStartUp()
-{
-  CMOOSApp::OnStartUp();
-  
-  STRING_LIST sParams;
-  m_MissionReader.EnableVerbatimQuoting(false);
-  m_MissionReader.GetConfiguration(GetAppName(), sParams);
-    
-  STRING_LIST::iterator p;
-  for(p = sParams.begin();p!=sParams.end();p++) {
-    string sLine     = *p;
-    string sVarName  = MOOSChomp(sLine, "=");
-    sVarName = toupper(sVarName);
-    sLine    = stripBlankEnds(sLine);
+bool TermCommand::OnStartUp() {
+    CMOOSApp::OnStartUp();
 
-    if(MOOSStrCmp(sVarName, "CMD"))
-      addCommand(sLine);
+    STRING_LIST sParams;
+    m_MissionReader.EnableVerbatimQuoting(false);
+    m_MissionReader.GetConfiguration(GetAppName(), sParams);
 
-  }
-  
-  return(true);
+    STRING_LIST::iterator p;
+    for (p = sParams.begin(); p != sParams.end(); p++) {
+        string sLine = *p;
+        string sVarName = MOOSChomp(sLine, "=");
+        sVarName = toupper(sVarName);
+        sLine = stripBlankEnds(sLine);
+
+        if (MOOSStrCmp(sVarName, "CMD"))
+            addCommand(sLine);
+
+    }
+
+    return (true);
 }
 
 //------------------------------------------------------------
 // Procedure: addCommand()
 
-void TermCommand::addCommand(string cmd_str)
-{
-  cmd_str = findReplace(cmd_str, "-->", ",");
+void TermCommand::addCommand(string cmd_str) {
+    cmd_str = findReplace(cmd_str, "-->", ",");
 
-  string var_key  = tolower(biteStringX(cmd_str,','));
-  string var_name = biteStringX(cmd_str,',');
-  string var_val  = biteStringX(cmd_str,',');
+    string var_key = tolower(biteStringX(cmd_str, ','));
+    string var_name = biteStringX(cmd_str, ',');
+    string var_val = biteStringX(cmd_str, ',');
 
-  if((var_key=="") || (var_name==""))
-    return;
+    if ((var_key == "") || (var_name == ""))
+        return;
 
 //  for(unsigned int i=0; i<m_var_key.size(); i++)
 //    if(var_key == m_var_key[i])
 //      return;
 
-  string var_type = "double";
-  if(isQuoted(var_val)) {
-    var_val  = stripQuotes(var_val);
-    var_type = "string";
-  }
-  if(!isNumber(var_val))
-    var_type = "string";
-      
-  if (find(m_var_key.begin(), m_var_key.end(), var_key) == m_var_key.end())
-      m_var_key.push_back(var_key);
-  m_var_name[var_key].push_back(var_name);
-  m_var_type[var_key].push_back(var_type);
-  m_var_val[var_key].push_back(var_val);
-}
+    string var_type = "double";
+    if (isQuoted(var_val)) {
+        var_val = stripQuotes(var_val);
+        var_type = "string";
+    }
+    if (!isNumber(var_val))
+        var_type = "string";
 
+    if (find(m_var_key.begin(), m_var_key.end(), var_key) == m_var_key.end())
+        m_var_key.push_back(var_key);
+    m_var_name[var_key].push_back(var_name);
+    m_var_type[var_key].push_back(var_type);
+    m_var_val[var_key].push_back(var_val);
+}
 
 //------------------------------------------------------------
 // Procedure: getPartialKeyMatches
 //      Note: Rreturn the entries where the cmd buffer matches 
 //            the first N characters of the key. 
 
-vector<int> TermCommand::getPartialKeyMatches()
-{
-  vector<int> rvector;
-  
-  int buff_len = m_cmd_buffer.length();
-  
-  unsigned int i, vsize = m_var_key.size();
-  for(i=0; i<vsize; i++) {
-      if(!strncmp(m_var_key[i].c_str(), m_cmd_buffer.c_str(), buff_len)) {
-	if(m_var_key[i] != m_cmd_buffer)
-	  rvector.push_back(i);
-      }
-  }
+vector<int> TermCommand::getPartialKeyMatches() {
+    vector<int> rvector;
 
-  return(rvector);
+    int buff_len = m_cmd_buffer.length();
+
+    unsigned int i, vsize = m_var_key.size();
+    for (i = 0; i < vsize; i++) {
+        if (!strncmp(m_var_key[i].c_str(), m_cmd_buffer.c_str(), buff_len)) {
+            if (m_var_key[i] != m_cmd_buffer)
+                rvector.push_back(i);
+        }
+    }
+
+    return (rvector);
 }
 
 //------------------------------------------------------------
@@ -155,26 +159,24 @@ vector<int> TermCommand::getPartialKeyMatches()
 //      Note: Return index of an entry if it matches perfectly, 
 //            or if it matches partially and is the only one.
 
-int TermCommand::getFullKeyMatch()
-{
-  unsigned int i, vsize = m_var_key.size();
-  for(i=0; i<vsize; i++) {
-    if(m_var_key[i] == m_cmd_buffer)
-      return(i);
-  }
+int TermCommand::getFullKeyMatch() {
+    unsigned int i, vsize = m_var_key.size();
+    for (i = 0; i < vsize; i++) {
+        if (m_var_key[i] == m_cmd_buffer)
+            return (i);
+    }
 
-  vector<int> rvector = getPartialKeyMatches();
-  if(rvector.size()==1)
-    return(rvector[0]);
-  else
-    return(-1);
+    vector<int> rvector = getPartialKeyMatches();
+    if (rvector.size() == 1)
+        return (rvector[0]);
+    else
+        return (-1);
 }
 
 //------------------------------------------------------------
 // Procedure: printMapping()
 
-void TermCommand::printMapping()
-{
+void TermCommand::printMapping() {
 //  unsigned int i, vsize = m_var_key.size();
 //  for(i=0; i<vsize; i++) {
 //    cout << "[" << i << "]: ";
@@ -185,60 +187,56 @@ void TermCommand::printMapping()
 //  }
 }
 
-
 //------------------------------------------------------------
 // Procedure: postCommand
 
-void TermCommand::postCommand(unsigned int ix)
-{
-  if((ix < 0) || (ix >= m_var_key.size()))
-    return;
+void TermCommand::postCommand(unsigned int ix) {
+    if ((ix < 0) || (ix >= m_var_key.size()))
+        return;
 
-  string key = m_var_key[ix];
-  for (unsigned int i=0; i<m_var_name[key].size(); i++) {
-      if(m_var_type[key][i] == "string")
-        Notify(m_var_name[key][i], m_var_val[key][i]);
-      else {
-        double dval = atof(m_var_val[key][i].c_str());
-        Notify(m_var_name[key][i], dval);
-      }
-  }
+    string key = m_var_key[ix];
+    for (unsigned int i = 0; i < m_var_name[key].size(); i++) {
+        if (m_var_type[key][i] == "string")
+            Notify(m_var_name[key][i], m_var_val[key][i]);
+        else {
+            double dval = atof(m_var_val[key][i].c_str());
+            Notify(m_var_name[key][i], dval);
+        }
+    }
 
-  m_cmds_prev.push_back(m_var_key[ix]);
-  m_memory_ix = -1;
-  m_cmd_partial = "";
+    m_cmds_prev.push_back(m_var_key[ix]);
+    m_memory_ix = -1;
+    m_cmd_partial = "";
 }
-
 
 //------------------------------------------------------------
 // Procedure: handleArrow
 
-void TermCommand::handleArrow(char c)
-{
-  int cache_size = m_cmds_prev.size();
-  if(cache_size == 0)
-    return;
+void TermCommand::handleArrow(char c) {
+    int cache_size = m_cmds_prev.size();
+    if (cache_size == 0)
+        return;
 
-  if(c==65) { // up-arrow
-    m_memory_ix++;
-    if(m_memory_ix >= cache_size)
-      m_memory_ix = cache_size-1;
-  }
-
-  if(c==66) { // down-arrow
-    m_memory_ix--;
-    if(m_memory_ix <= -1) {
-      m_memory_ix = -1;
-      m_cmd_buffer = "";
-      m_cmd_buffer = m_cmd_partial;
-      return;
+    if (c == 65) { // up-arrow
+        m_memory_ix++;
+        if (m_memory_ix >= cache_size)
+            m_memory_ix = cache_size - 1;
     }
-  }
 
-  int cache_ix = (cache_size - 1) - m_memory_ix;
+    if (c == 66) { // down-arrow
+        m_memory_ix--;
+        if (m_memory_ix <= -1) {
+            m_memory_ix = -1;
+            m_cmd_buffer = "";
+            m_cmd_buffer = m_cmd_partial;
+            return;
+        }
+    }
 
-  // m_cmd_partial = m_cmd_buffer;
-  m_cmd_buffer = m_cmds_prev[cache_ix];
+    int cache_ix = (cache_size - 1) - m_memory_ix;
+
+    // m_cmd_partial = m_cmd_buffer;
+    m_cmd_buffer = m_cmds_prev[cache_ix];
 }
 
 //------------------------------------------------------------
@@ -250,41 +248,39 @@ void TermCommand::handleArrow(char c)
 //    hello_bobby
 //    hello_bobcat
 
-void TermCommand::tabExpand()
-{
-  // First get the indexes of partial matches
-  vector<int> rvector = getPartialKeyMatches();
+void TermCommand::tabExpand() {
+    // First get the indexes of partial matches
+    vector<int> rvector = getPartialKeyMatches();
 
-  int rsize = rvector.size();
-  if(rsize == 0)
-    return;
+    int rsize = rvector.size();
+    if (rsize == 0)
+        return;
 
-  int  i;
-  int max_common_len = m_var_key[rvector[0]].length();
-  for(i=1; i<rsize; i++) {
-    int ilen = m_var_key[rvector[i]].length();
-    if(ilen < max_common_len)
-      max_common_len = ilen;
-  }
-  
-  int  len  = m_cmd_buffer.length();
-  bool done = (len >= max_common_len);
-  while(!done) {
-    char next_char = m_var_key[rvector[0]].c_str()[len];
-    bool   all_match = true;
-    for(i=1; i<rsize; i++) {
-      char   ichar = m_var_key[rvector[i]].c_str()[len];
-      all_match &= (next_char == ichar);
+    int i;
+    int max_common_len = m_var_key[rvector[0]].length();
+    for (i = 1; i < rsize; i++) {
+        int ilen = m_var_key[rvector[i]].length();
+        if (ilen < max_common_len)
+            max_common_len = ilen;
     }
-    if(all_match) {
-      len++;
-      done = (len >= max_common_len);
+
+    int len = m_cmd_buffer.length();
+    bool done = (len >= max_common_len);
+    while (!done) {
+        char next_char = m_var_key[rvector[0]].c_str()[len];
+        bool all_match = true;
+        for (i = 1; i < rsize; i++) {
+            char ichar = m_var_key[rvector[i]].c_str()[len];
+            all_match &= (next_char == ichar);
+        }
+        if (all_match) {
+            len++;
+            done = (len >= max_common_len);
+        } else
+            done = true;
     }
-    else
-      done = true;
-  }
-  
-  m_cmd_buffer.assign(m_var_key[rvector[0]].c_str(), len);
+
+    m_cmd_buffer.assign(m_var_key[rvector[0]].c_str(), len);
 }
 
 //------------------------------------------------------------
@@ -348,8 +344,8 @@ void TermCommand::handleCharInput(char c) {
         for (int j = vsize - 1; j >= 0; j--) {
             int i = completions[j];
             string key = m_var_key[i];
-            for (unsigned int k=0; k<m_var_name[key].size(); k++) {
-                if (k==0)
+            for (unsigned int k = 0; k < m_var_name[key].size(); k++) {
+                if (k == 0)
                     printf("  %-24s ", key.c_str());
                 else
                     printf("  %-24s ", "");
@@ -369,8 +365,8 @@ void TermCommand::handleCharInput(char c) {
 
     if (res != -1) {
         string key = m_var_key[res];
-        for (unsigned int k=0; k<m_var_name[key].size(); k++) {
-            if (k==0)
+        for (unsigned int k = 0; k < m_var_name[key].size(); k++) {
+            if (k == 0)
                 printf("  %-24s ", key.c_str());
             else
                 printf("  %-24s ", "");
@@ -382,11 +378,11 @@ void TermCommand::handleCharInput(char c) {
                     printf("n/a");
             } else if (m_var_type[key][k] == "double")
                 printf("%-15s", m_var_val[key][k].c_str());
-            if (k==0)
+            if (k == 0)
                 printf(" <-- SELECT");
-            printf ("\n");
+            printf("\n");
         }
-        printf ("\n");
+        printf("\n");
     }
 
     if ((vsize == 0) && (res == -1))
@@ -394,6 +390,4 @@ void TermCommand::handleCharInput(char c) {
 
     printf("> %s\n", m_cmd_buffer.c_str());
 }
-
-
 

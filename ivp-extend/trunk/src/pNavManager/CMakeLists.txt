@@ -1,17 +1,15 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       pNavManager
-# Author(s):                              
-#--------------------------------------------------------
-
-# FILE(GLOB SRC *.cpp)
+# ---------------------------------------------
+# pNavManager
+#        File: CMakeLists.txt
+#  Created on: Oct 18, 2013
+#      Author: Josh Leighton
+# ---------------------------------------------
 
 SET(SRC
-  NavManager.cpp
-  NavManager_Info.cpp
-  main.cpp
+    NavManager.cpp
+    NavManager_Info.cpp
+    main.cpp
 )
-
-
 
 ADD_EXECUTABLE(pNavManager ${SRC})
 

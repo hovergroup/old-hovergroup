@@ -1,3 +1,10 @@
+/*
+ * uTermCommand_Hover
+ *        File: TermCommand_Info.h
+ *  Created on: May 19, 2014
+ *      Author: Josh Leighton
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */

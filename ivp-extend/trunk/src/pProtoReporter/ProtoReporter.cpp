@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: ProtoReporter.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pProtoReporter
+ *        File: ProtoReporter.cpp
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
 
 #include <iterator>
 #include "MBUtils.h"
@@ -46,13 +46,16 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 nr.set_acomms_status(ProtoNodeReport_AcommsStatusEnum_READY);
                 break;
             case HoverAcomms::TRANSMITTING:
-                nr.set_acomms_status(ProtoNodeReport_AcommsStatusEnum_TRANSMITTING);
+                nr.set_acomms_status(
+                        ProtoNodeReport_AcommsStatusEnum_TRANSMITTING);
                 break;
             case HoverAcomms::RECEIVING:
-                nr.set_acomms_status(ProtoNodeReport_AcommsStatusEnum_RECEIVING);
+                nr.set_acomms_status(
+                        ProtoNodeReport_AcommsStatusEnum_RECEIVING);
                 break;
             case HoverAcomms::NOT_RUNNING:
-                nr.set_acomms_status(ProtoNodeReport_AcommsStatusEnum_NOT_RUNNING);
+                nr.set_acomms_status(
+                        ProtoNodeReport_AcommsStatusEnum_NOT_RUNNING);
                 break;
             default:
                 break;
@@ -78,14 +81,14 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 nr.set_nsf_power(ProtoNodeReport_NSFPowerEnum_LOW);
             }
         } else if (key == "IVPHELM_STATE") {
-            if (msg.GetString()=="DRIVE") {
+            if (msg.GetString() == "DRIVE") {
                 nr.set_helm_state(ProtoNodeReport_HelmStateEnum_DRIVE);
-            } else if (msg.GetString()=="MALCONFIG") {
-            	nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MALCONFIG);
-            } else if (msg.GetString()=="PARK") {
+            } else if (msg.GetString() == "MALCONFIG") {
+                nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MALCONFIG);
+            } else if (msg.GetString() == "PARK") {
                 nr.set_helm_state(ProtoNodeReport_HelmStateEnum_PARK);
             } else {
-            	nr.set_helm_state(ProtoNodeReport_HelmStateEnum_UNKNOWN);
+                nr.set_helm_state(ProtoNodeReport_HelmStateEnum_UNKNOWN);
             }
             m_lastHelmStateUpdate = msg.GetTime();
         } else if (key == "RTK_QUALITY" && rtk) {
@@ -114,7 +117,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                     nr.clear_active_behaviors();
                     nr.add_active_behaviors(biteStringX(right, '$'));
 
-                    while (right.find(":")!=string::npos) {
+                    while (right.find(":") != string::npos) {
                         biteStringX(right, ':');
                         nr.add_active_behaviors(biteStringX(right, '$'));
                     }
@@ -128,13 +131,17 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
         } else if (key == "RADIO_POWER") {
             string val = MOOSToUpper(msg.GetString());
             if (val == "BULLET") {
-                nr.set_radio_state(ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED);
+                nr.set_radio_state(
+                        ProtoNodeReport_RadioStateEnum_BULLET_UNLOCKED);
             } else if (val == "BULLET_LOCKED") {
-                nr.set_radio_state(ProtoNodeReport_RadioStateEnum_BULLET_LOCKED);
+                nr.set_radio_state(
+                        ProtoNodeReport_RadioStateEnum_BULLET_LOCKED);
             } else if (val == "FREEWAVE") {
-                nr.set_radio_state(ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED);
+                nr.set_radio_state(
+                        ProtoNodeReport_RadioStateEnum_FREEWAVE_UNLOCKED);
             } else if (val == "FREEWAVE_LOCKED") {
-                nr.set_radio_state(ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED);
+                nr.set_radio_state(
+                        ProtoNodeReport_RadioStateEnum_FREEWAVE_LOCKED);
             }
         } else if (key == "NAV_SOURCE") {
             m_lastNavSourceUpdate = msg.GetTime();
@@ -166,7 +173,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 // check if we already have a matching label
                 VIEW_POINT * p;
                 bool exists = false;
-                for (int i=0; i<nr.view_points_size(); i++) {
+                for (int i = 0; i < nr.view_points_size(); i++) {
                     // if we do, replace that one
                     if (nr.view_points(i).label() == point.label()) {
                         p = nr.mutable_view_points(i);
@@ -186,7 +193,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 // check if we already have a matching label
                 VIEW_MARKER * p;
                 bool exists = false;
-                for (int i=0; i<nr.view_markers_size(); i++) {
+                for (int i = 0; i < nr.view_markers_size(); i++) {
                     // if we do, replace that one
                     if (nr.view_markers(i).label() == marker.label()) {
                         p = nr.mutable_view_markers(i);
@@ -206,7 +213,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 // check if we already have a matching label
                 VIEW_SEGLIST * p;
                 bool exists = false;
-                for (int i=0; i<nr.view_seglists_size(); i++) {
+                for (int i = 0; i < nr.view_seglists_size(); i++) {
                     // if we do, replace that one
                     if (nr.view_seglists(i).label() == seglist.label()) {
                         p = nr.mutable_view_seglists(i);
@@ -226,7 +233,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 // check if we already have a matching label
                 VIEW_POLYGON * p;
                 bool exists = false;
-                for (int i=0; i<nr.view_polygons_size(); i++) {
+                for (int i = 0; i < nr.view_polygons_size(); i++) {
                     // if we do, replace that one
                     if (nr.view_polygons(i).label() == polygon.label()) {
                         p = nr.mutable_view_polygons(i);
@@ -294,8 +301,9 @@ bool ProtoReporter::Iterate() {
     if (MOOSTime() - m_lastNavSourceUpdate > 6) {
         nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
     }
-    if (MOOSTime() - m_lastHeadingUpdate > 5 && nr.platform_type() == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
-    	nr.add_errors(ProtoNodeReport_ErrorEnum_NoCompassData);
+    if (MOOSTime() - m_lastHeadingUpdate > 5
+            && nr.platform_type() == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
+        nr.add_errors(ProtoNodeReport_ErrorEnum_NoCompassData);
     }
 
     nr.set_time_stamp(MOOSTime());

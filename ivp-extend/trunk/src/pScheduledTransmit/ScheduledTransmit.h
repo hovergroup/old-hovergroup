@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: ScheduledTransmit.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pScheduledTransmit
+ *        File: ScheduledTransmit.h
+ *  Created on: Apr 9, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef ScheduledTransmit_HEADER
 #define ScheduledTransmit_HEADER
@@ -14,6 +14,10 @@
 
 class ScheduledTransmit : public CMOOSApp
 {
+protected:
+    double m_period, m_offset;
+    bool m_periodSet, m_offsetSet;
+
 public:
 	ScheduledTransmit();
 	virtual ~ScheduledTransmit();
@@ -23,9 +27,17 @@ public:
 	bool OnConnectToServer();
 	bool OnStartUp();
 
-protected:
-	double m_period, m_offset;
+	void setOffset(double offset) {
+	    m_offset = offset;
+	    m_offsetSet = true;
+	}
 
+	void setPeriod(double period) {
+	    m_period = period;
+	    m_periodSet = true;
+	}
+
+protected:
 	int m_lastSentSlot;
 
 	bool enabled;

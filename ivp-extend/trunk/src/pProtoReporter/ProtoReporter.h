@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: ProtoReporter.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pProtoReporter
+ *        File: ProtoReporter.h
+ *  Created on: Sep 11, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef ProtoReporter_HEADER
 #define ProtoReporter_HEADER
@@ -14,31 +14,31 @@
 
 class ProtoReporter: public CMOOSApp {
 public:
-	ProtoReporter();
-	~ProtoReporter();
+    ProtoReporter();
+    ~ProtoReporter();
 
 protected:
-	bool OnNewMail(MOOSMSG_LIST &NewMail);
-	bool Iterate();
-	bool OnConnectToServer();
-	bool OnStartUp();
-	void RegisterVariables();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
+    void RegisterVariables();
 
 private:
-	// Configuration variables
+    // Configuration variables
 
 private:
-	double m_lastAcommsStatusUpdate, m_lastHelmStateUpdate, m_lastGPSQualityUpdate, m_lastNavSourceUpdate,
-		m_lastHeadingUpdate;
+    double m_lastAcommsStatusUpdate, m_lastHelmStateUpdate,
+            m_lastGPSQualityUpdate, m_lastNavSourceUpdate, m_lastHeadingUpdate;
 
-	double m_navX, m_navY, m_navHeading, m_navSpeed, m_navDepth;
-	double m_voltage;
-	bool m_acommsDriverRunning;
-	std::string m_name;
+    double m_navX, m_navY, m_navHeading, m_navSpeed, m_navDepth;
+    double m_voltage;
+    bool m_acommsDriverRunning;
+    std::string m_name;
 
-	bool rtk;
+    bool rtk;
 
-	ProtoNodeReport nr;
+    ProtoNodeReport nr;
 };
 
 #endif 

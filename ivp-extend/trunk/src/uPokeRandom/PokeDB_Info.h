@@ -1,3 +1,10 @@
+/*
+ * uPokeRandom
+ *        File: PokeDB_Info.h
+ *  Created on: May 12, 2013
+ *      Author: Josh Leighton
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */

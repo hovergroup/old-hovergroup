@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: AcommsSimulator.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pAcommsSimulator
+ *        File: AcommsSimulator.cpp
+ *  Created on: Jan 13, 2014
+ *      Author: Josh Leighton
+ */
 
 #include <iterator>
 #include "MBUtils.h"
@@ -58,7 +58,8 @@ bool AcommsSimulator::OnNewMail(MOOSMSG_LIST &NewMail) {
                 it = m_vehicleStatus.find(source_vehicle);
                 if (it == m_vehicleStatus.end()) {
                     cout << "New transmission error - could not find "
-                         << source_vehicle << " among reporting vehicles." << endl;
+                            << source_vehicle << " among reporting vehicles."
+                            << endl;
                 } else {
                     handleNewTransmission(trans, source_vehicle);
                 }
@@ -121,8 +122,9 @@ void AcommsSimulator::handleNewTransmission(
 
     // check that channel is available
     if (m_channelState != AVAILABLE) {
-        publishWarning("Channel unavailable when trying to transmit: " +
-                trans.DebugString());
+        publishWarning(
+                "Channel unavailable when trying to transmit: "
+                        + trans.DebugString());
         return;
     }
 }

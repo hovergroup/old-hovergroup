@@ -1,12 +1,12 @@
 /*
- * pWTStatusView
- *        File: WTStatusView_Info.h
- *  Created on: Sep 11, 2013
+ * pScheduledTransmit
+ *        File: ScheduledTransmit_Info.h
+ *  Created on: May 19, 2014
  *      Author: Josh Leighton
  */
 
-#ifndef WTStatusView_INFO_HEADER
-#define WTStatusView_INFO_HEADER
+#ifndef ScheduledTransmit_INFO_HEADER
+#define ScheduledTransmit_INFO_HEADER
 
 void showSynopsis();
 void showHelpAndExit();

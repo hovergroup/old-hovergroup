@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: AcommsSimulator.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pAcommsSimulator
+ *        File: AcommsSimulator.h
+ *  Created on: Jan 13, 2014
+ *      Author: Josh Leighton
+ */
 
 #ifndef AcommsSimulator_HEADER
 #define AcommsSimulator_HEADER
@@ -17,8 +17,7 @@
 #include <map>
 
 enum ChannelState {
-    AVAILABLE,
-    BUSY
+    AVAILABLE, BUSY
 };
 
 class AcommsSimulator: public CMOOSApp {
@@ -35,7 +34,6 @@ protected:
 
 private:
     std::map<std::string, AcommsSimReport> m_vehicleStatus;
-
 
     // data handling
     void handleReport(const AcommsSimReport &asr);

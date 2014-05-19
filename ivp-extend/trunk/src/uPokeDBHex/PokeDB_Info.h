@@ -1,3 +1,10 @@
+/*
+ * uPokeDBHex
+ *        File: PokeDB_Info.h
+ *  Created on: Jul 19, 2012
+ *      Author: Josh Leighton
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */
