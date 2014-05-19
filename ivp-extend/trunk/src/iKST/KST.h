@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: KST.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * iKST
+ *        File: KST.h
+ *  Created on: Aug 12, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef KST_HEADER
 #define KST_HEADER
@@ -13,33 +13,34 @@
 
 class KST: public CMOOSApp {
 public:
-	KST();
-	~KST();
+    KST();
+    ~KST();
+
+    std::vector<std::string> m_vars;
 
 protected:
-	bool OnNewMail(MOOSMSG_LIST &NewMail);
-	bool Iterate();
-	bool OnConnectToServer();
-	bool OnStartUp();
-	void RegisterVariables();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
+    void RegisterVariables();
 
 private:
-	static const char delim = ',';
+    static const char delim = ',';
 
-	std::string m_outputFilePath;
+    std::string m_outputFilePath;
 
-	std::vector<std::string> m_vars;
-	std::map<std::string,double> m_values;
+    std::map<std::string, double> m_values;
 
-	double m_startTime;
-	int m_allocated_columns;
+    double m_startTime;
+    int m_allocated_columns;
 
-	std::ofstream out;
+    std::ofstream out;
 
-	void printHeader();
-	void printLine();
+    void printHeader();
+    void printLine();
 
-	bool m_started;
+    bool m_started;
 
 };
 

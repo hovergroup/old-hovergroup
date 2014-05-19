@@ -1,3 +1,10 @@
+/*
+ * iGPS_Hover
+ *        File: simple_gps.cpp
+ *  Created on: Jul 24, 2012
+ *      Author: Josh Leighton
+ */
+
 #include <iterator>
 #include "simple_gps.h"
 #include "MBUtils.h"
@@ -31,8 +38,9 @@ SIMPLE_GPS::SIMPLE_GPS() :
 // Procedure: OnNewMail
 
 bool SIMPLE_GPS::OnNewMail(MOOSMSG_LIST &NewMail) {
-	// if using tcp, assume we're logging gps server side
-	if (m_use_tcp) return true;
+    // if using tcp, assume we're logging gps server side
+    if (m_use_tcp)
+        return true;
 
     MOOSMSG_LIST::iterator p;
 
@@ -121,35 +129,34 @@ bool SIMPLE_GPS::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("USE_TCP", m_use_tcp);
 
     if (m_use_tcp) {
-		struct sockaddr_in m_server_address;
-		struct hostent *m_server;
+        struct sockaddr_in m_server_address;
+        struct hostent *m_server;
 
-		m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (m_tcp_sockfd < 0) {
-			std::cout << "Error opening socket" << std::endl;
-			return false;
-		}
+        m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (m_tcp_sockfd < 0) {
+            std::cout << "Error opening socket" << std::endl;
+            return false;
+        }
 
-		m_server = gethostbyname(server_name.c_str());
-		if (m_server == NULL) {
-			std::cout << "Error, no such host " << server_name << std::endl;
-			return false;
-		}
+        m_server = gethostbyname(server_name.c_str());
+        if (m_server == NULL) {
+            std::cout << "Error, no such host " << server_name << std::endl;
+            return false;
+        }
 
-		bzero((char *) &m_server_address, sizeof(m_server_address));
-		m_server_address.sin_family = AF_INET;
-		bcopy((char *) m_server->h_addr,
-				(char *)&m_server_address.sin_addr.s_addr,
-				m_server->h_length);
-		m_server_address.sin_port = htons(server_port);
-		if (connect(m_tcp_sockfd,
-				(struct sockaddr *) &m_server_address,
-				sizeof(m_server_address)) < 0) {
-			std::cout << "error connecting" << std::endl;
-			return false;
-		}
+        bzero((char *) &m_server_address, sizeof(m_server_address));
+        m_server_address.sin_family = AF_INET;
+        bcopy((char *) m_server->h_addr,
+        (char *)&m_server_address.sin_addr.s_addr,
+        m_server->h_length);
+        m_server_address.sin_port = htons(server_port);
+        if (connect(m_tcp_sockfd, (struct sockaddr *) &m_server_address,
+                sizeof(m_server_address)) < 0) {
+            std::cout << "error connecting" << std::endl;
+            return false;
+        }
     } else {
-    	RegisterVariables();
+        RegisterVariables();
     }
 
 //	open_port( my_port_name, my_baud_rate );
@@ -169,18 +176,18 @@ void SIMPLE_GPS::RegisterVariables() {
 // Procedure: Iterate()
 
 bool SIMPLE_GPS::Iterate() {
-	if (m_use_tcp) {
-		int n = read(m_tcp_sockfd,&tcpReadBuffer[0],1000);
-		if (n < 0) {
-			std::cout << "error reading from socket" << std::endl;
-			return false;
-		}
-		if (n > 0) {
-			string_buffer += std::string(tcpReadBuffer.begin(),
-					tcpReadBuffer.begin()+=n);
-		}
-		processReadBuffer();
-	}
+    if (m_use_tcp) {
+        int n = read(m_tcp_sockfd, &tcpReadBuffer[0], 1000);
+        if (n < 0) {
+            std::cout << "error reading from socket" << std::endl;
+            return false;
+        }
+        if (n > 0) {
+            string_buffer += std::string(tcpReadBuffer.begin(),
+                    tcpReadBuffer.begin() += n);
+        }
+        processReadBuffer();
+    }
 
     return (true);
 }
@@ -203,12 +210,15 @@ void SIMPLE_GPS::open_port(string port_name, int baudRate) {
 
     // serial port must be configured after being opened
     port.set_option(boost::asio::serial_port_base::baud_rate(baudRate));
-    port.set_option(boost::asio::serial_port_base::flow_control(
-			boost::asio::serial_port_base::flow_control::none));
-    port.set_option(boost::asio::serial_port_base::parity(
-    		boost::asio::serial_port_base::parity::none));
-    port.set_option(boost::asio::serial_port_base::stop_bits(
-    		boost::asio::serial_port_base::stop_bits::one));
+    port.set_option(
+            boost::asio::serial_port_base::flow_control(
+                    boost::asio::serial_port_base::flow_control::none));
+    port.set_option(
+            boost::asio::serial_port_base::parity(
+                    boost::asio::serial_port_base::parity::none));
+    port.set_option(
+            boost::asio::serial_port_base::stop_bits(
+                    boost::asio::serial_port_base::stop_bits::one));
     port.set_option(boost::asio::serial_port_base::character_size(8));
 
     // start the background thread
@@ -228,7 +238,8 @@ void SIMPLE_GPS::writeData(unsigned char *ptr, int length) {
     writeBufferMutex.unlock();
 }
 
-void SIMPLE_GPS::read_handler(bool& data_available, boost::asio::deadline_timer& timeout,
+void SIMPLE_GPS::read_handler(bool& data_available,
+        boost::asio::deadline_timer& timeout,
         const boost::system::error_code& error, std::size_t bytes_transferred) {
     if (error || !bytes_transferred) {
         // no data read
@@ -264,8 +275,8 @@ void SIMPLE_GPS::processWriteBuffer() {
                 << endl;
 
         // simple synchronous serial write
-        port.write_some(boost::asio::buffer(localWriteBuffer,
-        		localWriteBuffer.size()));
+        port.write_some(
+                boost::asio::buffer(localWriteBuffer, localWriteBuffer.size()));
     } else {
         // no data to write, release lock
         writeBufferMutex.unlock();
@@ -307,8 +318,8 @@ void SIMPLE_GPS::serialLoop() {
 //            }
 
             // look for a sentence if buffer is full enough
-            if (string_buffer.size()>20) {
-            	processReadBuffer();
+            if (string_buffer.size() > 20) {
+                processReadBuffer();
             }
         }
     }
@@ -317,25 +328,26 @@ void SIMPLE_GPS::serialLoop() {
 void SIMPLE_GPS::processReadBuffer() {
     int start_index, stop_index;
     while (1) {
-    	if ((start_index = string_buffer.find("$GP", 0)) != string::npos) {
-    		if ((stop_index = string_buffer.find("*", start_index+2)) != string::npos) {
+        if ((start_index = string_buffer.find("$GP", 0)) != string::npos) {
+            if ((stop_index = string_buffer.find("*", start_index + 2))
+                    != string::npos) {
 //				std::cout << "pre buffer: " << string_buffer << std::endl << std::endl;
 //				std::cout << "stop index " << dec << stop_index << ", ";
 //				std::cout << "start index " << start_index << std::endl << std::endl;
-				stop_index+=3;
+                stop_index += 3;
 //				std::cout << "running parse on: " << string_buffer.substr(start_index, stop_index-start_index) << std::endl << std::endl;
-				parseLine(
-						string_buffer.substr(start_index,
-								stop_index - start_index));
-				string_buffer = string_buffer.substr(stop_index,
-						string_buffer.size() - stop_index);
+                parseLine(
+                        string_buffer.substr(start_index,
+                                stop_index - start_index));
+                string_buffer = string_buffer.substr(stop_index,
+                        string_buffer.size() - stop_index);
 //				std::cout << "post buffer: " << string_buffer << std::endl << std::endl;
-    		} else {
-    			break;
-    		}
-		} else {
-			break;
-		}
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
     }
 
 }

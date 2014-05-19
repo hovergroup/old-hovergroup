@@ -1,6 +1,12 @@
+/*
+ * iHoverKayak
+ *        File: kayak_driver.h
+ *  Created on: Jun 20, 2012
+ *      Author: Josh Leighton
+ */
+
 #ifndef __SERIAL_H
 #define __SERIAL_H
-
 
 #include "MOOS/libMOOS/MOOSLib.h"
 #include <boost/asio.hpp>

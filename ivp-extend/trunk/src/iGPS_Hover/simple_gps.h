@@ -1,3 +1,10 @@
+/*
+ * iGPS_Hover
+ *        File: simple_gps.h
+ *  Created on: Jul 24, 2012
+ *      Author: Josh Leighton
+ */
+
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
@@ -19,9 +26,7 @@
 class SIMPLE_GPS: public CMOOSInstrument {
 public:
     SIMPLE_GPS();
-    virtual ~SIMPLE_GPS() {
-    }
-    ;
+    virtual ~SIMPLE_GPS() {};
 
     bool OnNewMail(MOOSMSG_LIST &NewMail);
     bool Iterate();
@@ -64,7 +69,8 @@ private:
     void wait_callback(boost::asio::serial_port& ser_port,
             const boost::system::error_code& error);
     void null_handler(const boost::system::error_code& error,
-            std::size_t bytes_transferred) {}
+            std::size_t bytes_transferred) {
+    }
 
     std::vector<unsigned char> readBuffer, writeBuffer;
     boost::mutex writeBufferMutex;

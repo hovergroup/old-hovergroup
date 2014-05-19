@@ -29,5 +29,4 @@ TARGET_LINK_LIBRARIES(simple_acomms_parser
 	boost_date_time
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES}
-	acomms_messages
 	${SYSTEM_LIBS} )

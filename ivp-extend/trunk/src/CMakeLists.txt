@@ -19,7 +19,6 @@ ADD_SUBDIRECTORY(protobuf)
 #============================================================================
 
 # libraries
-ADD_SUBDIRECTORY(lib_acomms_messages)
 ADD_SUBDIRECTORY(lib_JoshUtils)
 ADD_SUBDIRECTORY(lib_HoverAcomms)
 ADD_SUBDIRECTORY(lib_HoverGeometry)
@@ -49,10 +48,8 @@ ADD_SUBDIRECTORY(iIcarus)
 
 # not needed on vehicles
 IF(BUILD_SHORE_APPS)
-	ADD_SUBDIRECTORY(acomms_alog_parser)
 	ADD_SUBDIRECTORY(simple_acomms_parser)
 	ADD_SUBDIRECTORY(alogParse)
-	ADD_SUBDIRECTORY(alogParseGPSTime)
 	ADD_SUBDIRECTORY(acommsParse)
 	ADD_SUBDIRECTORY(testing_app)
 	ADD_SUBDIRECTORY(iKST)
@@ -60,6 +57,7 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(wtExample)
 	ADD_SUBDIRECTORY(pWTStatusView)
 	ADD_SUBDIRECTORY(pAcommsSimulator)
+	ADD_SUBDIRECTORY(uTermCommand_Hover)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################

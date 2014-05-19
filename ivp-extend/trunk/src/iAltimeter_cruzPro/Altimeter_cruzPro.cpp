@@ -1,3 +1,10 @@
+/*
+ * iAltimeter_cruzPro
+ *        File: iAltimeter_cruzPro.cpp
+ *  Created on: Sept 27, 2013
+ *      Author: Josh Leighton
+ */
+
 #include <iterator>
 #include "Altimeter_cruzPro.h"
 #include "MBUtils.h"
@@ -30,8 +37,9 @@ Altimeter_cruzPro::Altimeter_cruzPro() :
 // Procedure: OnNewMail
 
 bool Altimeter_cruzPro::OnNewMail(MOOSMSG_LIST &NewMail) {
-	// if using tcp, assume we're logging altimeter server side
-	if (m_use_tcp) return true;
+    // if using tcp, assume we're logging altimeter server side
+    if (m_use_tcp)
+        return true;
 
     MOOSMSG_LIST::iterator p;
 
@@ -102,38 +110,37 @@ bool Altimeter_cruzPro::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("USE_TCP", m_use_tcp);
 
     if (m_use_tcp) {
-		struct sockaddr_in m_server_address;
-		struct hostent *m_server;
+        struct sockaddr_in m_server_address;
+        struct hostent *m_server;
 
-		m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (m_tcp_sockfd < 0) {
-			std::cout << "Error opening socket" << std::endl;
-			return false;
-		}
+        m_tcp_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (m_tcp_sockfd < 0) {
+            std::cout << "Error opening socket" << std::endl;
+            return false;
+        }
 
-		m_server = gethostbyname(server_name.c_str());
-		if (m_server == NULL) {
-			std::cout << "Error, no such host " << server_name << std::endl;
-			return false;
-		}
+        m_server = gethostbyname(server_name.c_str());
+        if (m_server == NULL) {
+            std::cout << "Error, no such host " << server_name << std::endl;
+            return false;
+        }
 
-		bzero((char *) &m_server_address, sizeof(m_server_address));
-		m_server_address.sin_family = AF_INET;
-		bcopy((char *) m_server->h_addr,
-				(char *)&m_server_address.sin_addr.s_addr,
-				m_server->h_length);
-		m_server_address.sin_port = htons(server_port);
-		if (connect(m_tcp_sockfd,
-				(struct sockaddr *) &m_server_address,
-				sizeof(m_server_address)) < 0) {
-			std::cout << "error connecting" << std::endl;
-			return false;
-		}
+        bzero((char *) &m_server_address, sizeof(m_server_address));
+        m_server_address.sin_family = AF_INET;
+        bcopy((char *) m_server->h_addr,
+        (char *)&m_server_address.sin_addr.s_addr,
+        m_server->h_length);
+        m_server_address.sin_port = htons(server_port);
+        if (connect(m_tcp_sockfd, (struct sockaddr *) &m_server_address,
+                sizeof(m_server_address)) < 0) {
+            std::cout << "error connecting" << std::endl;
+            return false;
+        }
     } else {
-    	RegisterVariables();
+        RegisterVariables();
     }
 
-//	open_port( my_port_name, my_baud_rate );
+//    open_port( my_port_name, my_baud_rate );
     //serial_thread = boost::thread(boost::bind(&Altimeter_cruzPro::serialLoop, this));
 
     return (true);
@@ -150,18 +157,18 @@ void Altimeter_cruzPro::RegisterVariables() {
 // Procedure: Iterate()
 
 bool Altimeter_cruzPro::Iterate() {
-	if (m_use_tcp) {
-		int n = read(m_tcp_sockfd,&tcpReadBuffer[0],1000);
-		if (n < 0) {
-			std::cout << "error reading from socket" << std::endl;
-			return false;
-		}
-		if (n > 0) {
-			string_buffer += std::string(tcpReadBuffer.begin(),
-					tcpReadBuffer.begin()+=n);
-		}
-		processReadBuffer();
-	}
+    if (m_use_tcp) {
+        int n = read(m_tcp_sockfd, &tcpReadBuffer[0], 1000);
+        if (n < 0) {
+            std::cout << "error reading from socket" << std::endl;
+            return false;
+        }
+        if (n > 0) {
+            string_buffer += std::string(tcpReadBuffer.begin(),
+                    tcpReadBuffer.begin() += n);
+        }
+        processReadBuffer();
+    }
 
     return (true);
 }
@@ -184,16 +191,20 @@ void Altimeter_cruzPro::open_port(string port_name, int baudRate) {
 
     // serial port must be configured after being opened
     port.set_option(boost::asio::serial_port_base::baud_rate(baudRate));
-    port.set_option(boost::asio::serial_port_base::flow_control(
-			boost::asio::serial_port_base::flow_control::none));
-    port.set_option(boost::asio::serial_port_base::parity(
-    		boost::asio::serial_port_base::parity::none));
-    port.set_option(boost::asio::serial_port_base::stop_bits(
-    		boost::asio::serial_port_base::stop_bits::one));
+    port.set_option(
+            boost::asio::serial_port_base::flow_control(
+                    boost::asio::serial_port_base::flow_control::none));
+    port.set_option(
+            boost::asio::serial_port_base::parity(
+                    boost::asio::serial_port_base::parity::none));
+    port.set_option(
+            boost::asio::serial_port_base::stop_bits(
+                    boost::asio::serial_port_base::stop_bits::one));
     port.set_option(boost::asio::serial_port_base::character_size(8));
 
     // start the background thread
-    serial_thread = boost::thread(boost::bind(&Altimeter_cruzPro::serialLoop, this));
+    serial_thread = boost::thread(
+            boost::bind(&Altimeter_cruzPro::serialLoop, this));
 }
 
 void Altimeter_cruzPro::close_port() {
@@ -209,7 +220,8 @@ void Altimeter_cruzPro::writeData(unsigned char *ptr, int length) {
     writeBufferMutex.unlock();
 }
 
-void Altimeter_cruzPro::read_handler(bool& data_available, boost::asio::deadline_timer& timeout,
+void Altimeter_cruzPro::read_handler(bool& data_available,
+        boost::asio::deadline_timer& timeout,
         const boost::system::error_code& error, std::size_t bytes_transferred) {
     if (error || !bytes_transferred) {
         // no data read
@@ -246,7 +258,7 @@ void Altimeter_cruzPro::processWriteBuffer() {
 //
 //        // simple synchronous serial write
 //        port.write_some(boost::asio::buffer(localWriteBuffer,
-//        		localWriteBuffer.size()));
+//                localWriteBuffer.size()));
 //    } else {
 //        // no data to write, release lock
 //        writeBufferMutex.unlock();
@@ -268,19 +280,19 @@ void Altimeter_cruzPro::serialLoop() {
         // setup a timer that will prevent the asynchronous operation for more than 100 ms
         timeout.expires_from_now(boost::posix_time::milliseconds(1000));
         timeout.async_wait(
-                boost::bind(&Altimeter_cruzPro::wait_callback, this, boost::ref(port),
-                        boost::asio::placeholders::error));
+                boost::bind(&Altimeter_cruzPro::wait_callback, this,
+                        boost::ref(port), boost::asio::placeholders::error));
 
         // reset then run the io service to start the asynchronous operation
         io.reset();
         io.run();
 
-//		cout << "read " << asyncBytesRead << endl;
+//        cout << "read " << asyncBytesRead << endl;
 
         if (data_available) {
             string_buffer += string(readBuffer.begin(), readBuffer.begin() +=
                     asyncBytesRead);
-//			cout << string_buffer << endl;
+//            cout << string_buffer << endl;
             processReadBuffer();
         }
     }
@@ -289,11 +301,8 @@ void Altimeter_cruzPro::serialLoop() {
 void Altimeter_cruzPro::processReadBuffer() {
     int start_index, stop_index;
     while ((stop_index = string_buffer.find("\r\n", 2)) != string::npos
-            && (start_index = string_buffer.find("$", 0))
-                    != string::npos) {
-        parseLine(
-                string_buffer.substr(start_index,
-                        stop_index - start_index));
+            && (start_index = string_buffer.find("$", 0)) != string::npos) {
+        parseLine(string_buffer.substr(start_index, stop_index - start_index));
         string_buffer = string_buffer.substr(stop_index,
                 string_buffer.size() - stop_index);
     }

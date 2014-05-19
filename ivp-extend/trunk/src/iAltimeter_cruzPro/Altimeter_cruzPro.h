@@ -1,3 +1,10 @@
+/*
+ * iAltimeter_cruzPro
+ *        File: iAltimeter_cruzPro.h
+ *  Created on: Sept 27, 2013
+ *      Author: Josh Leighton
+ */
+
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
@@ -18,9 +25,7 @@
 class Altimeter_cruzPro: public CMOOSInstrument {
 public:
     Altimeter_cruzPro();
-    virtual ~Altimeter_cruzPro() {
-    }
-    ;
+    virtual ~Altimeter_cruzPro() {};
 
     bool OnNewMail(MOOSMSG_LIST &NewMail);
     bool Iterate();
@@ -61,7 +66,8 @@ private:
     void wait_callback(boost::asio::serial_port& ser_port,
             const boost::system::error_code& error);
     void null_handler(const boost::system::error_code& error,
-            std::size_t bytes_transferred) {}
+            std::size_t bytes_transferred) {
+    }
 
     std::vector<unsigned char> readBuffer, writeBuffer;
     boost::mutex writeBufferMutex;

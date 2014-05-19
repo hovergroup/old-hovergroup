@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: KST_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * iKST
+ *        File: KST_Info.h
+ *  Created on: Aug 12, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef KST_INFO_HEADER
 #define KST_INFO_HEADER

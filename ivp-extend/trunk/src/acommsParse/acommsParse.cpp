@@ -1,8 +1,8 @@
 /*
- * alogParse.cpp
- *
- *  Created on: Jul 31, 2012
- *      Author: josh
+ * acommsParse
+ *        File: acommsParse.cpp
+ *  Created on: May 23, 2013
+ *      Author: Josh Leighton
  */
 
 #include "goby/acomms/protobuf/mm_driver.pb.h"

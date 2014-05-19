@@ -1,15 +1,14 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: acomms_driver.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * iAcommsDriver
+ *        File: acomms_driver.cpp
+ *  Created on: May 24, 2012
+ *      Author: Josh Leighton
+ */
 
 #include <iterator>
 #include <sstream>
 #include <algorithm>
 #include "acomms_driver.h"
-#include "acomms_messages.h"
 
 using namespace std;
 
@@ -28,8 +27,7 @@ static bool OnSimConnectCallback(void * pParam) {
 //---------------------------------------------------------
 // Constructor
 
-acomms_driver::acomms_driver()
-{
+acomms_driver::acomms_driver() {
     // state variables
     m_transmitLockout = false;
     m_status = HoverAcomms::NOT_RUNNING;
@@ -63,108 +61,107 @@ acomms_driver::acomms_driver()
 //---------------------------------------------------------
 // Destructor
 
-acomms_driver::~acomms_driver()
-{
+acomms_driver::~acomms_driver() {
 }
 
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
-bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail)
-{
-   MOOSMSG_LIST::iterator p;
-   bool new_transmit = false;
-   
-   for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-      CMOOSMsg &msg = *p;
-      string key = msg.GetKey();
+bool acomms_driver::OnNewMail(MOOSMSG_LIST &NewMail) {
+    MOOSMSG_LIST::iterator p;
+    bool new_transmit = false;
 
-      // set transmission rate in protobuf
-      if ( key == "ACOMMS_TRANSMIT_RATE" ) {
-          if (!m_transmission.setRate(msg.GetDouble())) {
-              publishWarning("Transmit rate not supported.");
-          }
-      }
+    for (p = NewMail.begin(); p != NewMail.end(); p++) {
+        CMOOSMsg &msg = *p;
+        string key = msg.GetKey();
 
-      // set destination address
-      else if ( key == "ACOMMS_TRANSMIT_DEST" ) {
-          m_transmission.setDest(msg.GetDouble());
-      }
+        // set transmission rate in protobuf
+        if (key == "ACOMMS_TRANSMIT_RATE") {
+            if (!m_transmission.setRate(msg.GetDouble())) {
+                publishWarning("Transmit rate not supported.");
+            }
+        }
 
-      // fill in data and signal transmission
-      else if ( (key=="ACOMMS_TRANSMIT_DATA" ||    // normal variable
-              key=="SCHEDULER_TRANSMIT_DATA") &&   // using scheduler
-              msg.GetSource() != GetAppName() ) {  // not from this app
-          if (m_transmission.fillData(msg.GetString())==-1) {
-              publishWarning("Cannot fill data because rate is not defined.");
-          } else {
-              new_transmit = true;
-          }
-      }
+        // set destination address
+        else if (key == "ACOMMS_TRANSMIT_DEST") {
+            m_transmission.setDest(msg.GetDouble());
+        }
 
-      // fill in binary data and signal transmission
-      else if ( (key=="ACOMMS_TRANSMIT_DATA_BINARY" ||
-                key=="SCHEDULER_TRANSMIT_DATA_BINARY") &&
-                msg.GetSource() != GetAppName() ) {
-          if (m_transmission.fillData(msg.GetString())==-1) {
-              publishWarning("Cannot fill data because rate is not defined.");
-          } else {
-              new_transmit = true;
-          }
-      }
+        // fill in data and signal transmission
+        else if ((key == "ACOMMS_TRANSMIT_DATA" ||    // normal variable
+                key == "SCHEDULER_TRANSMIT_DATA") &&   // using scheduler
+                msg.GetSource() != GetAppName()) {  // not from this app
+            if (m_transmission.fillData(msg.GetString()) == -1) {
+                publishWarning("Cannot fill data because rate is not defined.");
+            } else {
+                new_transmit = true;
+            }
+        }
 
-      // grab logger directory from pLogger
-      else if ( key == "LOGGER_DIRECTORY" &&
-                m_status == HoverAcomms::NOT_RUNNING ) {
-          // get log directory from plogger that we will also use
-          startDriver( msg.GetString() );
-      }
+        // fill in binary data and signal transmission
+        else if ((key == "ACOMMS_TRANSMIT_DATA_BINARY"
+                || key == "SCHEDULER_TRANSMIT_DATA_BINARY")
+                && msg.GetSource() != GetAppName()) {
+            if (m_transmission.fillData(msg.GetString()) == -1) {
+                publishWarning("Cannot fill data because rate is not defined.");
+            } else {
+                new_transmit = true;
+            }
+        }
 
-      // update x or y location
-      else if ( key == "NAV_X" ) {
-          m_navx = msg.GetDouble();
-      } else if ( key == "NAV_Y" ) {
-          m_navy = msg.GetDouble();
-      }
+        // grab logger directory from pLogger
+        else if (key == "LOGGER_DIRECTORY"
+                && m_status == HoverAcomms::NOT_RUNNING) {
+            // get log directory from plogger that we will also use
+            startDriver(msg.GetString());
+        }
 
-      // transmission from a pre-built protobof
-      else if ( (key=="ACOMMS_TRANSMIT" || key=="SCHEDULER_TRANSMIT") &&
-              msg.GetSource() != GetAppName() ) {
-          if (m_transmission.parseFromString(msg.GetString()))
-              new_transmit=true;
-          else
-              publishWarning("Failed to parse protobuf from ACOMMS_TRANSMIT posting.");
-      }
+        // update x or y location
+        else if (key == "NAV_X") {
+            m_navx = msg.GetDouble();
+        } else if (key == "NAV_Y") {
+            m_navy = msg.GetDouble();
+        }
 
-      // toggle modem's built in ack functionality
-      else if ( key == "ACOMMS_REQUEST_ACK" ) {
-          if (msg.GetDouble()==1) {
-              m_transmission.setAckRequested(true);
-          } else {
-              m_transmission.setAckRequested(false);
-          }
-      }
+        // transmission from a pre-built protobof
+        else if ((key == "ACOMMS_TRANSMIT" || key == "SCHEDULER_TRANSMIT")
+                && msg.GetSource() != GetAppName()) {
+            if (m_transmission.parseFromString(msg.GetString()))
+                new_transmit = true;
+            else
+                publishWarning(
+                        "Failed to parse protobuf from ACOMMS_TRANSMIT posting.");
+        }
 
-      // lockout controlled by scheduler
-      else if ( key == "ACOMMS_TRANSMIT_LOCKOUT" ) {
-          if (msg.GetDouble()==1) {
-              m_transmitLockout = true;
-          } else {
-              m_transmitLockout = false;
-          }
-      }
-   }
+        // toggle modem's built in ack functionality
+        else if (key == "ACOMMS_REQUEST_ACK") {
+            if (msg.GetDouble() == 1) {
+                m_transmission.setAckRequested(true);
+            } else {
+                m_transmission.setAckRequested(false);
+            }
+        }
 
-   // send transmission after reading all variables
-   if ( new_transmit )
-       transmit_data();
+        // lockout controlled by scheduler
+        else if (key == "ACOMMS_TRANSMIT_LOCKOUT") {
+            if (msg.GetDouble() == 1) {
+                m_transmitLockout = true;
+            } else {
+                m_transmitLockout = false;
+            }
+        }
+    }
 
-   return(true);
+    // send transmission after reading all variables
+    if (new_transmit)
+        transmit_data();
+
+    return (true);
 }
 
 void acomms_driver::RegisterVariables() {
-    m_Comms.Register( "ACOMMS_TRANSMIT_RATE", 0 );
-    m_Comms.Register( "ACOMMS_TRANSMIT_DEST", 0 );
+    m_Comms.Register("ACOMMS_TRANSMIT_RATE", 0);
+    m_Comms.Register("ACOMMS_TRANSMIT_DEST", 0);
     if (!m_useScheduler) {
         m_Comms.Register("ACOMMS_TRANSMIT_DATA", 0);
         m_Comms.Register("ACOMMS_TRANSMIT_DATA_BINARY", 0);
@@ -174,11 +171,11 @@ void acomms_driver::RegisterVariables() {
         m_Comms.Register("SCHEDULER_TRANSMIT_DATA_BINARY", 0);
         m_Comms.Register("SCHEDULER_TRANSMIT", 0);
     }
-    m_Comms.Register( "LOGGER_DIRECTORY", 1 );
-    m_Comms.Register( "NAV_X", 1 );
-    m_Comms.Register( "NAV_Y", 1 );
-    m_Comms.Register( "ACOMMS_REQUEST_ACK", 0);
-    m_Comms.Register( "ACOMMS_TRANSMIT_LOCKOUT", 0);
+    m_Comms.Register("LOGGER_DIRECTORY", 1);
+    m_Comms.Register("NAV_X", 1);
+    m_Comms.Register("NAV_Y", 1);
+    m_Comms.Register("ACOMMS_REQUEST_ACK", 0);
+    m_Comms.Register("ACOMMS_TRANSMIT_LOCKOUT", 0);
 
     if (in_sim) {
     }
@@ -211,7 +208,9 @@ bool acomms_driver::OnConnectToServer() {
         ok1 = m_MissionReader.GetConfigurationParam("sim_server", sim_server);
         ok2 = m_MissionReader.GetConfigurationParam("sim_port", sim_port);
         if (!ok1 || !ok2) {
-            std::cout << "Simulation server and port not specified in process config" << std::endl;
+            std::cout
+                    << "Simulation server and port not specified in process config"
+                    << std::endl;
             return false;
         }
 
@@ -249,22 +248,22 @@ bool acomms_driver::OnConnectToServer() {
 //---------------------------------------------------------
 // Procedure: Iterate()
 
-bool acomms_driver::Iterate()
-{
+bool acomms_driver::Iterate() {
     // start up timer - set driver ready 5 seconds after start
     if (start_time != -1 && m_status == HoverAcomms::NOT_RUNNING) {
-        if (MOOSTime()-start_time > 5) {
+        if (MOOSTime() - start_time > 5) {
             publishStatus(HoverAcomms::READY);
             start_time = -1;
         }
     }
 
     // do nothing if driver is not initialized
-    if ( m_status == HoverAcomms::NOT_RUNNING || m_status == HoverAcomms::STARTING )
+    if (m_status == HoverAcomms::NOT_RUNNING
+            || m_status == HoverAcomms::STARTING)
         return true;
 
     // simulation reports
-    if (in_sim && MOOSTime()-m_lastSimReportTime>1) {
+    if (in_sim && MOOSTime() - m_lastSimReportTime > 1) {
         publishSimReport();
     }
 
@@ -303,14 +302,15 @@ bool acomms_driver::Iterate()
     }
 
     // receive status timeout
-    if ( m_status==HoverAcomms::RECEIVING && MOOSTime()-receive_set_time > 8 ) {
+    if (m_status == HoverAcomms::RECEIVING
+            && MOOSTime() - receive_set_time > 8) {
         publishWarning("Timed out in receiving state.");
         publishStatus(HoverAcomms::READY);
     }
 
     // set transmit timeout based on packet type
     double transmit_timeout;
-    switch ( m_transmission.getRate() ) {
+    switch (m_transmission.getRate()) {
     case HoverAcomms::MINI:
         transmit_timeout = 2;
         break;
@@ -319,32 +319,32 @@ bool acomms_driver::Iterate()
     }
 
     // check transmit timeout
-    if ( m_status==HoverAcomms::TRANSMITTING && MOOSTime()-transmit_set_time > transmit_timeout ) {
+    if (m_status == HoverAcomms::TRANSMITTING
+            && MOOSTime() - transmit_set_time > transmit_timeout) {
         if (!in_sim)
             publishWarning("Timed out in transmitting state.");
         publishStatus(HoverAcomms::READY);
     }
 
     // ensure status gets updated every 5 seconds
-    if ( MOOSTime()-status_set_time > 5 ) {
-        publishStatus( m_status );
+    if (MOOSTime() - status_set_time > 5) {
+        publishStatus(m_status);
     }
 
-    return(true);
+    return (true);
 }
 
 //---------------------------------------------------------
 // Procedure: OnStartUp()
 
-bool acomms_driver::OnStartUp()
-{
-    return(true);
+bool acomms_driver::OnStartUp() {
+    return (true);
 }
 
 // new data transmission
 void acomms_driver::transmit_data() {
     // check driver status
-    if ( m_status != HoverAcomms::READY ) {
+    if (m_status != HoverAcomms::READY) {
         publishWarning("Driver not ready");
         return;
     }
@@ -356,8 +356,9 @@ void acomms_driver::transmit_data() {
     }
 
     // check that we have transmission data
-    if ( m_transmission.getData().size() == 0 && (m_transmission.getRate()!=HoverAcomms::REMUS_LBL &&
-            m_transmission.getRate()!=HoverAcomms::TWO_WAY_RANGING)) {
+    if (m_transmission.getData().size() == 0
+            && (m_transmission.getRate() != HoverAcomms::REMUS_LBL
+                    && m_transmission.getRate() != HoverAcomms::TWO_WAY_RANGING)) {
         publishWarning("No transmission data");
         return;
     }
@@ -384,11 +385,12 @@ void acomms_driver::transmit_data() {
     m_transmission.m_protobuf.set_src(my_id);
 
     // pull out modem transmission
-    goby::acomms::protobuf::ModemTransmission trans = m_transmission.getProtobuf();
+    goby::acomms::protobuf::ModemTransmission trans =
+            m_transmission.getProtobuf();
 
     if (!in_sim) {
         // pass to goby driver
-        driver->handle_initiate_transmission( trans );
+        driver->handle_initiate_transmission(trans);
     } else {
         // post to shoreside variable for simulation
         std::string out = trans.SerializeAsString();
@@ -398,16 +400,19 @@ void acomms_driver::transmit_data() {
 
     // post summary and hex data
     m_Comms.Notify("ACOMMS_TRANSMITTED_DATA_HEX", m_transmission.getHexData());
-    m_Comms.Notify("ACOMMS_TRANSMITTED_ALL", m_transmission.getLoggableString());
+    m_Comms.Notify("ACOMMS_TRANSMITTED_ALL",
+            m_transmission.getLoggableString());
 
     // post transmission range pulse
-    postRangePulse( my_name + "_transmit", transmission_pulse_range,
+    postRangePulse(my_name + "_transmit", transmission_pulse_range,
             transmission_pulse_duration, "cyan");
 }
 
 // post range pulse for pMarineViewer
-void acomms_driver::postRangePulse( string label, double range, double duration, string color ) {
-    if ( !enable_range_pulses ) return;
+void acomms_driver::postRangePulse(string label, double range, double duration,
+        string color) {
+    if (!enable_range_pulses)
+        return;
 
     XYRangePulse pulse;
     pulse.set_x(m_navx);
@@ -440,16 +445,18 @@ void acomms_driver::handle_data_receive(
 
     // post reception in binary and loggable form
     std::string serialized = reception.serialize();
-    m_Comms.Notify("ACOMMS_RECEIVED", (void*) serialized.data(), serialized.size());
+    m_Comms.Notify("ACOMMS_RECEIVED", (void*) serialized.data(),
+            serialized.size());
     m_Comms.Notify("ACOMMS_RECEIVED_ALL", reception.getLoggableString());
 
     // post remus lbl times
-    if (reception.getRate()==HoverAcomms::REMUS_LBL) {
+    if (reception.getRate() == HoverAcomms::REMUS_LBL) {
         std::stringstream ss;
         std::vector<double> rr = reception.getRemusLBLTimes();
-        for (int i=0; i<rr.size(); i++) {
+        for (int i = 0; i < rr.size(); i++) {
             ss << rr[i];
-            if (i!=rr.size()-1) ss << ",";
+            if (i != rr.size() - 1)
+                ss << ",";
         }
         m_Comms.Notify("REMUS_LBL_TIMES", ss.str());
     }
@@ -464,11 +471,14 @@ void acomms_driver::handle_data_receive(
             m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
             m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
             m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
-            m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME", reception.getRangingTime());
+            m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME",
+                    reception.getRangingTime());
             std::string data = reception.getData();
-            m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(), data.size());
+            m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(),
+                    data.size());
 
-            micromodem::protobuf::ReceiveStatistics stat = reception.getStatistics(1);
+            micromodem::protobuf::ReceiveStatistics stat =
+                    reception.getStatistics(1);
             m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
             m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
             m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
@@ -483,14 +493,14 @@ void acomms_driver::handle_data_receive(
         m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
 
         // post range pulse
-        if (status==HoverAcomms::GOOD) {
-            postRangePulse(my_name+"_receipt_good", receive_pulse_range,
+        if (status == HoverAcomms::GOOD) {
+            postRangePulse(my_name + "_receipt_good", receive_pulse_range,
                     receive_pulse_duration, "green");
-        } else if (status==HoverAcomms::PARTIAL) {
-            postRangePulse(my_name+"_receipt_partial", receive_pulse_range,
+        } else if (status == HoverAcomms::PARTIAL) {
+            postRangePulse(my_name + "_receipt_partial", receive_pulse_range,
                     receive_pulse_duration, "yellow");
         } else {
-            postRangePulse(my_name+"_receipt_bad", receive_pulse_range,
+            postRangePulse(my_name + "_receipt_bad", receive_pulse_range,
                     receive_pulse_duration, "red");
         }
     }
@@ -498,36 +508,37 @@ void acomms_driver::handle_data_receive(
     publishStatus(HoverAcomms::READY);
 }
 
-void acomms_driver::handle_raw_incoming( const goby::acomms::protobuf::ModemRaw& msg ) {
+void acomms_driver::handle_raw_incoming(
+        const goby::acomms::protobuf::ModemRaw& msg) {
     // pull out the message descriptor
-    string descriptor = msg.raw().substr(3,3);
+    string descriptor = msg.raw().substr(3, 3);
 
     // end of transmission, change status back to ready
-    if ( descriptor == "TXF") {
+    if (descriptor == "TXF") {
         publishStatus(HoverAcomms::READY);
     }
 
     // receive start, set status and flags
-    else if ( descriptor == "RXP" ) {
+    else if (descriptor == "RXP") {
         publishStatus(HoverAcomms::RECEIVING);
         receive_set_time = MOOSTime();
     }
 
     // impulse response, post to moosdb
-    else if ( descriptor == "IRE" ) {
+    else if (descriptor == "IRE") {
         m_Comms.Notify("ACOMMS_IMPULSE_RESPONSE", msg.raw());
     }
 
-    else if ( descriptor == "ERR" ) {
-    	if (msg.raw().find("EXTSYNC timeout") != std::string::npos) {
-    		publishWarning("PPS sync error - transmission not sent");
-    	}
+    else if (descriptor == "ERR") {
+        if (msg.raw().find("EXTSYNC timeout") != std::string::npos) {
+            publishWarning("PPS sync error - transmission not sent");
+        }
     }
 }
 
 // publish warning
-void acomms_driver::publishWarning( std::string message ) {
-    m_Comms.Notify("ACOMMS_DRIVER_WARNING", message );
+void acomms_driver::publishWarning(std::string message) {
+    m_Comms.Notify("ACOMMS_DRIVER_WARNING", message);
 }
 
 // publish status and update locally
@@ -540,9 +551,9 @@ void acomms_driver::publishStatus(HoverAcomms::DriverStatus status_update) {
 }
 
 // check if a file exists
-bool acomms_driver::file_exists( std::string filename ) {
+bool acomms_driver::file_exists(std::string filename) {
     ifstream my_file(filename.c_str());
-    if ( my_file.good() ) {
+    if (my_file.good()) {
         my_file.close();
         return true;
     } else {
@@ -551,21 +562,21 @@ bool acomms_driver::file_exists( std::string filename ) {
     }
 }
 
-void acomms_driver::startDriver( std::string logDirectory ) {
-	publishStatus(HoverAcomms::STARTING);
+void acomms_driver::startDriver(std::string logDirectory) {
+    publishStatus(HoverAcomms::STARTING);
 
     if (!in_sim) {
         cout << "opening goby log file..." << endl;
 
         // construct filename and increment index if filename already exists
         int file_index = 0;
-        string filename = logDirectory + "/goby_log_" +
-            boost::lexical_cast<string>( file_index ) + ".txt";
-        while ( file_exists( filename ) ) {
+        string filename = logDirectory + "/goby_log_"
+                + boost::lexical_cast<string>(file_index) + ".txt";
+        while (file_exists(filename)) {
             cout << filename << " already exists." << endl;
             file_index++;
-            filename = logDirectory + "/goby_log_" +
-                boost::lexical_cast<string>( file_index ) + ".txt";
+            filename = logDirectory + "/goby_log_"
+                    + boost::lexical_cast<string>(file_index) + ".txt";
         }
 
         // open logfile
@@ -573,13 +584,13 @@ void acomms_driver::startDriver( std::string logDirectory ) {
         cout << "Goby logging to " << filename << endl;
 
         // pass log ofstream to goby log
-        goby::glog.set_name( "iAcommsDriver" );
-        goby::glog.add_stream( goby::common::logger::DEBUG1, &std::clog );
-        goby::glog.add_stream( goby::common::logger::DEBUG3, &verbose_log );
+        goby::glog.set_name("iAcommsDriver");
+        goby::glog.add_stream(goby::common::logger::DEBUG1, &std::clog);
+        goby::glog.add_stream(goby::common::logger::DEBUG3, &verbose_log);
 
         // set serial port
-        cfg.set_serial_port( port_name );
-        cfg.set_modem_id( my_id );
+        cfg.set_serial_port(port_name);
+        cfg.set_modem_id(my_id);
 
         // construct driver
         std::cout << "Starting WHOI Micro-Modem MMDriver" << std::endl;
@@ -601,7 +612,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
         cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "AGN,250");
 
         // ranging
-        if ( enable_one_way_ranging )
+        if (enable_one_way_ranging)
             cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,1");
         else
             cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "SNV,0");
@@ -610,15 +621,16 @@ void acomms_driver::startDriver( std::string logDirectory ) {
         cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "NRV,0");
 
         // psk vs. fsk minipackets
-        if ( use_psk_for_minipackets )
+        if (use_psk_for_minipackets)
             cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,1");
         else
             cfg.AddExtension(micromodem::protobuf::Config::nvram_cfg, "MOD,0");
 
-
         // connect receive and raw signals to our functions
-        goby::acomms::connect( &driver->signal_receive, boost::bind(&acomms_driver::handle_data_receive, this, _1) );
-        goby::acomms::connect( &driver->signal_raw_incoming, boost::bind(&acomms_driver::handle_raw_incoming, this, _1) );
+        goby::acomms::connect(&driver->signal_receive,
+                boost::bind(&acomms_driver::handle_data_receive, this, _1));
+        goby::acomms::connect(&driver->signal_raw_incoming,
+                boost::bind(&acomms_driver::handle_raw_incoming, this, _1));
 
         // start the driver
         driver->startup(cfg);
@@ -627,7 +639,7 @@ void acomms_driver::startDriver( std::string logDirectory ) {
     // record start time
     start_time = MOOSTime();
 
-	publishStatus(HoverAcomms::READY);
+    publishStatus(HoverAcomms::READY);
 }
 
 // on connect to shoreside (simulation only)
@@ -649,7 +661,7 @@ bool acomms_driver::OnSimMail(void * pParam) {
 
     // iterate over elements
     MOOSMSG_LIST::iterator q;
-    for (q=M.begin(); q!=M.end(); q++) {
+    for (q = M.begin(); q != M.end(); q++) {
         std::string key = q->GetKey();
 
         // complete receptions
@@ -658,7 +670,7 @@ bool acomms_driver::OnSimMail(void * pParam) {
             goby::acomms::protobuf::ModemTransmission tmp;
 
             // got completed reception
-            if(tmp.ParseFromString(msg)) {
+            if (tmp.ParseFromString(msg)) {
                 m_simReceiveMutex.lock();
                 m_simReception.Clear();
                 m_simReception.CopyFrom(tmp);

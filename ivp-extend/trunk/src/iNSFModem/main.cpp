@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: main.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * iNSFModem
+ *        File: main.cpp
+ *  Created on: May 7, 2013
+ *      Author: Josh Leighton, Pedro Vaz Teixeira
+ */
 
 #include <string>
 #include "MBUtils.h"
