@@ -1,8 +1,8 @@
 /*
- * alogParse.h
- *
- *  Created on: Jul 31, 2012
- *      Author: josh
+ * acommsParse
+ *        File: acommsParse.h
+ *  Created on: May 23, 2013
+ *      Author: Josh Leighton
  */
 
 #ifndef ACOMMSPARSE_H_

@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: RTKNAVI.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * iRTKNAVI
+ *        File: RTKNAVI.h
+ *  Created on: May 31, 2013
+ *      Author: Josh Leighton
+ */
 
 #ifndef RTKNAVI_HEADER
 #define RTKNAVI_HEADER
@@ -23,32 +23,35 @@
 
 class RTKNAVI: public CMOOSInstrument {
 public:
-	RTKNAVI();
-	virtual ~RTKNAVI();
+    RTKNAVI();
+    virtual ~RTKNAVI();
 
-	bool OnNewMail(MOOSMSG_LIST &NewMail);
-	bool Iterate();
-	bool OnConnectToServer();
-	bool OnStartUp();
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
 
 protected:
-	boost::asio::io_service io_service;
-	boost::asio::ip::tcp::socket sock;
+    boost::asio::io_service io_service;
+    boost::asio::ip::tcp::socket sock;
 
-	boost::thread io_thread;
-	boost::asio::deadline_timer timeout;
+    boost::thread io_thread;
+    boost::asio::deadline_timer timeout;
 
-	std::vector<char> readBuffer;
-	bool data_available;
+    std::vector<char> readBuffer;
+    bool data_available;
 
-	void ioLoop();
-	void parseLine(std::string sline);
+    void ioLoop();
+    void parseLine(std::string sline);
 
-	void read_handler(bool& data_available, boost::asio::deadline_timer& timeout,
-				const boost::system::error_code& error, std::size_t bytes_transferred);
-	void wait_callback(boost::asio::ip::tcp::socket& tcp_sock, const boost::system::error_code& error);
+    void read_handler(bool& data_available,
+            boost::asio::deadline_timer& timeout,
+            const boost::system::error_code& error,
+            std::size_t bytes_transferred);
+    void wait_callback(boost::asio::ip::tcp::socket& tcp_sock,
+            const boost::system::error_code& error);
 
-	int asyncBytesRead;
+    int asyncBytesRead;
     CMOOSGeodesy m_Geodesy;
 
     std::deque<double> vel_history;

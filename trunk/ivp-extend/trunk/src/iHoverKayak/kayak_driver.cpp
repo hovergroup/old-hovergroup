@@ -1,3 +1,10 @@
+/*
+ * iHoverKayak
+ *        File: kayak_driver.cpp
+ *  Created on: Jun 20, 2012
+ *      Author: Josh Leighton
+ */
+
 #include <iterator>
 #include "kayak_driver.h"
 #include "MBUtils.h"

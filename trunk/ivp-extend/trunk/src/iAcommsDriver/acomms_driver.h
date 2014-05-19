@@ -1,10 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: acomms_driver.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
-
+/*
+ * iAcommsDriver
+ *        File: acomms_driver.h
+ *  Created on: May 24, 2012
+ *      Author: Josh Leighton
+ */
 
 #ifndef acomms_driver_HEADER
 #define acomms_driver_HEADER

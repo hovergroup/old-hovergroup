@@ -1,9 +1,9 @@
-/****************************************************************/
-/*   NAME:                                              */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: NSFModem_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * iNSFModem
+ *        File: NSFModem_Info.h
+ *  Created on: May 7, 2013
+ *      Author: Josh Leighton, Pedro Vaz Teixeira
+ */
 
 #ifndef NSFModem_INFO_HEADER
 #define NSFModem_INFO_HEADER

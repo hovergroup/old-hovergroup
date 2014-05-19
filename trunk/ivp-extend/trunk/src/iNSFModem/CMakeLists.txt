@@ -1,9 +1,9 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       iNSFModem
-# Author(s):                              
-#--------------------------------------------------------
-
-# FILE(GLOB SRC *.cpp)
+# ---------------------------------------------
+# iNSFModem
+#        File: CMakeLists.txt
+#  Created on: May 7, 2013
+#      Author: Josh Leighton, Pedro Vaz Teixeira
+# ---------------------------------------------
 
 SET(SRC
   NSFModem.cpp

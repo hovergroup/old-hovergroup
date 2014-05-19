@@ -1,8 +1,8 @@
 /*
- * alogParse.cpp
- *
+ * alogParse
+ *        File: alogParse.cpp
  *  Created on: Jul 31, 2012
- *      Author: josh
+ *      Author: Josh Leighton
  */
 
 #include "alogParse.h"

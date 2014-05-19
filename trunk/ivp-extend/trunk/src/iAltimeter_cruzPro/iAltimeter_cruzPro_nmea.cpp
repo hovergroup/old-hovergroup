@@ -1,3 +1,10 @@
+/*
+ * iAltimeter_cruzPro
+ *        File: iAltimeter_cruzPro_nmea.cpp
+ *  Created on: Sept 27, 2013
+ *      Author: Josh Leighton
+ */
+
 #include "Altimeter_cruzPro.h"
 #include "MBUtils.h"
 
@@ -9,17 +16,18 @@ void Altimeter_cruzPro::parseSDDPT(string sNMEAString) {
 
     // field 1 - depth
     sTmp = MOOSChomp(sNMEAString, ",");
-    if ( sTmp.size() == 0 ) return;
-    double depth = atof( sTmp.c_str() );
+    if (sTmp.size() == 0)
+        return;
+    double depth = atof(sTmp.c_str());
     m_Comms.Notify("ALTIMETER_DEPTH", depth);
 }
 
 void Altimeter_cruzPro::parseLine(string msg) {
-    writeLine( msg );
+    writeLine(msg);
 
     if (!DoNMEACheckSum(msg)) {
         cout << "checksum failed on: " << msg << endl;
-        for ( int i=0; i<msg.size(); i++ ) {
+        for (int i = 0; i < msg.size(); i++) {
             cout << hex << (int) msg[i] << " ";
         }
         cout << endl;
