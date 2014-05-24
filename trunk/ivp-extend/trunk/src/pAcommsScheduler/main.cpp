@@ -1,9 +1,9 @@
-/************************************************************/
-/*    NAME:                                               */
-/*    ORGN: MIT                                             */
-/*    FILE: main.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * pAcommsScheduler
+ *        File: main.cpp
+ *  Created on: Aug 13, 2013
+ *      Author: Josh Leighton
+ */
 
 #include <string>
 #include "MBUtils.h"
