@@ -18,6 +18,7 @@ private:
     public:
         AckedTransmission() {
             transmit_time = -1;
+            num_transmits = 0;
         }
 
         enum TypeEnum {
@@ -31,16 +32,18 @@ private:
         std::string var;
         std::string string_val;
         double double_val;
-        int id;
+        unsigned int id;
 
         // where we're sending
         std::string destination;
 
         // how we're sending
-        double delay, retries;
+        double delay;
+        unsigned int repeat;
 
         // state information
         double transmit_time;
+        unsigned int num_transmits;
     };
 
 public:
@@ -53,6 +56,8 @@ protected:
     bool OnConnectToServer();
     bool OnStartUp();
     void RegisterVariables();
+
+    void printFormattedTransmission(AckedTransmission & trans);
 
 private:
     bool m_started;

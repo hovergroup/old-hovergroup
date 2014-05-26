@@ -6,10 +6,13 @@
  */
 
 #include <iterator>
+#include <sstream>
 #include "MBUtils.h"
 #include "AckedCommsShoreside.h"
 #include <boost/lexical_cast.hpp>
 #include "ackedComms.pb.h"
+
+//#define DEBUG_COUT 1
 
 using namespace std;
 
@@ -30,6 +33,34 @@ AckedCommsShoreside::~AckedCommsShoreside() {
 //---------------------------------------------------------
 // Procedure: OnNewMail
 
+void AckedCommsShoreside::printFormattedTransmission(AckedTransmission & trans) {
+    stringstream dummy_duo;
+    dummy_duo << trans.var + "=";
+    string type;
+    switch (trans.type) {
+    case AckedTransmission::DOUBLE:
+        dummy_duo << trans.double_val;
+        type = "double";
+        break;
+    case AckedTransmission::STRING:
+        dummy_duo << trans.string_val;
+        type = "string";
+        break;
+    case AckedTransmission::BINARY_STRING:
+        dummy_duo << "[binary data]";
+        type = "binary";
+        break;
+    }
+    string duo = dummy_duo.str();
+    if (duo.size() > 30) {
+        duo = duo.substr(0,27) + "...";
+    }
+
+    printf("%-30s", duo.c_str());
+    printf("  %-15s", trans.destination.c_str());
+    printf("  %2d", trans.num_transmits);
+}
+
 bool AckedCommsShoreside::OnNewMail(MOOSMSG_LIST &NewMail) {
     MOOSMSG_LIST::iterator p;
 
@@ -37,59 +68,90 @@ bool AckedCommsShoreside::OnNewMail(MOOSMSG_LIST &NewMail) {
         CMOOSMsg &msg = *p;
         string key = msg.GetKey();
 
-        // last instance of underscore separates variable from its destination
-        int index = key.find_last_of('_');
-        if (index != string::npos && index > 0 && index < key.length()-1) {
-            // if underscore is found mid-key, separate var name and tail
-            string tail = key.substr(index+1, key.length()-index-1);
-            string var = key.substr(0, index);
+        if (key == "ACKEDCOMMS_RETURN_ACK") {
+            unsigned int ack_id = (unsigned int) msg.GetDouble();
+            stringstream debugout;
+            debugout << "Got ack with id " << ack_id << endl;
+            for (int i=0; i<m_transmissions.size(); i++) {
+                if (ack_id == m_transmissions[i].id) {
+                    debugout << "Matched ack with transmission: " << endl;
+                    debugout << "    var = " << m_transmissions[i].var << endl;
+                    debugout << "    dest = " << m_transmissions[i].destination << endl;
+                    debugout << "    id = " << m_transmissions[i].id << endl;
+                    debugout << "    attempts = " << m_transmissions[i].num_transmits << endl << endl;
+#ifdef  DEBUG_COUT
+                    cout << debugout.str();
+#endif
 
-            // we ignore broadcasts
-            if (tail != "ALL") {
-                // look for match within our registrations
-                for (int i=0; i<m_vars.size(); i++) {
-                    if (var == m_vars[i]) {
-                        // construct a new transmission
-                        AckedTransmission new_transmission;
+                    // print success line
+                    printf("\e[0;32m%-10s","SUCCESS");
+                    printFormattedTransmission(m_transmissions[i]);
+                    printf("\e[0m\n");
 
-                        new_transmission.var = var;
-                        if (msg.IsDouble()) {
-                            new_transmission.double_val = msg.GetDouble();
-                            new_transmission.type = AckedTransmission::DOUBLE;
-                        } else if (msg.IsBinary()) {
-                            new_transmission.string_val = msg.GetString();
-                            new_transmission.type = AckedTransmission::BINARY_STRING;
-                        } else {
-                            new_transmission.string_val = msg.GetString();
-                            new_transmission.type = AckedTransmission::STRING;
+                    // remove transmission from active list
+                    m_transmissions.erase(m_transmissions.begin()+i);
+
+                    break;
+                }
+            }
+        } else {
+            // last instance of underscore separates variable from its destination
+            int index = key.find_last_of('_');
+            if (index != string::npos && index > 0 && index < key.length()-1) {
+                // if underscore is found mid-key, separate var name and tail
+                string tail = key.substr(index+1, key.length()-index-1);
+                string var = key.substr(0, index);
+
+                // we ignore broadcasts
+                if (tail != "ALL") {
+                    // look for match within our registrations
+                    for (int i=0; i<m_vars.size(); i++) {
+                        if (var == m_vars[i]) {
+                            // construct a new transmission
+                            AckedTransmission new_transmission;
+
+                            new_transmission.var = var;
+                            if (msg.IsDouble()) {
+                                new_transmission.double_val = msg.GetDouble();
+                                new_transmission.type = AckedTransmission::DOUBLE;
+                            } else if (msg.IsBinary()) {
+                                new_transmission.string_val = msg.GetString();
+                                new_transmission.type = AckedTransmission::BINARY_STRING;
+                            } else {
+                                new_transmission.string_val = msg.GetString();
+                                new_transmission.type = AckedTransmission::STRING;
+                            }
+
+                            new_transmission.delay = m_delays[var];
+                            new_transmission.repeat = m_repeats[var];
+                            new_transmission.destination = tail;
+                            new_transmission.id = m_currentID;
+                            m_currentID++;
+
+                            m_transmissions.push_back(new_transmission);
+
+                            stringstream debugout;
+                            debugout << "NEW TRANSMISSION" << endl;
+                            debugout << "    var = " << new_transmission.var << endl;
+                            debugout << "    type = ";
+                            switch (new_transmission.type) {
+                            case AckedTransmission::DOUBLE:
+                                debugout << "double" << endl;
+                                break;
+                            case AckedTransmission::BINARY_STRING:
+                                debugout << "binary string" << endl;
+                                break;
+                            case AckedTransmission::STRING:
+                                debugout << "string" << endl;
+                                break;
+                            }
+                            debugout << "    dest = " << new_transmission.destination << endl;
+                            debugout << "    id = " << new_transmission.id << endl << endl;
+#ifdef DEBUG_COUT
+                            cout << debugout.str();
+#endif
+                            break;
                         }
-
-                        new_transmission.delay = m_delays[var];
-                        new_transmission.retries = m_repeats[var];
-                        new_transmission.destination = tail;
-                        new_transmission.id = m_currentID;
-                        m_currentID++;
-
-                        m_transmissions.push_back(new_transmission);
-
-                        cout << "NEW TRANSMISSION" << endl;
-                        cout << "    var = " << new_transmission.var << endl;
-                        cout << "    type = ";
-                        switch (new_transmission.type) {
-                        case AckedTransmission::DOUBLE:
-                            cout << "double" << endl;
-                            break;
-                        case AckedTransmission::BINARY_STRING:
-                            cout << "binary string" << endl;
-                            break;
-                        case AckedTransmission::STRING:
-                            cout << "string" << endl;
-                            break;
-                        }
-                        cout << "    dest = " << new_transmission.destination << endl;
-                        cout << "    id = " << new_transmission.id << endl << endl;
-
-                        break;
                     }
                 }
             }
@@ -166,7 +228,7 @@ bool AckedCommsShoreside::OnConnectToServer() {
         cout << "Not first time connection." << endl;
     }
 
-    RegisterVariables();
+    m_Comms.Register("ACKEDCOMMS_RETURN_ACK");
 
     return true;
 }
@@ -176,6 +238,57 @@ bool AckedCommsShoreside::OnConnectToServer() {
 //            happens AppTick times per second
 
 bool AckedCommsShoreside::Iterate() {
+    for (int i=0; i<m_transmissions.size(); i++) {
+        AckedTransmission & trans = m_transmissions[i];
+
+        // send transmit if delay time has passed and more transmits can be made
+        if (MOOSTime() - trans.transmit_time > trans.delay &&
+                trans.num_transmits < trans.repeat) {
+            string output_var = "ACKEDCOMMS_TRANSMIT_" + trans.destination;
+
+            AckedTransmissionProto trans_proto;
+            trans_proto.set_var_name(trans.var);
+            switch(trans.type) {
+            case AckedTransmission::DOUBLE:
+                trans_proto.set_type(AckedTransmissionProto::DOUBLE);
+                trans_proto.set_double_val(trans.double_val);
+                break;
+            case AckedTransmission::STRING:
+                trans_proto.set_type(AckedTransmissionProto::STRING);
+                trans_proto.set_string_val(trans.string_val);
+                break;
+            case AckedTransmission::BINARY_STRING:
+                trans_proto.set_type(AckedTransmissionProto::BINARY_STRING);
+                trans_proto.set_string_val(trans.string_val);
+                break;
+            }
+            trans_proto.set_id(trans.id);
+
+            string msg = trans_proto.SerializeAsString();
+            m_Comms.Notify(output_var, (void*) msg.data(), msg.size());
+
+            trans.num_transmits++;
+            trans.transmit_time = MOOSTime();
+
+#ifdef DEBUG_COUT
+            cout << "Sending " << trans.var << " to " << output_var << " try " << trans.num_transmits
+                    << " of " << trans.repeat << endl;
+#endif
+        }
+
+        // mark transmission as failure if delay time has passed and max transmits reached
+        if (MOOSTime() - trans.transmit_time > trans.delay &&
+                trans.num_transmits >= trans.repeat) {
+
+            // print failure line
+            printf("\e[0;31m%-10s","FAILURE");
+            printFormattedTransmission(trans);
+            printf("\e[0m\n");
+
+            m_transmissions.erase(m_transmissions.begin()+i);
+        }
+
+    }
     return (true);
 }
 
