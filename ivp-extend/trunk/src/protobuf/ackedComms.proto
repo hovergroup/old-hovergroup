@@ -5,7 +5,7 @@
  *      Author: Josh Leighton
  */
 
-message AckedTransmission {
+message AckedTransmissionProto {
     required string var_name = 1;
     optional double double_val = 2;
     optional string string_val = 3;
