@@ -11,6 +11,7 @@
 #include "AckedCommsShoreside.h"
 #include <boost/lexical_cast.hpp>
 #include "ackedComms.pb.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 //#define DEBUG_COUT 1
 
@@ -59,6 +60,14 @@ void AckedCommsShoreside::printFormattedTransmission(AckedTransmission & trans) 
     printf("%-30s", duo.c_str());
     printf("  %-15s", trans.destination.c_str());
     printf("  %2d", trans.num_transmits);
+
+    boost::posix_time::ptime p(boost::posix_time::second_clock::local_time());
+    unsigned long total_sec = p.time_of_day().total_seconds();
+    int hours = total_sec / 3600;
+    int minutes = (total_sec % 3600) / 60;
+    int seconds = total_sec - 3600*hours - 60*minutes;
+    printf("  %02d:%02d:%02d", hours, minutes, seconds);
+
 }
 
 bool AckedCommsShoreside::OnNewMail(MOOSMSG_LIST &NewMail) {
@@ -102,28 +111,30 @@ bool AckedCommsShoreside::OnNewMail(MOOSMSG_LIST &NewMail) {
                 string tail = key.substr(index+1, key.length()-index-1);
                 string var = key.substr(0, index);
 
-                // we ignore broadcasts
-                if (tail != "ALL") {
-                    // look for match within our registrations
-                    for (int i=0; i<m_vars.size(); i++) {
-                        if (var == m_vars[i]) {
-                            // construct a new transmission
-                            AckedTransmission new_transmission;
+                // look for match within our registrations
+                for (int i=0; i<m_vars.size(); i++) {
+                    if (var == m_vars[i]) {
+                        // construct a new transmission
+                        AckedTransmission new_transmission;
 
-                            new_transmission.var = var;
-                            if (msg.IsDouble()) {
-                                new_transmission.double_val = msg.GetDouble();
-                                new_transmission.type = AckedTransmission::DOUBLE;
-                            } else if (msg.IsBinary()) {
-                                new_transmission.string_val = msg.GetString();
-                                new_transmission.type = AckedTransmission::BINARY_STRING;
-                            } else {
-                                new_transmission.string_val = msg.GetString();
-                                new_transmission.type = AckedTransmission::STRING;
-                            }
+                        new_transmission.var = var;
+                        if (msg.IsDouble()) {
+                            new_transmission.double_val = msg.GetDouble();
+                            new_transmission.type = AckedTransmission::DOUBLE;
+                        } else if (msg.IsBinary()) {
+                            new_transmission.string_val = msg.GetString();
+                            new_transmission.type = AckedTransmission::BINARY_STRING;
+                        } else {
+                            new_transmission.string_val = msg.GetString();
+                            new_transmission.type = AckedTransmission::STRING;
+                        }
 
-                            new_transmission.delay = m_delays[var];
-                            new_transmission.repeat = m_repeats[var];
+                        new_transmission.delay = m_delays[var];
+                        new_transmission.repeat = m_repeats[var];
+
+                        string caps_tail = tail;
+                        MOOSToUpper(caps_tail);
+                        if (caps_tail != "ALL") { // not broadcast, add a single transmission
                             new_transmission.destination = tail;
                             new_transmission.id = m_currentID;
                             m_currentID++;
@@ -150,10 +161,40 @@ bool AckedCommsShoreside::OnNewMail(MOOSMSG_LIST &NewMail) {
 #ifdef DEBUG_COUT
                             cout << debugout.str();
 #endif
-                            break;
+                        } else { // broadcast, add a transmission for each vehicle
+                            for (int j=0; j<m_vehicles.size(); j++) {
+                                new_transmission.destination = m_vehicles[j];
+                                new_transmission.id = m_currentID;
+                                m_currentID++;
+
+                                m_transmissions.push_back(new_transmission);
+
+                                stringstream debugout;
+                                debugout << "NEW TRANSMISSION" << endl;
+                                debugout << "    var = " << new_transmission.var << endl;
+                                debugout << "    type = ";
+                                switch (new_transmission.type) {
+                                case AckedTransmission::DOUBLE:
+                                    debugout << "double" << endl;
+                                    break;
+                                case AckedTransmission::BINARY_STRING:
+                                    debugout << "binary string" << endl;
+                                    break;
+                                case AckedTransmission::STRING:
+                                    debugout << "string" << endl;
+                                    break;
+                                }
+                                debugout << "    dest = " << new_transmission.destination << endl;
+                                debugout << "    id = " << new_transmission.id << endl << endl;
+#ifdef DEBUG_COUT
+                                cout << debugout.str();
+#endif
+                            }
                         }
+                        break;
                     }
                 }
+
             }
         }
     }
@@ -168,6 +209,20 @@ bool AckedCommsShoreside::OnConnectToServer() {
     std::cout << "Connecting to server" << std::endl;
     if (!m_started) {
         cout << "First time connection." << endl;
+
+        string all_vehicles;
+        m_MissionReader.GetConfigurationParam("vehicles", all_vehicles);
+        string vehicle = MOOSChomp(all_vehicles, ",");
+        while (!vehicle.empty()) {
+            m_vehicles.push_back(vehicle);
+            vehicle = MOOSChomp(all_vehicles, ",");
+        }
+
+        cout << "All vehicles: ";
+        for (int i=0; i<m_vehicles.size(); i++) {
+            cout << m_vehicles[i] << " ";
+        }
+        cout << endl;
 
         STRING_LIST Params;
         m_MissionReader.GetConfiguration(m_sAppName, Params);

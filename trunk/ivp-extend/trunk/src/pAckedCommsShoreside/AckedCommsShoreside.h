@@ -63,7 +63,7 @@ private:
     bool m_started;
 
     // variables we're subbing too and associated configuration
-    std::vector<std::string> m_vars;
+    std::vector<std::string> m_vars, m_vehicles;
     std::map<std::string, double> m_repeats, m_delays;
 
     // id for tracking transmissions
