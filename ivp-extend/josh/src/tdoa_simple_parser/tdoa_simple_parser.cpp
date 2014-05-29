@@ -22,12 +22,10 @@ using namespace std;
 #include <map>
 #include <math.h>
 #include <algorithm>
-#include "acomms_messages.h"
 #include <stdlib.h>
 
 using namespace std;
 using namespace boost::posix_time;
-using namespace lib_acomms_messages;
 
 #define MAX_LINE_LENGTH 10000
 

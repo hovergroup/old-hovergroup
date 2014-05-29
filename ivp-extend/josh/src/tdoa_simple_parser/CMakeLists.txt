@@ -28,5 +28,4 @@ TARGET_LINK_LIBRARIES(tdoa_simple_parser
 	boost_system
 	boost_filesystem
 	boost_date_time
-	acomms_messages
 	${SYSTEM_LIBS} )
