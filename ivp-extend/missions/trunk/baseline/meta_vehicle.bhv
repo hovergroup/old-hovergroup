@@ -75,3 +75,25 @@ Behavior = BHV_StationKeep
     outer_speed   = 1.0
     swing_time    = 3
 }
+
+Behavior = BHV_ConstantSpeed
+{
+    name = constant_speed
+    condition = MISSION_MODE = CONSTANT
+    updates = CONST_SPEED_UPDATES
+
+    duration = no-time-limit
+
+    speed = 2.0
+}
+
+Behavior = BHV_ConstantHeading
+{
+    name = constant_heading
+    condition = MISSION_MODE = CONSTANT
+    updates = CONST_HEADING_UPDATES
+
+    duration = no-time-limit
+
+    heading = 150
+}
