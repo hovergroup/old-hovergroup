@@ -31,6 +31,7 @@ ADD_SUBDIRECTORY(pProtoReporter)
 ADD_SUBDIRECTORY(pProtoReportParser)
 ADD_SUBDIRECTORY(pNavManager)
 ADD_SUBDIRECTORY(pResourceMon)
+ADD_SUBDIRECTORY(pAckedCommsVehicle)
 
 # utilities
 ADD_SUBDIRECTORY(uPokeDBHex)
@@ -59,7 +60,6 @@ IF(BUILD_SHORE_APPS)
 	ADD_SUBDIRECTORY(pAcommsSimulator)
 	ADD_SUBDIRECTORY(uTermCommand_Hover)
 	ADD_SUBDIRECTORY(pAckedCommsShoreside)
-    ADD_SUBDIRECTORY(pAckedCommsVehicle)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
