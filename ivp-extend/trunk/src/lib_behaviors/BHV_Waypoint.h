@@ -113,6 +113,11 @@ protected:
 
     //
     double m_nav_heading;
+    double m_waypointX, m_waypointY;
+
+    bool m_mod_is_active;
+
+    double angleDiff(double a, double b);
 
 
 };
