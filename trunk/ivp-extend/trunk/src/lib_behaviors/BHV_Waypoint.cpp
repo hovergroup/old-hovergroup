@@ -468,12 +468,19 @@ bool BHV_Waypoint::setNextWaypoint() {
             track_anchor = true;
         }
 
+        // tx,ty is the previous waypoint, or the start of your current trackline
+        // m_nextpt is the next waypoint, or the end of your current trackline
+
         if (track_anchor) {
+            // project vehicle position onto the trackline
             double nx, ny;
             perpSegIntPt(tx, ty, m_nextpt.x(), m_nextpt.y(), m_osx, m_osy, nx,
                     ny);
             XYPoint perp_pt(nx, ny);
 
+            // nx, ny is vehicle's projected position on trackline
+
+            // increase the lead distance if we are close to trackline
             double damper_factor = 1.0;
             if (m_lead_damper > 0) {
                 double dist_to_trackline = hypot((nx - m_osx), (ny - m_osy));
@@ -483,15 +490,36 @@ bool BHV_Waypoint::setNextWaypoint() {
                 }
             }
 
+            // check if the lead distance is greater than the distance to the
+            // next waypoint
             double angle = relAng(tx, ty, m_nextpt.x(), m_nextpt.y());
             double dist = distPointToPoint(nx, ny, m_nextpt.x(), m_nextpt.y());
             if (dist > (m_lead_distance * damper_factor))
                 dist = m_lead_distance * damper_factor;
 
+            // place the trackpoint by projecting forward from nx, ny
             m_trackpt.projectPt(perp_pt, angle, dist);
+
+            // get bearing to trackpoint
+            double bearing = relAng(m_osx, m_osy, m_trackpt.x(), m_trackpt.y());
+
+            // check heading error
+            if (abs(angleDiff(bearing, m_nav_heading)) > m_heading_cutoff) {
+
+            }
+
         }
     }
     return (true);
+}
+
+double angleDiff(double a, double b) {
+    double dif = a - b;
+    while (dif < -360)
+        dif += 360;
+    while (dif > 360)
+        dif -= 360;
+    return dif;
 }
 
 //-----------------------------------------------------------
