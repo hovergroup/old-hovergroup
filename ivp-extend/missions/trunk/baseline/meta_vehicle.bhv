@@ -24,10 +24,10 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_color=red, line_color=green
     visual_hints  = vertex_size=2, edge_size=1
     
-    trackpoint_heading_cutoff = 15;
+    trackpoint_heading_cutoff = 30
 }
 
-Behavior = BHV_Waypoint
+Behavior = BHV_Waypoint_Hover
 { 
     name       = goto_and_return
     pwt        = 100
@@ -48,9 +48,11 @@ Behavior = BHV_Waypoint
     visual_hints  = nextpt_color=red, nextpt_lcolor=green
     visual_hints  = vertex_color=red, line_color=green
     visual_hints  = vertex_size=2, edge_size=1
+    
+    trackpoint_heading_cutoff = 30
 }
 
-Behavior = BHV_Waypoint
+Behavior = BHV_Waypoint_Hover
 {
     name       = return
     pwt        = 100
@@ -58,10 +60,15 @@ Behavior = BHV_Waypoint
     endflag    = MISSION_MODE = STATION-KEEP
     perpetual  = true
 
+    lead          = 15
+    lead_to_start = true
+    lead_damper   = 1
     speed      = $(CRUISESPEED)
     radius     = 2.0
     nm_radius  = 8.0
     points     = $(RETURN_PT)
+    
+    trackpoint_heading_cutoff = 30
 }
 
 Behavior = BHV_StationKeep

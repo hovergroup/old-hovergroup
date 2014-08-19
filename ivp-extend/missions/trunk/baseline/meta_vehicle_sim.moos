@@ -18,7 +18,7 @@ Processconfig = ANTLER
   Run = pHelmIvP           @ NewConsole = false
   Run = pEchoVar           @ NewConsole = false
   Run = pResourceMon       @ NewConsole = false
-  Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pAckedCommsVehicle @ NewConsole = false
 }
 
 #include ../../trunk/plugs/plug_iKST.moos
