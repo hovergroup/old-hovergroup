@@ -40,7 +40,7 @@
 #include <cmath> 
 #include <cstdlib>
 #include <iostream>
-#include "BHV_Waypoint.h"
+#include "BHV_Waypoint_Hover.h"
 #include "OF_Reflector.h"
 #include "MBUtils.h"
 #include "AngleUtils.h"
@@ -61,7 +61,7 @@ using namespace std;
 //-----------------------------------------------------------
 // Procedure: Constructor
 
-BHV_Waypoint::BHV_Waypoint(IvPDomain gdomain) :
+BHV_Waypoint_Hover::BHV_Waypoint_Hover(IvPDomain gdomain) :
         IvPBehavior(gdomain) {
     // First set variables at the superclass level
     m_descriptor = "bhv_waypoint_hover";
@@ -95,8 +95,10 @@ BHV_Waypoint::BHV_Waypoint(IvPDomain gdomain) :
 
     m_greedy_tour_pending = false;
 
-    m_heading_cutoff = 0;
+    m_heading_cutoff = 180;
     m_nav_heading = 0;
+    m_mod_is_ending = false;
+    m_mod_is_active = false;
 
     addInfoVars("NAV_X, NAV_Y, NAV_SPEED, NAV_HEADING");
     m_markpt.set_active(false);
@@ -108,7 +110,7 @@ BHV_Waypoint::BHV_Waypoint(IvPDomain gdomain) :
 //-----------------------------------------------------------
 // Procedure: onSetParamComplete()
 
-void BHV_Waypoint::onSetParamComplete() {
+void BHV_Waypoint_Hover::onSetParamComplete() {
     m_trackpt.set_label(m_us_name + "'s track-point");
     m_trackpt.set_vertex_size(4);
 
@@ -123,7 +125,7 @@ void BHV_Waypoint::onSetParamComplete() {
 //            The "radius" parameter indicates what it means to have
 //            arrived at the waypoint.
 
-bool BHV_Waypoint::setParam(string param, string param_val) {
+bool BHV_Waypoint_Hover::setParam(string param, string param_val) {
     double dval = atof(param_val.c_str());
 
     cout << "param" << param << endl;
@@ -279,7 +281,7 @@ bool BHV_Waypoint::setParam(string param, string param_val) {
 //      Note: Invoked automatically by the helm when the behavior
 //            first transitions from the Running to Idle state.
 
-void BHV_Waypoint::onRunToIdleState() {
+void BHV_Waypoint_Hover::onRunToIdleState() {
     postErasables();
     m_waypoint_engine.resetCPA();
 }
@@ -287,7 +289,7 @@ void BHV_Waypoint::onRunToIdleState() {
 //-----------------------------------------------------------
 // Procedure: onRunState
 
-BehaviorReport BHV_Waypoint::onRunState(string input) {
+BehaviorReport BHV_Waypoint_Hover::onRunState(string input) {
     IvPFunction *ipf = onRunState();
     BehaviorReport bhv_report(m_descriptor);
 
@@ -299,7 +301,7 @@ BehaviorReport BHV_Waypoint::onRunState(string input) {
 //-----------------------------------------------------------
 // Procedure: onRunState
 
-IvPFunction *BHV_Waypoint::onRunState() {
+IvPFunction *BHV_Waypoint_Hover::onRunState() {
     m_waypoint_engine.setPerpetual(m_perpetual);
 
     // Set m_osx, m_osy, m_osv
@@ -373,7 +375,7 @@ IvPFunction *BHV_Waypoint::onRunState() {
 //            variable to false which will communicate the gravity
 //            of the situation to the helm.
 
-bool BHV_Waypoint::updateInfoIn() {
+bool BHV_Waypoint_Hover::updateInfoIn() {
     bool ok1, ok2, ok3, ok4;
     m_osx = getBufferDoubleVal("NAV_X", ok1);
     m_osy = getBufferDoubleVal("NAV_Y", ok2);
@@ -404,7 +406,7 @@ bool BHV_Waypoint::updateInfoIn() {
 //-----------------------------------------------------------
 // Procedure: setNextWaypoint
 
-bool BHV_Waypoint::setNextWaypoint() {
+bool BHV_Waypoint_Hover::setNextWaypoint() {
     if (m_waypoint_engine.size() == 0)
         return (false);
 
@@ -500,20 +502,65 @@ bool BHV_Waypoint::setNextWaypoint() {
             // place the trackpoint by projecting forward from nx, ny
             m_trackpt.projectPt(perp_pt, angle, dist);
 
-            // get bearing to trackpoint
-            double bearing = relAng(m_osx, m_osy, m_trackpt.x(), m_trackpt.y());
+            // only start modified behavior when starting a new leg
+            if (m_nextpt.x() != m_latestX || m_nextpt.y() != m_latestY) {
+                // get bearing to trackpoint
+                double bearing = relAng(m_osx, m_osy, m_nextpt.x(), m_nextpt.y());
 
-            // check heading error
-            if (abs(angleDiff(bearing, m_nav_heading)) > m_heading_cutoff) {
-
+                // check heading error
+                if (abs(angleDiff(bearing, m_nav_heading)) > m_heading_cutoff) {
+                    m_mod_is_active = true;
+                    m_mod_is_ending = false;
+                }
             }
 
+            // mod is active and using waypoint as next trackpoint
+            if (m_mod_is_active && !m_mod_is_ending) {
+                // get bearing to trackpoint
+                double bearing = relAng(m_osx, m_osy, m_nextpt.x(), m_nextpt.y());
+
+                // check heading error
+                if (abs(angleDiff(bearing, m_nav_heading)) > m_heading_cutoff) {
+                    // set to next waypoint
+                    m_trackpt.set_vertex(next_ptx, next_pty);
+                } else {
+                    // begin next phase
+                    m_mod_is_ending = true;
+                    m_start_time = getBufferCurrTime();
+                }
+            }
+
+            // mod is active and bringing trackpoitn back to normal location
+            if (m_mod_is_active && m_mod_is_ending) {
+                double dist = distPointToPoint(nx, ny, m_nextpt.x(), m_nextpt.y());
+                if (dist < (m_lead_distance * damper_factor)) {
+                    // track point is already at next waypoint, disable mod
+                    m_mod_is_active = false;
+                    m_mod_is_ending = false;
+                } else {
+                    // move the trackpoint
+                    dist -= m_lead_distance * damper_factor;
+                    double elapsed = getBufferCurrTime()-m_start_time;
+                    double new_dist = dist / exp(0.75*elapsed);
+                    new_dist += m_lead_distance * damper_factor;
+                    m_trackpt.projectPt(perp_pt, angle, new_dist);
+
+                    if (elapsed >= 5.0) {
+                        m_mod_is_active = false;
+                        m_mod_is_ending = false;
+                    }
+                }
+            }
         }
     }
+
+    m_latestX = m_nextpt.x();
+    m_latestY = m_nextpt.y();
+
     return (true);
 }
 
-double angleDiff(double a, double b) {
+double BHV_Waypoint_Hover::angleDiff(double a, double b) {
     double dif = a - b;
     while (dif < -360)
         dif += 360;
@@ -525,7 +572,7 @@ double angleDiff(double a, double b) {
 //-----------------------------------------------------------
 // Procedure: buildOF
 
-IvPFunction *BHV_Waypoint::buildOF(string method) {
+IvPFunction *BHV_Waypoint_Hover::buildOF(string method) {
     IvPFunction *ipf = 0;
 
     if ((method == "roc") || (method == "rate_of_closure")) {
@@ -574,7 +621,7 @@ IvPFunction *BHV_Waypoint::buildOF(string method) {
 //-----------------------------------------------------------
 // Procedure: postStatusReport()
 
-void BHV_Waypoint::postStatusReport() {
+void BHV_Waypoint_Hover::postStatusReport() {
     int current_waypt = m_waypoint_engine.getCurrIndex();
     unsigned int waypt_cycles = m_waypoint_engine.getCycleCount();
     unsigned int total_hits = m_waypoint_engine.getTotalHits();
@@ -606,7 +653,7 @@ void BHV_Waypoint::postStatusReport() {
 //            it must match in the label. For a seglist to be 
 //            "ignored" it must set active=false.
 
-void BHV_Waypoint::postViewableSegList() {
+void BHV_Waypoint_Hover::postViewableSegList() {
     XYSegList seglist = m_waypoint_engine.getSegList();
     seglist.set_label(m_us_name + "_" + m_descriptor);
     if (m_hint_vertex_color != "")
@@ -627,7 +674,7 @@ void BHV_Waypoint::postViewableSegList() {
 //            it must match in the label. For a seglist to be 
 //            "ignored" it must set active=false.
 
-void BHV_Waypoint::postErasables() {
+void BHV_Waypoint_Hover::postErasables() {
     postMessage("VIEW_POINT", m_trackpt.get_spec("active=false"), "trk");
     postMessage("VIEW_POINT", m_nextpt.get_spec("active=false"), "wpt");
 
@@ -641,7 +688,7 @@ void BHV_Waypoint::postErasables() {
 //-----------------------------------------------------------
 // Procedure: postCycleFlags()
 
-void BHV_Waypoint::postCycleFlags() {
+void BHV_Waypoint_Hover::postCycleFlags() {
     int vsize = m_cycle_flags.size();
     for (int i = 0; i < vsize; i++) {
         string var = m_cycle_flags[i].get_var();
@@ -657,7 +704,7 @@ void BHV_Waypoint::postCycleFlags() {
 //-----------------------------------------------------------
 // Procedure: postWptFlags()
 
-void BHV_Waypoint::postWptFlags(double x, double y) {
+void BHV_Waypoint_Hover::postWptFlags(double x, double y) {
     string xpos = doubleToStringX(x, 2);
     string ypos = doubleToStringX(y, 2);
 
@@ -681,7 +728,7 @@ void BHV_Waypoint::postWptFlags(double x, double y) {
 //-----------------------------------------------------------
 // Procedure: handleVisualHint()
 
-void BHV_Waypoint::handleVisualHint(string hint) {
+void BHV_Waypoint_Hover::handleVisualHint(string hint) {
     string param = tolower(stripBlankEnds(biteString(hint, '=')));
     string value = stripBlankEnds(hint);
     double dval = atof(value.c_str());

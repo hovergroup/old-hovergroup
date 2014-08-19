@@ -1,21 +1,15 @@
-#--------------------------------------------------------
-# The CMakeLists.txt for:            lib_behaviors-marine
-# Author(s):                                Mike Benjamin
-#--------------------------------------------------------
+# ---------------------------------------------
+# lib_HoverAcomms
+#        File: CMakeLists.txt
+#  Created on: Aug 17, 2014
+#      Author: Josh Leighton
+# ---------------------------------------------
 
-SET(SRC
-  BHV_Waypoint.cpp
-)
+ADD_LIBRARY(BHV_Waypoint_Hover SHARED BHV_Waypoint_Hover.cpp)
 
-SET(HEADERS 
-  BHV_Waypoint.h
-) 
-
-ADD_LIBRARY(behaviors-hover ${SRC})
-
-TARGET_LINK_LIBRARIES(behaviors-hover
-   mbutil
-   behaviors
-   geometry
-   )
+TARGET_LINK_LIBRARIES(BHV_Waypoint_Hover
+    mbutil
+    behaviors
+    geometry
+    )
 

@@ -2,7 +2,7 @@ initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
 
-Behavior = BHV_Waypoint
+Behavior = BHV_Waypoint_Hover
 { 
     name       = goto_and_station
     pwt        = 100
@@ -23,6 +23,8 @@ Behavior = BHV_Waypoint
     visual_hints  = nextpt_color=red, nextpt_lcolor=green
     visual_hints  = vertex_color=red, line_color=green
     visual_hints  = vertex_size=2, edge_size=1
+    
+    trackpoint_heading_cutoff = 15;
 }
 
 Behavior = BHV_Waypoint
