@@ -9,5 +9,5 @@ ProcessConfig = pHelmIvP
     Domain    = course:0:359:360
     Domain    = speed:0:5:51
   
-//  IVP_BEHAVIOR_DIR = /home/student/moos-ivp-jleight/ivp-extend/trunk/lib
+    IVP_BEHAVIOR_DIR = /home/josh/hovergroup/ivp-extend/trunk/lib/
 }

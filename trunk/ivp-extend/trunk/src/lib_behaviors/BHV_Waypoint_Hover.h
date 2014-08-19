@@ -40,10 +40,10 @@
 #include "WaypointEngine.h"
 #include "XYPoint.h"
 
-class BHV_Waypoint: public IvPBehavior {
+class BHV_Waypoint_Hover: public IvPBehavior {
 public:
-    BHV_Waypoint(IvPDomain);
-    ~BHV_Waypoint() {};
+    BHV_Waypoint_Hover(IvPDomain);
+    ~BHV_Waypoint_Hover() {};
 
     bool setParam(std::string, std::string);
     IvPFunction* onRunState();
@@ -113,13 +113,23 @@ protected:
 
     //
     double m_nav_heading;
-    double m_waypointX, m_waypointY;
 
-    bool m_mod_is_active;
+    double m_latestX, m_latestY;
+
+    bool m_mod_is_active, m_mod_is_ending;
+    double m_start_time;
 
     double angleDiff(double a, double b);
 
 
 };
+
+#define IVP_EXPORT_FUNCTION
+
+extern "C" {
+    IVP_EXPORT_FUNCTION IvPBehavior * createBehavior(std::string name, IvPDomain domain)
+    {return new BHV_Waypoint_Hover(domain);}
+}
+
 #endif
 
