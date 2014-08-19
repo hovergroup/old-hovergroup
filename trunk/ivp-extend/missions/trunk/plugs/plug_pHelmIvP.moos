@@ -10,4 +10,6 @@ ProcessConfig = pHelmIvP
     Domain    = speed:0:5:51
   
     IVP_BEHAVIOR_DIR = /home/josh/hovergroup/ivp-extend/trunk/lib/
+    IVP_BEHAVIOR_DIR = /home/josh/hovergroup-extend/trunk/lib/
+    BHV_DIR_NOT_FOUND_OK = true
 }
