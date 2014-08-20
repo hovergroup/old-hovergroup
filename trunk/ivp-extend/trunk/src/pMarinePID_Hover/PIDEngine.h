@@ -1,3 +1,10 @@
+/*
+ * pMarinePID_Hover
+ *        File: PIDEngine.h
+ *  Created on: Aug 20, 2014
+ *      Author: Josh Leighton
+ */
+
 /*****************************************************************/
 /*    NAME: Michael Benjamin, Henrik Schmidt, and John Leonard   */
 /*    ORGN: Dept of Mechanical Eng / CSAIL, MIT Cambridge MA     */
@@ -27,47 +34,66 @@
 #include <string>
 #include "ScalarPID.h"
 
+enum SpeedControlType {
+    FACTOR, PID, FIT_PID
+};
+
 class PIDEngine {
 public:
-	PIDEngine();
-	~PIDEngine() {
-	};
+    PIDEngine();
+    ~PIDEngine() {};
 
-	void setPID(int, ScalarPID);
-	void setSpeedFactor(double v) {
-		m_speed_factor = v;
-	};
+    void setPID(int, ScalarPID);
+    void setSpeedFactor(double v) {
+        m_speed_factor = v;
+    };
 
-	void updateTime(double ctime) {
-		m_current_time = ctime;
-	};
+    void updateTime(double ctime) {
+        m_current_time = ctime;
+    };
 
-	double getDesiredRudder(double desired_heading, double current_heading,
-			double max_rudder);
-	double getDesiredThrust(double desired_speed, double current_speed,
-			double current_thrust, double max_thrust);
-	double getDesiredElevator(double desired_depth, double current_depth,
-			double current_pitch, double max_pitch, double max_elevator);
+    double getDesiredRudder(double desired_heading, double current_heading,
+            double max_rudder);
+    double getDesiredThrust(double desired_speed, double current_speed,
+            double current_thrust, double max_thrust);
+    double getDesiredElevator(double desired_depth, double current_depth,
+            double current_pitch, double max_pitch, double max_elevator);
 
-	void clearReport() {
-		m_pid_report.clear();
-	};
+    void clearReport() {
+        m_pid_report.clear();
+    };
 
-	std::vector<std::string> getPIDReport() {
-		return (m_pid_report);
-	};
+    std::vector<std::string> getPIDReport() {
+        return (m_pid_report);
+    };
+
+    void setSpeedControlType(SpeedControlType type) {
+        m_speed_control_type = type;
+    }
+
+    void setSpeedFunction(double slope, double offset,
+            double angle_limit, double time_delay) {
+        m_speedSlope = slope;
+        m_speedOffset = offset;
+        m_angleLimit = angle_limit;
+        m_timeDelay = time_delay;
+    }
 
 public:
-	ScalarPID m_heading_pid;
+    ScalarPID m_heading_pid;
 protected:
-	ScalarPID m_speed_pid;
-	ScalarPID m_z_to_pitch_pid;
-	ScalarPID m_pitch_pid;
+    ScalarPID m_speed_pid;
+    ScalarPID m_z_to_pitch_pid;
+    ScalarPID m_pitch_pid;
 
-	double m_current_time;
-	double m_speed_factor;
+    double m_current_time;
+    double m_speed_factor;
 
-	std::vector<std::string> m_pid_report;
+    std::vector<std::string> m_pid_report;
+
+    // new stuff
+    SpeedControlType m_speed_control_type;
+    double m_speedSlope, m_speedOffset, m_angleLimit, m_timeDelay;
 };
 #endif
 
