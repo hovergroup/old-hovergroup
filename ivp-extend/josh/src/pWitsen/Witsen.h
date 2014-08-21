@@ -32,12 +32,12 @@ protected:
 	int id;
 	double nav_x, nav_y;
 	double sim_x, sim_y;
-	double targ_origin_x, targ_origin_y;
-	double standoff;
+	double sim_origin_x, sim_origin_y;
+	double standoff1, standoff2;
 	double targ_x, targ_y;
 	double x, u;
 	double x_desired, y_desired;
-	double delta, sigma;
+	double delta, sigma1, sigma2, sim_step, max_dev;
 	std::string command;
 	boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator;
 
