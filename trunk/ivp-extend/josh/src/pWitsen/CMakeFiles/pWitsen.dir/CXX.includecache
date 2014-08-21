@@ -30,6 +30,14 @@ boost/random.hpp
 boost/random/normal_distribution.hpp
 -
 
+/home/mei/hovergroup/ivp-extend/josh/src/pWitsen/WitsenMain.cpp
+string
+-
+MOOS/libMOOS/MOOSLib.h
+/home/mei/hovergroup/ivp-extend/josh/src/pWitsen/MOOS/libMOOS/MOOSLib.h
+Witsen.h
+/home/mei/hovergroup/ivp-extend/josh/src/pWitsen/Witsen.h
+
 /home/mei/moos/core-moos/Core/libMOOS/App/include/MOOS/libMOOS/App/MOOSApp.h
 MOOS/libMOOS/Utils/MOOSUtilityFunctions.h
 /home/mei/moos/core-moos/Core/libMOOS/App/include/MOOS/libMOOS/App/MOOS/libMOOS/Utils/MOOSUtilityFunctions.h

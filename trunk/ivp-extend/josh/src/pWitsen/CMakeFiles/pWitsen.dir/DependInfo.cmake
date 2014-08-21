@@ -52,6 +52,7 @@ SET(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/mei/hovergroup/ivp-extend/trunk/src/lib_JoshUtils"
   "/home/mei/hovergroup/ivp-extend/trunk/src/lib_acomms_messages"
   "/home/mei/hovergroup/ivp-extend/trunk/src/lib_HoverAcomms"
+  "/home/mei/hovergroup/ivp-extend/trunk/src/lib_behaviors"
   "/home/mei/hovergroup/ivp-extend/trunk/src/lib_HoverGeometry"
   "/home/mei/hovergroup/ivp-extend/trunk/src/protobuf"
   "/home/mei/hovergroup/ivp-extend/trunk/src"
