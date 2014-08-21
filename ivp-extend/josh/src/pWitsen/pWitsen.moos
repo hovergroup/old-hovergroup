@@ -1,0 +1,12 @@
+
+ProcessConfig = pWitsen
+{
+   AppTick   = 10
+   CommsTick = 10
+   
+     ID = 1
+  Delta = 2
+  Standoff = 10
+  Sigma = 4
+}
+
