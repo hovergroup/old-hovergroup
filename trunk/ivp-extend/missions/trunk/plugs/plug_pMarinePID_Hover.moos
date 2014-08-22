@@ -18,9 +18,9 @@ ProcessConfig = pMarinePID_Hover
 
     // Yaw PID controller
     YAW_PID_KP             = 0.45
-    YAW_PID_KD             = 0
-    YAW_PID_KI             = 0
-    YAW_PID_INTEGRAL_LIMIT = 0.25
+    YAW_PID_KD             = 0.3
+    YAW_PID_KI             = 0.01
+    YAW_PID_INTEGRAL_LIMIT = 500
     YAW_PID_TAU            = 1
 
     // Speed PID controller
