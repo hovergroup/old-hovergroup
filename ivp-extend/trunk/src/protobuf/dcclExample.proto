@@ -22,17 +22,8 @@ message VehicleStatus
 message VehicleStatusDCCL
 { 
   option (dccl.msg).id = 126;
-  option (dccl.msg).max_bytes = 32;
-  required double nav_x = 1 [(dccl.field).max=10000,
-                             (dccl.field).min=0,
-                             (dccl.field).precision=1];
-  required double nav_y = 2 [(dccl.field).max=10000,
-                             (dccl.field).min=0,
-                             (dccl.field).precision=1];
-  required HealthEnum health = 3;
-  enum HealthEnum { 
-    HEALTH_GOOD = 0; 
-    HEALTH_LOW_BATTERY = 1; 
-    HEALTH_ABORT = 2; 
-  } 
+  option (dccl.msg).max_bytes = 2000;
+  repeated int32 vel_command = 1 [(dccl.field).max=9,
+                                (dccl.field).min=0,
+                                (dccl.field).max_repeat=30];
 }
