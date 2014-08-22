@@ -132,38 +132,40 @@ double PIDEngine::getDesiredThrust(double desired_speed, double current_speed,
     case FIT_PID:
     {
         desired_thrust = desired_speed*m_speedSlope + m_speedOffset;
-        cout << "Base thrust = "  << desired_thrust << endl;
+//        cout << "Base thrust = "  << desired_thrust << endl;
 
         double anglediff = current_heading-desired_heading;
         while (anglediff < -180) anglediff += 180;
         while (anglediff > 180) anglediff -= 180;
 
         if (fabs(anglediff) < m_angleLimit) {
-            cout << "Within angle limit" << endl;
+//            cout << "Within angle limit" << endl;
             // heading is valid
             if (m_headingValidStart == -1) {
-                cout << "Starting timer" << endl;
+//                cout << "Starting timer" << endl;
                 // first time valid
                 m_headingValidStart = m_current_time;
                 desired_thrust += m_currentDelta;
             } else if (m_current_time - m_timeDelay > m_headingValidStart) {
-                cout << "Running PID" << endl;
+//                cout << "Running PID" << endl;
                 // valid for long enough
                 m_speed_pid.Run(current_speed, desired_speed, m_current_time,
                         delta_thrust);
                 m_currentDelta = delta_thrust;
                 desired_thrust += delta_thrust;
             } else {
-                cout << "Waiting on timer" << endl;
+//                cout << "Waiting on timer" << endl;
                 // has not been valid for long enough yet
                 desired_thrust += m_currentDelta;
             }
         } else {
-            cout << "Outside angle limit" << endl;
+//            cout << "Outside angle limit" << endl;
             // heading is not valid
             m_headingValidStart = -1;
             desired_thrust += m_currentDelta;
         }
+
+//        cout << "Output " << desired_thrust << endl;
 
         if (desired_thrust < 0)
             desired_thrust = 0;

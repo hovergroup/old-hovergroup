@@ -179,7 +179,7 @@ bool ScalarPID::Run(double measurement, double target, double dfErrorTime, doubl
 			dfOut = m_dfOut;
 			Log();
 			return true;
-		} else if (m_sName == "SPEED" && m_dfDT > 0.5) {
+		} else if (/*m_sName == "SPEED" && */m_dfDT > 0.5) {
 		    cout << "Speed PID is skipping due to long time step" << endl;
 		    // don't calculate if long time gap
 		    // this is mainly for integral gain

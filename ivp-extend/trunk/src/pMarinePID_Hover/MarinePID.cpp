@@ -482,7 +482,7 @@ bool MarinePID::handleSpeedSettings() {
             MOOSDebugWrite("ANGLE_LIMIT not found in Mission File");
             ok = false;
         }
-        if (!m_MissionReader.GetConfigurationParam("TIME_DELAY", angle_limit)) {
+        if (!m_MissionReader.GetConfigurationParam("TIME_DELAY", time_delay)) {
             MOOSDebugWrite("TIME_DELAY not found in Mission File");
             ok = false;
         }
@@ -494,8 +494,8 @@ bool MarinePID::handleSpeedSettings() {
 
         MOOSDebugWrite(MOOSFormat("SPEED_SLOPE            = %.3f", spd_slope));
         MOOSDebugWrite(MOOSFormat("SPEED_OFFSET           = %.3f", spd_offset));
-        MOOSDebugWrite(MOOSFormat("ANGLE_LIMIT            = %.3f", spd_offset));
-        MOOSDebugWrite(MOOSFormat("TIME_DELAY             = %.3f", spd_offset));
+        MOOSDebugWrite(MOOSFormat("ANGLE_LIMIT            = %.3f", angle_limit));
+        MOOSDebugWrite(MOOSFormat("TIME_DELAY             = %.3f", time_delay));
     }
 
     // need PID for both pid and pid+fit control schemes

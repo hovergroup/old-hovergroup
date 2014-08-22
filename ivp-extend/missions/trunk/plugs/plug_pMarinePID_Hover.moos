@@ -29,6 +29,9 @@ ProcessConfig = pMarinePID_Hover
     SPEED_PID_KI             = 2
     SPEED_PID_INTEGRAL_LIMIT = 5
     
+    SPEED_CONTROLLER = fit_pid
+    // factor, pid, fit_pid
+    
     SPEED_SLOPE = 60.6
     SPEED_OFFSET = -1.21
     ANGLE_LIMIT = 15
