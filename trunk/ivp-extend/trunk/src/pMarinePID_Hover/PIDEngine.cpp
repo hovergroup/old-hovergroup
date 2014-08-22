@@ -165,6 +165,9 @@ double PIDEngine::getDesiredThrust(double desired_speed, double current_speed,
             desired_thrust += m_currentDelta;
         }
 
+        if (desired_thrust < 0)
+            desired_thrust = 0;
+
         string rpt = "PID_SPEED: ";
         rpt += " (Want):" + doubleToString(desired_speed);
         rpt += " (Curr):" + doubleToString(current_speed);
