@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CRUISESPEED=2
+CRUISESPEED=0.7
 
 declare -A SOFT_CONFIG
 
