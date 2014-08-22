@@ -229,7 +229,7 @@ bool MarinePID::Iterate() {
     //--------------------
 
     thrust = m_pengine.getDesiredThrust(m_desired_speed, m_current_speed,
-            m_current_thrust, m_max_thrust);
+            m_current_thrust, m_max_thrust, m_current_heading, m_desired_heading);
     if (m_depth_control)
         elevator = m_pengine.getDesiredElevator(m_desired_depth,
                 m_current_depth, m_current_pitch, m_max_pitch, m_max_elevator);
@@ -487,6 +487,9 @@ bool MarinePID::handleSpeedSettings() {
             ok = false;
         }
 
+        if (!ok)
+            return false;
+
         m_pengine.setSpeedFunction(spd_slope, spd_offset, angle_limit, time_delay);
 
         MOOSDebugWrite(MOOSFormat("SPEED_SLOPE            = %.3f", spd_slope));
@@ -518,6 +521,7 @@ bool MarinePID::handleSpeedSettings() {
     ScalarPID spdPID;
     spdPID.SetGains(spd_pid_Kp, spd_pid_Kd, spd_pid_Ki);
     spdPID.SetLimits(spd_pid_ilim, 100);
+    spdPID.SetName("SPEED");
     m_pengine.setPID(1, spdPID);
 
     MOOSDebugWrite(MOOSFormat("SPEED_PID_KP           = %.3f", spd_pid_Kp));

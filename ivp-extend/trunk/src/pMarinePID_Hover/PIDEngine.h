@@ -55,7 +55,8 @@ public:
     double getDesiredRudder(double desired_heading, double current_heading,
             double max_rudder);
     double getDesiredThrust(double desired_speed, double current_speed,
-            double current_thrust, double max_thrust);
+            double current_thrust, double max_thrust,
+            double current_heading, double desired_heading);
     double getDesiredElevator(double desired_depth, double current_depth,
             double current_pitch, double max_pitch, double max_elevator);
 
@@ -94,6 +95,7 @@ protected:
     // new stuff
     SpeedControlType m_speed_control_type;
     double m_speedSlope, m_speedOffset, m_angleLimit, m_timeDelay;
+    double m_headingValidStart, m_currentDelta;
 };
 #endif
 

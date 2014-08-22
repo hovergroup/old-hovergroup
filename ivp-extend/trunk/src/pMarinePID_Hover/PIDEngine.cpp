@@ -36,6 +36,7 @@
 #include "MBUtils.h"
 #include "AngleUtils.h"
 #include "MOOS/libMOOS/MOOSLib.h"
+#include <math.h>
 
 using namespace std;
 
@@ -47,6 +48,9 @@ PIDEngine::PIDEngine() {
     // If not, thrust is set to multiple of desired speed.
     m_speed_factor = 20.0;
     m_current_time = 0;
+
+    m_headingValidStart = -1;
+    m_currentDelta = 0;
 }
 
 //------------------------------------------------------------
@@ -79,26 +83,21 @@ double PIDEngine::getDesiredRudder(double desired_heading,
 // Procedure: getDesiredThrust
 
 double PIDEngine::getDesiredThrust(double desired_speed, double current_speed,
-        double current_thrust, double max_thrust) {
+        double current_thrust, double max_thrust,
+        double current_heading, double desired_heading) {
+
     double speed_error = desired_speed - current_speed;
     double delta_thrust = 0;
     double desired_thrust = current_thrust;
 
-    // If NOT using PID control, just apply multiple to des_speed
-    if (m_speed_factor != 0) {
+    switch (m_speed_control_type) {
+    case FACTOR: // unchanged from original
+    {
         desired_thrust = desired_speed * m_speed_factor;
-    }
-    // ELSE apply the PID contoller to the problem.
-    else {
-        m_speed_pid.Run(current_speed, desired_speed, m_current_time,
-                delta_thrust);
-        desired_thrust += delta_thrust;
-    }
 
-    if (desired_thrust < 0)
-        desired_thrust = 0;
+        if (desired_thrust < 0)
+            desired_thrust = 0;
 
-    if (m_speed_factor != 0) {
         string rpt = "PID_SPEED: ";
         rpt += " (Want):" + doubleToString(desired_speed);
         rpt += " (Curr):" + doubleToString(current_speed);
@@ -106,7 +105,19 @@ double PIDEngine::getDesiredThrust(double desired_speed, double current_speed,
         rpt += " (Fctr):" + doubleToString(m_speed_factor);
         rpt += " THRUST:" + doubleToString(desired_thrust);
         m_pid_report.push_back(rpt);
-    } else {
+
+        break;
+    }
+
+    case PID: // unchanged from original
+    {
+        m_speed_pid.Run(current_speed, desired_speed, m_current_time,
+                delta_thrust);
+        desired_thrust += delta_thrust;
+
+        if (desired_thrust < 0)
+            desired_thrust = 0;
+
         string rpt = "PID_SPEED: ";
         rpt += " (Want):" + doubleToString(desired_speed);
         rpt += " (Curr):" + doubleToString(current_speed);
@@ -114,6 +125,57 @@ double PIDEngine::getDesiredThrust(double desired_speed, double current_speed,
         rpt += " (Delt):" + doubleToString(delta_thrust);
         rpt += " THRUST:" + doubleToString(desired_thrust);
         m_pid_report.push_back(rpt);
+
+        break;
+    }
+
+    case FIT_PID:
+    {
+        desired_thrust = desired_speed*m_speedSlope + m_speedOffset;
+        cout << "Base thrust = "  << desired_thrust << endl;
+
+        double anglediff = current_heading-desired_heading;
+        while (anglediff < -180) anglediff += 180;
+        while (anglediff > 180) anglediff -= 180;
+
+        if (fabs(anglediff) < m_angleLimit) {
+            cout << "Within angle limit" << endl;
+            // heading is valid
+            if (m_headingValidStart == -1) {
+                cout << "Starting timer" << endl;
+                // first time valid
+                m_headingValidStart = m_current_time;
+                desired_thrust += m_currentDelta;
+            } else if (m_current_time - m_timeDelay > m_headingValidStart) {
+                cout << "Running PID" << endl;
+                // valid for long enough
+                m_speed_pid.Run(current_speed, desired_speed, m_current_time,
+                        delta_thrust);
+                m_currentDelta = delta_thrust;
+                desired_thrust += delta_thrust;
+            } else {
+                cout << "Waiting on timer" << endl;
+                // has not been valid for long enough yet
+                desired_thrust += m_currentDelta;
+            }
+        } else {
+            cout << "Outside angle limit" << endl;
+            // heading is not valid
+            m_headingValidStart = -1;
+            desired_thrust += m_currentDelta;
+        }
+
+        string rpt = "PID_SPEED: ";
+        rpt += " (Want):" + doubleToString(desired_speed);
+        rpt += " (Curr):" + doubleToString(current_speed);
+        rpt += " (Diff):" + doubleToString(speed_error);
+        rpt += " (Delt):" + doubleToString(m_currentDelta);
+        rpt += " THRUST:" + doubleToString(desired_thrust);
+        m_pid_report.push_back(rpt);
+
+        break;
+    }
+
     }
 
     // Enforce limit on desired thrust
