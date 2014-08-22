@@ -7,7 +7,7 @@ ProcessConfig = pHelmIvP
     Behaviors = targ_$(VNAME).bhv  
     Verbose   = true
     Domain    = course:0:359:360
-    Domain    = speed:0:5:51
+    Domain    = speed:0:3:61
   
     IVP_BEHAVIOR_DIR = /home/josh/hovergroup/ivp-extend/trunk/lib/
     IVP_BEHAVIOR_DIR = /home/josh/hovergroup-extend/trunk/lib/

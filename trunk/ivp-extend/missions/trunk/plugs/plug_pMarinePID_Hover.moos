@@ -26,8 +26,8 @@ ProcessConfig = pMarinePID_Hover
     // Speed PID controller
     SPEED_PID_KP             = 0.0
     SPEED_PID_KD             = 0.0
-    SPEED_PID_KI             = 2
-    SPEED_PID_INTEGRAL_LIMIT = 5
+    SPEED_PID_KI             = 4
+    SPEED_PID_INTEGRAL_LIMIT = 2.5
     
     SPEED_CONTROLLER = fit_pid
     // factor, pid, fit_pid
