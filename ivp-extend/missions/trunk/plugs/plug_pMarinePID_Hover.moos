@@ -34,6 +34,6 @@ ProcessConfig = pMarinePID_Hover
     
     SPEED_SLOPE = 60.6
     SPEED_OFFSET = -1.21
-    ANGLE_LIMIT = 15
+    ANGLE_LIMIT = 25
     TIME_DELAY = 5
 }
