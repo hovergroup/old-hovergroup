@@ -50,7 +50,7 @@ MODE mode = UNSET;
 
 void printHelp() {
     cout << "Usage: " << endl;
-    cout << "  alogParse in.alog [--receive / --transmit] [VAR] [OPTIONS]     " << endl;
+    cout << "  acommsParse in.alog [--receive / --transmit] [VAR] [OPTIONS    " << endl;
     cout << "                                                                 " << endl;
     cout << "Synopsis:                                                        " << endl;
     cout << "  Creates a comma delimited synchronous log file from an alog    " << endl;
