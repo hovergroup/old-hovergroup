@@ -15,6 +15,7 @@ BAD_ARGS=""
 VNAME=""
 ALTIMETER=""
 SIMULATION=false
+TRANSMIT_PERIOD="32"
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -149,6 +150,8 @@ else
             MODEMPORT=$MODEMPORT_ICARUS                           \
             ARDUINO_PORT=$ARDUINOPORT_ICARUS                      \
             SHOREHOST=$SHOREHOST                                  \
+            TransmitOffset=$TRANSMIT_OFFSET_ICARUS                \
+            TransmitPeriod=$TRANSMIT_PERIOD                       \
             SLPORT=$SLPORT                                        
     else
         nsplug meta_vehicle_fld_rtk.moos targ_$VNAME.moos -f       \
@@ -162,6 +165,8 @@ else
             ARDUINO_PORT=${HARD_CONFIG["${VNAME}:ARDUINOPORT"]}    \
             ACOMMSID=${SOFT_CONFIG["${VNAME}:ACOMMSID"]}           \
             RUDDER_OFFSET=${SOFT_CONFIG["${VNAME}:RUDDER_OFFSET"]} \
+            TransmitOffset=${SOFT_CONFIG["${VNAME}:TRANSMIT_OFFSET"]} \
+            TransmitPeriod=$TRANSMIT_PERIOD                           \
             ALTIMETER=$ALTIMETER                                   \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \

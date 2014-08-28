@@ -12,6 +12,10 @@ Differential portion of rudder output = Kd*Diff
 Integral control limit:
 max rudder command = Ki*IntegralLimit
 
+SPEED_CONTROLLER config parameter can be:
+factor
+pid
+fit_pid
 
 New config for FIT+PID control method for speed:
 SPEED_SLOPE

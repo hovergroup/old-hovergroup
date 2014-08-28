@@ -21,9 +21,11 @@ Processconfig = ANTLER
   Run = iIcarus                @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   Run = pResourceMon           @ NewConsole = false
+  Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
 }
 
-Processconfig = uTimerScript_Config
+ProcessConfig = uTimerScript_Config
 {
   AppTick = 4
   CommsTick = 4
@@ -49,3 +51,5 @@ ProcessConfig = pProtoReporter
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_iIcarus.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
+#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos
