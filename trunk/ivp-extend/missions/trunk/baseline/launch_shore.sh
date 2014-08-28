@@ -65,6 +65,9 @@ nsplug meta_shoreside.moos targ_shoreside.moos -f       \
     LPORT=$SLPORT      VPORT=$SPORT                     \
     VNAME=$SNAME       WARP=$WARP                       \
     VHOST=$SHOREHOST                                    \
+    VNAME1=$VNAME_ICARUS                                \
+    VHOST1=$VHOST_ICARUS                                \
+    LPORT1=$LPORT_ICARUS                                \
     VNAME2=${HARD_CONFIG["NOSTROMO:VNAME"]}             \
     VHOST2=${HARD_CONFIG["NOSTROMO:VHOST"]}             \
     LPORT2=${HARD_CONFIG["NOSTROMO:LPORT"]}             \

@@ -24,6 +24,7 @@ Processconfig = ANTLER
   Run = pNavManager            @ NewConsole = false
   Run = pResourceMon           @ NewConsole = false
   Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
   
 #ifdef ALTIMETER tritech
   Run = iAltimeter             @ NewConsole = false
@@ -51,3 +52,4 @@ Processconfig = ANTLER
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
 #include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos

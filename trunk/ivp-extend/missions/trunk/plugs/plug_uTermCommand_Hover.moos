@@ -32,4 +32,8 @@ ProcessConfig = uTermCommand_Hover
     // kestrel all-stop
     CMD = KA --> MISSION_MODE_KESTREL --> INACTIVE
     CMD = KA --> MOOS_MANUAL_OVERRIDE_KESTREL --> true
+    
+    // scheduled transmits
+    CMD = ENABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> on
+    CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
 }
