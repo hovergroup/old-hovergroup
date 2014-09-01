@@ -19,5 +19,6 @@ TARGET_LINK_LIBRARIES(
   mbutil
   boost_thread
   boost_date_time
+  boost_system
   )
 
