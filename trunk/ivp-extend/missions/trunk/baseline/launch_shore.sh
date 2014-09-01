@@ -92,9 +92,9 @@ FILEDATE=$(date +%-d_%-m_%Y_____%H_%M_%S)
 printf "Launching $SNAME MOOS Community \n"
 
 DIRECTORY_NAME="CONSOLE_${SNAME}_${MOOSDATE}"
-mkdir /home/josh/logs/$DIRECTORY_NAME
+mkdir $HOME/logs/$DIRECTORY_NAME
 
-pAntler targ_shoreside.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$SNAME_$FILEDATE.clog &
+pAntler targ_shoreside.moos >& $HOME/logs/$DIRECTORY_NAME/CONSOLE_$SNAME_$FILEDATE.clog &
 
 #-------------------------------------------------------
 #  Part 4: Exiting and/or killing the simulation

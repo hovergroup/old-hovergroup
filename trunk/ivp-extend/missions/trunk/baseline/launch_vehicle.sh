@@ -191,11 +191,11 @@ MOOSDATE=$(date +%-d_%-m_%Y)
 FILEDATE=$(date +%-d_%-m_%Y_____%H_%M_%S)
 
 DIRECTORY_NAME="CONSOLE_${VNAME}_${MOOSDATE}"
-mkdir /home/josh/logs/$DIRECTORY_NAME
+mkdir $HOME/logs/$DIRECTORY_NAME
 
 # Launch
 printf "Launching MOOS Community \n"
-pAntler targ_$VNAME.moos >& /home/josh/logs/$DIRECTORY_NAME/CONSOLE_$VNAME_$FILEDATE.clog &
+pAntler targ_$VNAME.moos >& $HOME/logs/$DIRECTORY_NAME/CONSOLE_$VNAME_$FILEDATE.clog &
 
 #-------------------------------------------------------
 #  Part 5: Exiting and/or killing the simulation
