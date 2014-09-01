@@ -18,6 +18,7 @@ TARGET_LINK_LIBRARIES(pWTStatusView
     wthttp
     boost_signals
     boost_thread
+    boost_system
     hovergroup_proto
     mbutil
     ${MOOS_LIBRARIES}
