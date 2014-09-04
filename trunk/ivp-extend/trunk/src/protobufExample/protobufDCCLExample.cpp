@@ -19,8 +19,8 @@ int main() {
 
 //	VehicleStatus vs;
 	VehicleStatusDCCL vsd;
-	for (int i=0; i<30; i++) {
-	    vsd.add_vel_command(i);
+	for (int i=0; i<36; i++) {
+	    vsd.add_vel_command(5);
 	}
 
 //
