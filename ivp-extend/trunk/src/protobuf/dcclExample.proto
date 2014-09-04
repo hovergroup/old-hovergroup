@@ -23,7 +23,7 @@ message VehicleStatusDCCL
 { 
   option (dccl.msg).id = 126;
   option (dccl.msg).max_bytes = 2000;
-  repeated int32 vel_command = 1 [(dccl.field).max=9,
+  repeated int32 vel_command = 1 [(dccl.field).max=20,
                                 (dccl.field).min=0,
-                                (dccl.field).max_repeat=30];
+                                (dccl.field).max_repeat=36];
 }
