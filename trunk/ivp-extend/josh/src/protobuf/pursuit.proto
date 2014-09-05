@@ -1,0 +1,37 @@
+/*
+ * josh_proto
+ *        File: pursuit.proto
+ *  Created on: Sep 5, 2014
+ *      Author: Josh Leighton
+ */
+
+import "goby/acomms/protobuf/dccl_option_extensions.proto";
+
+message PursuitCommandDCCL
+{
+  option (dccl.msg).id = 127;
+  option (dccl.msg).max_bytes = 64;
+  repeated int32 vehicle1_cmd = 1 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=10];
+  repeated int32 vehicle2_cmd = 2 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=10];
+  repeated int32 vehicle3_cmd = 3 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=10];
+}
+
+message PursuitReportDCCL
+{
+  option (dccl.msg).id = 128;
+  option (dccl.msg).max_bytes = 64;
+  repeated double x_history = 1 [(dccl.field).min=-1000,
+                                 (dccl.field).max=1000,
+                                 (dccl.field).precision=2,
+                                 (dccl.field).max_repeat=4];
+  repeated double y_history = 2 [(dccl.field).min=-1000,
+                                 (dccl.field).max=1000,
+                                 (dccl.field).precision=2,
+                                 (dccl.field).max_repeat=4];
+}
