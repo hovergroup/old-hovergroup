@@ -24,6 +24,7 @@
 #include "config.h"
 
 namespace JoshUtil {
+
 ALogEntry getNextRawALogEntry_josh(FILE *fileptr, bool allstrings = false);
 bool wildCardMatch(std::string wild, std::string key);
 
@@ -79,7 +80,48 @@ public:
         return slot * period + base_offset;
     }
 };
-}
-;
+
+class TDMAEngine {
+public:
+    TDMAEngine() {
+        m_base_offset = 0;
+        m_run_state = STOPPED;
+        m_current_slot = -1;
+    }
+
+    bool testAdvance(double current_time_seconds);
+    bool testAdvance();
+
+    int getCurrentSlot() { return m_current_slot; }
+    std::string getCurrentSlotName() { return m_slot_names[m_current_slot]; }
+
+    double getNextSlotTime();
+    double getTimeToNextSlot();
+    double getTimeWithinSlot();
+
+    int getNumSlots() { return m_slot_times.size(); }
+    std::vector<double> getSlotTimes() { return m_slot_times; }
+    std::vector<std::string> getSlotNames() { return m_slot_names; }
+
+    bool addSlot(double time, std::string name = "");
+
+    bool run();
+    bool pause();
+    bool stop();
+
+protected:
+    enum RunState {
+        STOPPED, PAUSED, RUNNING
+    };
+
+    double m_base_offset;
+    std::vector<double> m_slot_times;
+    std::vector<std::string> m_slot_names;
+    int m_current_slot;
+
+    RunState m_run_state;
+};
+
+}; // namespace JoshUtil
 
 #endif /* LIB_JOSHUTIL_H_ */

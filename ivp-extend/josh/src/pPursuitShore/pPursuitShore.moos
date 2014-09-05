@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pPursuitShore config block
+
+ProcessConfig = pPursuitShore
+{
+   AppTick   = 4
+   CommsTick = 4
+}
+

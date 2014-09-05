@@ -22,8 +22,13 @@ message VehicleStatus
 message VehicleStatusDCCL
 { 
   option (dccl.msg).id = 126;
-  option (dccl.msg).max_bytes = 2000;
-  repeated int32 vel_command = 1 [(dccl.field).max=20,
-                                (dccl.field).min=0,
-                                (dccl.field).max_repeat=36];
+  option (dccl.msg).max_bytes = 64;
+  repeated double x_history = 1 [(dccl.field).min=-1000,
+                                 (dccl.field).max=1000,
+                                 (dccl.field).precision=2,
+                                 (dccl.field).max_repeat=4];
+  repeated double y_history = 2 [(dccl.field).min=-1000,
+                                 (dccl.field).max=1000,
+                                 (dccl.field).precision=2,
+                                 (dccl.field).max_repeat=4];
 }
