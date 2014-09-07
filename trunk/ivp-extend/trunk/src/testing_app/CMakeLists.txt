@@ -22,3 +22,9 @@ TARGET_LINK_LIBRARIES(testing_app
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
 )
+
+ADD_EXECUTABLE(tdma_test tdma_test.cpp)
+   
+TARGET_LINK_LIBRARIES(tdma_test
+    JoshUtils
+)
