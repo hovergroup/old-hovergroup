@@ -9,6 +9,8 @@
 
 #define MAX_LINE_LENGTH 10000
 
+using namespace std;
+
 void subSearchForFiles(std::vector<std::string> & paths,
         boost::filesystem::path directory_path, int max_depth, std::string wild,
         int current_depth) {
@@ -216,4 +218,118 @@ double JoshUtil::getSystemTimeSeconds() {
     return p.time_of_day().total_milliseconds() / 1000.0;
 }
 
-//double JoshUtil::getSlotPosition
+
+/*
+ * Test advance to next slot using system time.
+ * Returns true if slot is advanced.
+ */
+bool JoshUtil::TDMAEngine::testAdvance() {
+    return testAdvance(getSystemTimeSeconds());
+}
+
+/*
+ * Test advance to next slot using provided time.
+ * Returns true if slot is advanced.
+ */
+bool JoshUtil::TDMAEngine::testAdvance(double current_time_seconds) {
+    // do nothing if stopped or paused
+    if (m_run_state == STOPPED) {
+        return false;
+    }
+
+    int cycle = m_slot_function.getLastSlot(current_time_seconds);
+    // check if time within slot is greater than slot length
+    if (getTimeWithinSlot(current_time_seconds) > m_slot_lengths[m_current_slot]) {
+        // increment slot
+        m_current_slot++;
+
+        // if past end, return to first slot
+        if (m_current_slot == m_slot_lengths.size()) {
+            m_cycle_count++;
+            m_current_cycle = cycle;
+            m_current_slot = 0;
+        }
+        return true;
+    } else if (cycle != m_current_cycle) {
+        m_cycle_count++;
+        m_current_cycle = cycle;
+        m_current_slot = 0;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// m_slotFunctions.getSlotFractionSeconds() > offset
+
+double JoshUtil::TDMAEngine::getTimeWithinSlot() {
+    return getTimeWithinSlot(getSystemTimeSeconds());
+}
+
+double JoshUtil::TDMAEngine::getTimeWithinSlot(double current_time_seconds) {
+    if (getNumSlots() == 0 ) {
+        return -1;
+    }
+
+    double cycle_position = m_slot_function.getSlotFractionSeconds(current_time_seconds);
+    double slot_start = m_slot_times[m_current_slot];
+    if (cycle_position < slot_start) {
+        return cycle_position + m_slot_function.period - slot_start;
+    } else {
+        return cycle_position - slot_start;
+    }
+}
+
+double JoshUtil::TDMAEngine::getTimeToNextSlot() {
+    return getTimeToNextSlot(getSystemTimeSeconds());
+}
+
+double JoshUtil::TDMAEngine::getTimeToNextSlot(double current_time_seconds) {
+    if (getNumSlots() == 0) {
+        return -1;
+    }
+
+    return m_slot_lengths[m_current_slot] - getTimeWithinSlot(current_time_seconds);
+}
+
+bool JoshUtil::TDMAEngine::appendSlot(double length, string name) {
+    if (m_run_state != STOPPED) {
+        return false;
+    }
+
+    m_slot_names.push_back(name);
+    if (m_slot_lengths.size() == 0) {
+        m_slot_times.push_back(0);
+    } else {
+        m_slot_times.push_back(m_slot_times.back() + m_slot_lengths.back());
+    }
+    m_slot_lengths.push_back(length);
+
+    m_slot_function.period = m_slot_times.back() + m_slot_lengths.back();
+
+    return true;
+}
+
+bool JoshUtil::TDMAEngine::run() {
+    return run(getSystemTimeSeconds());
+}
+
+bool JoshUtil::TDMAEngine::run(double current_time_seconds) {
+    if (getNumSlots() > 0) {
+        m_run_state = RUNNING;
+        m_current_slot = 0;
+        m_current_cycle = m_slot_function.getLastSlot(current_time_seconds);
+        for (int i=0; i<getNumSlots(); i++) {
+            if (!testAdvance(current_time_seconds))
+                break;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void JoshUtil::TDMAEngine::stop() {
+    m_run_state = STOPPED;
+    m_current_slot = -1;
+}

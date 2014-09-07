@@ -83,10 +83,16 @@ public:
 
 class TDMAEngine {
 public:
+    enum RunState {
+        STOPPED, RUNNING
+    };
+
     TDMAEngine() {
         m_base_offset = 0;
         m_run_state = STOPPED;
         m_current_slot = -1;
+        m_cycle_count = 0;
+        m_current_cycle = 0;
     }
 
     bool testAdvance(double current_time_seconds);
@@ -94,32 +100,35 @@ public:
 
     int getCurrentSlot() { return m_current_slot; }
     std::string getCurrentSlotName() { return m_slot_names[m_current_slot]; }
+    int getCycleCount() { return m_cycle_count; }
+    int getCycleNumber() { return m_current_cycle; }
 
-    double getNextSlotTime();
+    double getTimeToNextSlot(double current_time_seconds);
+    double getTimeWithinSlot(double current_time_seconds);
     double getTimeToNextSlot();
     double getTimeWithinSlot();
 
-    int getNumSlots() { return m_slot_times.size(); }
-    std::vector<double> getSlotTimes() { return m_slot_times; }
+    int getNumSlots() { return m_slot_lengths.size(); }
+    std::vector<double> getSlotLengths() { return m_slot_lengths; }
     std::vector<std::string> getSlotNames() { return m_slot_names; }
 
-    bool addSlot(double time, std::string name = "");
+    bool appendSlot(double length, std::string name = "");
 
     bool run();
-    bool pause();
-    bool stop();
+    bool run(double current_time_seconds);
+    void stop();
+    void reset() { m_cycle_count = 0; }
+    RunState getRunState () { return m_run_state; }
 
 protected:
-    enum RunState {
-        STOPPED, PAUSED, RUNNING
-    };
 
     double m_base_offset;
-    std::vector<double> m_slot_times;
+    std::vector<double> m_slot_lengths, m_slot_times;
     std::vector<std::string> m_slot_names;
-    int m_current_slot;
+    int m_current_slot, m_cycle_count, m_current_cycle;
 
     RunState m_run_state;
+    SlotFunctions m_slot_function;
 };
 
 }; // namespace JoshUtil
