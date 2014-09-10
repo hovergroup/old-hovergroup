@@ -18,10 +18,12 @@ mkdir $2$1
 cd $2$1
 
 cat >> CMakeLists.txt <<EOF
-#--------------------------------------------------------
-# The CMakeLists.txt for:                       $2$1
-# Author(s):                              $3
-#--------------------------------------------------------
+# ---------------------------------------------
+# $2$1
+#        File: CMakeLists.txt
+#  Created on: 
+#      Author: 
+# ---------------------------------------------
 
 # FILE(GLOB SRC *.cpp)
 
@@ -44,12 +46,12 @@ EOF
 
 
 cat >> ${1}.h <<EOF
-/************************************************************/
-/*    NAME: $3                                              */
-/*    ORGN: MIT                                             */
-/*    FILE: ${1}.h                                          */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * $3
+ *        File: ${1}.h
+ *  Created on: 
+ *      Author: 
+ */
 
 #ifndef ${1}_HEADER
 #define ${1}_HEADER
@@ -80,12 +82,12 @@ private: // State variables
 EOF
 
 cat >> main.cpp <<EOF
-/************************************************************/
-/*    NAME: $3                                              */
-/*    ORGN: MIT                                             */
-/*    FILE: main.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * $3
+ *        File: main.cpp
+ *  Created on: 
+ *      Author: 
+ */
 
 #include <string>
 #include "MBUtils.h"
@@ -147,12 +149,12 @@ ProcessConfig = ${2}${1}
 EOF
 
 cat >> ${1}.cpp <<EOF
-/************************************************************/
-/*    NAME: $3                                              */
-/*    ORGN: MIT                                             */
-/*    FILE: ${1}.cpp                                        */
-/*    DATE:                                                 */
-/************************************************************/
+/*
+ * $3
+ *        File: ${1}.cpp
+ *  Created on: 
+ *      Author: 
+ */
 
 #include <iterator>
 #include "MBUtils.h"
@@ -266,12 +268,12 @@ EOF
 
 
 cat >> ${1}_Info.h <<EOF
-/****************************************************************/
-/*   NAME: ${3}                                             */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: ${1}_Info.h                                      */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * $3
+ *        File: ${1}_Info.h
+ *  Created on: 
+ *      Author: 
+ */
 
 #ifndef ${1}_INFO_HEADER
 #define ${1}_INFO_HEADER
@@ -288,12 +290,12 @@ EOF
 
 
 cat >> ${1}_Info.cpp <<EOF
-/****************************************************************/
-/*   NAME: ${3}                                             */
-/*   ORGN: MIT Cambridge MA                                     */
-/*   FILE: ${1}_Info.cpp                               */
-/*   DATE: Dec 29th 1963                                        */
-/****************************************************************/
+/*
+ * $3
+ *        File: ${1}_Info.cpp
+ *  Created on: 
+ *      Author: 
+ */
 
 #include <cstdlib>
 #include <iostream>
