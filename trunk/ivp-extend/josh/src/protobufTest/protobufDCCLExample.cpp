@@ -42,6 +42,10 @@ int main() {
 	    cout << (int) bytes[i] << " ";
 	}
 	cout << endl;
+	for (int i=0; i<bytes.size(); i++) {
+	    std::bitset<8> x(bytes[i]);
+	    cout << x << " ";
+	}
 
 	PursuitReportDCCL report2;
 	try {
