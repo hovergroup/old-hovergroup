@@ -154,7 +154,7 @@ bool PursuitVehicle::OnConnectToServer() {
     cout << tdma_engine.getSummary() << endl;
     m_Comms.Notify("TDMA_SUMMARY", tdma_engine.getSingleLineSummary());
 
-    m_Comms.Register("PURSUIT_ENABLE", 0);
+    m_Comms.Register("PURSUIT_COMMAND", 0);
     m_Comms.Register("NAV_X", 0);
     m_Comms.Register("NAV_Y", 0);
     m_Comms.Register("ACOMMS_RECEIVED", 0);
