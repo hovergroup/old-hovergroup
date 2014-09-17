@@ -88,5 +88,5 @@ ProcessConfig = pPursuitVehicle
     positive_x = $(POSITIVE_X)
     positive_y = $(POSITIVE_Y)
     negative_x = $(NEGATIVE_X)
-    negative_y = $(NEGATIVE_X)
+    negative_y = $(NEGATIVE_Y)
 }
