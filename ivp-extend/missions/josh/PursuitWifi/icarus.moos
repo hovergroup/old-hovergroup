@@ -1,0 +1,23 @@
+ServerHost = 192.168.1.100
+ServerPort = 9000
+Community  = TERRA
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456        
+LongOrigin = -71.087589    
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = /dev/ttyUSB0
+    ID       = 1
+
+    PSK_minipackets   = false
+    enable_ranging    = true
+    show_range_pulses = true
+    enable_legacy     = false
+}
