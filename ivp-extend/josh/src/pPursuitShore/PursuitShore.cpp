@@ -16,6 +16,7 @@ using namespace std;
 
 PursuitShore::PursuitShore() {
     receive_counts = vector<int>(3,0);
+    got_commands = vector<bool>(3,false);
 
     encoder = goby::acomms::DCCLCodec::get();
     try {
@@ -54,7 +55,35 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                 receive_counts = vector<int>(3,0);
             }
         } else if (key == "PURSUIT_VEHICLE_COMMAND") {
-            got_command = true;
+            string line = msg.GetString();
+            int id = atoi(MOOSChomp(line, ",").c_str());
+            vector<int> trajectory;
+            while (line.find(",") != string::npos) {
+                trajectory.push_back(atoi(MOOSChomp(line,",").c_str()));
+            }
+            trajectory.push_back(atoi(line.c_str()));
+            cout << "got trajectory for id: " << id << endl;
+            switch (id) {
+            case 1:
+                dccl_command.clear_vehicle1_cmd();
+                for (int i=0; i<trajectory.size(); i++) {
+                    dccl_command.add_vehicle1_cmd(trajectory[i]);
+                }
+                break;
+            case 2:
+                dccl_command.clear_vehicle2_cmd();
+                for (int i=0; i<trajectory.size(); i++) {
+                    dccl_command.add_vehicle2_cmd(trajectory[i]);
+                }
+                break;
+            case 3:
+                dccl_command.clear_vehicle3_cmd();
+                for (int i=0; i<trajectory.size(); i++) {
+                    dccl_command.add_vehicle3_cmd(trajectory[i]);
+                }
+                break;
+            }
+            got_commands[id-1] = true;
         } else if (key == "ACOMMS_RECEIVED") {
             HoverAcomms::AcommsReception reception;
             // try to parse acomms message
@@ -124,11 +153,19 @@ bool PursuitShore::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
         if (tdma_engine.getCurrentSlot() == 3) {
-            got_command = false;
+            got_commands = vector<bool>(3,false);
+            cout << "clearing command buffer" << endl;
         }
 
         // if our slot, send update
         if (tdma_engine.getCurrentSlot() == 0) {
+            bool got_command = true;
+            for (int i=0; i<got_commands.size(); i++) {
+                if (got_commands[i] == false) {
+                    got_command = false;
+                    break;
+                }
+            }
             if (got_command) {
                 std::string bytes;
                 encoder->encode(&bytes, dccl_command);
@@ -145,7 +182,7 @@ bool PursuitShore::Iterate() {
         }
 
         if (!got_receive) {
-
+            cout << "Missed receive before slot " << tdma_engine.getCurrentSlot() << endl;
         } else {
             got_receive = false;
         }
