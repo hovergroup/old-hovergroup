@@ -8,6 +8,7 @@
 #ifndef LIB_JOSHUTIL_H_
 #define LIB_JOSHUTIL_H_
 
+#include "MOOS/libMOOS/Utils/ProcessConfigReader.h"
 #include "LogUtils.h"
 #include "MBUtils.h"
 #include <string>
@@ -20,6 +21,7 @@
 #include <algorithm>
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
 
 #include "config.h"
 
@@ -113,6 +115,9 @@ public:
     std::vector<std::string> getSlotNames() { return m_slot_names; }
 
     bool appendSlot(double length, std::string name = "");
+    bool parseConfig(CProcessConfigReader & MissionReader, std::string app_name);
+    std::string getSummary();
+    std::string getSingleLineSummary();
 
     bool run();
     bool run(double current_time_seconds);

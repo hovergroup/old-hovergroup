@@ -15,5 +15,6 @@ target_link_libraries(protobufExample
 target_link_libraries(protobufDCCLExample
     hovergroup_proto
     goby_acomms
+    protobuf
     boost_system
     )

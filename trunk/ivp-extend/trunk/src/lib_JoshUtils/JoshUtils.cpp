@@ -333,3 +333,73 @@ void JoshUtil::TDMAEngine::stop() {
     m_run_state = STOPPED;
     m_current_slot = -1;
 }
+
+bool JoshUtil::TDMAEngine::parseConfig(CProcessConfigReader & MissionReader, std::string app_name) {
+    MissionReader.Reset();
+    if (!MissionReader.GoTo("PROCESSCONFIG=" + app_name)) {
+        return false;
+    }
+    bool found_start = false;
+    bool found_any = false;
+    while (!MissionReader.eof()) {
+        string line = MissionReader.GetNextValidLine();
+        string sline = line;
+        //cout << line << endl;
+        MOOSToUpper(line);
+        if (line.find("PROCESSCONFIG") != string::npos) {
+            break;
+        } else if (line == "<TDMA>") {
+            found_start = true;
+        } else if (line == "</TDMA>") {
+            break;
+        }
+        if (found_start) {
+            bool okay = false;
+            double length;
+            string name = "";
+            while (sline.find("=") != string::npos) {
+                string byte = MOOSToUpper(MOOSChomp(sline, "="));
+                if (byte == "LENGTH") {
+                    okay = true;
+                    length = atof(MOOSChomp(sline,",").c_str());
+                } else if (byte == "NAME") {
+                    name = MOOSChomp(sline,",");
+                } else {
+                    MOOSChomp(sline,",");
+                }
+            }
+            if (okay) {
+                found_any = true;
+                appendSlot(length, name);
+            }
+        }
+    }
+    if (found_any) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+string JoshUtil::TDMAEngine::getSummary() {
+    char buffer[2048];
+    int index = 0;
+    index += sprintf(&buffer[index], "%-7s  %-15s\n", "LENGTH", "NAME");
+    for (int i=0; i<m_slot_lengths.size(); i++) {
+        index += sprintf(&buffer[index], "%-7.2f", m_slot_lengths[i]);
+        index += sprintf(&buffer[index], "  ");
+        index += sprintf(&buffer[index], "%-15s\n", m_slot_names[i].c_str());
+    }
+    return string(buffer);
+}
+
+string JoshUtil::TDMAEngine::getSingleLineSummary() {
+    stringstream ss;
+    for (int i=0; i<m_slot_lengths.size(); i++) {
+        if (i != 0) {
+            ss << ":";
+        }
+        ss << m_slot_lengths[i] << "," << m_slot_names[i];
+    }
+    return ss.str();
+}

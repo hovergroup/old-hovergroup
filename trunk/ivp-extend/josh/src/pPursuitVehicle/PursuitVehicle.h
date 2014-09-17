@@ -9,25 +9,41 @@
 #define PursuitVehicle_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include "JoshUtils.h"
+#include "pursuit.pb.h"
+#include "goby/acomms/dccl.h"
+#include "HoverAcomms.h"
+#include "XYFormatUtilsSegl.h"
 
-class PursuitVehicle : public CMOOSApp
-{
- public:
-   PursuitVehicle();
-   ~PursuitVehicle();
+class PursuitVehicle: public CMOOSApp {
+public:
+    PursuitVehicle();
+    ~PursuitVehicle();
 
- protected:
-   bool OnNewMail(MOOSMSG_LIST &NewMail);
-   bool Iterate();
-   bool OnConnectToServer();
-   bool OnStartUp();
-   void RegisterVariables();
+protected:
+    bool OnNewMail(MOOSMSG_LIST &NewMail);
+    bool Iterate();
+    bool OnConnectToServer();
+    bool OnStartUp();
 
- private: // Configuration variables
+private:
+    // Configuration variables
 
- private: // State variables
-   unsigned int m_iterations;
-   double       m_timewarp;
+private:
+    JoshUtil::TDMAEngine tdma_engine;
+    bool m_running;
+
+    double m_navx, m_navy;
+    int m_id, m_shore_id;
+
+    PursuitReportDCCL dccl_report;
+    goby::acomms::DCCLCodec* encoder, *decoder;
+    std::vector<int> command_trajectory;
+    std::map<int,double> command_map;
+
+    double positive_x, positive_y, negative_x, negative_y;
+
+    int receive_count;
 };
 
 #endif 

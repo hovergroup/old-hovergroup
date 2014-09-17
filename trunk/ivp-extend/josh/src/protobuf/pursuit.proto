@@ -26,6 +26,8 @@ message PursuitReportDCCL
 {
   option (dccl.msg).id = 128;
   option (dccl.msg).max_bytes = 64;
+  required int32 id = 3 [(dccl.field).min=1,
+                         (dccl.field).max=3];
   repeated double x_history = 1 [(dccl.field).min=-1000,
                                  (dccl.field).max=1000,
                                  (dccl.field).precision=2,
