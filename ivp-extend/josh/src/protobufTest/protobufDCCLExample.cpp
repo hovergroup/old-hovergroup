@@ -37,6 +37,12 @@ int main() {
 	codec->encode(&bytes, report);
 	std::cout << "With dccl: " << bytes.size() << std::endl;
 
+	cout << "hex: " << endl;
+	for (int i=0; i<bytes.size(); i++) {
+	    cout << hex << (int) bytes[i] << " ";
+	}
+	cout << endl;
+
 	PursuitReportDCCL report2;
 	try {
 	    codec->decode(bytes, &report2);
