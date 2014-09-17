@@ -3,8 +3,9 @@
 
 ProcessConfig = pPursuitVehicle
 {
-    AppTick   = 4
-    CommsTick = 4
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
 
     <tdma>
         length=7,name=command

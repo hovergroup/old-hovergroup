@@ -16,8 +16,16 @@ SET(SRC
 ADD_EXECUTABLE(pPursuitShore ${SRC})
 
 TARGET_LINK_LIBRARIES(pPursuitShore
-   ${MOOS_LIBRARIES}
-   mbutil
-   m
-   pthread)
-
+    josh_proto
+    ${MOOS_LIBRARIES}
+    mbutil
+    m
+    pthread
+    JoshUtils
+    goby_acomms
+    protobuf
+    HoverAcomms
+    boost_system
+    ${MOOS_DEPEND_LIBRARIES}
+    geometry
+    mbutil)
