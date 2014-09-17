@@ -94,7 +94,9 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     bool decode_okay = true;
                     try {
                         cout << "attempting to decode " << reception.getData().size() << " bytes" << endl;
-                        encoder->decode(reception.getData(), &report);
+                        cout << reception.getData() << endl;
+                        goby::acomms::DCCLCodec* codec = goby::acomms::DCCLCodec::get();
+                        codec->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
                         ss << "shoreside failed decoding acomms message" << endl;

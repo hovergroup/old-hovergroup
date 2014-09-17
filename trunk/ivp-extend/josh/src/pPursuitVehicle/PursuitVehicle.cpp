@@ -20,11 +20,6 @@ PursuitVehicle::PursuitVehicle() {
     receive_count=0;
 
     encoder = goby::acomms::DCCLCodec::get();
-    try {
-        encoder->validate<PursuitReportDCCL>();
-    } catch (goby::acomms::DCCLException& e) {
-        std::cout << "failed to validate encoder" << std::endl;
-    }
 
     dccl_report.set_ack(false);
 }
@@ -180,8 +175,17 @@ bool PursuitVehicle::Iterate() {
         // if our slot, send update
         if (tdma_engine.getCurrentSlot() == m_id) {
             dccl_report.set_id(m_id);
+
+            goby::acomms::DCCLCodec* codec = goby::acomms::DCCLCodec::get();
+            try {
+                codec->validate<PursuitReportDCCL>();
+            } catch (goby::acomms::DCCLException& e) {
+                std::cout << "failed to validate encoder" << std::endl;
+                exit (1);
+            }
             std::string bytes;
-            encoder->encode(&bytes, dccl_report);
+            codec->encode(&bytes, dccl_report);
+
             cout << "Transmitting: " << endl;
             cout << dccl_report.DebugString() << endl;
             dccl_report.Clear();
