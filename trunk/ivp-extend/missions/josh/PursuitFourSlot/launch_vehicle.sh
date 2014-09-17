@@ -17,6 +17,25 @@ ALTIMETER=""
 SIMULATION=false
 TRANSMIT_PERIOD="32"
 
+
+SOFT_CONFIG["NOSTROMO:ACOMMSID"]="1"
+SOFT_CONFIG["SILVANA:ACOMMSID"]="2"
+SOFT_CONFIG["KESTREL:ACOMMSID"]="3"
+
+SOFT_CONFIG["NOSTROMO:POSITIVE_X"]="-10"
+SOFT_CONFIG["NOSTROMO:POSITIVE_Y"]="-50"
+SOFT_CONFIG["NOSTROMO:NEGATIVE_X"]="-100"
+SOFT_CONFIG["NOSTROMO:NEGATIVE_Y"]="-50"
+
+SOFT_CONFIG["SILVANA:POSITIVE_X"]="100"
+SOFT_CONFIG["SILVANA:POSITIVE_Y"]="-30"
+SOFT_CONFIG["SILVANA:NEGATIVE_X"]="10"
+SOFT_CONFIG["SILVANA:NEGATIVE_Y"]="-40"
+
+SOFT_CONFIG["KESTREL:POSITIVE_X"]="100"
+SOFT_CONFIG["KESTREL:POSITIVE_Y"]="-100"
+SOFT_CONFIG["KESTREL:NEGATIVE_X"]="10"
+SOFT_CONFIG["KESTREL:NEGATIVE_Y"]="-60"
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
 #-------------------------------------------------------
@@ -81,7 +100,8 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --kestrel                      kestrel vehicle only   \n"
     printf "  --altimeter=tritech/cruzpro    enable specfied depths sounder\n"
     printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
+    printf "  --help, -h     
+SOFT_CONFIG["NOSTROMO:ACOMMSID"]="3"        \n" 
     printf "  --sim             \n" 
     exit 0;
 fi
@@ -170,7 +190,12 @@ else
             ALTIMETER=$ALTIMETER                                   \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
+            SLPORT=$SLPORT          \
+            POSITIVE_X=${SOFT_CONFIG["${VNAME}:POSITIVE_X"]} \
+            POSITIVE_Y=${SOFT_CONFIG["${VNAME}:POSITIVE_Y"]} \
+            NEGATIVE_X=${SOFT_CONFIG["${VNAME}:NEGATIVE_X"]} \
+            NEGATIVE_Y=${SOFT_CONFIG["${VNAME}:NEGATIVE_Y"]}
+            
             
         nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \

@@ -27,6 +27,8 @@ PursuitVehicle::PursuitVehicle() {
     }
 
     decoder = goby::acomms::DCCLCodec::get();
+
+    dccl_report.set_ack(false);
 }
 
 //---------------------------------------------------------
@@ -102,6 +104,7 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                             break;
                         }
                         m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
+                        dccl_report.set_ack(true);
                     }
                 }
             }
@@ -172,6 +175,7 @@ bool PursuitVehicle::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
         // update our position history
+        dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
         dccl_report.add_x_history(m_navx);
         dccl_report.add_y_history(m_navy);
 
@@ -184,6 +188,7 @@ bool PursuitVehicle::Iterate() {
             cout << dccl_report.DebugString() << endl;
             dccl_report.Clear();
             m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+            dccl_report.set_ack(false);
         }
 
         // implement commands
