@@ -39,7 +39,7 @@ int main() {
 
 	cout << "hex: " << endl;
 	for (int i=0; i<bytes.size(); i++) {
-	    cout << hex << (int) bytes[i] << " ";
+	    cout << (int) bytes[i] << " ";
 	}
 	cout << endl;
 
