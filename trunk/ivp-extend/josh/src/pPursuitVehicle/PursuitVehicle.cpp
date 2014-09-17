@@ -26,8 +26,6 @@ PursuitVehicle::PursuitVehicle() {
         std::cout << "failed to validate encoder" << std::endl;
     }
 
-    decoder = goby::acomms::DCCLCodec::get();
-
     dccl_report.set_ack(false);
 }
 
@@ -72,7 +70,7 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                     PursuitCommandDCCL cmd;
                     bool decode_okay = true;
                     try {
-                        decoder->decode(reception.getData(), &cmd);
+                        encoder->decode(reception.getData(), &cmd);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
                         ss << "failed decoding acomms message" << endl;

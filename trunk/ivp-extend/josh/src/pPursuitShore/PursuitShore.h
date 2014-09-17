@@ -34,7 +34,7 @@ private:
     bool m_running;
 
     PursuitCommandDCCL dccl_command;
-    goby::acomms::DCCLCodec *encoder, *decoder;
+    goby::acomms::DCCLCodec *encoder;
 
     std::vector<int> receive_counts;
     std::vector<bool> got_commands;
