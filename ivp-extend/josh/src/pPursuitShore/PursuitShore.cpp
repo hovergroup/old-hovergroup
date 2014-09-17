@@ -37,11 +37,11 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
             string cmd = MOOSToUpper(msg.GetString());
             if (cmd == "RUN") {
                 tdma_engine.run();
-                command_trajectory.clear();
             } else if (cmd == "STOP") {
                 tdma_engine.stop();
             } else if (cmd == "RESET") {
                 tdma_engine.reset();
+                receive_counts = vector<int>(3,0);
             }
         }
 
