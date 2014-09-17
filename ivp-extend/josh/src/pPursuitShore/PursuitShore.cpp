@@ -95,6 +95,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     PursuitReportDCCL report;
                     bool decode_okay = true;
                     try {
+                        cout << "attempting to decode " << reception.getData().size() << " bytes" << endl;
                         decoder->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
