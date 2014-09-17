@@ -37,6 +37,7 @@ private:
     goby::acomms::DCCLCodec *encoder, *decoder;
 
     std::vector<int> receive_counts;
+    bool got_receive, got_command;
 };
 
 #endif 

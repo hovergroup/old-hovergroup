@@ -16,6 +16,16 @@ using namespace std;
 
 PursuitShore::PursuitShore() {
     receive_counts = vector<int>(3,0);
+
+    encoder = goby::acomms::DCCLCodec::get();
+    try {
+        encoder->validate<PursuitCommandDCCL>();
+    } catch (goby::acomms::DCCLException& e) {
+        std::cout << "failed to validate encoder" << std::endl;
+    }
+
+    decoder = goby::acomms::DCCLCodec::get();
+    got_receive = false;
 }
 
 //---------------------------------------------------------
@@ -42,6 +52,43 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
             } else if (cmd == "RESET") {
                 tdma_engine.reset();
                 receive_counts = vector<int>(3,0);
+            }
+        } else if (key == "PURSUIT_VEHICLE_COMMAND") {
+            got_command = true;
+        } else if (key == "ACOMMS_RECEIVED") {
+            HoverAcomms::AcommsReception reception;
+            // try to parse acomms message
+            if (reception.parseFromString(msg.GetString())) {
+                // check status
+                if (reception.getStatus() == HoverAcomms::GOOD) {
+
+                    // perform decode
+                    PursuitReportDCCL report;
+                    bool decode_okay = true;
+                    try {
+                        decoder->decode(reception.getData(), &report);
+                    } catch (goby::acomms::DCCLException &) {
+                        stringstream ss;
+                        ss << "shoreside failed decoding acomms message" << endl;
+                        cout << ss.str() << endl;
+                        m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                        decode_okay = false;
+                    }
+
+                    if (decode_okay) {
+                        receive_counts[report.id()]++;
+                        stringstream ss;
+                        for (int i=0; i<receive_counts.size(); i++) {
+                            if (i!=0)
+                                ss << ",";
+                            ss << receive_counts[i];
+                        }
+                        m_Comms.Notify("PURSUIT_RECEIVE_COUNTS", ss.str());
+                        cout << "received data: " << endl;
+                        cout << report.DebugString() << endl;
+                        got_receive = true;
+                    }
+                }
             }
         }
 
@@ -73,60 +120,35 @@ bool PursuitShore::OnConnectToServer() {
 bool PursuitShore::Iterate() {
     if (tdma_engine.testAdvance()) {
         m_Comms.Notify("TDMA_SLOT", tdma_engine.getCurrentSlot());
-        m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
+        m_Comms.Notify("TDMA_CYCgot_recieveLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
-        // update our position history
-        dccl_report.add_x_history(m_navx);
-        dccl_report.add_y_history(m_navy);
-
-        // if our slot, send update
-        if (tdma_engine.getCurrentSlot() == m_id) {
-            dccl_report.set_id(m_id);
-            std::string bytes;
-            encoder->encode(&bytes, dccl_report);
-            cout << "Transmitting: " << endl;
-            cout << dccl_report.DebugString() << endl;
-            dccl_report.Clear();
-            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+        if (tdma_engine.getCurrentSlot() == 3) {
+            got_command = false;
         }
 
-        // implement commands
-        if (command_trajectory.size() > 0) {
-            if (command_map.find(command_trajectory[0]) != command_map.end()) {
-                double desired_speed = command_map[command_trajectory[0]];
-                m_Comms.Notify("PURSUIT_DESIRED_SPEED", desired_speed);
-                m_Comms.Notify("PURSUIT_QUANTIZED_COMMAND", command_trajectory[0]);
-                command_trajectory.erase(command_trajectory.begin());
-
-                stringstream ss;
-                if (desired_speed == 0) {
-                    m_Comms.Notify("PURSUIT_ACTION", "STATION");
-                } else {
-                    ss << "speed = " << fabs(desired_speed);
-                    m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
-                    ss.str().clear();
-                    ss << "points = ";
-                    if ( desired_speed > 0 ) {
-                        ss << positive_x << "," << positive_y;
-                    } else {
-                        ss << negative_x << "," << negative_y;
-                    }
-                    m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
-                    m_Comms.Notify("PURSUIT_ACTION", "WAYPOINT");
-                }
-
+        // if our slot, send update
+        if (tdma_engine.getCurrentSlot() == 0) {
+            if (got_command) {
+                std::string bytes;
+                encoder->encode(&bytes, dccl_command);
+                cout << "Transmitting: " << endl;
+                cout << dccl_command.DebugString() << endl;
+                dccl_command.Clear();
+                m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
             } else {
                 stringstream ss;
-                ss << "Value " << command_trajectory[0] << " does not exist in map";
+                ss << "shoreside has no command to send" << endl;
                 cout << ss.str() << endl;
                 m_Comms.Notify("PURSUIT_ERROR", ss.str());
             }
-        } else {
-            cout << "Command trajectory empty" << endl;
         }
 
-        m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
+        if (!got_receive) {
+
+        } else {
+            got_receive = false;
+        }
     }
 
     return (true);

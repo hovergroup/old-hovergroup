@@ -61,6 +61,7 @@ ProcessConfig = pShare
     output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
     output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
     output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = PURSUIT_ERROR->$(SHOREHOST):$(SLPORT)
   
     input = route=$(VHOST):$(LPORT) 
 }
@@ -78,14 +79,14 @@ ProcessConfig = pPursuitVehicle
         length=7,name=report3
     </tdma>
 
-    id = 1           // 1, 2, or 3
+    id = $(ACOMMSID)      // 1, 2, or 3
     
     code=0,-1.0
     code=1,0
     code=2,1.0
     
-    positive_x = 100;
-    positive_y = -50;
-    negative_x = 0;
-    negative_y = -75;
+    positive_x = $(POSITIVE_X)
+    positive_y = $(POSITIVE_Y)
+    negative_x = $(NEGATIVE_X)
+    negative_y = $(NEGATIVE_X)
 }
