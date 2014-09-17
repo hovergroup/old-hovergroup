@@ -13,6 +13,7 @@ Processconfig = ANTLER
   MSBetweenLaunches = 200
 
   Run = MOOSDB               @ NewConsole = false
+  Run = uTimerScript         @ NewConsole = false ~uTimerScript_config
   Run = pShare               @ NewConsole = false
   Run = pMarineViewer        @ NewConsole = false
   Run = pLogger              @ NewConsole = false
@@ -24,6 +25,17 @@ Processconfig = ANTLER
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=NAV_X,val=0,time=1
+  event = var=NAV_Y,val=0,time=1
+  event = quit, time=2
 }
 
 #include ../../trunk/plugs/plug_uTermCommand_Hover.moos
