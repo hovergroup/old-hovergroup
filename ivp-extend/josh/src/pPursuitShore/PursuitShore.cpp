@@ -24,8 +24,6 @@ PursuitShore::PursuitShore() {
     } catch (goby::acomms::DCCLException& e) {
         std::cout << "failed to validate encoder" << std::endl;
     }
-
-    decoder = goby::acomms::DCCLCodec::get();
     got_receive = false;
 }
 
@@ -96,7 +94,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     bool decode_okay = true;
                     try {
                         cout << "attempting to decode " << reception.getData().size() << " bytes" << endl;
-                        decoder->decode(reception.getData(), &report);
+                        encoder->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
                         ss << "shoreside failed decoding acomms message" << endl;
