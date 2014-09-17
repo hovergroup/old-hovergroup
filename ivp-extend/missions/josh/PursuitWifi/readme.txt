@@ -5,7 +5,7 @@ speed=v
 post to PURSUIT_ACTION
 STATION or WAYPOINT
 
-
+get nav from NAV_X_NOSTROMO, etc.
 
 Baseline Mission Configuration
 
