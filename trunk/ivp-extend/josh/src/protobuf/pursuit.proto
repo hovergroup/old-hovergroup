@@ -13,13 +13,13 @@ message PursuitCommandDCCL
   option (dccl.msg).max_bytes = 64;
   repeated int32 vehicle1_cmd = 1 [(dccl.field).max=8,
                                    (dccl.field).min=-8,
-                                   (dccl.field).max_repeat=10];
+                                   (dccl.field).max_repeat=18];
   repeated int32 vehicle2_cmd = 2 [(dccl.field).max=8,
                                    (dccl.field).min=-8,
-                                   (dccl.field).max_repeat=10];
+                                   (dccl.field).max_repeat=18];
   repeated int32 vehicle3_cmd = 3 [(dccl.field).max=8,
                                    (dccl.field).min=-8,
-                                   (dccl.field).max_repeat=10];
+                                   (dccl.field).max_repeat=18];
 }
 
 message PursuitReportDCCL
