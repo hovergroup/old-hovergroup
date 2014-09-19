@@ -91,9 +91,9 @@ ProcessConfig = pPursuitVehicle
 
     id = $(ACOMMSID)      // 1, 2, or 3
     
-    code=0,-1.0
+    code=0,0.8
     code=1,0
-    code=2,1.0
+    code=2,-0.8
     
     positive_x = $(POSITIVE_X)
     positive_y = $(POSITIVE_Y)
