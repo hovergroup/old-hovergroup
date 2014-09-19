@@ -187,6 +187,10 @@ bool PursuitVehicle::Iterate() {
 
             cout << "Transmitting: " << endl;
             cout << dccl_report.DebugString() << endl;
+            for (int i=0; i<bytes.size(); i++) {
+                cout << (int) bytes[i] << " ";
+            }
+            cout << endl;
             dccl_report.Clear();
             m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
             cout << "Total size " << bytes.size() << endl;
