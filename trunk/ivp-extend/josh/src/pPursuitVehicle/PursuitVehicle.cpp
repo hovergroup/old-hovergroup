@@ -213,11 +213,11 @@ bool PursuitVehicle::Iterate() {
                 m_Comms.Notify("PURSUIT_QUANTIZED_COMMAND", command_trajectory[0]);
                 command_trajectory.erase(command_trajectory.begin());
 
+                cout << tdma_engine.getCurrentSlot() << " Speed: " << desired_speed << endl;
                 stringstream ss;
                 if (desired_speed == 0) {
                     m_Comms.Notify("PURSUIT_ACTION", "STATION");
                 } else {
-                    cout << tdma_engine.getCurrentSlot() << " Speed: " << desired_speed << endl;
                     ss << "speed = " << fabs(desired_speed);
                     m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
                     ss.str("");
