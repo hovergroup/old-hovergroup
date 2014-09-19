@@ -37,7 +37,7 @@ private:
     int m_id, m_shore_id;
 
     PursuitReportDCCL dccl_report;
-    goby::acomms::DCCLCodec* encoder;
+    goby::acomms::DCCLCodec* codec;
     std::vector<int> command_trajectory;
     std::map<int,double> command_map;
 

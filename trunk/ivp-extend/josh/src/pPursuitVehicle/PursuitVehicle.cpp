@@ -19,7 +19,7 @@ PursuitVehicle::PursuitVehicle() {
     m_running = false;
     receive_count=0;
 
-    encoder = goby::acomms::DCCLCodec::get();
+    codec = goby::acomms::DCCLCodec::get();
 
     dccl_report.set_ack(false);
 }
@@ -65,7 +65,7 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                     PursuitCommandDCCL cmd;
                     bool decode_okay = true;
                     try {
-                        encoder->decode(reception.getData(), &cmd);
+                        codec->decode(reception.getData(), &cmd);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
                         ss << "failed decoding acomms message" << endl;
@@ -176,7 +176,6 @@ bool PursuitVehicle::Iterate() {
         if (tdma_engine.getCurrentSlot() == m_id) {
             dccl_report.set_id(m_id);
 
-            goby::acomms::DCCLCodec* codec = goby::acomms::DCCLCodec::get();
             try {
                 codec->validate<PursuitReportDCCL>();
             } catch (goby::acomms::DCCLException& e) {
@@ -208,7 +207,7 @@ bool PursuitVehicle::Iterate() {
                 } else {
                     ss << "speed = " << fabs(desired_speed);
                     m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
-                    ss.str().clear();
+                    ss.str("");
                     ss << "points = ";
                     if ( desired_speed > 0 ) {
                         ss << positive_x << "," << positive_y;

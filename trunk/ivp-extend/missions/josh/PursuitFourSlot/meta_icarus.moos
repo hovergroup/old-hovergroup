@@ -21,7 +21,6 @@ Processconfig = ANTLER
   Run = iIcarus                @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   Run = pResourceMon           @ NewConsole = false
-  Run = pAckedCommsVehicle     @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
 }
 
@@ -42,7 +41,19 @@ ProcessConfig = pProtoReporter
     PLATFORM_TYPE = ICARUS
 }
 
-#include ../../trunk/plugs/plug_pShareV.moos
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
+  
+    output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
+    output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
+    output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = PURSUIT_VEHICLE_REPORT->$(SHOREHOST):$(SLPORT)
+  
+    input = route=$(VHOST):$(LPORT) 
+}
+
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pEchoVar.moos
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
@@ -51,5 +62,19 @@ ProcessConfig = pProtoReporter
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_iIcarus.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
-#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
+
+ProcessConfig = pPursuitShore
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    <tdma>
+        length=7,name=command
+        length=7,name=report1
+        length=7,name=report2
+        length=5,name=report3
+        length=2,name=compute
+    </tdma>
+}
