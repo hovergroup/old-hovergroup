@@ -9,7 +9,7 @@ import "goby/acomms/protobuf/dccl_option_extensions.proto";
 
 message PursuitCommandDCCL
 {
-  option (dccl.msg).id = 127;
+  option (dccl.msg).id = 1;
   option (dccl.msg).max_bytes = 64;
   repeated int32 vehicle1_cmd = 1 [(dccl.field).max=8,
                                    (dccl.field).min=-8,
@@ -22,36 +22,37 @@ message PursuitCommandDCCL
                                    (dccl.field).max_repeat=10];
 }
 
-message PursuitReportDCCL2
+message PursuitReportDCCL
 {
-  option (dccl.msg).id = 128;
+  option (dccl.msg).id = 2;
   option (dccl.msg).max_bytes = 192;
   required int32 id = 1 [(dccl.field).min=1,
-                         (dccl.field).max=3];
+                         (dccl.field).max=3,
+                         (dccl.field).precision=0];
   repeated int32 slot_history = 2 [(dccl.field).min=0,
                                    (dccl.field).max=3,
-                                   (dccl.field).max_repeat=5];
+                                   (dccl.field).precision=0,
+                                   (dccl.field).max_repeat=4];
   repeated double x_history = 3 [(dccl.field).min=-1000,
                                  (dccl.field).max=1000,
                                  (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=5];
+                                 (dccl.field).max_repeat=4];
   repeated double y_history = 4 [(dccl.field).min=-1000,
                                  (dccl.field).max=1000,
                                  (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=5];
+                                 (dccl.field).max_repeat=4];
   required bool ack = 5;
 }
 
-message PursuitReportDCCL
+message PursuitReportDCCL2
 {
   option (dccl.msg).id = 127;
   option (dccl.msg).max_bytes = 192;
-
-  required double x = 1          [(dccl.field).min=-1000,
-                                 (dccl.field).max=1000,
+  required double x_history = 1 [(dccl.field).max=1000,
+                                 (dccl.field).min=-1000,
                                  (dccl.field).precision=2];
-  required double y = 2          [(dccl.field).min=-1000,
-                                 (dccl.field).max=1000,
-                                 (dccl.field).precision=2];  
-  
+  required double y_history = 2 [(dccl.field).max=1000,
+                                 (dccl.field).min=-1000,
+                                 (dccl.field).precision=2];
+
 }
