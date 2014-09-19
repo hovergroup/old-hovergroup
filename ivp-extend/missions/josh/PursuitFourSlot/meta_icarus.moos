@@ -52,6 +52,7 @@ ProcessConfig = pShare
     output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
     output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
     output = PURSUIT_VEHICLE_REPORT->$(SHOREHOST):$(SLPORT)
+    output = PURSUIT_ERROR->$(SHOREHOST):$(SLPORT)
   
     input = route=$(VHOST):$(LPORT) 
 }
