@@ -83,7 +83,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                 break;
             }
             got_commands[id-1] = true;
-        } else if (key == "ACOMMS_RECEIVED") {
+        } else if (key == "ACOMMS_RECEIVED" && MOOSTime()-msg.GetTime() < 1) {
             HoverAcomms::AcommsReception reception;
             // try to parse acomms message
             if (reception.parseFromString(msg.GetString())) {
@@ -115,7 +115,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     }
 
                     if (decode_okay) {
-                        receive_counts[report.id()]++;
+                        receive_counts[report.id()-1]++;
                         stringstream ss;
                         for (int i=0; i<receive_counts.size(); i++) {
                             if (i!=0)
