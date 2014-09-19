@@ -21,6 +21,7 @@ Processconfig = ANTLER
   Run = iIcarus                @ NewConsole = false
   Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   Run = pResourceMon           @ NewConsole = false
+  Run = pAckedCommsVehicle     @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
 }
 
@@ -62,6 +63,7 @@ ProcessConfig = pShare
 #include ../../trunk/plugs/plug_iGPS_Hover.moos
 #include ../../trunk/plugs/plug_iIcarus.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
+#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
 #include ../../trunk/plugs/plug_pScheduledTransmit.moos
 
 ProcessConfig = pPursuitShore

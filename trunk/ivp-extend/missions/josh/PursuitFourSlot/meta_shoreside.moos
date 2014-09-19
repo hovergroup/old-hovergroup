@@ -21,6 +21,7 @@ Processconfig = ANTLER
   Run = pWTStatusView        @ NewConsole = false
   Run = pResourceMon         @ NewConsole = false
   Run = uTermCommand_Hover   @ NewConsole = true
+  Run = pAckedCommsShoreside @ NewConsole = true
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
