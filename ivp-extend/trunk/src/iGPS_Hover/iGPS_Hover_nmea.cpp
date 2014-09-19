@@ -45,7 +45,7 @@ void SIMPLE_GPS::parseGPRMC(string sNMEAString) {
 
     // field 7 - speed
     sTmp = MOOSChomp(sNMEAString, ",");
-    double dfSpeed = atof(sTmp.c_str());
+    double dfSpeed = atof(sTmp.c_str())*.5144;
     m_Comms.Notify("GPS_SPEED", dfSpeed);
 
     // field 8 - course
