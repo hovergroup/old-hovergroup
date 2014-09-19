@@ -11,7 +11,7 @@ Behavior = BHV_Waypoint_Hover
     condition  = PURSUIT_ACTION = WAYPOINT
     endflag    = PURSUIT_ACTION = STATION
     perpetual  = true
-    updates    = GOTO_UPDATES
+    updates    = PURSUIT_WAYPOINT_UPDATES
 
     lead          = 15
     lead_to_start = true
