@@ -217,6 +217,7 @@ bool PursuitVehicle::Iterate() {
                 if (desired_speed == 0) {
                     m_Comms.Notify("PURSUIT_ACTION", "STATION");
                 } else {
+                    cout << tdma_engine.getCurrentSlot() << " Speed: " << desired_speed << endl;
                     ss << "speed = " << fabs(desired_speed);
                     m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
                     ss.str("");
@@ -231,13 +232,14 @@ bool PursuitVehicle::Iterate() {
                 }
 
             } else {
+                cout << tdma_engine.getCurrentSlot() << " Unknown command " << command_trajectory[0] << endl;
                 stringstream ss;
                 ss << "Value " << command_trajectory[0] << " does not exist in map";
                 cout << ss.str() << endl;
                 m_Comms.Notify("PURSUIT_ERROR", ss.str());
             }
         } else {
-            cout << "Command trajectory empty" << endl;
+            cout << tdma_engine.getCurrentSlot() << " Command trajectory empty" << endl;
         }
 
         m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
