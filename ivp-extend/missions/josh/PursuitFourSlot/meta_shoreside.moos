@@ -119,5 +119,5 @@ ProcessConfig = uTermCommand_Hover
     CMD = RESET_PURSUIT --> PURSUIT_COMMAND --> reset
     
     // pursuit behavior
-    CMD = PURSUIT_BEHVARIO --> MISSION_MODE_ALL --> PURSUIT
+    CMD = PURSUIT_BEHAVIOR --> MISSION_MODE_ALL --> PURSUIT
 }

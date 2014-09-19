@@ -175,7 +175,7 @@ bool PursuitShore::OnConnectToServer() {
 bool PursuitShore::Iterate() {
     if (tdma_engine.testAdvance()) {
         m_Comms.Notify("TDMA_SLOT", tdma_engine.getCurrentSlot());
-        m_Comms.Notify("TDMA_CYCgot_recieveLE_COUNT", tdma_engine.getCycleCount());
+        m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
         if (tdma_engine.getCurrentSlot() == 3) {
