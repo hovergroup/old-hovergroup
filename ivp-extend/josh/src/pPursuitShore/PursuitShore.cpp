@@ -18,9 +18,9 @@ PursuitShore::PursuitShore() {
     receive_counts = vector<int>(3,0);
     got_commands = vector<bool>(3,false);
 
-    encoder = goby::acomms::DCCLCodec::get();
+    codec = goby::acomms::DCCLCodec::get();
     try {
-        encoder->validate<PursuitCommandDCCL>();
+        codec->validate<PursuitCommandDCCL>();
     } catch (goby::acomms::DCCLException& e) {
         std::cout << "failed to validate encoder" << std::endl;
     }
@@ -95,7 +95,6 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     try {
                         cout << "attempting to decode " << reception.getData().size() << " bytes" << endl;
                         cout << reception.getData() << endl;
-                        goby::acomms::DCCLCodec* codec = goby::acomms::DCCLCodec::get();
                         codec->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
@@ -116,6 +115,22 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                         m_Comms.Notify("PURSUIT_RECEIVE_COUNTS", ss.str());
                         cout << "received data: " << endl;
                         cout << report.DebugString() << endl;
+
+                        ss.str("");
+                        ss << report.id() << ":1:";
+                        if (report.ack()) {
+                            ss << "1:";
+                        } else {
+                            ss << "0:";
+                        }
+                        ss << tdma_engine.getCycleCount();
+                        for (int i=0; i<report.slot_history_size(); i++) {
+                            ss << ":" << report.slot_history(i);
+                            ss << "," << report.x_history(i);
+                            ss << "," << report.y_history(i);
+                        }
+                        m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+
                         got_receive = true;
                     }
                 }
@@ -169,7 +184,7 @@ bool PursuitShore::Iterate() {
             }
             if (got_command) {
                 std::string bytes;
-                encoder->encode(&bytes, dccl_command);
+                codec->encode(&bytes, dccl_command);
                 cout << "Transmitting: " << endl;
                 cout << dccl_command.DebugString() << endl;
                 dccl_command.Clear();

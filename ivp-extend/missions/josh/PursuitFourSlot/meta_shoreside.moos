@@ -21,7 +21,6 @@ Processconfig = ANTLER
   Run = pWTStatusView        @ NewConsole = false
   Run = pResourceMon         @ NewConsole = false
   Run = uTermCommand_Hover   @ NewConsole = true
-  Run = pAckedCommsShoreside @ NewConsole = true
 
   1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
   2 = -geometry,80x15+0+460,-bg,green,-fg,black
@@ -37,11 +36,23 @@ ProcessConfig = uTimerScript_Config
   event = var=NAV_Y,val=0,time=1
   event = quit, time=2
 }
-
-#include ../../trunk/plugs/plug_pShareS.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pMarineViewer.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4    // iterate lower bound
+  
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME4)->ACKEDCOMMS_TRANSMIT:$(VHOST4):$(LPORT4)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME3)->ACKEDCOMMS_TRANSMIT:$(VHOST3):$(LPORT3)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME2)->ACKEDCOMMS_TRANSMIT:$(VHOST2):$(LPORT2)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME1)->ACKEDCOMMS_TRANSMIT:$(VHOST1):$(LPORT1)
+    output = PURSUIT_VEHICLE_COMMAND->$(VHOST1):$(LPORT1)
+  
+    input = route=localhost:$(LPORT)
+}
 
 ProcessConfig = pAckedCommsShoreside
 {
@@ -56,21 +67,6 @@ ProcessConfig = pAckedCommsShoreside
     BRIDGE = var=GOTO_UPDATES,repeat=5,delay=0.5
     BRIDGE = var=SCHEDULED_TRANSMITS,repeat=5,delay=0.5
     BRIDGE = var=PURSUIT_COMMAND,repeat=5,delay=0.5
-}
-
-ProcessConfig = pPursuitShore
-{
-    IterateMode = 1    // comms driven iterate and mail
-    AppTick     = 20   // iterate lower bound
-    MaxAppTick  = 0    // no limit
-
-    <tdma>
-        length=7,name=command
-        length=7,name=report1
-        length=7,name=report2
-        length=5,name=report3
-        length=2,name=compute
-    </tdma>
 }
 
 
@@ -120,4 +116,7 @@ ProcessConfig = uTermCommand_Hover
     CMD = STOP_PURSUIT --> PURSUIT_COMMAND --> stop
     CMD = RESET_PURSUIT --> PURSUIT_COMMAND_ALL --> reset
     CMD = RESET_PURSUIT --> PURSUIT_COMMAND --> reset
+    
+    // pursuit behavior
+    CMD = PURSUIT_BEHVARIO --> MISSION_MODE_ALL --> PURSUIT
 }
