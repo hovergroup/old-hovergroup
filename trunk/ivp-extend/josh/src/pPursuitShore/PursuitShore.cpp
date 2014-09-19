@@ -207,8 +207,13 @@ bool PursuitShore::Iterate() {
             }
         }
 
-        if (!got_receive) {
-            cout << "Missed receive before slot " << tdma_engine.getCurrentSlot() << endl;
+        int slot = tdma_engine.getCurrentSlot();
+        if (!got_receive && (slot==2 || slot==3 || slot==4)) {
+            cout << "Missed receive before slot " << slot << endl;
+            stringstream ss;
+            ss << slot-1 << ":0:0:";
+            ss << tdma_engine.getCycleCount();
+            m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
         } else {
             got_receive = false;
         }
