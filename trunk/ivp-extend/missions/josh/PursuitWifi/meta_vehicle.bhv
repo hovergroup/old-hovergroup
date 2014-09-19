@@ -1,6 +1,47 @@
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
+initialize   PURSUIT_ACTION = WAYPOINT
+
+Behavior = BHV_Waypoint_Hover
+{ 
+    name       = pursuit_waypoint
+    pwt        = 100
+    condition  = MISSION_MODE = PURSUIT
+    condition  = PURSUIT_ACTION = WAYPOINT
+    endflag    = PURSUIT_ACTION = STATION
+    perpetual  = true
+    updates    = GOTO_UPDATES
+
+    lead          = 15
+    lead_to_start = true
+    lead_damper   = 1
+    speed         = $(CRUISESPEED)
+    radius        = 4.0
+    slip_radius   = 10.0
+    points        = $(RETURN_PT)
+    repeat        = 1
+    visual_hints  = nextpt_color=red, nextpt_lcolor=green
+    visual_hints  = vertex_color=red, line_color=green
+    visual_hints  = vertex_size=2, edge_size=1
+    
+    trackpoint_heading_cutoff = 30
+}
+
+Behavior = BHV_StationKeep
+{
+    name             = pursuit_station
+    pwt              = 100
+    condition        = MISSION_MODE = PURSUIT
+    condition        = PURSUIT_ACTION = STATION
+    center_activate  = true
+    
+    station_pt    = 0,0
+    inner_radius  = 2
+    outer_radius  = 5
+    outer_speed   = 1.0
+    swing_time    = 3
+}
 
 Behavior = BHV_Waypoint_Hover
 { 
