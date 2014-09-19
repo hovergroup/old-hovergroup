@@ -61,7 +61,7 @@ ProcessConfig = pAckedCommsShoreside
     AppTick     = 20    // iterate lower bound
     MaxAppTick  = 0    // no limit
     
-    vehicles = NOSTROMO,SILVANA,KESTREL
+    vehicles = NOSTROMO,SILVANA,KESTREL,ICARUS
     
     BRIDGE = var=MISSION_MODE,repeat=5,delay=0.5
     BRIDGE = var=MOOS_MANUAL_OVERRIDE,repeat=5,delay=0.5

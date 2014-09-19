@@ -31,6 +31,7 @@ ProcessConfig = uTimerScript_Config
   CommsTick = 4
     
   event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
   event = quit, time=2
 }
 

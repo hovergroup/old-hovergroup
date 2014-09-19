@@ -21,7 +21,7 @@ PursuitVehicle::PursuitVehicle() {
 
     codec = goby::acomms::DCCLCodec::get();
 
-    dccl_report.set_ack(false);
+//    dccl_report.set_ack(false);
 }
 
 //---------------------------------------------------------
@@ -97,7 +97,7 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                             break;
                         }
                         m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
-                        dccl_report.set_ack(true);
+//                        dccl_report.set_ack(true);
                     }
                 }
             }
@@ -168,13 +168,15 @@ bool PursuitVehicle::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
         // update our position history
-        dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
-        dccl_report.add_x_history(m_navx);
-        dccl_report.add_y_history(m_navy);
+//        dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
+//        dccl_report.add_x_history(m_navx);
+//        dccl_report.add_y_history(m_navy);
+        dccl_report.set_x(m_navx);
+        dccl_report.set_y(m_navy);
 
         // if our slot, send update
         if (tdma_engine.getCurrentSlot() == m_id) {
-            dccl_report.set_id(m_id);
+//            dccl_report.set_id(m_id);
 
             try {
                 codec->validate<PursuitReportDCCL>();
@@ -191,10 +193,15 @@ bool PursuitVehicle::Iterate() {
                 cout << (int) bytes[i] << " ";
             }
             cout << endl;
+            for (int i=0; i<bytes.size(); i++) {
+                std::bitset<8> x(bytes[i]);
+                cout << x << " ";
+            }
+            cout << endl;
             dccl_report.Clear();
             m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
             cout << "Total size " << bytes.size() << endl;
-            dccl_report.set_ack(false);
+//            dccl_report.set_ack(false);
         }
 
         // implement commands

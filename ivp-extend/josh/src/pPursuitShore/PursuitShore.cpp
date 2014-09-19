@@ -99,6 +99,11 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                             cout << (int) reception.getData()[i] << " ";
                         }
                         cout << endl;
+                        for (int i=0; i<reception.getData().size(); i++) {
+                            std::bitset<8> x(reception.getData()[i]);
+                            cout << x << " ";
+                        }
+                        cout << endl;
                         codec->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
@@ -109,7 +114,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     }
 
                     if (decode_okay) {
-                        receive_counts[report.id()]++;
+//                        receive_counts[report.id()]++;
                         stringstream ss;
                         for (int i=0; i<receive_counts.size(); i++) {
                             if (i!=0)
@@ -120,20 +125,20 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                         cout << "received data: " << endl;
                         cout << report.DebugString() << endl;
 
-                        ss.str("");
-                        ss << report.id() << ":1:";
-                        if (report.ack()) {
-                            ss << "1:";
-                        } else {
-                            ss << "0:";
-                        }
-                        ss << tdma_engine.getCycleCount();
-                        for (int i=0; i<report.slot_history_size(); i++) {
-                            ss << ":" << report.slot_history(i);
-                            ss << "," << report.x_history(i);
-                            ss << "," << report.y_history(i);
-                        }
-                        m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+//                        ss.str("");
+//                        ss << report.id() << ":1:";
+//                        if (report.ack()) {
+//                            ss << "1:";
+//                        } else {
+//                            ss << "0:";
+//                        }
+//                        ss << tdma_engine.getCycleCount();
+//                        for (int i=0; i<report.slot_history_size(); i++) {
+//                            ss << ":" << report.slot_history(i);
+//                            ss << "," << report.x_history(i);
+//                            ss << "," << report.y_history(i);
+//                        }
+//                        m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
 
                         got_receive = true;
                     }
