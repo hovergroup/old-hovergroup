@@ -110,10 +110,10 @@ ProcessConfig = pPursuitVehicle
     code=-2,0.6
     code=-1,0.3
     code=0,0
-    code=1,0.3
-    code=2,0.6
-    code=3,0.9
-    code=4,1.2
+    code=1,-0.3
+    code=2,-0.6
+    code=3,-0.9
+    code=4,-1.2
     
     positive_x = $(POSITIVE_X)
     positive_y = $(POSITIVE_Y)
