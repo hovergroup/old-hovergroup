@@ -1,7 +1,7 @@
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
-initialize   PURSUIT_ACTION = WAYPOINT
+initialize   PURSUIT_ACTION = STATION
 
 
 Behavior = BHV_Waypoint_Hover
