@@ -27,6 +27,7 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_size=2, edge_size=1
     
     trackpoint_heading_cutoff = 30
+    skip_first_waypoint = true
 }
 
 Behavior = BHV_StationKeep

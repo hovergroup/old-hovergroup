@@ -121,6 +121,8 @@ protected:
 
     double angleDiff(double a, double b);
 
+    bool m_skip_first_waypoint;
+
 
 };
 
