@@ -190,6 +190,9 @@ bool PursuitVehicle::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
+        m_Comms.Notify("PURSUIT_X", m_navx);
+        m_Comms.Notify("PURSUIT_Y", m_navy);
+
         // update our position history
         dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
         dccl_report.add_x_history(m_navx);
@@ -244,10 +247,10 @@ bool PursuitVehicle::Iterate() {
 
                 if (m_projection) {
                     if (desired_speed == 0) {
-                        m_Comms.Notify("PURSUIT_ACTION", "STATION");
-                        stringstream ss;
-                        ss << "station_pt = " << current_x << "," << current_y;
-                        m_Comms.Notify("PURSUIT_STATION_UPDATES", ss.str());
+//                        m_Comms.Notify("PURSUIT_ACTION", "STATION");
+//                        stringstream ss;
+//                        ss << "station_pt = " << current_x << "," << current_y;
+//                        m_Comms.Notify("PURSUIT_STATION_UPDATES", ss.str());
                     } else {
                         // project current target onto the trackline
                         double nx, ny;
@@ -255,21 +258,46 @@ bool PursuitVehicle::Iterate() {
                                 negative_y, current_x, current_y, nx, ny);
                         XYPoint perp_pt(nx, ny);
 
-                        double angle;
+                        double angle, dist;
+                        double distance = fabs(desired_speed * m_project_time);
                         if (desired_speed > 0) {
                             angle = relAng(negative_x, negative_y, positive_x,
                                     positive_y);
+                            dist = distPointToPoint(nx, ny, positive_x, positive_y);
                         } else {
                             angle = relAng(positive_x, positive_y, negative_x,
                                     negative_y);
+                            dist = distPointToPoint(nx, ny, negative_x, negative_y);
                         }
-                        double distance = fabs(desired_speed * m_project_time);
                         double targx, targy;
-                        projectPoint(angle, distance, nx, ny, targx, targy);
-                        cout << "projected to " << targx << "," << targy
-                                << endl;
+                        if (current_x == positive_x && current_y == positive_y && desired_speed > 0) {
+                            targx = positive_x;
+                            targy = positive_y;
+                            cout << "capped at " << targx << "," << targy
+                                    << endl;
+                        } else if (current_x == negative_x && current_y == negative_y && desired_speed < 0) {
+                            targx = negative_x;
+                            targy = negative_y;
+                            cout << "capped at " << targx << "," << targy
+                                    << endl;
+                        } else if (distance > dist) {
+                            if (desired_speed > 0) {
+                                targx = positive_x;
+                                targy = positive_y;
+                            } else {
+                                targx = negative_x;
+                                targy = negative_y;
+                            }
+                            cout << "capped at " << targx << "," << targy
+                                    << endl;
+                        } else {
+                            projectPoint(angle, distance, nx, ny, targx, targy);
+                            cout << "projected to " << targx << "," << targy
+                                    << endl;
+                        }
                         current_x = targx;
                         current_y = targy;
+
 
                         stringstream ss;
                         ss << targx << "," << targy;
