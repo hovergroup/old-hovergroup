@@ -268,6 +268,8 @@ bool PursuitVehicle::Iterate() {
                         projectPoint(angle, distance, nx, ny, targx, targy);
                         cout << "projected to " << targx << "," << targy
                                 << endl;
+                        current_x = targx;
+                        current_y = targy;
 
                         stringstream ss;
                         ss << targx << "," << targy;
