@@ -42,7 +42,7 @@ Behavior = BHV_StationKeep
     station_pt    = 0,0
     inner_radius  = 1
     outer_radius  = 2
-    outer_speed   = 1.0
+    outer_speed   = 0.5
     swing_time    = 3
 }
 
