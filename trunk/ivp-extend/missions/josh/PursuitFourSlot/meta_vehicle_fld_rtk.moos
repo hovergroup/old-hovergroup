@@ -86,6 +86,9 @@ ProcessConfig = pShare
     output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
     output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
     output = PURSUIT_ERROR->$(SHOREHOST):$(SLPORT)
+    output = NAV_X->NAV_X_$(VNAME):$(SHOREHOST):$(SLPORT)
+    output = NAV_Y->NAV_Y_$(VNAME):$(SHOREHOST):$(SLPORT)
+    output = PURSUIT_COMMAND_RECEIVED->PURSUIT_COMMAND_RECEIVED_$(VNAME):$(SHOREHOST):$(SLPORT)
   
     input = route=$(VHOST):$(LPORT) 
 }
@@ -119,4 +122,10 @@ ProcessConfig = pPursuitVehicle
     positive_y = $(POSITIVE_Y)
     negative_x = $(NEGATIVE_X)
     negative_y = $(NEGATIVE_Y)
+    initial_x = $(INITIAL_X)
+    initial_y = $(INITIAL_Y)
+    
+    use_projection = true
+    project_time = 7
+    min_speed = 0.5
 }
