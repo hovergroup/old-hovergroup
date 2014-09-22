@@ -36,11 +36,12 @@ Behavior = BHV_StationKeep
     pwt              = 100
     condition        = MISSION_MODE = PURSUIT
     condition        = PURSUIT_ACTION = STATION
-    center_activate  = true
+    center_activate  = false  // must change depending on if projection is used
+    updates = PURSUIT_STATION_UPDATES // only needed for projection
     
     station_pt    = 0,0
-    inner_radius  = 2
-    outer_radius  = 5
+    inner_radius  = 1
+    outer_radius  = 2
     outer_speed   = 1.0
     swing_time    = 3
 }

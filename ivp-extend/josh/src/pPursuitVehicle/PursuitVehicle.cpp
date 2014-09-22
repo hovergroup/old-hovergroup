@@ -8,6 +8,8 @@
 #include <iterator>
 #include "MBUtils.h"
 #include "PursuitVehicle.h"
+#include "GeomUtils.h"
+#include "AngleUtils.h"
 
 using namespace std;
 using namespace JoshUtil;
@@ -18,6 +20,9 @@ using namespace JoshUtil;
 PursuitVehicle::PursuitVehicle() {
     m_running = false;
     receive_count=0;
+    m_projection = false;
+    m_project_time = 7;
+    m_min_speed = 0;
 
     codec = goby::acomms::DCCLCodec::get();
     try {
@@ -51,6 +56,12 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
             if (cmd == "RUN") {
                 tdma_engine.run();
                 command_trajectory.clear();
+                current_x = initial_x;
+                current_y = initial_y;
+                m_Comms.Notify("PURSUIT_ACTION", "STATION");
+                stringstream ss;
+                ss << "station_pt = " << current_x << "," << current_y;
+                m_Comms.Notify("PURSUIT_STATION_UPDATES", ss.str());
             } else if (cmd == "STOP") {
                 tdma_engine.stop();
             } else if (cmd == "RESET") {
@@ -124,6 +135,11 @@ bool PursuitVehicle::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("positive_y", positive_y);
     m_MissionReader.GetConfigurationParam("negative_x", negative_x);
     m_MissionReader.GetConfigurationParam("negative_y", negative_y);
+    m_MissionReader.GetConfigurationParam("initial_x", initial_x);
+    m_MissionReader.GetConfigurationParam("initial_y", initial_y);
+    m_MissionReader.GetConfigurationParam("use_projection", m_projection);
+    m_MissionReader.GetConfigurationParam("project_time", m_project_time);
+    m_MissionReader.GetConfigurationParam("min_speed", m_min_speed);
 
     string my_name;
     m_MissionReader.GetValue("Community", my_name);
@@ -182,7 +198,15 @@ bool PursuitVehicle::Iterate() {
 //        dccl_report.set_x_history(m_navx);
 //        dccl_report.set_y_history(m_navy);
 
-        // if our slot, send update
+        if (tdma_engine.getCurrentSlot() == 1) {
+            if (dccl_report.ack()) {
+                m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
+            } else {
+                m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 0.0);
+            }
+        }
+
+// if our slot, send update< " Speed: " << desired_speed << endl;
         if (tdma_engine.getCurrentSlot() == m_id) {
             dccl_report.set_id(m_id);
 
@@ -200,7 +224,8 @@ bool PursuitVehicle::Iterate() {
 //            }
 //            cout << endl;
             dccl_report.Clear();
-            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+            m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(),
+                    bytes.size());
             cout << "Total size " << bytes.size() << endl;
             dccl_report.set_ack(false);
         }
@@ -210,41 +235,103 @@ bool PursuitVehicle::Iterate() {
             if (command_map.find(command_trajectory[0]) != command_map.end()) {
                 double desired_speed = command_map[command_trajectory[0]];
                 m_Comms.Notify("PURSUIT_DESIRED_SPEED", desired_speed);
-                m_Comms.Notify("PURSUIT_QUANTIZED_COMMAND", command_trajectory[0]);
+                m_Comms.Notify("PURSUIT_QUANTIZED_COMMAND",
+                        command_trajectory[0]);
                 command_trajectory.erase(command_trajectory.begin());
 
-                cout << tdma_engine.getCurrentSlot() << " Speed: " << desired_speed << endl;
-                stringstream ss;
-                if (desired_speed == 0) {
-                    m_Comms.Notify("PURSUIT_ACTION", "STATION");
-                } else {
-                    ss << "speed = " << fabs(desired_speed);
-                    m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
-                    ss.str("");
-                    ss << "points = ";
-                    if ( desired_speed > 0 ) {
-                        ss << positive_x << "," << positive_y;
-                    } else {
-                        ss << negative_x << "," << negative_y;
-                    }
-                    m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
-                    m_Comms.Notify("PURSUIT_ACTION", "WAYPOINT");
-                }
+                cout << tdma_engine.getCurrentSlot() << " Speed: "
+                        << desired_speed << endl;
 
+                if (m_projection) {
+                    if (desired_speed == 0) {
+                        m_Comms.Notify("PURSUIT_ACTION", "STATION");
+                        stringstream ss;
+                        ss << "station_pt = " << current_x << "," << current_y;
+                        m_Comms.Notify("PURSUIT_STATION_UPDATES", ss.str());
+                    } else {
+                        // project current target onto the trackline
+                        double nx, ny;
+                        perpSegIntPt(positive_x, positive_y, negative_x,
+                                negative_y, current_x, current_y, nx, ny);
+                        XYPoint perp_pt(nx, ny);
+
+                        double angle;
+                        if (desired_speed > 0) {
+                            angle = relAng(negative_x, negative_y, positive_x,
+                                    positive_y);
+                        } else {
+                            angle = relAng(positive_x, positive_y, negative_x,
+                                    negative_y);
+                        }
+                        double distance = fabs(desired_speed * m_project_time);
+                        double targx, targy;
+                        projectPoint(angle, distance, nx, ny, targx, targy);
+                        cout << "projected to " << targx << "," << targy
+                                << endl;
+
+                        stringstream ss;
+                        ss << targx << "," << targy;
+                        m_Comms.Notify("PURSUIT_WAYPOINT", ss.str());
+
+                        ss.str("");
+                        ss << "points = ";
+                        if (desired_speed > 0) {
+                            ss << negative_x << "," << negative_y << ":"
+                                    << targx << "," << targy;
+                        } else {
+                            ss << positive_x << "," << positive_y << ":"
+                                    << targx << "," << targy;
+                        }
+                        m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
+                        m_Comms.Notify("PURSUIT_ACTION", "WAYPOINT");
+
+                        ss.str("");
+                        if (fabs(desired_speed) < m_min_speed) {
+                            desired_speed = m_min_speed;
+                        }
+                        ss << "speed = " << fabs(desired_speed);
+                        m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
+
+                        ss.str("");
+                        ss << "station_pt = " << targx << "," << targy;
+                        m_Comms.Notify("PURSUIT_STATION_UPDATES", ss.str());
+                    }
+                } else {
+                    stringstream ss;
+                    if (desired_speed == 0) {
+                        m_Comms.Notify("PURSUIT_ACTION", "STATION");
+                    } else {
+                        ss << "speed = " << fabs(desired_speed);
+                        m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
+                        ss.str("");
+                        ss << "points = ";
+                        if (desired_speed > 0) {
+                            ss << negative_x << "," << negative_y << ":"
+                                    << positive_x << "," << positive_y;
+                        } else {
+                            ss << positive_x << "," << positive_y << ":"
+                                    << negative_x << "," << negative_y;
+                        }
+                        m_Comms.Notify("PURSUIT_WAYPOINT_UPDATES", ss.str());
+                        m_Comms.Notify("PURSUIT_ACTION", "WAYPOINT");
+                    }
+                }
             } else {
-                cout << tdma_engine.getCurrentSlot() << " Unknown command " << command_trajectory[0] << endl;
+                cout << tdma_engine.getCurrentSlot() << " Unknown command "
+                        << command_trajectory[0] << endl;
                 stringstream ss;
-                ss << "Value " << command_trajectory[0] << " does not exist in map";
+                ss << "Value " << command_trajectory[0]
+                        << " does not exist in map";
                 cout << ss.str() << endl;
                 m_Comms.Notify("PURSUIT_ERROR", ss.str());
             }
         } else {
-            cout << tdma_engine.getCurrentSlot() << " Command trajectory empty" << endl;
+            cout << tdma_engine.getCurrentSlot() << " Command trajectory empty"
+                    << endl;
         }
 
         m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
     }
-
     return (true);
 }
 

@@ -44,6 +44,11 @@ private:
     double positive_x, positive_y, negative_x, negative_y;
 
     int receive_count;
+
+    bool m_projection;
+    double current_x, current_y;
+    double initial_x, initial_y;
+    double m_project_time, m_min_speed;
 };
 
 #endif 
