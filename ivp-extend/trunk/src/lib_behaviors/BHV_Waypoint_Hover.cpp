@@ -105,6 +105,8 @@ BHV_Waypoint_Hover::BHV_Waypoint_Hover(IvPDomain gdomain) :
     m_markpt.set_vertex_size(4);
 
     m_prevpt.set_label("prev_pt");
+
+    m_skip_first_waypoint = false;
 }
 
 //-----------------------------------------------------------
@@ -272,6 +274,8 @@ bool BHV_Waypoint_Hover::setParam(string param, string param_val) {
             return false;
         m_heading_cutoff = dval;
         return true;
+    } else if (param == "skip_first_waypoint") {
+        return (setBooleanOnString(m_skip_first_waypoint, param_val));
     }
     return (false);
 }
@@ -409,6 +413,14 @@ bool BHV_Waypoint_Hover::updateInfoIn() {
 bool BHV_Waypoint_Hover::setNextWaypoint() {
     if (m_waypoint_engine.size() == 0)
         return (false);
+
+    if (m_waypoint_engine.getCurrIndex()==0 &&
+            m_waypoint_engine.size() > 1 &&
+            m_skip_first_waypoint) {
+        m_prevpt.set_vx(m_waypoint_engine.getPointX());
+        m_prevpt.set_vy(m_waypoint_engine.getPointY());
+        m_waypoint_engine.setCurrIndex(1);
+    }
 
     m_waypoint_engine.setPrevPoint(m_prevpt);
     string feedback_msg = m_waypoint_engine.setNextWaypoint(m_osx, m_osy);
