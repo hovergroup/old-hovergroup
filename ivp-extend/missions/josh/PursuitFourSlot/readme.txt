@@ -18,6 +18,7 @@ PURSUIT_QUANTIZED_COMMAND posted when command implemented
 PURSUIT_TRAJECTORY_LENGTH posted when command received and every slot
 PURSUIT_COMMAND_RECEIVED = 0 or 1, posted at slot 1
 PURSUIT_WAYPOINT if using projection
+PURSUIT_X and PURSUIT_Y
 
 PURSUIT_RECEIVE_COUNTS on shoreside - comma delimited report numbers
 
