@@ -9,5 +9,4 @@ ProcessConfig = iAcommsDriver
     PSK_minipackets   = false
     enable_ranging    = true
     show_range_pulses = true
-    enable_legacy     = false
 }

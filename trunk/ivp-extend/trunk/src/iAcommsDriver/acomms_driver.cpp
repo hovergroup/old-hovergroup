@@ -196,7 +196,6 @@ bool acomms_driver::OnConnectToServer() {
     m_MissionReader.GetConfigurationParam("show_range_pulses",
             enable_range_pulses);
     m_MissionReader.GetConfigurationParam("in_sim", in_sim);
-    m_MissionReader.GetConfigurationParam("enable_legacy", enable_legacy);
     m_MissionReader.GetConfigurationParam("use_scheduler", m_useScheduler);
 
     // simulation shore server connection
@@ -466,28 +465,25 @@ void acomms_driver::handle_data_receive(
         // determine receive status
         HoverAcomms::ReceiptStatus status = reception.getStatus();
 
-        // post data to separate variables if legacy enabled
-        if (enable_legacy) {
-            m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
-            m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
-            m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
-            m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME",
-                    reception.getRangingTime());
-            std::string data = reception.getData();
-            m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(),
-                    data.size());
+        m_Comms.Notify("ACOMMS_SOURCE_ID", (double) reception.getSource());
+        m_Comms.Notify("ACOMMS_DEST_ID", (double) reception.getDest());
+        m_Comms.Notify("ACOMMS_RATE", (double) reception.getRate());
+        m_Comms.Notify("ACOMMS_ONE_WAY_TRAVEL_TIME",
+                reception.getRangingTime());
+        std::string data = reception.getData();
+        m_Comms.Notify("ACOMMS_RECEIVED_DATA", (void*) data.data(),
+                data.size());
 
-            micromodem::protobuf::ReceiveStatistics stat =
-                    reception.getStatistics(1);
-            m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
-            m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
-            m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
-            m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
-            m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
+        micromodem::protobuf::ReceiveStatistics stat =
+                reception.getStatistics(1);
+        m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
+        m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
+        m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
+        m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
+        m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
 
-            m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
-            m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
-        }
+        m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
+        m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
 
         // post hex data
         m_Comms.Notify("ACOMMS_RECEIVED_DATA_HEX", reception.getHexData());
