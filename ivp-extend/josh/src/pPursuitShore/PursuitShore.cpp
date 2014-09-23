@@ -26,6 +26,7 @@ PursuitShore::PursuitShore() {
         std::cout << "failed to validate encoder" << std::endl;
     }
     got_receive = false;
+    multicast = true;
 }
 
 //---------------------------------------------------------
@@ -165,6 +166,15 @@ bool PursuitShore::OnConnectToServer() {
     m_Comms.Register("ACOMMS_RECEIVED", 0);
     m_Comms.Register("PURSUIT_VEHICLE_COMMAND");
 
+    string mode;
+    m_MissionReader.GetConfigurationParam("command_mode", mode);
+    MOOSToUpper(mode);
+    if (mode == "MULTICAST") {
+        multicast = true;
+    } else if (mode == "INTERLEAVED") {
+        multicast = false;
+    }
+
     return (true);
 }
 
@@ -178,44 +188,122 @@ bool PursuitShore::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
-        if (tdma_engine.getCurrentSlot() == 3) {
-            got_commands = vector<bool>(3,false);
-            cout << "clearing command buffer" << endl;
-        }
+        if (multicast) {
+            if (tdma_engine.getCurrentSlot() == 3) {
+                got_commands = vector<bool>(3,false);
+                cout << "clearing command buffer" << endl;
+            }
 
-        // if our slot, send update
-        if (tdma_engine.getCurrentSlot() == 0) {
-            bool got_command = true;
-            for (int i=0; i<got_commands.size(); i++) {
-                if (got_commands[i] == false) {
-                    got_command = false;
-                    break;
+            // if our slot, send update
+            if (tdma_engine.getCurrentSlot() == 0) {
+                bool got_command = true;
+                for (int i=0; i<got_commands.size(); i++) {
+                    if (got_commands[i] == false) {
+                        got_command = false;
+                        break;
+                    }
+                }
+                if (got_command) {
+                    std::string bytes;
+                    codec->encode(&bytes, dccl_command);
+                    cout << "Transmitting: " << endl;
+                    cout << dccl_command.DebugString() << endl;
+                    dccl_command.Clear();
+                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+                } else {
+                    stringstream ss;
+                    ss << "shoreside has no command to send" << endl;
+                    cout << ss.str() << endl;
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
                 }
             }
-            if (got_command) {
-                std::string bytes;
-                codec->encode(&bytes, dccl_command);
-                cout << "Transmitting: " << endl;
-                cout << dccl_command.DebugString() << endl;
-                dccl_command.Clear();
-                m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
-            } else {
-                stringstream ss;
-                ss << "shoreside has no command to send" << endl;
-                cout << ss.str() << endl;
-                m_Comms.Notify("PURSUIT_ERROR", ss.str());
-            }
-        }
 
-        int slot = tdma_engine.getCurrentSlot();
-        if (!got_receive && (slot==2 || slot==3 || slot==4)) {
-            cout << "Missed receive before slot " << slot << endl;
-            stringstream ss;
-            ss << slot-1 << ":0:0:";
-            ss << tdma_engine.getCycleCount();
-            m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+            int slot = tdma_engine.getCurrentSlot();
+            if (!got_receive && (slot==2 || slot==3 || slot==4)) {
+                cout << "Missed receive before slot " << slot << endl;
+                stringstream ss;
+                ss << slot-1 << ":0:0:";
+                ss << tdma_engine.getCycleCount();
+                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+            } else {
+                got_receive = false;
+            }
         } else {
-            got_receive = false;
+            int slot = tdma_engine.getCurrentSlot();
+
+            if (slot==1 || slot==4 || slot==5) {
+                got_commands = vector<bool>(3,false);
+                cout << "clearing command buffer" << endl;
+            }
+
+            // if command slot, send update
+            if (slot == 0) {
+                if (got_commands[0]) {
+                    std::string bytes;
+                    codec->encode(&bytes, dccl_command);
+                    cout << "Transmitting: " << endl;
+                    cout << dccl_command.DebugString() << endl;
+                    dccl_command.Clear();
+                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+                } else {
+                    stringstream ss;
+                    ss << "shoreside has no command to send for id 1" << endl;
+                    cout << ss.str() << endl;
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
+            } else if (slot == 3) {
+                if (got_commands[1]) {
+                    std::string bytes;
+                    codec->encode(&bytes, dccl_command);
+                    cout << "Transmitting: " << endl;
+                    cout << dccl_command.DebugString() << endl;
+                    dccl_command.Clear();
+                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+                } else {
+                    stringstream ss;
+                    ss << "shoreside has no command to send for id 2" << endl;
+                    cout << ss.str() << endl;
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
+            } else if (slot == 6) {
+                if (got_commands[2]) {
+                    std::string bytes;
+                    codec->encode(&bytes, dccl_command);
+                    cout << "Transmitting: " << endl;
+                    cout << dccl_command.DebugString() << endl;
+                    dccl_command.Clear();
+                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+                } else {
+                    stringstream ss;
+                    ss << "shoreside has no command to send for id 3" << endl;
+                    cout << ss.str() << endl;
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
+            }
+
+            // doing receives
+            if (!got_receive && (slot==2 || slot==5 || slot==8)) {
+                cout << "Missed receive before slot " << slot << endl;
+                int id;
+                switch (slot) {
+                case 2:
+                    id = 1;
+                    break;
+                case 5:
+                    id = 2;
+                    break;
+                case 8:
+                    id=3;
+                    break;
+                }
+
+                stringstream ss;
+                ss << id << ":0:0:";
+                ss << tdma_engine.getCycleCount();
+                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+            } else {
+                got_receive = false;
+            }
         }
     }
 
