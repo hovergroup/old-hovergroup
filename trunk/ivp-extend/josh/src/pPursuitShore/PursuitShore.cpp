@@ -228,8 +228,20 @@ bool PursuitShore::Iterate() {
             int slot = tdma_engine.getCurrentSlot();
             if (!got_receive && (slot==3 || slot==5 || slot==7)) {
                 cout << "Missed receive before slot " << slot << endl;
+                int id;
+                switch (slot) {
+                case 3:
+                    id = 1;
+                    break;
+                case 5:
+                    id = 2;
+                    break;
+                case 7:
+                    id=3;
+                    break;
+                }
                 stringstream ss;
-                ss << slot-1 << ":0:0:";
+                ss << id << ":0:0:";
                 ss << tdma_engine.getCycleCount();
                 m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
             } else {
