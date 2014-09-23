@@ -189,9 +189,16 @@ bool PursuitShore::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
         if (multicast) {
-            if (tdma_engine.getCurrentSlot() == 3) {
+            if (tdma_engine.getCurrentSlot() == 5) {
                 got_commands = vector<bool>(3,false);
                 cout << "clearing command buffer" << endl;
+            }
+
+            if (tdma_engine.getCurrentSlot() == 1) {
+                stringstream ss1;
+                ss1 << "-1:-1:-1:";
+                ss1 << tdma_engine.getCycleCount();
+                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss1.str());
             }
 
             // if our slot, send update
@@ -219,7 +226,7 @@ bool PursuitShore::Iterate() {
             }
 
             int slot = tdma_engine.getCurrentSlot();
-            if (!got_receive && (slot==2 || slot==3 || slot==4)) {
+            if (!got_receive && (slot==3 || slot==5 || slot==7)) {
                 cout << "Missed receive before slot " << slot << endl;
                 stringstream ss;
                 ss << slot-1 << ":0:0:";
