@@ -23,6 +23,7 @@ Processconfig = ANTLER
   Run = pResourceMon           @ NewConsole = false
   Run = pAckedCommsVehicle     @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
+  Run = pPursuitShore          @ NewConsole = false
 }
 
 ProcessConfig = uTimerScript_Config
