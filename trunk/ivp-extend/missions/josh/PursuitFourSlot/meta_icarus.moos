@@ -96,4 +96,6 @@ ProcessConfig = pPursuitShore
         length=5,name=report3
         length=2,name=compute
     </tdma>
+    
+    command_mode = multicast
 }
