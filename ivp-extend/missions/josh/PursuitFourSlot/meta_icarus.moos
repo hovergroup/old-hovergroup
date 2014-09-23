@@ -90,9 +90,12 @@ ProcessConfig = pPursuitShore
     MaxAppTick  = 0    // no limit
 
     <tdma>
-        length=7,name=command
-        length=7,name=report1
-        length=7,name=report2
+        length=6,name=command
+        length=1,name=placeholder0
+        length=6,name=report1
+        length=1,name=placeholder1
+        length=6,name=report2
+        length=1,name=placeholder2
         length=5,name=report3
         length=2,name=compute
     </tdma>

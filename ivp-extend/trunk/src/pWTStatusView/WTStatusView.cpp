@@ -104,7 +104,7 @@ void StatusViewApplication::reDraw(int num_vehicles) {
     tableTexts[pair<int, int>(RADIO_STATE_ROW, 0)]->setText("Radio Mode");
     tableTexts[pair<int, int>(NSF_POWER_LEVEL_ROW, 0)]->setText(
             "NSF Power Level");
-    tableTexts[pair<int, int>(THRUST_LIMIT_ROW, 0)]->setText("Thrust Limit");
+    tableTexts[pair<int, int>(THRUST_LIMIT_ROW, 0)]->setText("Thrust");
     tableTexts[pair<int, int>(CPU_MEM_ROW, 0)]->setText("cpu% / mem%");
     tableTexts[pair<int, int>(ERRORS_ROW, 0)]->setText("Other Errors");
 
@@ -371,10 +371,11 @@ void StatusViewApplication::update() {
 
         // ---------------- thrust limit -------------------
         if (type == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
-            stringstream kayak_thrust_limit;
-            kayak_thrust_limit << data[vname].thrust_limit();
+            stringstream kayak_thrust;
+            kayak_thrust << data[vname].thrust() <<
+                    "/" << data[vname].thrust_limit();
             tableTexts[pair<int, int>(THRUST_LIMIT_ROW, col + 1)]->setText(
-                    kayak_thrust_limit.str());
+                    kayak_thrust.str());
             if (data[vname].thrust_limit() == 1000) {
                 table->elementAt(THRUST_LIMIT_ROW, col + 1)->setStyleClass(
                         "green center");

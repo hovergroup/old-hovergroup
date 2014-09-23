@@ -162,6 +162,8 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             nr.set_nsf_power_level((int) msg.GetDouble());
         } else if (key == "THRUST_LIMIT") {
             nr.set_thrust_limit((int) msg.GetDouble());
+        } else if (key == "ARDUINO_THRUST") {
+            nr.set_thrust((int) msg.GetDouble());
         } else if (key == "CPU_PERCENT_USE") {
             nr.set_cpu_percent_use((int) msg.GetDouble());
         } else if (key == "MEM_PERCENT_USE") {
@@ -361,6 +363,7 @@ void ProtoReporter::RegisterVariables() {
     case ProtoNodeReport_PlatformTypeEnum_KAYAK:
         m_Comms.Register("VOLTAGE", 0);
         m_Comms.Register("THRUST_LIMIT", 0);
+        m_Comms.Register("ARDUINO_THRUST", 0);
         m_Comms.Register("RADIO_POWER", 0);
         break;
     case ProtoNodeReport_PlatformTypeEnum_ICARUS:
