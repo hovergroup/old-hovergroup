@@ -39,6 +39,8 @@ private:
     std::vector<int> receive_counts;
     std::vector<bool> got_commands;
     bool got_receive;
+
+    bool multicast;  // otherwise interleaved
 };
 
 #endif 

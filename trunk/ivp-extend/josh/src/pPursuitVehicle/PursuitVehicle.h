@@ -49,6 +49,8 @@ private:
     double current_x, current_y;
     double initial_x, initial_y;
     double m_project_time, m_min_speed;
+
+    bool multicast;
 };
 
 #endif 

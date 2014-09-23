@@ -34,6 +34,7 @@ PursuitVehicle::PursuitVehicle() {
     }
 
     dccl_report.set_ack(false);
+    multicast = true;
 }
 
 //---------------------------------------------------------
@@ -76,8 +77,16 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
             HoverAcomms::AcommsReception reception;
             // try to parse acomms message
             if (reception.parseFromString(msg.GetString())) {
+                bool proceed = true;
+                if (!multicast) {
+                    if (tdma_engine.getCurrentSlot() != m_id*2 - 2) {
+                        proceed = false;
+                    }
+                }
                 // check source and status
-                if (reception.getSource() == 4 && reception.getStatus() == HoverAcomms::GOOD) {
+                if (reception.getSource() == 4 &&
+                        reception.getStatus() == HoverAcomms::GOOD
+                        && proceed) {
 
                     // perform decode
                     PursuitCommandDCCL cmd;
@@ -129,6 +138,15 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
 // Procedure: OnConnectToServer
 
 bool PursuitVehicle::OnConnectToServer() {
+    string mode;
+    m_MissionReader.GetConfigurationParam("command_mode", mode);
+    MOOSToUpper(mode);
+    if (mode == "MULTICAST") {
+        multicast = true;
+    } else if (mode == "INTERLEAVED") {
+        multicast = false;
+    }
+
     string test_param;
     m_MissionReader.GetConfigurationParam("id", m_id);
     m_MissionReader.GetConfigurationParam("positive_x", positive_x);
@@ -201,16 +219,32 @@ bool PursuitVehicle::Iterate() {
 //        dccl_report.set_x_history(m_navx);
 //        dccl_report.set_y_history(m_navy);
 
-        if (tdma_engine.getCurrentSlot() == 1) {
-            if (dccl_report.ack()) {
-                m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
-            } else {
-                m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 0.0);
+        if (multicast) {
+            if (tdma_engine.getCurrentSlot() == 1) {
+                if (dccl_report.ack()) {
+                    m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
+                } else {
+                    m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 0.0);
+                }
+            }
+        } else {
+            if (tdma_engine.getCurrentSlot() == m_id*2 -1) {
+                if (dccl_report.ack()) {
+                    m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
+                } else {
+                    m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 0.0);
+                }
             }
         }
 
 // if our slot, send update< " Speed: " << desired_speed << endl;
-        if (tdma_engine.getCurrentSlot() == m_id) {
+        bool transmit = false;
+        if (multicast && tdma_engine.getCurrentSlot() == m_id)
+            transmit = true;
+        if (!multicast && tdma_engine.getCurrentSlot() == m_id*2-1)
+            transmit = true;
+
+        if (transmit) {
             dccl_report.set_id(m_id);
 
             std::string bytes;
