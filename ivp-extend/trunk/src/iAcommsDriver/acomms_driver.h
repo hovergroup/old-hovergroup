@@ -41,7 +41,7 @@ protected:
     google::protobuf::uint32 my_id;
     std::string port_name, my_name;
     bool use_psk_for_minipackets, enable_one_way_ranging, enable_range_pulses;
-    bool in_sim, enable_legacy, m_useScheduler;
+    bool in_sim, m_useScheduler;
 
     // constants for range pulses
     static const double transmission_pulse_range = 30;
