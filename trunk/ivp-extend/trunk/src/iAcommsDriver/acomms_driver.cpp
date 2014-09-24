@@ -476,11 +476,14 @@ void acomms_driver::handle_data_receive(
 
         micromodem::protobuf::ReceiveStatistics stat =
                 reception.getStatistics(1);
-        m_Comms.Notify("ACOMMS_SNR_OUT", (double) stat.snr_out());
-        m_Comms.Notify("ACOMMS_SNR_IN", (double) stat.snr_in());
-        m_Comms.Notify("ACOMMS_DQF", (double) stat.data_quality_factor());
-        m_Comms.Notify("ACOMMS_STDDEV_NOISE", (double) stat.stddev_noise());
-        m_Comms.Notify("ACOMMS_MSE", (double) stat.mse_equalizer());
+        m_Comms.Notify("ACOMMS_STATS_SNR_OUT", (double) stat.snr_out());
+        m_Comms.Notify("ACOMMS_STATS_SNR_IN", (double) stat.snr_in());
+        m_Comms.Notify("ACOMMS_STATS_DQF", (double) stat.data_quality_factor());
+        m_Comms.Notify("ACOMMS_STATS_STDDEV_NOISE", (double) stat.stddev_noise());
+        m_Comms.Notify("ACOMMS_STATS_MSE", (double) stat.mse_equalizer());
+        m_Comms.Notify("ACOMMS_STATS_DOPPLER", (double) stat.doppler());
+        m_Comms.Notify("ACOMMS_STATS_SPL", (double) stat.spl());
+        m_Comms.Notify("ACOMMS_STATS_PSK_ERROR_CODE", (double) stat.psk_error_code());
 
         m_Comms.Notify("ACOMMS_RECEIVED_STATUS", (double) status);
         m_Comms.Notify("ACOMMS_BAD_FRAMES", reception.getBadFrameListing());
