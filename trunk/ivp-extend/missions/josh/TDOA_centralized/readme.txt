@@ -1,0 +1,26 @@
+post to TDOA_WAYPOINT_UPDATES:
+points=x,y
+
+post to TDOA_ACTION
+STATION or WAYPOINT
+
+monitor PURSUIT_ERROR
+
+TDMA_SLOT
+TDMA_CYCLE_COUNT
+TDMA_CYCLE_NUMBER
+TDOA_RECEIVE_COUNTS
+TDOA_COMMAND_RECEIVED
+TDOA_WAYPOINT_X
+TDOA_WAYPOINT_Y
+
+interface to matlab on PURSUIT_VEHICLE_REPORT and PURSUIT_VEHICLE_COMMAND
+
+
+Baseline Mission Configuration
+
+Additional capabilities not setup in uTermCommand
+
+1)  Constant Heading Behavior
+    set MISSION_MODE = CONSTANT
+    updates CONST_SPEED_UPDATES and CONST_HEADING_UPDATES
