@@ -37,3 +37,29 @@ message TDOAPSK1
     
     repeated TDOAData data = 1  [(dccl.field).max_repeat=3];
 } 
+
+message TDOATrio {
+    required int32 id = 1    [(dccl.field).max=3,
+                              (dccl.field).min=1,
+                              (dccl.field).precision=0];
+    required double x = 2    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    required double y = 3    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+}
+
+message TDOAReportDCCL {
+    option (dccl.msg).id = 126;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated TDOATrio data = 1     [(dccl.field).max_repeat=3];
+}
+
+message TDOACommandDCCL {
+    option (dccl.msg).id = 125;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated TDOATrio data = 1     [(dccl.field).max_repeat=3];
+}
