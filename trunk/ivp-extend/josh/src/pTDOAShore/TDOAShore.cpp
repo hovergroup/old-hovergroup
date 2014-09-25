@@ -111,11 +111,13 @@ bool TDOAShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                         report_struct.slot = reception.getSource();
                         for (int i=0; i<report.data_size(); i++) {
                             int id = report.data(i).id();
-                            if (!sent_reports[id-1]) {
-                                report_struct.status[id] = 1;
-                                report_struct.x[id] = report.data(i).x();
-                                report_struct.y[id] = report.data(i).y();
-                                sent_reports[id-1] = true;
+                            if (id != 0) {
+                                if (!sent_reports[id-1]) {
+                                    report_struct.status[id] = 1;
+                                    report_struct.x[id] = report.data(i).x();
+                                    report_struct.y[id] = report.data(i).y();
+                                    sent_reports[id-1] = true;
+                                }
                             }
                         }
 
@@ -163,6 +165,7 @@ bool TDOAShore::Iterate() {
 
         if (slot == 4) {
             got_commands = vector<bool>(3,false);
+            dccl_command.Clear();
             cout << "clearing command buffer" << endl;
         }
 

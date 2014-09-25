@@ -97,6 +97,7 @@ bool TDOAVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                                     m_Comms.Notify("TDOA_COMMAND_RECEIVED", 1.0);
                                     cout << "Got new command: " << cmd.data(i).x()
                                             << "," << cmd.data(i).y() << endl;
+                                    got_command = true;
                                     break;
                                 }
                             }
@@ -188,6 +189,11 @@ bool TDOAVehicle::Iterate() {
 
         if (slot == 0) {
             dccl_report.Clear();
+            if (!got_command) {
+                m_Comms.Notify("TDOA_COMMAND_RECEIVED", 0.0);
+                cout << "Missed command" << endl;
+            }
+            got_command = false;
         }
 
         if (slot == 1) {
