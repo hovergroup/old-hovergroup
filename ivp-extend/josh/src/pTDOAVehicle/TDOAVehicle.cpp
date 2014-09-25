@@ -95,6 +95,8 @@ bool TDOAVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                                     m_Comms.Notify("TDOA_WAYPOINT_X", cmd.data(i).x());
                                     m_Comms.Notify("TDOA_WAYPOINT_Y", cmd.data(i).y());
                                     m_Comms.Notify("TDOA_COMMAND_RECEIVED", 1.0);
+                                    cout << "Got new command: " << cmd.data(i).x()
+                                            << "," << cmd.data(i).y() << endl;
                                     break;
                                 }
                             }
