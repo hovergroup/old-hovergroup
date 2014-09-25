@@ -193,6 +193,7 @@ bool TDOAVehicle::Iterate() {
             trio->set_id(m_id);
             trio->set_x(m_navx);
             trio->set_y(m_navy);
+            cout << "Saving nav" << endl;
         }
 
         if (slot == m_id+1) {
