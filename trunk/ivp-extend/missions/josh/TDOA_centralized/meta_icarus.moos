@@ -23,7 +23,7 @@ Processconfig = ANTLER
   Run = pResourceMon           @ NewConsole = false
   Run = pAckedCommsVehicle     @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
-  //Run = pPursuitShore          @ NewConsole = false
+  //Run = pTDOAShore          @ NewConsole = false
 }
 
 ProcessConfig = uTimerScript_Config
@@ -98,6 +98,4 @@ ProcessConfig = pTDOAShore
         length=2,name=compute
         length=7,name=command
     </tdma>
-    
-    command_mode = multicast
 }

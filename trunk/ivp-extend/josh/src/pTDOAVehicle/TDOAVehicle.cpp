@@ -91,7 +91,7 @@ bool TDOAVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                                     ss1 << "points = " << cmd.data(i).x() <<
                                             "," << cmd.data(i).y();
                                     m_Comms.Notify("TDOA_WAYPOINT_UPDATES", ss1.str());
-                                    m_Comms.Notify("TDOA_ACTION", ss1.str());
+                                    m_Comms.Notify("TDOA_ACTION", "WAYPOINT");
                                     m_Comms.Notify("TDOA_WAYPOINT_X", cmd.data(i).x());
                                     m_Comms.Notify("TDOA_WAYPOINT_Y", cmd.data(i).y());
                                     m_Comms.Notify("TDOA_COMMAND_RECEIVED", 1.0);
