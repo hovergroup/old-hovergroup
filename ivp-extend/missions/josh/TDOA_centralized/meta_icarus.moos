@@ -52,8 +52,8 @@ ProcessConfig = pShare
     output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
     output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
     output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
-    output = PURSUIT_VEHICLE_REPORT->$(SHOREHOST):$(SLPORT)
-    output = PURSUIT_ERROR->$(SHOREHOST):$(SLPORT)
+    output = TDOA_VEHICLE_REPORT->$(SHOREHOST):$(SLPORT)
+    output = TDOA_ERROR->$(SHOREHOST):$(SLPORT)
   
     input = route=$(VHOST):$(LPORT) 
 }
