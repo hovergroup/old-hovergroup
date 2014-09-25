@@ -113,8 +113,8 @@ bool TDOAShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                             int id = report.data(i).id();
                             if (!sent_reports[id-1]) {
                                 report_struct.status[id] = 1;
-                                report_struct.x[i] = report.data(i).x();
-                                report_struct.y[i] = report.data(i).y();
+                                report_struct.x[id] = report.data(i).x();
+                                report_struct.y[id] = report.data(i).y();
                                 sent_reports[id-1] = true;
                             }
                         }
@@ -220,9 +220,11 @@ bool TDOAShore::Iterate() {
                 id=3;
                 break;
             }
-            report_struct.slot = id;
             report_struct.reset();
+            report_struct.slot = id;
+            report_struct.status[id] = 0;
             m_Comms.Notify("TDOA_VEHICLE_REPORT", report_struct.serialize());
+            report_struct.reset();
         }
 
         got_receive = false;
