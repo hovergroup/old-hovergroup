@@ -158,7 +158,6 @@ bool TDOAShore::Iterate() {
         m_Comms.Notify("TDMA_SLOT", tdma_engine.getCurrentSlot());
         m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
-        got_receive = false;
 
         int slot = tdma_engine.getCurrentSlot();
 
@@ -224,9 +223,9 @@ bool TDOAShore::Iterate() {
             report_struct.slot = id;
             report_struct.reset();
             m_Comms.Notify("TDOA_VEHICLE_REPORT", report_struct.serialize());
-        } else {
-            got_receive = false;
         }
+
+        got_receive = false;
     }
 
     return (true);
