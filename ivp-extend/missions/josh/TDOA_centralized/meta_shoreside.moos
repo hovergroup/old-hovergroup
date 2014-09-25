@@ -67,7 +67,7 @@ ProcessConfig = pAckedCommsShoreside
     BRIDGE = var=MOOS_MANUAL_OVERRIDE,repeat=5,delay=0.5
     BRIDGE = var=GOTO_UPDATES,repeat=5,delay=0.5
     BRIDGE = var=SCHEDULED_TRANSMITS,repeat=5,delay=0.5
-    BRIDGE = var=PURSUIT_COMMAND,repeat=5,delay=0.5
+    BRIDGE = var=TDOA_COMMAND,repeat=5,delay=0.5
 }
 
 
@@ -111,10 +111,10 @@ ProcessConfig = uTermCommand_Hover
     CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
     
     // pursuit
-    CMD = RUN_PURSUIT --> PURSUIT_COMMAND_ALL --> run
-    CMD = STOP_PURSUIT --> PURSUIT_COMMAND_ALL --> stop
-    CMD = RESET_PURSUIT --> PURSUIT_COMMAND_ALL --> reset
+    CMD = RUN_TDOA --> TDOA_COMMAND_ALL --> run
+    CMD = STOP_TDOA --> TDOA_COMMAND_ALL --> stop
+    CMD = RESET_TDOA --> TDOA_COMMAND_ALL --> reset
     
     // pursuit behavior
-    CMD = PURSUIT_BEHAVIOR --> MISSION_MODE_ALL --> PURSUIT
+    CMD = TDOA_BEHAVIOR --> MISSION_MODE_ALL --> TDOA
 }

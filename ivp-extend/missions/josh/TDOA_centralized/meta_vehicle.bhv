@@ -1,25 +1,25 @@
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
-initialize   PURSUIT_ACTION = STATION
+initialize   TDOA_ACTION = STATION
 
 
 Behavior = BHV_Waypoint_Hover
 { 
-    name       = pursuit_waypoint
+    name       = tdoa_waypoint
     pwt        = 100
-    condition  = MISSION_MODE = PURSUIT
-    condition  = PURSUIT_ACTION = WAYPOINT
-    endflag    = PURSUIT_ACTION = STATION
+    condition  = MISSION_MODE = TDOA
+    condition  = TDOA_ACTION = WAYPOINT
+    endflag    = TDOA_ACTION = STATION
     perpetual  = true
-    updates    = PURSUIT_WAYPOINT_UPDATES
+    updates    = TDOA_WAYPOINT_UPDATES
 
     lead          = 15
     lead_to_start = true
     lead_damper   = 1
-    speed         = $(CRUISESPEED)
-    radius        = 2
-    slip_radius   = 3
+    speed         = 1.2
+    radius        = 3
+    slip_radius   = 5
     points        = $(RETURN_PT)
     repeat        = 1
     visual_hints  = nextpt_color=red, nextpt_lcolor=green
@@ -27,21 +27,19 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_size=2, edge_size=1
     
     trackpoint_heading_cutoff = 30
-    skip_first_waypoint = true
 }
 
 Behavior = BHV_StationKeep
 {
-    name             = pursuit_station
+    name             = tdoa_station
     pwt              = 100
-    condition        = MISSION_MODE = PURSUIT
-    condition        = PURSUIT_ACTION = STATION
-    center_activate  = false  // must change depending on if projection is used
-    updates = PURSUIT_STATION_UPDATES // only needed for projection
+    condition        = MISSION_MODE = TDOA
+    condition        = TDOA_ACTION = STATION
+    center_activate  = true
     
     station_pt    = 0,0
-    inner_radius  = 1
-    outer_radius  = 2
+    inner_radius  = 3
+    outer_radius  = 5
     outer_speed   = 0.5
     transit_speed = 0.5
     swing_time    = 3

@@ -108,17 +108,19 @@ bool TDOAShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                         cout << "received data: " << endl;
                         cout << report.DebugString() << endl;
 
+                        report_struct.slot = reception.getSource();
                         for (int i=0; i<report.data_size(); i++) {
-                            if (!sent_reports[report.data(i).id()]) {
-                                ss.str("");
-                                ss << report.data(i).id() << ",";
-                                ss << tdma_engine.getCycleNumber() << ",1,";
-                                ss << report.data(i).x() << ",";
-                                ss << report.data(i).y();
-                                m_Comms.Notify("TDOA_VEHICLE_REPORT", ss.str());
-                                sent_reports[report.data(i).id()] = true;
+                            int id = report.data(i).id();
+                            if (!sent_reports[id-1]) {
+                                report_struct.status[id] = 1;
+                                report_struct.x[i] = report.data(i).x();
+                                report_struct.y[i] = report.data(i).y();
+                                sent_reports[id-1] = true;
                             }
                         }
+
+                        m_Comms.Notify("TDOA_VEHICLE_REPORT", report_struct.serialize());;
+                        report_struct.reset();
 
                         got_receive = true;
                     }
@@ -166,17 +168,18 @@ bool TDOAShore::Iterate() {
         }
 
         if (slot == 0) {
+            report_struct.reset();
+            report_struct.cycle = tdma_engine.getCycleNumber();
             sent_reports = vector<bool>(3,false);
             cout << "clearing report record" << endl;
         }
 
         // range ping timing
         if (slot == 1) {
-            stringstream ss1;
-            ss1 << "0,";
-            ss1 << tdma_engine.getCycleNumber();
-            ss1 << "0,-1,-1";
-            m_Comms.Notify("TDOA_VEHICLE_REPORT", ss1.str());
+            report_struct.slot = 0;
+            report_struct.status[0] = 1;
+            m_Comms.Notify("TDOA_VEHICLE_REPORT", report_struct.serialize());
+            report_struct.status[0] = -1;
         }
 
         // if our slot, send update
@@ -218,11 +221,9 @@ bool TDOAShore::Iterate() {
                 id=3;
                 break;
             }
-            stringstream ss;
-            ss << id << ",";
-            ss << tdma_engine.getCycleCount();
-            ss << "0,-1,-1";
-            m_Comms.Notify("TDOA_VEHICLE_REPORT", ss.str());
+            report_struct.slot = id;
+            report_struct.reset();
+            m_Comms.Notify("TDOA_VEHICLE_REPORT", report_struct.serialize());
         } else {
             got_receive = false;
         }
