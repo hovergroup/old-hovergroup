@@ -65,7 +65,7 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 		} else if (key == "DESIRED_THRUST" ) {
 			m_desired_thrust = mapThrust( roundFloat( msg.GetDouble() ) );
 			m_last_command_time = MOOSTime();
-		} else if (key == "RADIO_POWER" && msg.GetSource()!=GetAppName()) {
+		} else if (key == "RADIO_POWER_COMMAND" && msg.GetSource()!=GetAppName()) {
 			bool freewave, valid;
 			if (MOOSToUpper(msg.GetString()) == "FREEWAVE") {
 				freewave = true;
@@ -88,6 +88,7 @@ bool kayak_driver::OnNewMail(MOOSMSG_LIST &NewMail)
 						setRadioPower(false);
 						m_usingFreewave = false;
 					}
+					postRadioPowerIsUnlocked();
 					m_radioSetTime = MOOSTime();
 				}
 				// waiting for confirmation & got confirmation
@@ -135,6 +136,13 @@ bool kayak_driver::Iterate()
 		postRadioPowerIsLocked();
 	}
 	return(true);
+}
+
+void kayak_driver::postRadioPowerIsUnlocked() {
+    if (m_usingFreewave)
+        m_Comms.Notify("RADIO_POWER", "freewave_unlocked");
+    else
+        m_Comms.Notify("RADIO_POWER", "bullet_unlocked");
 }
 
 void kayak_driver::postRadioPowerIsLocked() {
@@ -200,7 +208,7 @@ void kayak_driver::RegisterVariables()
 {
 	m_Comms.Register("DESIRED_RUDDER", 0);
 	m_Comms.Register("DESIRED_THRUST", 0);
-	m_Comms.Register("RADIO_POWER", 0);
+	m_Comms.Register("RADIO_POWER_COMMAND", 0);
 
 	m_Comms.Register("RUDDER_OFFSET", 0);
 }
