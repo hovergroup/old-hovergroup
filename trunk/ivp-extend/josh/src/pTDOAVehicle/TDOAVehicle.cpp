@@ -125,16 +125,19 @@ bool TDOAVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
 
                         if (decode_okay) {
                             for (int i=0; i<report.data_size(); i++) {
-                                bool already_have = false;
-                                for (int j=0; j<dccl_report.data_size(); j++) {
-                                    if (report.data(i).id() == dccl_report.data(j).id()) {
-                                        already_have = true;
-                                        break;
+                                int id = report.data(i).id();
+                                if (id != 0) {
+                                    bool already_have = false;
+                                    for (int j=0; j<dccl_report.data_size(); j++) {
+                                        if (report.data(i).id() == dccl_report.data(j).id()) {
+                                            already_have = true;
+                                            break;
+                                        }
                                     }
-                                }
 
-                                if (!already_have) {
-                                    dccl_report.add_data()->CopyFrom(report.data(i));
+                                    if (!already_have) {
+                                        dccl_report.add_data()->CopyFrom(report.data(i));
+                                    }
                                 }
                             }
 
