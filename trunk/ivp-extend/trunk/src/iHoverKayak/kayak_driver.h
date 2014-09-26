@@ -92,6 +92,7 @@ private:
 	void setRadioPower(bool freewave);
 
 	void postRadioPowerIsLocked();
+	void postRadioPowerIsUnlocked();
 };
 
 #endif
