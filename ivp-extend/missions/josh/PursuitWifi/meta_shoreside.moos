@@ -37,12 +37,22 @@ ProcessConfig = uTimerScript_Config
   event = var=NAV_Y,val=0,time=1
   event = quit, time=2
 }
-
-#include ../../trunk/plugs/plug_uTermCommand_Hover.moos
-#include ../../trunk/plugs/plug_pShareS.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pMarineViewer.moos
 #include ../../trunk/plugs/plug_pResourceMon.moos
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4    // iterate lower bound
+  
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME4)->ACKEDCOMMS_TRANSMIT:$(VHOST4):$(LPORT4)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME3)->ACKEDCOMMS_TRANSMIT:$(VHOST3):$(LPORT3)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME2)->ACKEDCOMMS_TRANSMIT:$(VHOST2):$(LPORT2)
+    output = ACKEDCOMMS_TRANSMIT_$(VNAME1)->ACKEDCOMMS_TRANSMIT:$(VHOST1):$(LPORT1)
+  
+    input = route=localhost:$(LPORT)
+}
 
 ProcessConfig = pAckedCommsShoreside
 {
@@ -50,12 +60,98 @@ ProcessConfig = pAckedCommsShoreside
     AppTick     = 20    // iterate lower bound
     MaxAppTick  = 0    // no limit
     
-    vehicles = NOSTROMO,SILVANA,KESTREL,ICARUS
+    vehicles = NOSTROMO,SILVANA,KESTREL
     
     BRIDGE = var=MISSION_MODE,repeat=5,delay=0.5
     BRIDGE = var=MOOS_MANUAL_OVERRIDE,repeat=5,delay=0.5
     BRIDGE = var=GOTO_UPDATES,repeat=5,delay=0.5
     BRIDGE = var=SCHEDULED_TRANSMITS,repeat=5,delay=0.5
+    BRIDGE = var=PURSUIT_COMMAND,repeat=5,delay=0.5
     BRIDGE = var=PURSUIT_WAYPOINT_UPDATES,repeat=5,delay=0.5
     BRIDGE = var=PURSUIT_ACTION,repeat=5,delay=0.5
+    BRIDGE = var=PURSUIT_STATION_UPDATES,repeat=5,delay=0.5
+}
+
+
+ProcessConfig = uTermCommand_Hover
+{
+    AppTick = 2
+    CommsTick = 2
+
+    // nostromo goto
+    CMD = NG --> MISSION_MODE_NOSTROMO --> GOTO
+    CMD = NG --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> false
+    // nostromo station
+    CMD = NS --> MISSION_MODE_NOSTROMO --> STATION-KEEP
+    CMD = NS --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> false
+    // nostromo all-stop
+    CMD = NA --> MISSION_MODE_NOSTROMO --> INACTIVE
+    CMD = NA --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> true
+
+    // silvana goto
+    CMD = SG --> MISSION_MODE_SILVANA --> GOTO
+    CMD = SG --> MOOS_MANUAL_OVERRIDE_SILVANA --> false
+    // silvana station
+    CMD = SS --> MISSION_MODE_SILVANA --> STATION-KEEP
+    CMD = SS --> MOOS_MANUAL_OVERRIDE_SILVANA --> false
+    // silvana all-stop
+    CMD = SA --> MISSION_MODE_SILVANA --> INACTIVE
+    CMD = SA --> MOOS_MANUAL_OVERRIDE_SILVANA --> true
+
+    // kestrel goto
+    CMD = KG --> MISSION_MODE_KESTREL --> GOTO
+    CMD = KG --> MOOS_MANUAL_OVERRIDE_KESTREL --> false
+    // kestrel station
+    CMD = KS --> MISSION_MODE_KESTREL --> STATION-KEEP
+    CMD = KS --> MOOS_MANUAL_OVERRIDE_KESTREL --> false
+    // kestrel all-stop
+    CMD = KA --> MISSION_MODE_KESTREL --> INACTIVE
+    CMD = KA --> MOOS_MANUAL_OVERRIDE_KESTREL --> true
+    
+    // scheduled transmits
+    CMD = ENABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> on
+    CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
+    
+    // pursuit
+    CMD = RUN_PURSUIT --> PURSUIT_COMMAND_ALL --> run
+    CMD = STOP_PURSUIT --> PURSUIT_COMMAND_ALL --> stop
+    CMD = RESET_PURSUIT --> PURSUIT_COMMAND_ALL --> reset
+    
+    // pursuit behavior
+    CMD = PURSUIT_BEHAVIOR --> MISSION_MODE_ALL --> PURSUIT
+}
+
+ProcessConfig = pPursuitWifi
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    <tdma>
+        length=7,name=mainslot
+    </tdma>
+    
+positive_x_nostromo = 	247.5
+positive_y_nostromo =	-331.5544457
+negative_x_nostromo =	72.5
+negative_y_nostromo =	-28.44555434
+initial_x_nostromo =	160
+initial_y_nostromo =	-180
+	
+positive_x_silvana = 	267.5
+positive_y_silvana =	-321.5544457
+negative_x_silvana =	92.5
+negative_y_silvana =	-18.44555434
+initial_x_silvana =	180
+initial_y_silvana =	-170
+	
+positive_x_kestrel = 	287.5
+positive_y_kestrel =	-311.5544457
+negative_x_kestrel =	112.5
+negative_y_kestrel =	-8.445554338
+initial_x_kestrel =	200
+initial_y_kestrel =	-160
+    
+    project_time = 7
+    min_speed = 0.5
 }

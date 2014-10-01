@@ -81,7 +81,8 @@ if [ "${HELP}" = "yes" ]; then
     printf "  --kestrel                      kestrel vehicle only   \n"
     printf "  --altimeter=tritech/cruzpro    enable specfied depths sounder\n"
     printf "  --just_build, -j       \n" 
-    printf "  --help, -h             \n" 
+    printf "  --help, -h     
+SOFT_CONFIG["NOSTROMO:ACOMMSID"]="3"        \n" 
     printf "  --sim             \n" 
     exit 0;
 fi
@@ -171,6 +172,7 @@ else
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
             SLPORT=$SLPORT
+            
             
         nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \

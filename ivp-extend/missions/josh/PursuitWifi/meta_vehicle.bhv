@@ -1,7 +1,8 @@
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
-initialize   PURSUIT_ACTION = WAYPOINT
+initialize   PURSUIT_ACTION = STATION
+
 
 Behavior = BHV_Waypoint_Hover
 { 
@@ -17,8 +18,8 @@ Behavior = BHV_Waypoint_Hover
     lead_to_start = true
     lead_damper   = 1
     speed         = $(CRUISESPEED)
-    radius        = 4.0
-    slip_radius   = 10.0
+    radius        = 2
+    slip_radius   = 3
     points        = $(RETURN_PT)
     repeat        = 1
     visual_hints  = nextpt_color=red, nextpt_lcolor=green
@@ -26,6 +27,7 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_size=2, edge_size=1
     
     trackpoint_heading_cutoff = 30
+    skip_first_waypoint = true
 }
 
 Behavior = BHV_StationKeep
@@ -34,12 +36,14 @@ Behavior = BHV_StationKeep
     pwt              = 100
     condition        = MISSION_MODE = PURSUIT
     condition        = PURSUIT_ACTION = STATION
-    center_activate  = true
+    center_activate  = false  // must change depending on if projection is used
+    updates = PURSUIT_STATION_UPDATES // only needed for projection
     
     station_pt    = 0,0
-    inner_radius  = 2
-    outer_radius  = 5
-    outer_speed   = 1.0
+    inner_radius  = 1
+    outer_radius  = 2
+    outer_speed   = 0.5
+    transit_speed = 0.5
     swing_time    = 3
 }
 

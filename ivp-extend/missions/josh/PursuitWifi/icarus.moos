@@ -14,7 +14,7 @@ ProcessConfig = iAcommsDriver
     AppTick     = 5
 
     PortName = /dev/ttyUSB0
-    ID       = 1
+    ID       = 4
 
     PSK_minipackets   = false
     enable_ranging    = true
