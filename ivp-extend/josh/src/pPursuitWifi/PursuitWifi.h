@@ -26,14 +26,26 @@ protected:
     bool OnConnectToServer();
     bool OnStartUp();
 
+    void runCommands();
+
 private:
     // Configuration variables
 
 private:
     JoshUtil::TDMAEngine tdma_engine;
 
+    std::vector<std::string> names;
+
     std::vector<double> m_navx, m_navy;
     std::vector<double> m_waypointx, m_waypointy;
+    std::vector<double> m_initialx, m_initialy;
+    std::vector<double> positive_x, positive_y;
+    std::vector<double> negative_x, negative_y;
+
+    std::vector<double> desired_speeds;
+
+    double m_project_time, m_min_speed;
+
     bool m_running;
 };
 
