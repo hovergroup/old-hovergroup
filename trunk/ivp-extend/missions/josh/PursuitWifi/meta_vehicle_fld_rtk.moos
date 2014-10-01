@@ -21,10 +21,12 @@ Processconfig = ANTLER
   Run = pEchoVar               @ NewConsole = false
   Run = iHoverKayak            @ NewConsole = false
   Run = iAcommsDriver          @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
   Run = pNavManager            @ NewConsole = false
   Run = pResourceMon           @ NewConsole = false
   Run = pAckedCommsVehicle     @ NewConsole = false
   Run = pScheduledTransmit     @ NewConsole = false
+  //Run = pPursuitVehicle        @ NewConsole = false
   
 #ifdef ALTIMETER tritech
   Run = iAltimeter             @ NewConsole = false
@@ -32,6 +34,15 @@ Processconfig = ANTLER
 #ifdef ALTIMETER cruzpro
   Run = iAltimeter_cruzPro     @ NewConsole = false
 #endif
+}
+
+ProcessConfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+  event = quit, time=2
 }
 
 #include ../../trunk/plugs/plug_iKST.moos
@@ -44,7 +55,21 @@ Processconfig = ANTLER
 #include ../../trunk/plugs/plug_iRTKNAVI.moos
 #include ../../trunk/plugs/plug_iRemote.moos
 #include ../../trunk/plugs/plug_iHoverKayak.moos
-#include ../../trunk/plugs/plug_iAcommsDriver.moos
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = $(MODEMPORT)
+    ID       = $(ACOMMSID)
+
+    PSK_minipackets   = false
+    enable_ranging    = false
+    show_range_pulses = true
+    enable_legacy     = false
+}
+
 #include ../../trunk/plugs/plug_iAltimeter.moos
 #include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
 #include ../../trunk/plugs/plug_pNavManager.moos

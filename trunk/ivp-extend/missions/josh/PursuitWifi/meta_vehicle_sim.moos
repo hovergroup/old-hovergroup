@@ -39,8 +39,6 @@ ProcessConfig = pShare
     output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
     output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
     output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
-    output = NAV_X->NAV_X_$(VNAME):$(SHOREHOST):$(SLPORT)
-    output = NAV_Y->NAV_Y_$(VNAME):$(SHOREHOST):$(SLPORT)
   
     input = route=$(VHOST):$(LPORT) 
 }
