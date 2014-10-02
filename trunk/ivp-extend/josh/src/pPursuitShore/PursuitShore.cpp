@@ -255,14 +255,41 @@ bool PursuitShore::Iterate() {
         } else {
             int slot = tdma_engine.getCurrentSlot();
 
-//            if (slot==1 || slot==4 || slot==5) {
-//                got_commands = vector<bool>(3,false);
-//                cout << "clearing command buffer" << endl;
-//            }
+            if (slot==1 || slot==4 || slot==7) {
+                got_commands = vector<bool>(3,false);
+                cout << "clearing command buffer" << endl;
+            }
+
+            if (slot==0 || slot==3 || slot==6) {
+               stringstream ss1;
+               ss1 << "-1:-1:-1:";
+               ss1 << tdma_engine.getCycleCount();
+               m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss1.str());
+
+               dccl_command.set_has_1(false);
+               dccl_command.set_has_2(false);
+               dccl_command.set_has_3(false);
+            }
 
             // if command slot, send update
             if (slot == 0) {
+                if (got_commands[2]) {
+                    dccl_command.set_has_3(true);
+                    std::string bytes;
+                    codec->encode(&bytes, dccl_command);
+                    cout << "Transmitting: " << endl;
+                    cout << dccl_command.DebugString() << endl;
+                    dccl_command.Clear();
+                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
+                } else {
+                    stringstream ss;
+                    ss << "shoreside has no command to send for id 3" << endl;
+                    cout << ss.str() << endl;
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
+            } else if (slot == 3) {
                 if (got_commands[0]) {
+                    dccl_command.set_has_1(true);
                     std::string bytes;
                     codec->encode(&bytes, dccl_command);
                     cout << "Transmitting: " << endl;
@@ -275,8 +302,9 @@ bool PursuitShore::Iterate() {
                     cout << ss.str() << endl;
                     m_Comms.Notify("PURSUIT_ERROR", ss.str());
                 }
-            } else if (slot == 3) {
+            } else if (slot == 6) {
                 if (got_commands[1]) {
+                    dccl_command.set_has_2(true);
                     std::string bytes;
                     codec->encode(&bytes, dccl_command);
                     cout << "Transmitting: " << endl;
@@ -286,20 +314,6 @@ bool PursuitShore::Iterate() {
                 } else {
                     stringstream ss;
                     ss << "shoreside has no command to send for id 2" << endl;
-                    cout << ss.str() << endl;
-                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
-                }
-            } else if (slot == 6) {
-                if (got_commands[2]) {
-                    std::string bytes;
-                    codec->encode(&bytes, dccl_command);
-                    cout << "Transmitting: " << endl;
-                    cout << dccl_command.DebugString() << endl;
-                    dccl_command.Clear();
-                    m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(), bytes.size());
-                } else {
-                    stringstream ss;
-                    ss << "shoreside has no command to send for id 3" << endl;
                     cout << ss.str() << endl;
                     m_Comms.Notify("PURSUIT_ERROR", ss.str());
                 }

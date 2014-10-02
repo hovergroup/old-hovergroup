@@ -78,11 +78,11 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
             // try to parse acomms message
             if (reception.parseFromString(msg.GetString())) {
                 bool proceed = true;
-                if (!multicast) {
-                    if (tdma_engine.getCurrentSlot() != m_id*2 - 2) {
-                        proceed = false;
-                    }
-                }
+//                if (!multicast) {
+//                    if (tdma_engine.getCurrentSlot() != m_id*2 - 2) {
+//                        proceed = false;
+//                    }
+//                }
                 // check source and status
                 if (reception.getSource() == 4 &&
                         reception.getStatus() == HoverAcomms::GOOD
@@ -102,29 +102,45 @@ bool PursuitVehicle::OnNewMail(MOOSMSG_LIST &NewMail) {
                     }
 
                     if (decode_okay) {
-                        receive_count++;
-                        m_Comms.Notify("PURSUIT_RECEIVE_COUNT", (double) receive_count);
-                        cout << "Implementing new command trajectory" << endl;
-                        command_trajectory.clear();
                         switch (m_id) {
                         case 1:
-                            for (int i=0; i<cmd.vehicle1_cmd_size(); i++) {
-                                command_trajectory.push_back(cmd.vehicle1_cmd(i));
+                            if (cmd.has_1()) {
+                                receive_count++;
+                                m_Comms.Notify("PURSUIT_RECEIVE_COUNT", (double) receive_count);
+                                command_trajectory.clear();
+                                for (int i=0; i<cmd.vehicle1_cmd_size(); i++) {
+                                    command_trajectory.push_back(cmd.vehicle1_cmd(i));
+                                }
+                                cout << "Implementing new command trajectory" << endl;
+                                dccl_report.set_ack(true);
                             }
                             break;
                         case 2:
-                            for (int i=0; i<cmd.vehicle2_cmd_size(); i++) {
-                                command_trajectory.push_back(cmd.vehicle2_cmd(i));
+                            if (cmd.has_2()) {
+                                receive_count++;
+                                m_Comms.Notify("PURSUIT_RECEIVE_COUNT", (double) receive_count);
+                                command_trajectory.clear();
+                                for (int i=0; i<cmd.vehicle2_cmd_size(); i++) {
+                                    command_trajectory.push_back(cmd.vehicle2_cmd(i));
+                                }
+                                cout << "Implementing new command trajectory" << endl;
+                                dccl_report.set_ack(true);
                             }
                             break;
                         case 3:
-                            for (int i=0; i<cmd.vehicle3_cmd_size(); i++) {
-                                command_trajectory.push_back(cmd.vehicle3_cmd(i));
+                            if (cmd.has_3()) {
+                                receive_count++;
+                                m_Comms.Notify("PURSUIT_RECEIVE_COUNT", (double) receive_count);
+                                command_trajectory.clear();
+                                for (int i=0; i<cmd.vehicle3_cmd_size(); i++) {
+                                    command_trajectory.push_back(cmd.vehicle3_cmd(i));
+                                }
+                                cout << "Implementing new command trajectory" << endl;
+                                dccl_report.set_ack(true);
                             }
                             break;
                         }
                         m_Comms.Notify("PURSUIT_TRAJECTORY_LENGTH", command_trajectory.size());
-                        dccl_report.set_ack(true);
                     }
                 }
             }
@@ -212,6 +228,10 @@ bool PursuitVehicle::Iterate() {
         m_Comms.Notify("PURSUIT_Y", m_navy);
 
         // update our position history
+        dccl_report.clear_x_history();
+        dccl_report.clear_slot_history();
+        dccl_report.clear_y_history();
+
         dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
         dccl_report.add_x_history(m_navx);
         dccl_report.add_y_history(m_navy);
@@ -228,7 +248,19 @@ bool PursuitVehicle::Iterate() {
                 }
             }
         } else {
-            if (tdma_engine.getCurrentSlot() == m_id*2 -1) {
+            int index;
+            switch (m_id) {
+            case 1:
+                index = 3;
+                break;
+            case 2:
+                index = 5;
+                break;
+            case 3:
+                index = 1;
+                break;
+            }
+            if (tdma_engine.getCurrentSlot() == index) {
                 if (dccl_report.ack()) {
                     m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
                 } else {
