@@ -113,9 +113,9 @@ ProcessConfig = uTermCommand_Hover
     CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
     
     // pursuit
-    CMD = RUN_PURSUIT --> PURSUIT_COMMAND_ALL --> run
-    CMD = STOP_PURSUIT --> PURSUIT_COMMAND_ALL --> stop
-    CMD = RESET_PURSUIT --> PURSUIT_COMMAND_ALL --> reset
+    CMD = RUN_PURSUIT --> PURSUIT_COMMAND --> run
+    CMD = STOP_PURSUIT --> PURSUIT_COMMAND --> stop
+    CMD = RESET_PURSUIT --> PURSUIT_COMMAND --> reset
     
     // pursuit behavior
     CMD = PURSUIT_BEHAVIOR --> MISSION_MODE_ALL --> PURSUIT

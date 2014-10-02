@@ -139,4 +139,6 @@ ProcessConfig = pPursuitVehicle
     use_projection = true
     project_time = 7
     min_speed = 0.5
+    
+    command_mode = interleaved
 }
