@@ -30,11 +30,12 @@ PursuitWifi::PursuitWifi() {
     positive_y = vector<double>(3,0);
     negative_x = vector<double>(3,0);
     negative_y = vector<double>(3,0);
+    desired_speeds = vector<double>(3,0);
 
 
-    names.push_back("nostromo");
-    names.push_back("silvana");
-    names.push_back("kestrel");
+    names.push_back("NOSTROMO");
+    names.push_back("SILVANA");
+    names.push_back("KESTREL");
 
     m_project_time = 7;
     m_min_speed = 0.5;
@@ -65,10 +66,10 @@ bool PursuitWifi::OnNewMail(MOOSMSG_LIST &NewMail) {
                 m_Comms.Notify("PURSUIT_ACTION_ALL", "STATION");
                 for (int i=0; i<3; i++) {
                     stringstream var;
-                    var << "PURSUIT_STATION_UPDATES_" << i+1;
+                    var << "PURSUIT_STATION_UPDATES_" << names[i];
                     stringstream val;
                     val << "station_pt = " << m_waypointx[i] << ","
-                            << m_waypointy[i] << ",";
+                            << m_waypointy[i];
                     m_Comms.Notify(var.str(), val.str());
                 }
             } else if (cmd == "STOP") {
@@ -88,13 +89,13 @@ bool PursuitWifi::OnNewMail(MOOSMSG_LIST &NewMail) {
             m_navx[2] = msg.GetDouble();
         } else if (key == "NAV_Y_KESTREL") {
             m_navy[2] = msg.GetDouble();
-        } else if (key == "PURSUIT_VEHICLE_COMMAND") {
+        } else if (key == "PURSUIT_VEHICLE_COMMAND" && tdma_engine.getRunState() == TDMAEngine::RUNNING) {
             string line = msg.GetString() + ":";
             for (int i=0; i<3; i++) {
                 int id = atoi(MOOSChomp(line, ",").c_str());
                 double speed = atof(MOOSChomp(line,":").c_str());
-                desired_speeds[id-1] = speed;
-                cout << "Command: id " << id << "   speed " << speed << endl;
+                desired_speeds[id-1] = speed/m_project_time;
+                cout << "Command: id " << id << "   speed " << desired_speeds[id-1] << endl;
             }
             runCommands();
         }

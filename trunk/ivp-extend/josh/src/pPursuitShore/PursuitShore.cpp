@@ -55,6 +55,11 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                 receive_counts = vector<int>(3,0);
             }
         } else if (key == "PURSUIT_VEHICLE_COMMAND") {
+            if (!multicast) {
+                got_commands = vector<bool>(3,false);
+                cout << "clearing command buffer" << endl;
+            }
+
             string line = msg.GetString();
             int id = atoi(MOOSChomp(line, ",").c_str());
             vector<int> trajectory;
@@ -250,10 +255,10 @@ bool PursuitShore::Iterate() {
         } else {
             int slot = tdma_engine.getCurrentSlot();
 
-            if (slot==1 || slot==4 || slot==5) {
-                got_commands = vector<bool>(3,false);
-                cout << "clearing command buffer" << endl;
-            }
+//            if (slot==1 || slot==4 || slot==5) {
+//                got_commands = vector<bool>(3,false);
+//                cout << "clearing command buffer" << endl;
+//            }
 
             // if command slot, send update
             if (slot == 0) {
