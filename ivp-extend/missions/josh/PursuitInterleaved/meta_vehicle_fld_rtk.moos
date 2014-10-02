@@ -101,11 +101,11 @@ ProcessConfig = pPursuitVehicle
     MaxAppTick  = 0    // no limit
 
     <tdma>
-        length=7,name=command1
-        length=7,name=report1
-        length=7,name=command2
-        length=7,name=report2
         length=7,name=command3
+        length=7,name=report1
+        length=7,name=command1
+        length=7,name=report2
+        length=7,name=command2
         length=7,name=report3
     </tdma>
 

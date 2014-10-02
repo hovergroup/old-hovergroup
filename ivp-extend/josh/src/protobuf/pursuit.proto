@@ -20,6 +20,9 @@ message PursuitCommandDCCL
   repeated int32 vehicle3_cmd = 3 [(dccl.field).max=8,
                                    (dccl.field).min=-8,
                                    (dccl.field).max_repeat=18];
+  required bool has_1 = 4;
+  required bool has_2 = 5;
+  required bool has_3 = 6;
 }
 
 message PursuitReportDCCL
@@ -30,17 +33,17 @@ message PursuitReportDCCL
                          (dccl.field).max=3,
                          (dccl.field).precision=0];
   repeated int32 slot_history = 2 [(dccl.field).min=0,
-                                   (dccl.field).max=3,
+                                   (dccl.field).max=10,
                                    (dccl.field).precision=0,
-                                   (dccl.field).max_repeat=4];
+                                   (dccl.field).max_repeat=1];
   repeated double x_history = 3 [(dccl.field).min=-1000,
                                  (dccl.field).max=1000,
                                  (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=4];
+                                 (dccl.field).max_repeat=1];
   repeated double y_history = 4 [(dccl.field).min=-1000,
                                  (dccl.field).max=1000,
                                  (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=4];
+                                 (dccl.field).max_repeat=1];
   required bool ack = 5;
 }
 
