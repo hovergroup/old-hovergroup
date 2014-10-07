@@ -32,18 +32,15 @@ message PursuitReportDCCL
   required int32 id = 1 [(dccl.field).min=1,
                          (dccl.field).max=3,
                          (dccl.field).precision=0];
-  repeated int32 slot_history = 2 [(dccl.field).min=0,
-                                   (dccl.field).max=10,
-                                   (dccl.field).precision=0,
-                                   (dccl.field).max_repeat=1];
-  repeated double x_history = 3 [(dccl.field).min=-1000,
-                                 (dccl.field).max=1000,
-                                 (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=1];
-  repeated double y_history = 4 [(dccl.field).min=-1000,
-                                 (dccl.field).max=1000,
-                                 (dccl.field).precision=2,
-                                 (dccl.field).max_repeat=1];
+  required int32 slot = 2 [(dccl.field).min=0,
+                           (dccl.field).max=10,
+                           (dccl.field).precision=0];
+  required double x = 3 [(dccl.field).min=-1000,
+                         (dccl.field).max=1000,
+                         (dccl.field).precision=2];
+  required double y = 4 [(dccl.field).min=-1000,
+                         (dccl.field).max=1000,
+                         (dccl.field).precision=2];
   required bool ack = 5;
 }
 

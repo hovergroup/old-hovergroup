@@ -227,18 +227,9 @@ bool PursuitVehicle::Iterate() {
         m_Comms.Notify("PURSUIT_X", m_navx);
         m_Comms.Notify("PURSUIT_Y", m_navy);
 
-        // update our position history
-        dccl_report.clear_x_history();
-        dccl_report.clear_slot_history();
-        dccl_report.clear_y_history();
+        int slot = tdma_engine.getCurrentSlot();
 
-        dccl_report.add_slot_history(tdma_engine.getCurrentSlot());
-        dccl_report.add_x_history(m_navx);
-        dccl_report.add_y_history(m_navy);
-//        dccl_report.set_slot_history(tdma_engine.getCurrentSlot());
-//        dccl_report.set_x_history(m_navx);
-//        dccl_report.set_y_history(m_navy);
-
+        // send ack via wifi
         if (multicast) {
             if (tdma_engine.getCurrentSlot() == 1) {
                 if (dccl_report.ack()) {
@@ -260,7 +251,7 @@ bool PursuitVehicle::Iterate() {
                 index = 1;
                 break;
             }
-            if (tdma_engine.getCurrentSlot() == index) {
+            if (slot == index) {
                 if (dccl_report.ack()) {
                     m_Comms.Notify("PURSUIT_COMMAND_RECEIVED", 1.0);
                 } else {
@@ -269,33 +260,28 @@ bool PursuitVehicle::Iterate() {
             }
         }
 
-// if our slot, send update< " Speed: " << desired_speed << endl;
+        // transmit during our slot
         bool transmit = false;
-        if (multicast && tdma_engine.getCurrentSlot() == m_id)
+        if (multicast && slot == m_id)
             transmit = true;
-        if (!multicast && tdma_engine.getCurrentSlot() == m_id*2-1)
+        if (!multicast && slot == m_id*2-1)
             transmit = true;
 
         if (transmit) {
             dccl_report.set_id(m_id);
+            dccl_report.set_x(m_navx);
+            dccl_report.set_y(m_navy);
+            dccl_report.set_slot(slot);
 
             std::string bytes;
             codec->encode(&bytes, dccl_report);
             cout << "Transmitting: " << endl;
             cout << dccl_report.DebugString() << endl;
-//            for (int i=0; i<bytes.size(); i++) {
-//                cout << (int) bytes[i] << " ";
-//            }
-//            cout << endl;
-//            for (int i=0; i<bytes.size(); i++) {
-//                std::bitset<8> x(bytes[i]);
-//                cout << x << " ";
-//            }
-//            cout << endl;
-            dccl_report.Clear();
             m_Comms.Notify("ACOMMS_TRANSMIT_DATA_BINARY", (void*) bytes.data(),
                     bytes.size());
             cout << "Total size " << bytes.size() << endl;
+
+            // reset ack to false
             dccl_report.set_ack(false);
         }
 
