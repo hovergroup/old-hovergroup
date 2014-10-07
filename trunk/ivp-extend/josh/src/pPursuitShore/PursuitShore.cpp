@@ -17,6 +17,7 @@ using namespace std;
 PursuitShore::PursuitShore() {
     receive_counts = vector<int>(3,0);
     got_commands = vector<bool>(3,false);
+    sent_reports = vector<bool>(3,false);
 
     codec = goby::acomms::DCCLCodec::get();
     try {
@@ -101,16 +102,6 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                     bool decode_okay = true;
                     try {
                         cout << "attempting to decode " << reception.getData().size() << " bytes" << endl;
-//                        cout << reception.getData() << endl;
-//                        for (int i=0; i<reception.getData().size(); i++) {
-//                            cout << (int) reception.getData()[i] << " ";
-//                        }
-//                        cout << endl;
-//                        for (int i=0; i<reception.getData().size(); i++) {
-//                            std::bitset<8> x(reception.getData()[i]);
-//                            cout << x << " ";
-//                        }
-//                        cout << endl;
                         codec->decode(reception.getData(), &report);
                     } catch (goby::acomms::DCCLException &) {
                         stringstream ss;
@@ -120,34 +111,40 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                         decode_okay = false;
                     }
 
+                    // output info if good receive and haven't already posted report for this id
                     if (decode_okay) {
-                        receive_counts[report.id()-1]++;
-                        stringstream ss;
-                        for (int i=0; i<receive_counts.size(); i++) {
-                            if (i!=0)
-                                ss << ",";
-                            ss << receive_counts[i];
-                        }
-                        m_Comms.Notify("PURSUIT_RECEIVE_COUNTS", ss.str());
-                        cout << "received data: " << endl;
-                        cout << report.DebugString() << endl;
+                        if (!sent_reports[report.id()-1]) {
+                            receive_counts[report.id()-1]++;
+                            stringstream ss;
+                            for (int i=0; i<receive_counts.size(); i++) {
+                                if (i!=0)
+                                    ss << ",";
+                                ss << receive_counts[i];
+                            }
+                            m_Comms.Notify("PURSUIT_RECEIVE_COUNTS", ss.str());
+                            cout << "received data: " << endl;
+                            cout << report.DebugString() << endl;
 
-                        ss.str("");
-                        ss << report.id() << ":1:";
-                        if (report.ack()) {
-                            ss << "1:";
+                            ss.str("");
+                            ss << report.id() << ":1:";
+                            if (report.ack()) {
+                                ss << "1:";
+                            } else {
+                                ss << "0:";
+                            }
+                            ss << tdma_engine.getCycleCount();
+                            ss << ";" << report.slot();
+                            ss << "," << report.x();
+                            ss << "," << report.y();
+                            m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+
+                            got_receive = true;
+                            sent_reports[report.id()-1] = true;
                         } else {
-                            ss << "0:";
+                            stringstream ss;
+                            ss << "Already made report for id " << report.id()-1 << " when trying to post good report.";
+                            m_Comms.Notify("PURSUIT_ERROR", ss.str());
                         }
-                        ss << tdma_engine.getCycleCount();
-                        for (int i=0; i<report.slot_history_size(); i++) {
-                            ss << ":" << report.slot_history(i);
-                            ss << "," << report.x_history(i);
-                            ss << "," << report.y_history(i);
-                        }
-                        m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
-
-                        got_receive = true;
                     }
                 }
             }
@@ -193,13 +190,19 @@ bool PursuitShore::Iterate() {
         m_Comms.Notify("TDMA_CYCLE_COUNT", tdma_engine.getCycleCount());
         m_Comms.Notify("TDMA_CYCLE_NUMBER", tdma_engine.getCycleNumber());
 
+        int slot = tdma_engine.getCurrentSlot();
+
+        if (slot == 0) {
+            sent_reports = vector<bool>(3,false);
+        }
+
         if (multicast) {
-            if (tdma_engine.getCurrentSlot() == 5) {
+            if (slot == 5) {
                 got_commands = vector<bool>(3,false);
                 cout << "clearing command buffer" << endl;
             }
 
-            if (tdma_engine.getCurrentSlot() == 1) {
+            if (slot == 1) {
                 stringstream ss1;
                 ss1 << "-1:-1:-1:";
                 ss1 << tdma_engine.getCycleCount();
@@ -207,7 +210,7 @@ bool PursuitShore::Iterate() {
             }
 
             // if our slot, send update
-            if (tdma_engine.getCurrentSlot() == 0) {
+            if (slot == 0) {
                 bool got_command = true;
                 for (int i=0; i<got_commands.size(); i++) {
                     if (got_commands[i] == false) {
@@ -230,7 +233,6 @@ bool PursuitShore::Iterate() {
                 }
             }
 
-            int slot = tdma_engine.getCurrentSlot();
             if (!got_receive && (slot==3 || slot==5 || slot==7)) {
                 cout << "Missed receive before slot " << slot << endl;
                 int id;
@@ -245,22 +247,34 @@ bool PursuitShore::Iterate() {
                     id=3;
                     break;
                 }
-                stringstream ss;
-                ss << id << ":0:0:";
-                ss << tdma_engine.getCycleCount();
-                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+
+                if (!sent_reports[id-1]) {
+                    sent_reports[id-1] = true;
+
+                    stringstream ss;
+                    ss << id << ":0:0:";
+                    ss << tdma_engine.getCycleCount();
+                    m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+                } else {
+                    stringstream ss;
+                    ss << "Already made report for id " << id << " when trying to post fail report.";
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
             } else {
                 got_receive = false;
             }
-        } else {
-            int slot = tdma_engine.getCurrentSlot();
+        } else { // interleaved
 
-            if (slot==1 || slot==4 || slot==7) {
+
+
+            // clear command buffers during report slots
+            if (slot==2 || slot==6 || slot==10) {
                 got_commands = vector<bool>(3,false);
                 cout << "clearing command buffer" << endl;
             }
 
-            if (slot==0 || slot==3 || slot==6) {
+            // post dummy report during placeholder slots
+            if (slot==1 || slot==5 || slot==9) {
                stringstream ss1;
                ss1 << "-1:-1:-1:";
                ss1 << tdma_engine.getCycleCount();
@@ -287,7 +301,7 @@ bool PursuitShore::Iterate() {
                     cout << ss.str() << endl;
                     m_Comms.Notify("PURSUIT_ERROR", ss.str());
                 }
-            } else if (slot == 3) {
+            } else if (slot == 4) {
                 if (got_commands[0]) {
                     dccl_command.set_has_1(true);
                     std::string bytes;
@@ -302,7 +316,7 @@ bool PursuitShore::Iterate() {
                     cout << ss.str() << endl;
                     m_Comms.Notify("PURSUIT_ERROR", ss.str());
                 }
-            } else if (slot == 6) {
+            } else if (slot == 8) {
                 if (got_commands[1]) {
                     dccl_command.set_has_2(true);
                     std::string bytes;
@@ -320,7 +334,7 @@ bool PursuitShore::Iterate() {
             }
 
             // doing receives
-            if (!got_receive && (slot==2 || slot==5 || slot==8)) {
+            if (!got_receive && (slot==3 || slot==7 || slot==11)) {
                 cout << "Missed receive before slot " << slot << endl;
                 int id;
                 switch (slot) {
@@ -335,10 +349,18 @@ bool PursuitShore::Iterate() {
                     break;
                 }
 
-                stringstream ss;
-                ss << id << ":0:0:";
-                ss << tdma_engine.getCycleCount();
-                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+                if (!sent_reports[id-1]) {
+                    sent_reports[id-1] = true;
+
+                    stringstream ss;
+                    ss << id << ":0:0:";
+                    ss << tdma_engine.getCycleCount();
+                    m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
+                } else {
+                    stringstream ss;
+                    ss << "Already made report for id " << id << " when trying to post fail report.";
+                    m_Comms.Notify("PURSUIT_ERROR", ss.str());
+                }
             } else {
                 got_receive = false;
             }

@@ -37,7 +37,7 @@ private:
     goby::acomms::DCCLCodec* codec;
 
     std::vector<int> receive_counts;
-    std::vector<bool> got_commands;
+    std::vector<bool> got_commands, sent_reports;
     bool got_receive;
 
     bool multicast;  // otherwise interleaved
