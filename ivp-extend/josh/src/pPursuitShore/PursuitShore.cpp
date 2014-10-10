@@ -57,8 +57,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
             }
         } else if (key == "PURSUIT_VEHICLE_COMMAND") {
             if (!multicast) {
-                got_commands = vector<bool>(3,false);
-                cout << "clearing command buffer" << endl;
+                ClearCommands();
             }
 
             string line = msg.GetString();
@@ -75,18 +74,21 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                 for (int i=0; i<trajectory.size(); i++) {
                     dccl_command.add_vehicle1_cmd(trajectory[i]);
                 }
+                dccl_command.set_has_1(true);
                 break;
             case 2:
                 dccl_command.clear_vehicle2_cmd();
                 for (int i=0; i<trajectory.size(); i++) {
                     dccl_command.add_vehicle2_cmd(trajectory[i]);
                 }
+                dccl_command.set_has_2(true);
                 break;
             case 3:
                 dccl_command.clear_vehicle3_cmd();
                 for (int i=0; i<trajectory.size(); i++) {
                     dccl_command.add_vehicle3_cmd(trajectory[i]);
                 }
+                dccl_command.set_has_3(true);
                 break;
             }
             got_commands[id-1] = true;
@@ -133,7 +135,7 @@ bool PursuitShore::OnNewMail(MOOSMSG_LIST &NewMail) {
                                 ss << "0:";
                             }
                             ss << tdma_engine.getCycleCount();
-                            ss << ";" << report.slot();
+                            ss << ":" << report.slot();
                             ss << "," << report.x();
                             ss << "," << report.y();
                             m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss.str());
@@ -198,8 +200,7 @@ bool PursuitShore::Iterate() {
 
         if (multicast) {
             if (slot == 5) {
-                got_commands = vector<bool>(3,false);
-                cout << "clearing command buffer" << endl;
+                ClearCommands();
             }
 
             if (slot == 1) {
@@ -211,10 +212,11 @@ bool PursuitShore::Iterate() {
 
             // if our slot, send update
             if (slot == 0) {
-                bool got_command = true;
+                bool got_command = false;
+                // transmit as long as we have at least one
                 for (int i=0; i<got_commands.size(); i++) {
-                    if (got_commands[i] == false) {
-                        got_command = false;
+                    if (got_commands[i] == true) {
+                        got_command = true;
                         break;
                     }
                 }
@@ -269,8 +271,7 @@ bool PursuitShore::Iterate() {
 
             // clear command buffers during report slots
             if (slot==2 || slot==6 || slot==10) {
-                got_commands = vector<bool>(3,false);
-                cout << "clearing command buffer" << endl;
+                ClearCommands();
             }
 
             // post dummy report during placeholder slots
@@ -279,10 +280,6 @@ bool PursuitShore::Iterate() {
                ss1 << "-1:-1:-1:";
                ss1 << tdma_engine.getCycleCount();
                m_Comms.Notify("PURSUIT_VEHICLE_REPORT", ss1.str());
-
-               dccl_command.set_has_1(false);
-               dccl_command.set_has_2(false);
-               dccl_command.set_has_3(false);
             }
 
             // if command slot, send update
@@ -338,13 +335,13 @@ bool PursuitShore::Iterate() {
                 cout << "Missed receive before slot " << slot << endl;
                 int id;
                 switch (slot) {
-                case 2:
+                case 3:
                     id = 1;
                     break;
-                case 5:
+                case 7:
                     id = 2;
                     break;
-                case 8:
+                case 11:
                     id=3;
                     break;
                 }
@@ -368,6 +365,15 @@ bool PursuitShore::Iterate() {
     }
 
     return (true);
+}
+
+void PursuitShore::ClearCommands() {
+    got_commands = vector<bool>(3,false);
+    dccl_command.Clear();
+    cout << "clearing command buffer" << endl;
+    dccl_command.set_has_1(false);
+    dccl_command.set_has_2(false);
+    dccl_command.set_has_3(false);
 }
 
 //---------------------------------------------------------
