@@ -94,7 +94,7 @@ ProcessConfig = pShare
     input = route=$(VHOST):$(LPORT) 
 }
 
-ProcessConfig = pPursuitVehicle
+ProcessConfig = pPursuitVehicle_bck
 {
     IterateMode = 1    // comms driven iterate and mail
     AppTick     = 20   // iterate lower bound
@@ -118,7 +118,7 @@ ProcessConfig = pPursuitVehicle
     code=-4,-0.6
     code=-3,-0.45
     code=-2,-0.3
-    code=-1-0.15
+    code=-1,-0.15
     code=0,0
     code=1,0.15
     code=2,0.3
@@ -128,6 +128,47 @@ ProcessConfig = pPursuitVehicle
     code=6,0.9
     code=7,1.05
     code=8,1.2
+    
+    positive_x = $(POSITIVE_X)
+    positive_y = $(POSITIVE_Y)
+    negative_x = $(NEGATIVE_X)
+    negative_y = $(NEGATIVE_Y)
+    initial_x = $(INITIAL_X)
+    initial_y = $(INITIAL_Y)
+    
+    use_projection = true
+    project_time = 7
+    min_speed = 0.5
+    
+    command_mode = interleaved
+}
+
+ProcessConfig = pPursuitVehicle
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    <tdma>
+        length=7,name=command3
+        length=7,name=report1
+        length=7,name=command1
+        length=7,name=report2
+        length=7,name=command2
+        length=7,name=report3
+    </tdma>
+
+    id = $(ACOMMSID)      // 1, 2, or 3
+    
+    code=-4,-1.2
+    code=-3,-0.9
+    code=-2,-0.6
+    code=-1,-0.3
+    code=0,0
+    code=1,0.3
+    code=2,0.6
+    code=3,0.9
+    code=4,1.2
     
     positive_x = $(POSITIVE_X)
     positive_y = $(POSITIVE_Y)

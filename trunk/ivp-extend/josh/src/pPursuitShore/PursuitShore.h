@@ -26,6 +26,8 @@ protected:
     bool OnConnectToServer();
     bool OnStartUp();
 
+    void ClearCommands();
+
 private:
     // Configuration variables
 
