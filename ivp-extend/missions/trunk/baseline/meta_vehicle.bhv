@@ -24,7 +24,7 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_color=red, line_color=green
     visual_hints  = vertex_size=2, edge_size=1
     
-    trackpoint_heading_cutoff = 30
+    trackpoint_heading_cutoff = 0
 }
 
 Behavior = BHV_Waypoint_Hover
@@ -49,7 +49,7 @@ Behavior = BHV_Waypoint_Hover
     visual_hints  = vertex_color=red, line_color=green
     visual_hints  = vertex_size=2, edge_size=1
     
-    trackpoint_heading_cutoff = 30
+    trackpoint_heading_cutoff = 0
 }
 
 Behavior = BHV_Waypoint_Hover
