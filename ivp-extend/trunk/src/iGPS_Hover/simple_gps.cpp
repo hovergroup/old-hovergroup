@@ -177,11 +177,11 @@ void SIMPLE_GPS::RegisterVariables() {
 
 bool SIMPLE_GPS::Iterate() {
     if (m_use_tcp) {
-        int n = read(m_tcp_sockfd, &tcpReadBuffer[0], 1000);
-        if (n < 0) {
-            std::cout << "error reading from socket" << std::endl;
-            return false;
-        }
+        int n = recv(m_tcp_sockfd, &tcpReadBuffer[0], 1000, 0);
+//        if (n < 0) {
+//            std::cout << "error reading from socket" << std::endl;
+//            return false;
+//        }
         if (n > 0) {
             string_buffer += std::string(tcpReadBuffer.begin(),
                     tcpReadBuffer.begin() += n);
