@@ -36,6 +36,10 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
         if (key == "PROTO_REPORT") {
             ProtoNodeReport pnr;
             if (pnr.ParseFromString(msg.GetString())) {
+                if (active_secondaries.find(pnr.vehicle_name()) == active_secondaries.end()) {
+                    active_secondaries[pnr.vehicle_name()] = false;
+                }
+
                 NodeRecord nr;
                 nr.setX(pnr.x());
                 nr.setY(pnr.y());
@@ -92,7 +96,8 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
                         nr2.setName(pnr.vehicle_name() + "_rtk");
                         m_Comms.Notify("NODE_REPORT", nr2.getSpec());
                     }
-                } else {
+                    active_secondaries[pnr.vehicle_name()] = true;
+                } else if (active_secondaries[pnr.vehicle_name()] == true) {
                     NodeRecord nr2;
                     nr2.setX(-1000);
                     nr2.setY(1000);
@@ -108,6 +113,8 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
                     nr2.setLength(0);
                     nr2.setName(pnr.vehicle_name() + "_gps");
                     m_Comms.Notify("NODE_REPORT", nr2.getSpec());
+
+                    active_secondaries[pnr.vehicle_name()] = false;
                 }
 
                 for (int i = 0; i < pnr.view_points_size(); i++) {

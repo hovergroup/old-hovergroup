@@ -11,6 +11,7 @@
 #include "MOOS/libMOOS/MOOSLib.h"
 #include "reports.pb.h"
 #include "NodeRecord.h"
+#include <map>
 
 class ProtoReportParser: public CMOOSApp {
 public:
@@ -28,6 +29,8 @@ private:
     // Configuration variables
 
 private:
+    std::map<std::string, bool> active_secondaries;
+
     // State variables
 };
 
