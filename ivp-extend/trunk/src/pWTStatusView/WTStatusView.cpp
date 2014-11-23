@@ -50,6 +50,7 @@ StatusViewApplication::StatusViewApplication(const WEnvironment& env) :
             "font-weight: bold; text-align: left");
     styleSheet().addRule(".StatusView .center", "text-align: center");
     styleSheet().addRule(".StatusView .green", "background-color: #58FA58;");
+    styleSheet().addRule(".StatusView .blue", "background-color: #00FFFF;");
     styleSheet().addRule(".StatusView .yellow", "background-color: #F7FE2E;");
     styleSheet().addRule(".StatusView .red", "background-color: #FE2E2E;");
     styleSheet().addRule(".StatusView .greyout", "background-color: #E4E4E4;");
@@ -260,12 +261,12 @@ void StatusViewApplication::update() {
         case ProtoNodeReport_AcommsStatusEnum_TRANSMITTING:
             acomms_running = "transmitting";
             table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col + 1)->setStyleClass(
-                    "green center");
+                    "blue center");
             break;
         case ProtoNodeReport_AcommsStatusEnum_RECEIVING:
             acomms_running = "receiving";
             table->elementAt(ACOMMS_DRIVER_STATUS_ROW, col + 1)->setStyleClass(
-                    "green center");
+                    "blue center");
             break;
         case ProtoNodeReport_AcommsStatusEnum_NOT_RUNNING:
             acomms_running = "not running";
@@ -315,6 +316,11 @@ void StatusViewApplication::update() {
             gps_quality = "no manager";
             table->elementAt(GPS_QUALITY_ROW, col + 1)->setStyleClass(
                     "red center");
+            break;
+        case ProtoNodeReport_GPSQualityEnum_EXPERIMENT:
+            gps_quality = "experiment";
+            table->elementAt(GPS_QUALITY_ROW, col + 1)->setStyleClass(
+                    "blue center");
             break;
         default:
             break;

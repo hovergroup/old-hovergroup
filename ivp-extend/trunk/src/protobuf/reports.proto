@@ -17,6 +17,15 @@ message ProtoNodeReport {
     optional double speed = 5;
     optional double depth = 6;
     
+    optional double secondary_x = 26;
+    optional double secondary_y = 27;
+    optional double secondary_heading = 28;
+    optional SecondarySourceEnum secondary_source = 29;
+    enum SecondarySourceEnum {
+        SECONDARY_INTERNAL = 0;
+        SECONDARY_RTK = 1;
+    }
+    
     optional double voltage = 7;
     repeated string active_behaviors = 9;
     
@@ -55,6 +64,7 @@ message ProtoNodeReport {
         INTERNAL = 9;
         NO_GPS = 10;
         NO_MANAGER = 11;
+        EXPERIMENT = 12;
     }
     
     optional RadioStateEnum radio_state = 14;

@@ -17,12 +17,13 @@ using namespace std;
 // Constructor
 
 ProtoReporter::ProtoReporter() {
-    rtk = true;
+    using_rtk = true;
     m_lastNavSourceUpdate = -1;
     m_lastAcommsStatusUpdate = -1;
     m_lastHelmStateUpdate = -1;
     m_lastGPSQualityUpdate = -1;
     m_lastHeadingUpdate = -1;
+    m_lastSecondaryUpdate = -1;
 }
 
 //---------------------------------------------------------
@@ -72,6 +73,20 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             nr.set_speed(msg.GetDouble());
         } else if (key == "NAV_DEPTH") {
             nr.set_depth(msg.GetDouble());
+        } else if (key == "SECONDARY_NAV_X") {
+            secondary_x = msg.GetDouble();
+        } else if (key == "SECONDARY_NAV_Y") {
+            secondary_y = msg.GetDouble();
+        } else if (key == "SECONDARY_NAV_HEADING") {
+            secondary_heading = msg.GetDouble();
+        } else if (key == "SECONDARY_NAV_SOURCE") {
+            m_lastSecondaryUpdate = msg.GetTime();
+            if (MOOSToUpper(msg.GetString()) == "RTK")
+                secondary_source = rtk;
+            else if (MOOSToUpper(msg.GetString()) == "GPS")
+                secondary_source = gps;
+            else
+                secondary_source = none;
         } else if (key == "VOLTAGE") {
             nr.set_voltage(msg.GetDouble());
         } else if (key == "NSF_VOLTAGE") {
@@ -91,7 +106,7 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
                 nr.set_helm_state(ProtoNodeReport_HelmStateEnum_UNKNOWN);
             }
             m_lastHelmStateUpdate = msg.GetTime();
-        } else if (key == "RTK_QUALITY" && rtk) {
+        } else if (key == "RTK_QUALITY" && using_rtk) {
             switch ((int) msg.GetDouble()) {
             case 1:
                 nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_FIX);
@@ -147,15 +162,18 @@ bool ProtoReporter::OnNewMail(MOOSMSG_LIST &NewMail) {
             m_lastNavSourceUpdate = msg.GetTime();
             string val = MOOSToUpper(msg.GetString());
             if (val == "RTK") {
-                rtk = true;
+                using_rtk = true;
             } else if (val == "GPS") {
-                rtk = false;
+                using_rtk = false;
                 nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_INTERNAL);
             } else if (val == "NONE") {
-                rtk = false;
+                using_rtk = false;
                 nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_GPS);
+            } else if (val == "EXP") {
+                using_rtk = false;
+                nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_EXPERIMENT);
             } else {
-                rtk = false;
+                using_rtk = false;
                 nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_MANAGER);
             }
         } else if (key == "NSFMODEM_CURRENT_POWER_LEVEL") {
@@ -297,7 +315,7 @@ bool ProtoReporter::Iterate() {
     if (MOOSTime() - m_lastHelmStateUpdate > 5) {
         nr.set_helm_state(ProtoNodeReport_HelmStateEnum_MISSING);
     }
-    if (MOOSTime() - m_lastGPSQualityUpdate > 5 && rtk) {
+    if (MOOSTime() - m_lastGPSQualityUpdate > 5 && using_rtk) {
         nr.set_gps_quality(ProtoNodeReport_GPSQualityEnum_NO_GPS);
     }
     if (MOOSTime() - m_lastNavSourceUpdate > 6) {
@@ -307,8 +325,30 @@ bool ProtoReporter::Iterate() {
             && nr.platform_type() == ProtoNodeReport_PlatformTypeEnum_KAYAK) {
         nr.add_errors(ProtoNodeReport_ErrorEnum_NoCompassData);
     }
+    if (MOOSTime() - m_lastSecondaryUpdate > 5) {
+        secondary_source = none;
+    }
 
     nr.set_time_stamp(MOOSTime());
+
+    if (secondary_source == none) {
+        nr.clear_secondary_x();
+        nr.clear_secondary_y();
+        nr.clear_secondary_heading();
+        nr.clear_secondary_source();
+    } else {
+        switch (secondary_source) {
+        case gps:
+            nr.set_secondary_source(ProtoNodeReport_SecondarySourceEnum_SECONDARY_INTERNAL);
+            break;
+        case rtk:
+            nr.set_secondary_source(ProtoNodeReport_SecondarySourceEnum_SECONDARY_RTK);
+            break;
+        }
+        nr.set_secondary_x(secondary_x);
+        nr.set_secondary_y(secondary_y);
+        nr.set_secondary_heading(secondary_heading);
+    }
 
     cout << nr.DebugString() << endl;
 
@@ -344,6 +384,10 @@ void ProtoReporter::RegisterVariables() {
     m_Comms.Register("NAV_HEADING", 0);
     m_Comms.Register("NAV_SPEED", 0);
     m_Comms.Register("NAV_DEPTH", 0);
+    m_Comms.Register("SECONDARY_NAV_X", 0);
+    m_Comms.Register("SECONDARY_NAV_Y", 0);
+    m_Comms.Register("SECONDARY_NAV_HEADING", 0);
+    m_Comms.Register("SECONDARY_NAV_SOURCE", 0);
     m_Comms.Register("ACOMMS_DRIVER_STATUS", 0);
     m_Comms.Register("IVPHELM_STATE", 0);
     m_Comms.Register("IVPHELM_SUMMARY", 0);

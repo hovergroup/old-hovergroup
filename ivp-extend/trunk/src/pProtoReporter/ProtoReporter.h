@@ -12,6 +12,10 @@
 #include "reports.pb.h"
 #include "HoverAcomms.h"
 
+enum SecondaryNavSource {
+    gps = 0, rtk, none
+};
+
 class ProtoReporter: public CMOOSApp {
 public:
     ProtoReporter();
@@ -36,7 +40,10 @@ private:
     bool m_acommsDriverRunning;
     std::string m_name;
 
-    bool rtk;
+    bool using_rtk;
+    double secondary_x, secondary_y, secondary_heading;
+    double m_lastSecondaryUpdate;
+    SecondaryNavSource secondary_source;
 
     ProtoNodeReport nr;
 };
