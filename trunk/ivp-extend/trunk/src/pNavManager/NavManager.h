@@ -13,7 +13,7 @@
 #include <vector>
 
 enum NAV_SOURCE {
-    gps = 0, rtk, none
+    gps = 0, rtk, none, exp
 };
 
 class NavManager: public CMOOSApp {
@@ -33,11 +33,17 @@ private:
 
 private:
     NAV_SOURCE source;
-    bool gps_lock, rtk_available, gps_available;
-    double gps_update_time, rtk_update_time;
+    bool gps_lock, rtk_available, gps_available, exp_available;
+    double gps_update_time, rtk_update_time, exp_update_time;
 
-    double alt_x, alt_y;
-    double last_point_post_time;
+    double rtk_x, rtk_y;
+    double gps_x, gps_y;
+    double exp_x, exp_y;
+    double compass_heading;
+
+    double last_rtk_point_post_time, last_gps_point_post_time, last_exp_point_post_time;
+    bool rtk_point_active, gps_point_active, exp_point_active;
+    XYPoint rtk_point, gps_point, exp_point;
 
     double last_source_post_time;
 
