@@ -5,5 +5,4 @@ ProcessConfig = pEchoVar
     MaxAppTick  = 0    // no limit
 
     Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-    Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
 }
