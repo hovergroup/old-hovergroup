@@ -5,9 +5,12 @@ Community  = $(VNAME)
 #include ../../trunk/plugs/plug_origin_warp.moos
 
 #define LIAM_ROOT ../../../lpaull/AUVCL_coverage/missions/hover_adaptive_acomms
+#define MISSION_ROOT $(LIAM_ROOT)
 #include $(LIAM_ROOT)/config/$(VNAME).def
 #include $(LIAM_ROOT)/config/common.def
 #include $(LIAM_ROOT)/config/sensors.def
+
+#define MODEM_PORT $(MODEMPORT)
   
 //------------------------------------------------------------
 Processconfig = ANTLER
@@ -78,6 +81,7 @@ Processconfig = ANTLER
 #include $(LIAM_ROOT)/../common_plugs/vehicle/pAcommsManager.plug
 #include $(LIAM_ROOT)/plugs/pCoverageMap.plug
 #include $(LIAM_ROOT)/plugs/pAdaptiveSurveyPlanner.plug
+#include $(LIAM_ROOT)/plugs/pAcommsHandler.plug
 
 ProcessConfig = pEchoVar
 {
