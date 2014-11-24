@@ -100,6 +100,7 @@ bool NavManager::OnNewMail(MOOSMSG_LIST &NewMail) {
 
         // use compass unless experiment
         else if (key == "COMPASS_HEADING_FILTERED") {
+            compass_heading = msg.GetDouble();
             if (source != exp) {
                 m_Comms.Notify("NAV_HEADING", msg.GetDouble());
             }

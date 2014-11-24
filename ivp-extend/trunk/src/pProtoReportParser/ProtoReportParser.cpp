@@ -85,14 +85,14 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
                         nr2.setName(pnr.vehicle_name() + "_rtk");
                         nr2.setLength(0);
                         m_Comms.Notify("NODE_REPORT", nr2.getSpec());
-                        nr2.setLength(1.25);
+                        nr2.setLength(1.0);
                         nr2.setName(pnr.vehicle_name() + "_gps");
                         m_Comms.Notify("NODE_REPORT", nr2.getSpec());
                     } else {
                         nr2.setName(pnr.vehicle_name() + "_gps");
                         nr2.setLength(0);
                         m_Comms.Notify("NODE_REPORT", nr2.getSpec());
-                        nr2.setLength(1.25);
+                        nr2.setLength(1.0);
                         nr2.setName(pnr.vehicle_name() + "_rtk");
                         m_Comms.Notify("NODE_REPORT", nr2.getSpec());
                     }
@@ -101,7 +101,6 @@ bool ProtoReportParser::OnNewMail(MOOSMSG_LIST &NewMail) {
                     NodeRecord nr2;
                     nr2.setX(-1000);
                     nr2.setY(1000);
-                    nr2.setLength(1.25);
                     nr2.setHeading(pnr.secondary_heading());
                     nr2.setSpeed(pnr.speed());
                     nr2.setTimeStamp(pnr.time_stamp());
