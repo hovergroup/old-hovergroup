@@ -13,6 +13,10 @@ Community  = $(VNAME)
 Processconfig = ANTLER
 {
   MSBetweenLaunches = 200
+
+  Run = isam_coop			@ NewConsole = false, ExtraProcessParams=6, InhibitMOOSParams=true
+  6 = -n,$(NUM_AUVS),-i,$(MODEM_ID),-l,766$(MODEM_ID)
+
    
   Run = MOOSDB                 @ NewConsole = false
   Run = pShare                 @ NewConsole = false
