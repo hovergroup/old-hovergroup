@@ -1,6 +1,15 @@
+#define LIAM_ROOT ../../../lpaull/AUVCL_coverage/missions/hover_adaptive_acomms
+#define VEHICLE_NAME $(VNAME)
+#include $(LIAM_ROOT)/config/$(VNAME).def
+
 initialize   MISSION_MODE = INACTIVE
 initialize   MOOS_MANUAL_OVERRIDE=true
 initialize   GOSTAY = true
+initialize   LEG = $(START_LEG)
+
+#include $(LIAM_ROOT)/plugs/survey_up_leg.plug
+#include $(LIAM_ROOT)/plugs/survey_down_leg.plug
+
 
 Behavior = BHV_Waypoint_Hover
 { 
