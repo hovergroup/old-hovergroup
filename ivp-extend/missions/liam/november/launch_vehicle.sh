@@ -16,6 +16,7 @@ VNAME=""
 ALTIMETER=""
 SIMULATION=false
 TRANSMIT_PERIOD="32"
+RUNTYPE=hover
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
@@ -170,7 +171,8 @@ else
             ALTIMETER=$ALTIMETER                                   \
             WARP="1"                                               \
             SHOREHOST=$SHOREHOST                                   \
-            SLPORT=$SLPORT
+            SLPORT=$SLPORT                                         \
+	    RUNTYPE=$RUNTYPE
             
         nsplug meta_vehicle.bhv targ_$VNAME.bhv -f                 \
             VNAME=${HARD_CONFIG["${VNAME}:VNAME"]}                 \
