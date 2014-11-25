@@ -48,7 +48,6 @@ Processconfig = ANTLER
 // Start Liam Stuff:
 
    Run = pAcommsHandler		@ NewConsole = false
-   Run = uTimerScript		@ NewConsole = false
    Run = pSensorProc		@ NewConsole = false
    Run = pAcommsScheduler	@ NewConsole = false
    Run = pCoverageMap		@ NewConsole = false
@@ -90,6 +89,5 @@ ProcessConfig = pEchoVar
     MaxAppTick  = 0    // no limit
 
     Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
-    Echo = RTK_SPEED -> DVL_X
     Echo = COMPASS_HEADING_FILTERED -> COMPASS_HEADING
 }
