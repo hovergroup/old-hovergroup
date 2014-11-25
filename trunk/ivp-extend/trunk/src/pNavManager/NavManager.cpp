@@ -22,13 +22,11 @@ NavManager::NavManager() {
     rtk_available = false;
     gps_available = false;
     exp_available = false;
-    last_rtk_point_post_time = -1;
-    last_gps_point_post_time = -1;
-    last_exp_point_post_time = -1;
     rtk_point_active = false;
     gps_point_active = false;
     exp_point_active = false;
     last_source_post_time = -1;
+    last_alternate_post_time = -1;
 }
 
 //---------------------------------------------------------
@@ -266,75 +264,75 @@ bool NavManager::Iterate() {
         setSource(best_available);
     }
 
-    // if using experiment, post secondary nav
-    if (source == exp) {
-        switch (best_available) {
-        case rtk:
-            m_Comms.Notify("SECONDARY_NAV_X", rtk_x);
-            m_Comms.Notify("SECONDARY_NAV_Y", rtk_y);
-            m_Comms.Notify("SECONDARY_NAV_SOURCE", "rtk");
-            break;
-        case gps:
-            m_Comms.Notify("SECONDARY_NAV_X", gps_x);
-            m_Comms.Notify("SECONDARY_NAV_Y", gps_y);
-            m_Comms.Notify("SECONDARY_NAV_SOURCE", "gps");
-            break;
-        default:
+    if (MOOSTime() - last_alternate_post_time > 0.2) {
+        last_alternate_post_time = MOOSTime();
+        // if using experiment, post secondary nav
+        if (source == exp && MOOSTime()) {
+            switch (best_available) {
+            case rtk:
+                m_Comms.Notify("SECONDARY_NAV_X", rtk_x);
+                m_Comms.Notify("SECONDARY_NAV_Y", rtk_y);
+                m_Comms.Notify("SECONDARY_NAV_SOURCE", "rtk");
+                break;
+            case gps:
+                m_Comms.Notify("SECONDARY_NAV_X", gps_x);
+                m_Comms.Notify("SECONDARY_NAV_Y", gps_y);
+                m_Comms.Notify("SECONDARY_NAV_SOURCE", "gps");
+                break;
+            default:
+                m_Comms.Notify("SECONDARY_NAV_SOURCE", "none");
+                break;
+            }
+            m_Comms.Notify("SECONDARY_NAV_HEADING", compass_heading);
+
+            if (rtk_point.active()) {
+                rtk_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
+            }
+            if (gps_point.active()) {
+                gps_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
+            }
+            if (exp_point.active()) {
+                exp_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
+            }
+        } else {
             m_Comms.Notify("SECONDARY_NAV_SOURCE", "none");
-            break;
-        }
-        m_Comms.Notify("SECONDARY_NAV_HEADING", compass_heading);
 
-        if (rtk_point.active()) {
-            rtk_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
-        }
-        if (gps_point.active()) {
-            gps_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
-        }
-        if (exp_point.active()) {
-            exp_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
-        }
-    } else {
-        m_Comms.Notify("SECONDARY_NAV_SOURCE", "none");
+            // post alternate points
+            if (source != rtk && rtk_available) {
+                rtk_point.set_vx(rtk_x);
+                rtk_point.set_vy(rtk_y);
+                rtk_point.set_active(true);
+                m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
+                gps_point_active = true;
+            } else if (!rtk_available && rtk_point.active()) {
+                rtk_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
+            }
 
-        // post alternate points
-        if (source != rtk && rtk_available && MOOSTime() - last_rtk_point_post_time > 1) {
-            last_rtk_point_post_time = MOOSTime();
-            rtk_point.set_vx(rtk_x);
-            rtk_point.set_vy(rtk_y);
-            rtk_point.set_active(true);
-            m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
-            gps_point_active = true;
-        } else if (!rtk_available && rtk_point.active()) {
-            rtk_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", rtk_point.get_spec());
-        }
+            if (source != gps && gps_available) {
+                gps_point.set_vx(gps_x);
+                gps_point.set_vy(gps_y);
+                gps_point.set_active(true);
+                m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
+                gps_point_active = true;
+            } else if (!gps_available && gps_point.active()) {
+                gps_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
+            }
 
-        if (source != gps && gps_available && MOOSTime() - last_gps_point_post_time > 1) {
-            last_gps_point_post_time = MOOSTime();
-            gps_point.set_vx(gps_x);
-            gps_point.set_vy(gps_y);
-            gps_point.set_active(true);
-            m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
-            gps_point_active = true;
-        } else if (!gps_available && gps_point.active()) {
-            gps_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", gps_point.get_spec());
-        }
-
-        if (source != exp && exp_available && MOOSTime() - last_exp_point_post_time > 1) {
-            last_exp_point_post_time = MOOSTime();
-            exp_point.set_vx(exp_x);
-            exp_point.set_vy(exp_y);
-            exp_point.set_active(true);
-            m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
-            gps_point_active = true;
-        } else if (!exp_available && exp_point.active()) {
-            exp_point.set_active(false);
-            m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
+            if (source != exp && exp_available) {
+                exp_point.set_vx(exp_x);
+                exp_point.set_vy(exp_y);
+                exp_point.set_active(true);
+                m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
+                gps_point_active = true;
+            } else if (!exp_available && exp_point.active()) {
+                exp_point.set_active(false);
+                m_Comms.Notify("VIEW_POINT", exp_point.get_spec());
+            }
         }
     }
 

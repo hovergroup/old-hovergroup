@@ -41,7 +41,7 @@ private:
     double exp_x, exp_y;
     double compass_heading;
 
-    double last_rtk_point_post_time, last_gps_point_post_time, last_exp_point_post_time;
+    double last_alternate_post_time;
     bool rtk_point_active, gps_point_active, exp_point_active;
     XYPoint rtk_point, gps_point, exp_point;
 
