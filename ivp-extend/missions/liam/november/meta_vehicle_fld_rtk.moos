@@ -50,6 +50,7 @@ Processconfig = ANTLER
    Run = pAcommsHandler		@ NewConsole = false
    Run = pSensorProc		@ NewConsole = false
    Run = pAcommsScheduler	@ NewConsole = false
+   Run = pAcommsManager		@ NewConsole = false
    Run = pCoverageMap		@ NewConsole = false
    Run = pAdaptiveSurveyPlanner @ NewConsole = false
 }
