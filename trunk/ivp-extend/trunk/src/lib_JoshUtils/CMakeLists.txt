@@ -14,4 +14,5 @@ TARGET_LINK_LIBRARIES(JoshUtils
     ${MOOS_LIBRARIES}
     ${MOOS_DEPEND_LIBRARIES}
     mbutil
+    logutils
     )

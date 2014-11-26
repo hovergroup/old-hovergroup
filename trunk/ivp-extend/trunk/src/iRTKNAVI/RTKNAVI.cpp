@@ -138,6 +138,11 @@ void RTKNAVI::parseLine(std::string sline) {
                     pow(dfXLocal - x_prev, 2) + pow(dfYLocal - y_prev, 2))
                     / (MOOSTime() - time_prev);
             vel_history.push_back(vel);
+
+            x_history.push_back(dfXLocal);
+            y_history.push_back(dfYLocal);
+
+
             if (vel_history.size() >= 5) {
                 double sum = 0;
                 for (int i = 0; i < vel_history.size(); i++) {
@@ -145,6 +150,15 @@ void RTKNAVI::parseLine(std::string sline) {
                 }
                 m_Comms.Notify("RTK_SPEED", sum / vel_history.size());
                 vel_history.pop_front();
+
+                double heading = 180/M_PI *
+                        atan2(x_history.back() - x_history.front(),
+                                y_history.back() - y_history.front());
+                x_history.pop_front();
+                y_history.pop_front();
+                while (heading < 0) heading += 360;
+                while (heading > 360) heading -= 360;
+                m_Comms.Notify("RTK_HEADING", heading);
             }
         }
         x_prev = dfXLocal;

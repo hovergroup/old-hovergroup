@@ -54,7 +54,7 @@ protected:
     int asyncBytesRead;
     CMOOSGeodesy m_Geodesy;
 
-    std::deque<double> vel_history;
+    std::deque<double> vel_history, x_history, y_history;
     double x_prev, y_prev, time_prev;
 };
 

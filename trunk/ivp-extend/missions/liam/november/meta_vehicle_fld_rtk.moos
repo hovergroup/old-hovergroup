@@ -55,8 +55,21 @@ Processconfig = ANTLER
    Run = pAdaptiveSurveyPlanner @ NewConsole = false
 }
 
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
+  
+    output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
+    output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
+    output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = VIEW_GRID->$(SHOREHOST):$(SLPORT)
+    output = CONVEX_GRID_DELTA->$(SHOREHOST):$(SLPORT)
+  
+    input = route=$(VHOST):$(LPORT) 
+}
+
 #include ../../trunk/plugs/plug_iKST.moos
-#include ../../trunk/plugs/plug_pShareV.moos
 #include ../../trunk/plugs/plug_pLogger.moos
 #include ../../trunk/plugs/plug_pProtoReporter.moos
 #include ../../trunk/plugs/plug_pMarinePID_Hover.moos
