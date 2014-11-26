@@ -39,20 +39,20 @@ Processconfig = ANTLER
   Run = pScheduledTransmit     @ NewConsole = false
   
 #ifdef ALTIMETER tritech
-  Run = iAltimeter             @ NewConsole = false
+//  Run = iAltimeter             @ NewConsole = false
 #endif
 #ifdef ALTIMETER cruzpro
-  Run = iAltimeter_cruzPro     @ NewConsole = false
+//  Run = iAltimeter_cruzPro     @ NewConsole = false
 #endif
 
 // Start Liam Stuff:
 
    Run = pAcommsHandler		@ NewConsole = false
-   Run = pSensorProc		@ NewConsole = false
-   Run = pAcommsScheduler	@ NewConsole = false
-   Run = pAcommsManager		@ NewConsole = false
-   Run = pCoverageMap		@ NewConsole = false
-   Run = pAdaptiveSurveyPlanner @ NewConsole = false
+//   Run = pSensorProc		@ NewConsole = false
+//   Run = pAcommsScheduler	@ NewConsole = false
+//   Run = pAcommsManager		@ NewConsole = false
+//   Run = pCoverageMap		@ NewConsole = false
+//   Run = pAdaptiveSurveyPlanner @ NewConsole = false
 }
 
 ProcessConfig = pShare
