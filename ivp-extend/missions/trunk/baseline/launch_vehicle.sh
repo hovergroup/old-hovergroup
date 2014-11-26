@@ -15,7 +15,7 @@ BAD_ARGS=""
 VNAME=""
 ALTIMETER=""
 SIMULATION=false
-TRANSMIT_PERIOD="32"
+TRANSMIT_PERIOD="27"
 
 #-------------------------------------------------------
 #  Part 1: Process command-line arguments
