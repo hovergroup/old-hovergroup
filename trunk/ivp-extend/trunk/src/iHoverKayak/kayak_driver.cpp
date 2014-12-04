@@ -39,6 +39,8 @@ kayak_driver::kayak_driver() : port(io), timeout(io) {
 	m_radioWaitTime = 120;
 
 	first_radio_message = true;
+    
+    last_actuator_publish = -1;
 }
 
 int kayak_driver::roundFloat( double val ) {
@@ -386,6 +388,7 @@ void kayak_driver::shiftBuffer(int shift) {
 	buffer_index -= shift;
 }
 
+// old arduino code
 void kayak_driver::parseVoltages(int index, int stopIndex) {
 	if (readBuffer[index] == 'V' && readBuffer[index + 1] == '=') {
 		int battery_voltage;
@@ -396,6 +399,7 @@ void kayak_driver::parseVoltages(int index, int stopIndex) {
 	}
 }
 
+// old arduino code
 void kayak_driver::parseTemperatures(int index, int stopIndex) {
 	if (readBuffer[index] == 'T' && readBuffer[index + 1] == '=') {
 		int heatsink_temp, internal_temp, cpu_temp;
@@ -408,6 +412,7 @@ void kayak_driver::parseTemperatures(int index, int stopIndex) {
 	}
 }
 
+// old arduino code
 void kayak_driver::parseCurrents(int index, int stopIndex) {
 	if (readBuffer[index] == 'C' && readBuffer[index + 1] == '=') {
 		int battery_amps, motor_amps, cpu_amps;
@@ -470,8 +475,11 @@ void kayak_driver::parseActuators(int index, int stopIndex) {
 	if (readBuffer[index] == 'M' && readBuffer[index + 1] == '=') {
 		int thrust, rudder;
 		sscanf(&readBuffer[index], "M=%d,%d", &thrust, &rudder);
-		m_Comms.Notify("ARDUINO_THRUST", thrust);
-		m_Comms.Notify("ARDUINO_RUDDER", rudder);
+        if (MOOSTime() - last_actuator_publish > 0.02) {
+            last_actuator_publish = MOOSTime();
+            m_Comms.Notify("ARDUINO_THRUST", thrust);
+            m_Comms.Notify("ARDUINO_RUDDER", rudder);
+        }
 	} else {
 		cout << "bad parse" << endl;
 	}

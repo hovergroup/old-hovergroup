@@ -1,8 +1,8 @@
-initialize   MISSION_MODE = INACTIVE
-initialize   MOOS_MANUAL_OVERRIDE=true
-initialize   GOSTAY = true
+initialize   MISSION_MODE = INACTIVE     // INACTIVE, GOTO, STATION-KEEP, RETURN
+initialize   MOOS_MANUAL_OVERRIDE=true   // true, false
+initialize   GOSTAY = true               // true, false
 
-Behavior = BHV_Waypoint_Hover
+Behavior = BHV_Waypoint
 { 
     name       = goto_and_station
     pwt        = 100
@@ -20,12 +20,9 @@ Behavior = BHV_Waypoint_Hover
     slip_radius   = 10.0
     points        = $(RETURN_PT)
     repeat        = 1
-    visual_hints  = nextpt_color=red, nextpt_lcolor=green
-    visual_hints  = vertex_color=red, line_color=green
-    visual_hints  = vertex_size=2, edge_size=1
 }
 
-Behavior = BHV_Waypoint_Hover
+Behavior = BHV_Waypoint
 { 
     name       = goto_and_return
     pwt        = 100
@@ -43,12 +40,9 @@ Behavior = BHV_Waypoint_Hover
     slip_radius   = 10.0
     points        = $(RETURN_PT)
     repeat        = 1
-    visual_hints  = nextpt_color=red, nextpt_lcolor=green
-    visual_hints  = vertex_color=red, line_color=green
-    visual_hints  = vertex_size=2, edge_size=1
 }
 
-Behavior = BHV_Waypoint_Hover
+Behavior = BHV_Waypoint
 {
     name       = return
     pwt        = 100
@@ -63,13 +57,11 @@ Behavior = BHV_Waypoint_Hover
     radius     = 2.0
     nm_radius  = 8.0
     points     = $(RETURN_PT)
-    
-    trackpoint_heading_cutoff = 30
 }
 
 Behavior = BHV_StationKeep
 {
-    name             = Archie_Stationkeep
+    name             = station
     pwt              = 100
     condition        = MISSION_MODE = STATION-KEEP
     center_activate  = true
@@ -77,7 +69,8 @@ Behavior = BHV_StationKeep
     station_pt    = 0,0
     inner_radius  = 5
     outer_radius  = 10
-    outer_speed   = 1.0
+    outer_speed   = $(CRUISESPEED)
+    transit_speed = $(CRUISESPEED)
     swing_time    = 3
 }
 
@@ -89,7 +82,7 @@ Behavior = BHV_ConstantSpeed
 
     duration = no-time-limit
 
-    speed = 2.0
+    speed = $(CRUISESPEED)
 }
 
 Behavior = BHV_ConstantHeading
