@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+HELP=false
 VEHICLE=false
 
 for ARGI; do
