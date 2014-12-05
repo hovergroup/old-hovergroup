@@ -75,10 +75,9 @@ if [ ! -d $START_DIRECTORY ] ; then
 fi
 
 echo -e "\e[1;93mUpdating MOOS\e[0m"
+cd $START_DIRECTORY
 
 for INDEX in {0..4} ; do
-    cd $START_DIRECTORY
-    
     # check for subdirectory
     SUBDIR="${MOOS_INFO["$INDEX:NAME"]}-moos"
     echo -e "\e[93mUpdating $SUBDIR\e[0m"
@@ -96,7 +95,7 @@ for INDEX in {0..4} ; do
                 exit 1;
             fi
         fi
-        cd $START_DIRECTORY/moos
+        cd ..
         rm -rf $SUBDIR
         git clone ${MOOS_INFO["$INDEX:URL"]} $SUBDIR
         cd $SUBDIR
@@ -179,4 +178,6 @@ for INDEX in {0..4} ; do
         ;;
         
     esac
+    
+    cd ..
 done # for INDEX in {0..4}
