@@ -77,7 +77,7 @@ fi
 echo -e "\e[1;93mUpdating MOOS\e[0m"
 
 for INDEX in {0..4} ; do
-    cd $START_DIRECTORY/moos
+    cd $START_DIRECTORY
     
     # check for subdirectory
     SUBDIR="${MOOS_INFO["$INDEX:NAME"]}-moos"
