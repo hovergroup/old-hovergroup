@@ -8,11 +8,11 @@ declare -A MOOS_INFO
 
 MOOS_INFO["0:NAME"]="core"
 MOOS_INFO["0:URL"]="https://github.com/themoos/core-moos.git"
-MOOS_INFO["0:TAG"]="10.0.1-release"
+MOOS_INFO["0:TAG"]="10.0.2-release"
 
 MOOS_INFO["1:NAME"]="essential"
 MOOS_INFO["1:URL"]="https://github.com/themoos/essential-moos.git"
-MOOS_INFO["1:TAG"]="10.0.0-release"
+MOOS_INFO["1:TAG"]="10.0.1-release"
 
 MOOS_INFO["2:NAME"]="ui"
 MOOS_INFO["2:URL"]="https://github.com/themoos/ui-moos.git"
