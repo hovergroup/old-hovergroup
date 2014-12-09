@@ -1,0 +1,25 @@
+// MOOS file
+
+ServerHost = localhost
+ServerPort = 9000
+
+ProcessConfig = ANTLER
+{
+	MSBetweenLaunches	= 1000
+
+	Run = MOOSDB		@ NewConsole = false
+	Run = pAcommsController @ NewConsole = false
+}
+
+ProcessConfig = pAcommsController
+{
+   AppTick   = 4
+   CommsTick = 4
+   
+   transmit_period = 6
+   receive_delay = 6
+   
+   matrix_A = 1,2;3,4
+   matrix_B = 1,1;1,1
+}
+

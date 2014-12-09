@@ -1,0 +1,6 @@
+ProcessConfig = pRandomTransmit
+{
+  AppTick = 4
+  
+  length = 192
+}

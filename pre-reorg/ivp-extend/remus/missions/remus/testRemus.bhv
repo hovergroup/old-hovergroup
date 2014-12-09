@@ -1,0 +1,95 @@
+//------------------------------------------------
+// File: mitremus.bhv
+// Name: M. Benjamin
+// Date: Nov 26th, 2010
+//------------------------------------------------
+
+initialize  DEPLOY = false
+// this seems to be an extra paramter for waypt_survey... i dont want it mfallon
+initialize MOOS_MANUAL_OVERIDE = true
+initialize RECON_ENGAGE=true
+initialize GO_HOME=false
+
+
+//------------------------------------------------
+Behavior = BHV_Waypoint
+{ 
+  name      = waypt_go
+  pwt       = 100
+  condition = (DEPLOY == true) 
+  condition = (GO_HOME == false) 
+  endflag   = DEPLOY=false
+  endflag   = GO_HOME=false
+
+          lead = 8
+         speed = 1.0   // meters per second
+        radius = 4.0
+     nm_radius = 10.0
+        points = 90,-150
+
+  
+}
+
+//------------------------------------------------
+Behavior = BHV_Waypoint
+{
+  name      = waypt_home
+  pwt       = 100
+  condition = (DEPLOY == false)
+  condition = (GO_HOME == true) 
+  endflag   = GO_HOME=false
+  endflag   = DEPLOY=false
+  // endflag   = RECON_ENGAGE=false
+
+          lead = 8
+         speed = 0.5   // meters per second
+        radius = 4.0
+     nm_radius = 10.0
+        points = 21,-36
+
+
+}
+
+
+//------------------------------------------------
+Behavior = BHV_ConstantDepth
+{
+  name       = const_depth_go
+  pwt        = 100
+  condition  = (DEPLOY == true)
+  condition = (GO_HOME == false) 
+  duration   = no-time-limit
+
+       depth = 0
+//was 1.2
+}
+
+
+
+
+//------------------------------------------------
+Behavior = BHV_ConstantDepth
+{
+  name       = const_depth_home
+  pwt        = 100
+  condition = (DEPLOY == false)
+  condition = (GO_HOME == true) 
+  duration   = no-time-limit
+
+       depth = 0
+//was 1.2
+}
+
+//------------------------------------------------
+Behavior = BHV_OpRegion
+{
+  name       = op_region
+  pwt        = 100
+  condition  = (DEPLOY == true) 
+
+             max_time = 600
+              polygon = -200,-100:-100,-250:200,-100:144,3:84,35
+   trigger_entry_time = 2.0
+    trigger_exit_time = 1.0
+}
+

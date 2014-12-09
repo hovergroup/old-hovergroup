@@ -1,0 +1,62 @@
+//*******************************************************
+// Vehicle 2 Configuration File
+//
+#define  VID		2
+#define  VEHICLE_NAME remus
+#define  VEHICLE_TYPE auv
+
+// either remus or remus_verylong
+#define  BHVFILE	remus
+
+#define  RECON_IP 192.168.1.71
+//MIT: 192.168.1.71
+
+#define  UMODEM_PORT	/dev/ttyS1
+// MIT: /dev/ttyS1
+
+#define  START_POS	-10,-5 
+
+ServerHost = localhost
+ServerPort = 9202
+//Simulator  = true
+MOOSTimeWarp=1
+// Community name IS the vehicle name
+Community  = $(VEHICLE_NAME)
+LatOrigin  = 42.3584
+LongOrigin = -71.08745
+
+modem_id = $(VID)
+modem_id_lookup_path =  ../acomms/modemidlookup.txt
+ 
+ProcessConfig = ANTLER
+{
+// 1 CONTROL
+  MSBetweenLaunches = 10
+  Run = MOOSDB          @ NewConsole = false
+
+  Run = iRecon                @ NewConsole = false
+  Run = pHelmIvP    	@ NewConsole = false
+
+  Run = pEchoVar        @ NewConsole = false
+  Run = pLogger         @ NewConsole = false
+  Run = pNodeReporter 	@ NewConsole = false
+
+// 2 COMMS:
+// Run this in a terminal initiially:
+  Run = pAcommsHandler	@ NewConsole = false
+  Run = pNavGlobalize	@ NewConsole = false
+  
+}
+
+// Start of Control Processes ///////////////////////////////////////////////////////
+#include ../plugs/plug_uSimMarine.moos
+#include ../plugs/plug_pMarinePID.moos
+#include ../plugs/plug_pHelmIvP.moos
+#include ../plugs/plug_iRecon.moos
+#include ../plugs/plug_pEchoVar_with_iRecon.moos
+#include ../plugs/plug_pLogger.moos
+#include ../plugs/plug_pNodeReporter.moos
+
+// Start of Comms Processes /////////////////////////////////////////////////////////
+#include ../plugs/plug_pNavGlobalize.moos
+#include ../plugs/plug_pAcommsHandler_remus.moos

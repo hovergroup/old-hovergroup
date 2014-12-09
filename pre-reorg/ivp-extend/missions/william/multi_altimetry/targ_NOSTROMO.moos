@@ -1,0 +1,243 @@
+ServerHost = 192.168.1.103
+ServerPort = 9300
+Community  = NOSTROMO
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456        
+LongOrigin = -71.087589    
+
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iHoverKayak            @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  
+}
+
+Processconfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = iKST
+{
+    AppTick   = 4
+
+    output_path = "/home/josh/kst_NOSTROMO.csv"
+
+    LOG = NAV_X
+    LOG = NAV_Y
+    LOG = NAV_HEADING
+    LOG = NAV_SPEED
+    LOG = DESIRED_HEADING
+    LOG = DESIRED_SPEED
+    LOG = ARDUINO_RUDDER
+    LOG = ARDUINO_THRUST
+    LOG = COMPASS_ROLL
+    LOG = COMPASS_PITCH
+    LOG = ALTIMETER_DEPTH
+}
+
+//---------------------------------------------------------
+// pMOOSBridge_NOSTROMO Config Block  (Created from Plugin)
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+  
+  output = PROTO_REPORT_LOCAL->PROTO_REPORT:192.168.1.100:9001
+  output = VIEW_*->:192.168.1.100:9001
+  
+  output = PROTO_REPORT_LOCAL->PROTO_REPORT:192.168.1.100:9001:udp
+  output = VIEW_*->:192.168.1.100:9001:udp
+  
+  input = route=192.168.1.103:9301 
+}
+
+ProcessConfig = pLogger
+{
+    AppTick   = 10
+    CommsTick = 10
+
+    File            = LOG_NOSTROMO
+    PATH            = /home/josh/logs/
+    AsyncLog        = true
+    FileTimeStamp   = true
+    WildCardLogging = true
+
+    WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+// pNodeReporter Configuration Block (Created from Plugin)
+
+ProcessConfig = pProtoReporter
+{
+  AppTick   = 1
+  
+  PLATFORM_TYPE = KAYAK
+}
+
+ProcessConfig = pMarinePID_Hover
+{
+    AppTick   = 5
+    CommsTick = 5
+
+    Verbose       = false
+    DEPTH_CONTROL = false
+    ACTIVE_START  = true
+    MAXRUDDER     = 45
+    MAXTHRUST     = 100
+
+    // SPEED_FACTOR
+    //    - A non-zero SPEED_FACTOR overrides use of SPEED_PID
+    //    - Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
+    SPEED_FACTOR  = 30
+    // 25-30 for no modem
+    // 40 with modem
+
+    // Yaw PID controller
+    YAW_PID_KP             = 0.45
+    YAW_PID_KD             = 0
+    YAW_PID_KI             = 0
+    YAW_PID_INTEGRAL_LIMIT = 0.25
+    YAW_PID_TAU            = 1
+
+    // Speed PID controller
+    SPEED_PID_KP             = 0.4
+    SPEED_PID_KD             = 0.0
+    SPEED_PID_KI             = 0.0
+    SPEED_PID_INTEGRAL_LIMIT = 0.07
+}
+ProcessConfig = pHelmIvP
+{
+  AppTick = 2
+
+  ok_skew = any
+  
+  Behaviors = targ_NOSTROMO.bhv  
+  Verbose   = true
+  Domain    = course:0:359:360
+  Domain    = speed:0:5:51
+  
+//  IVP_BEHAVIOR_DIR = /home/student/moos-ivp-jleight/ivp-extend/trunk/lib
+}
+
+ProcessConfig = pEchoVar
+{
+  AppTick     = 40
+  MaxAppTick  = 100
+  IterateMode = 1 // comms driven iterate and mail
+
+  Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+  Echo = GPS_X -> NAV_X
+  Echo = GPS_Y -> NAV_Y
+  Echo = GPS_SPEED -> NAV_SPEED
+  Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+}
+
+ProcessConfig = iOS5000_Hover
+{
+  AppTick = 1
+
+  Port        = /dev/ttyUSB2        // tty port for communicating with the dig compass
+  Speed       = 57600            // Always set to 19200 (OS5000 baud rate)
+  PreRotation = -15            // -15 for Boston (magnetic declination)
+
+  UpdateFraction = .025
+}
+
+ProcessConfig = iRTKNAVI
+{
+  HOST=192.168.1.103
+  PORT=50001
+}
+
+ProcessConfig = iRemote
+{
+  AppTick   = 5
+  CommsTick = 5
+
+  CustomKey = 1 : HELM_VERBOSE @ "verbose"
+  CustomKey = 2 : HELM_VERBOSE @ "terse"
+  CustomKey = 3 : HELM_VERBOSE @ "quiet"
+  CustomKey = 4 : DEPLOY @ "true"
+  CustomKey = 5 : DEPLOY @ "false"
+  CustomKey = 6 : RETURN @ "true"
+  CustomKey = 7 : RETURN @ "false"
+}
+
+ProcessConfig = iHoverKayak
+{
+  AppTick     = 20
+  MaxAppTick  = 100
+  IterateMode = 1 // comms driven iterate and mail
+   
+  INVERT_RUDDER = false
+  RUDDER_OFFSET = -3
+  PORT_NAME = /dev/ttyO1
+}
+
+ProcessConfig = iAcommsDriver
+{
+  AppTick     = 5
+  IterateMode = 0
+
+  PortName = /dev/ttyUSB1
+  ID       = 3
+
+  PSK_minipackets   = false
+  enable_ranging    = true
+  show_range_pulses = true
+  enable_legacy     = false
+}
+
+ProcessConfig = iAltimeter
+{
+  AppTick   = 10
+  CommsTick = 10
+  
+  PORT_NAME = /dev/ttyUSB0
+}
+
+ProcessConfig = iAltimeter_cruzPro
+{
+  AppTick   = 10
+  CommsTick = 10
+  
+  PORT_NAME = /dev/ttyUSB0
+  BAUD_RATE = 4800
+}
+
+ProcessConfig = pScheduledTransmit
+{
+   IterateMode = 0 // regular iterate and mail
+   AppTick = 20
+   
+   period = 12
+   offset = 0
+}
+

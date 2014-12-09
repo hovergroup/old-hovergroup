@@ -1,0 +1,3 @@
+mex -I/home/josh/moos-ivp/MOOS_V10Beta_rc2/MOOSCore/Core/libMOOS/Thirdparty/PocoBits/include -I/home/josh/moos-ivp/MOOS/MOOSCore/Core/libMOOS/include -I/home/josh/moos-ivp/MOOS/MOOSCore/Core/libMOOS/App/include -I/home/josh/moos-ivp/MOOS/MOOSCore/Core/libMOOS/Comms/include -I/home/josh/moos-ivp/MOOS/MOOSCore/Core/libMOOS/Utils/include -L/home/josh/moos-ivp/MOOS/MOOSCore/lib -lMOOS iMatlab.cpp mexHelpers.cpp 
+
+VIEW_GRID="pts={-30,-290:280,-290:280,20:-30,20},cell_size=10,label=pag"

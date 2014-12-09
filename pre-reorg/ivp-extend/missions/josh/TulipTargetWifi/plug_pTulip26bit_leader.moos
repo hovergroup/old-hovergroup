@@ -1,0 +1,34 @@
+//------------------------------------------------------
+// pTulip26bit Configuration Block  (Created from plugin)
+// leader
+
+ProcessConfig = pTulip26bit
+{
+  AppTick   = 20
+  CommsTick  = 20
+  
+  x_min = -30
+  x_max = 280
+  y_min = -290
+  y_max = 20
+  
+  // should be 7 range divs in increasing order
+  follower_range_divs = 19.1667,32.5,42.5,50,57.5,67.5,80.8333
+  
+  receive_period = 12
+  receive_offset = 11
+  //receive_period = 30
+  //receive_offset = 22
+  
+  transmit_period = 12
+  //transmit_period = 30
+  transmit_offset = 0
+  
+  receive_extension = 1
+  max_receive_error = 2
+  
+  vehicle_mode = leader
+  
+  range_source = acomms
+  target_id = 1
+}

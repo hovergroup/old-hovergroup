@@ -1,0 +1,140 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB               @ NewConsole = false
+  Run = pShare               @ NewConsole = false
+  Run = pMarineViewer        @ NewConsole = false
+  Run = pLogger              @ NewConsole = false
+  
+  Run = pEchoVar	      @ NewConsole = false
+
+  Run = uXMS              @ NewConsole = true,XConfig=3 ~uXMS_tulip-acomms
+  Run = uXMS		@ NewConsole = true,XConfig=1 ~uXMS_tulip-data
+
+  Run = uTermCommand	@ NewConsole = true
+
+  1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+  3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
+  4 = -geometry,80x30+0+460,-bg,blue,-fg,white
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = MISSION_MODE_ALL->MISSION_MODE: $(VHOST3):$(LPORT3):udp & MISSION_MODE: $(VHOST2):$(LPORT2):udp
+  output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE: $(VHOST3):$(LPORT3):udp & MOOS_MANUAL_OVERRIDE: $(VHOST2):$(LPORT2):udp
+  
+  output = MISSION_MODE_$(VNAME3)->MISSION_MODE:$(VHOST3):$(LPORT3):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME3)->MOOS_MANUAL_OVERRIDE:$(VHOST3):$(LPORT3):udp
+  output = GOTO_UPDATES_$(VNAME3)->GOTO_UPDATES:$(VHOST3):$(LPORT3):udp
+  
+  output = MISSION_MODE_$(VNAME2)->MISSION_MODE:$(VHOST2):$(LPORT2):udp
+  output = MOOS_MANUAL_OVERRIDE_$(VNAME2)->MOOS_MANUAL_OVERRIDE:$(VHOST2):$(LPORT2):udp
+  output = GOTO_UPDATES_$(VNAME2)->GOTO_UPDATES:$(VHOST2):$(LPORT2):udp
+  
+  output = LEADER_WAYPOINT_$(VNAME2)->LEADER_WAYPOINT:$(VHOST2):$(LPORT2):udp
+  output = LEADER_WAYPOINT_$(VNAME3)->LEADER_WAYPOINT:$(VHOST3):$(LPORT3):udp
+  output = FOLLOWER_WAYPOINT_$(VNAME2)->FOLLOWER_WAYPOINT:$(VHOST2):$(LPORT2):udp
+  output = FOLLOWER_WAYPOINT_$(VNAME3)->FOLLOWER_WAYPOINT:$(VHOST3):$(LPORT3):udp
+  
+  input = route=localhost:$(LPORT)
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = tulip --> MISSION_MODE_ALL --> TULIP
+}
+
+ProcessConfig = uXMS_tulip-data
+{
+	AppTick = 1
+	CommsTick = 1
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+  	VAR = LEADER_X
+  	VAR = LEADER_Y
+  	VAR = FOLLOWER_X
+  	VAR = FOLLOWER_Y
+  	VAR = LEADER_RANGE
+  	VAR = FOLLOWER_RANGE
+  	VAR = FOLLOWER_PACKET
+  	VAR = LEADER_PACKET
+  	VAR = LEADER_WAYPOINT_NOSTROMO
+  	VAR = FOLLOWER_WAYPOINT_NOSTROMO
+  	
+  	VAR = GPS_TIME_SECONDS
+}
+
+ProcessConfig = uXMS_tulip-acomms
+{
+	AppTick = 1
+	CommsTick = 1
+	
+	DISPLAY_TIME = true
+	DISPLAY_SOURCE = true
+	
+	VAR = TULIP_UPDATES_$(LEADER)
+	VAR = TULIP_UPDATES_$(FOLLOWER)
+	VAR = TULIP_UPDATES_$(TARGET)
+	VAR = TULIP_DEBUG_$(LEADER)
+	VAR = TULIP_DEBUG_$(FOLLOWER)
+	VAR = TULIP_DEBUG_$(TARGET)
+	VAR = GPS_TIME_SECONDS
+}
+
+ProcessConfig = pEchoVar
+{
+	AppTick   = 40
+	CommsTick = 40
+
+	Echo = LEADER_WAYPOINT -> LEADER_WAYPOINT_$(LEADER)
+	Echo = FOLLOWER_WAYPOINT -> FOLLOWER_WAYPOINT_$(LEADER)
+}
+
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pMarineViewer.moos
+
+ProcessConfig = iMatlab
+{
+  AppTick = 20
+  Comms Tick = 20
+
+  Port = COM6
+  BaudRate = 4800
+
+  Verbose = false
+  Streaming = false
+  MOOSComms = true
+  SerialComms = false
+  SERIAL_TIMEOUT = 10.0
+
+  SUBSCRIBE = DB_TIME @ 1.0
+  SUBSCRIBE = FOLLOWER_X @ 0.0
+  SUBSCRIBE = FOLLOWER_Y @ 0.0
+  SUBSCRIBE = LEADER_X @ 0.0
+  SUBSCRIBE = LEADER_Y @ 0.0
+  SUBSCRIBE = FOLLOWER_RANGE_BIN @ 0.0
+  SUBSCRIBE = FOLLOWER_RANGE @ 0.0
+  SUBSCRIBE = LEADER_RANGE @ 0.0
+  SUBSCRIBE = FOLLOWER_PACKET @ 0.0
+}

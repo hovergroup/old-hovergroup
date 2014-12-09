@@ -1,0 +1,88 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB               @ NewConsole = false
+  Run = pShare               @ NewConsole = false
+  Run = pMarineViewer        @ NewConsole = false
+  Run = pLogger              @ NewConsole = false
+  Run = pProtoReportParser   @ NewConsole = false
+  Run = pWTStatusView        @ NewConsole = false
+  Run = pResourceMon         @ NewConsole = false
+  Run = uTermCommand_Hover   @ NewConsole = true
+  Run = pAckedCommsShoreside @ NewConsole = true
+
+  1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+ProcessConfig = uTermCommand_Hover
+{
+    AppTick = 2
+    CommsTick = 2
+
+    // nostromo goto
+    CMD = NG --> MISSION_MODE_NOSTROMO --> GOTO
+    CMD = NG --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> false
+    // nostromo station
+    CMD = NS --> MISSION_MODE_NOSTROMO --> STATION-KEEP
+    CMD = NS --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> false
+    // nostromo all-stop
+    CMD = NA --> MISSION_MODE_NOSTROMO --> INACTIVE
+    CMD = NA --> MOOS_MANUAL_OVERRIDE_NOSTROMO --> true
+
+    // silvana goto
+    CMD = SG --> MISSION_MODE_SILVANA --> GOTO
+    CMD = SG --> MOOS_MANUAL_OVERRIDE_SILVANA --> false
+    // silvana station
+    CMD = SS --> MISSION_MODE_SILVANA --> STATION-KEEP
+    CMD = SS --> MOOS_MANUAL_OVERRIDE_SILVANA --> false
+    // silvana all-stop
+    CMD = SA --> MISSION_MODE_SILVANA --> INACTIVE
+    CMD = SA --> MOOS_MANUAL_OVERRIDE_SILVANA --> true
+
+    // kestrel goto
+    CMD = KG --> MISSION_MODE_KESTREL --> GOTO
+    CMD = KG --> MOOS_MANUAL_OVERRIDE_KESTREL --> false
+    // kestrel station
+    CMD = KS --> MISSION_MODE_KESTREL --> STATION-KEEP
+    CMD = KS --> MOOS_MANUAL_OVERRIDE_KESTREL --> false
+    // kestrel all-stop
+    CMD = KA --> MISSION_MODE_KESTREL --> INACTIVE
+    CMD = KA --> MOOS_MANUAL_OVERRIDE_KESTREL --> true
+    
+    // scheduled transmits
+    CMD = EXP_NAV --> SET_NAV_SOURCE_ALL --> exp
+    CMD = NORMAL_NAV --> SET_NAV_SOURCE_ALL --> none
+    CMD = EXP_MODE --> MISSION_MODE_ALL --> EXPERIMENT
+}
+
+ProcessConfig = pAckedCommsShoreside
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+    
+    vehicles = NOSTROMO,SILVANA,KESTREL,ICARUS
+    
+    BRIDGE = var=MISSION_MODE,repeat=5,delay=0.5
+    BRIDGE = var=MOOS_MANUAL_OVERRIDE,repeat=5,delay=0.5
+    BRIDGE = var=GOTO_UPDATES,repeat=5,delay=0.5
+    BRIDGE = var=SCHEDULED_TRANSMITS,repeat=5,delay=0.5
+    BRIDGE = var=SET_NAV_SOURCE,repeat=5,delay=0.5
+}
+
+
+#include ../../trunk/plugs/plug_pShareS.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pMarineViewer.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos

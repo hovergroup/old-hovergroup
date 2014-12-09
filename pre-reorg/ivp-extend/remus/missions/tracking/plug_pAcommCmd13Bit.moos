@@ -1,0 +1,5 @@
+ProcessConfig = pAcommCmd13Bit
+{
+        AppTick         = 10
+        CommsTick       = 10
+}

@@ -1,0 +1,11 @@
+/------------------------------------------------
+// pAcommStatusTransmit config block
+
+ProcessConfig = pAcommStatusTransmit
+{
+   AppTick   = 4
+   CommsTick = 4
+
+   period = 15
+   offset = 0
+}

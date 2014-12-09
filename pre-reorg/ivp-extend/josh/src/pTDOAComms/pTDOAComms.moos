@@ -1,0 +1,26 @@
+ProcessConfig = pTDOAComms
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = z    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+    
+    ID = $(ACOMMSID)   // our local id
+    
+}
+
+ProcessConfig = pTDOATracker
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = z    // iterate lower bound
+    
+    TDOAid = 1;
+    Q = 0.01;
+    R = 0.04;
+    SDim = 3;
+    ODEdt = 5;
+    xRel = 20
+    yRel = -20
+    TempControl = 0
+    Label = Nostromo
+    Color = blue
+}

@@ -1,0 +1,57 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pShare            	@ NewConsole = false 
+  Run = pLogger            	@ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  Run = pMarinePID        	@ NewConsole = false
+  Run = pHelmIvP           	@ NewConsole = false
+  Run = iAcommsDriver	    	@ NewConsole = false
+  Run = iRecon              @ NewConsole = false
+  Run = uTimerScript        @ NewConsole = false ~uTimerScript_config
+
+#ifdef PACKET psk
+  Run = pAcommStatusTransmit    @ NewConsole = false
+#else
+  Run = pAcommStatus13Bit       @ NewConsole = false
+#endif
+}
+
+Processconfig = uTimerScript_config
+{
+  AppTick = 4
+  CommsTick = 4
+
+#ifdef PACKET psk
+    event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+#else
+    event = var=ACOMMS_TRANSMIT_RATE,val=100,time=1
+#endif
+  event = quit, time=2
+}
+
+
+#include plug_pShare_remus.moos
+#include plug_pLogger.moos
+#include plug_pNodeReporter_Remus.moos
+#include plug_pMarinePID_Remus.moos
+#include plug_pHelmIvP_remus.moos
+#include plug_iRecon.moos
+
+
+#ifdef PACKET psk
+  #include plug_pAcommStatusTransmit.moos
+  #include plug_iAcommsDriver.moos
+#else
+  #include plug_pAcommStatus13Bit.moos
+  #include plug_iAcommsDriver13Bit.moos
+#endif

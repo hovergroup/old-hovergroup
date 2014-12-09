@@ -1,0 +1,93 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iHoverKayak            @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  Run = pNavManager            @ NewConsole = false
+  Run = pResourceMon           @ NewConsole = false
+  Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
+  //Run = pPursuitVehicle        @ NewConsole = false
+  
+#ifdef ALTIMETER tritech
+  Run = iAltimeter             @ NewConsole = false
+#endif
+#ifdef ALTIMETER cruzpro
+  Run = iAltimeter_cruzPro     @ NewConsole = false
+#endif
+}
+
+ProcessConfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+  event = quit, time=2
+}
+
+#include ../../trunk/plugs/plug_iKST.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pProtoReporter.moos
+#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = $(MODEMPORT)
+    ID       = $(ACOMMSID)
+
+    PSK_minipackets   = false
+    enable_ranging    = false
+    show_range_pulses = true
+    enable_legacy     = false
+}
+
+#include ../../trunk/plugs/plug_iAltimeter.moos
+#include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
+#include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
+#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
+  
+    output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
+    output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
+    output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = NAV_X->NAV_X_$(VNAME):$(SHOREHOST):$(SLPORT)
+    output = NAV_Y->NAV_Y_$(VNAME):$(SHOREHOST):$(SLPORT)
+  
+    input = route=$(VHOST):$(LPORT) 
+}

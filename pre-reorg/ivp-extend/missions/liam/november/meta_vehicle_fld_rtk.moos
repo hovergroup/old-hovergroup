@@ -1,0 +1,107 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+
+#define LIAM_ROOT ../../../lpaull/AUVCL_coverage/missions/hover_adaptive_acomms
+#define MISSION_ROOT $(LIAM_ROOT)
+#include $(LIAM_ROOT)/config/$(VNAME).def
+#include $(LIAM_ROOT)/config/common.def
+#include $(LIAM_ROOT)/config/sensors.def
+
+#define MODEM_PORT $(MODEMPORT)
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+//  Run = isam_coop			@ NewConsole = false, ExtraProcessParams=6, InhibitMOOSParams=true
+//  6 = -n,$(NUM_AUVS),-i,$(MODEM_ID),-l,766$(MODEM_ID)
+
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false // need to edit this one
+  Run = iHoverKayak            @ NewConsole = false
+//  Run = iAcommsDriver          @ NewConsole = false
+  Run = pNavManager            @ NewConsole = false
+  Run = pResourceMon           @ NewConsole = false
+  Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
+  
+#ifdef ALTIMETER tritech
+//  Run = iAltimeter             @ NewConsole = false
+#endif
+#ifdef ALTIMETER cruzpro
+//  Run = iAltimeter_cruzPro     @ NewConsole = false
+#endif
+
+// Start Liam Stuff:
+
+   Run = pAcommsHandler		@ NewConsole = false
+//   Run = pSensorProc		@ NewConsole = false
+//   Run = pAcommsScheduler	@ NewConsole = false
+//   Run = pAcommsManager		@ NewConsole = false
+//   Run = pCoverageMap		@ NewConsole = false
+//   Run = pAdaptiveSurveyPlanner @ NewConsole = false
+}
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
+  
+    output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
+    output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
+    output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = VIEW_GRID->$(SHOREHOST):$(SLPORT)
+    output = CONVEX_GRID_DELTA->$(SHOREHOST):$(SLPORT)
+  
+    input = route=$(VHOST):$(LPORT) 
+}
+
+#include ../../trunk/plugs/plug_iKST.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pProtoReporter.moos
+#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+//#include ../../trunk/plugs/plug_pEchoVar.moos // see below
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+#include ../../trunk/plugs/plug_iAcommsDriver.moos
+#include ../../trunk/plugs/plug_iAltimeter.moos
+#include ../../trunk/plugs/plug_iAltimeter_cruzPro.moos
+#include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
+#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos
+
+// start Liam's plugs
+#include $(LIAM_ROOT)/plugs/pSensorProc.plug
+#include $(LIAM_ROOT)/../common_plugs/vehicle/pAcommsScheduler.plug
+#include $(LIAM_ROOT)/../common_plugs/vehicle/pAcommsManager.plug
+#include $(LIAM_ROOT)/plugs/pCoverageMap.plug
+#include $(LIAM_ROOT)/plugs/pAdaptiveSurveyPlanner.plug
+#include $(LIAM_ROOT)/plugs/pAcommsHandler.plug
+
+ProcessConfig = pEchoVar
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 4    // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+    Echo = COMPASS_HEADING_FILTERED -> COMPASS_HEADING
+}

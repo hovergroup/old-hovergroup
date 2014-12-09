@@ -1,0 +1,80 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB               @ NewConsole = false
+  Run = pShare               @ NewConsole = false
+  Run = pMarineViewer        @ NewConsole = false
+  Run = pLogger              @ NewConsole = false
+  Run = pProtoReportParser   @ NewConsole = false
+  Run = pWTStatusView        @ NewConsole = false
+  Run = pResourceMon         @ NewConsole = false
+  Run = uTermCommand         @ NewConsole = true
+
+  1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+    AppTick = 2
+    CommsTick = 2
+
+    CMD = ENABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> on
+    CMD = DISABLE_TRANSMITS --> SCHEDULED_TRANSMITS_ALL --> off
+    
+    CMD = TDOA_RUN --> TDOA_COMMAND_ALL --> run
+    CMD = TDOA_PAUSE --> TDOA_COMMAND_ALL --> pause
+    
+    CMD = TRACKER_RUN --> TRACKER_COMMAND_ALL --> run
+    CMD = TRACKER_PAUSE --> TRACKER_COMMAND_ALL --> pause
+    
+    CMD = MODE_TDOA --> MISSION_MODE_ALL --> TDOA
+    CMD = MODE_GOTO --> MISSION_MODE_ALL --> GOTO
+}
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4    // iterate lower bound
+
+    output = MISSION_MODE_ALL->MISSION_MODE: $(VHOST3):$(LPORT3) & MISSION_MODE: $(VHOST2):$(LPORT2) & MISSION_MODE: $(VHOST4):$(LPORT4)
+    output = MOOS_MANUAL_OVERRIDE_ALL->MOOS_MANUAL_OVERRIDE: $(VHOST3):$(LPORT3) & MOOS_MANUAL_OVERRIDE: $(VHOST2):$(LPORT2) & MOOS_MANUAL_OVERRIDE: $(VHOST4):$(LPORT4)
+  
+    output = MISSION_MODE_$(VNAME4)->MISSION_MODE:$(VHOST4):$(LPORT4)
+    output = MOOS_MANUAL_OVERRIDE_$(VNAME4)->MOOS_MANUAL_OVERRIDE:$(VHOST4):$(LPORT4)
+    output = GOTO_UPDATES_$(VNAME4)->GOTO_UPDATES:$(VHOST4):$(LPORT4)
+  
+    output = MISSION_MODE_$(VNAME3)->MISSION_MODE:$(VHOST3):$(LPORT3)
+    output = MOOS_MANUAL_OVERRIDE_$(VNAME3)->MOOS_MANUAL_OVERRIDE:$(VHOST3):$(LPORT3)
+    output = GOTO_UPDATES_$(VNAME3)->GOTO_UPDATES:$(VHOST3):$(LPORT3)
+  
+    output = MISSION_MODE_$(VNAME2)->MISSION_MODE:$(VHOST2):$(LPORT2)
+    output = MOOS_MANUAL_OVERRIDE_$(VNAME2)->MOOS_MANUAL_OVERRIDE:$(VHOST2):$(LPORT2)
+    output = GOTO_UPDATES_$(VNAME2)->GOTO_UPDATES:$(VHOST2):$(LPORT2)
+    
+    output = SCHEDULED_TRANSMITS_ALL->SCHEDULED_TRANSMITS: $(VHOST3):$(LPORT3) & SCHEDULED_TRANSMITS: $(VHOST1):$(LPORT1)
+    output = SCHEDULED_TRANSMITS_ALL->SCHEDULED_TRANSMITS: $(VHOST2):$(LPORT2) & SCHEDULED_TRANSMITS: $(VHOST4):$(LPORT4)
+  
+    output = TDOA_COMMAND_ALL->TDOA_COMMAND: $(VHOST3):$(LPORT3) & TDOA_COMMAND: $(VHOST1):$(LPORT1)
+    output = TDOA_COMMAND_ALL->TDOA_COMMAND: $(VHOST2):$(LPORT2) & TDOA_COMMAND: $(VHOST4):$(LPORT4)
+    
+    output = TRACKER_COMMAND_ALL->TRACKER_COMMAND: $(VHOST3):$(LPORT3) & TRACKER_COMMAND: $(VHOST1):$(LPORT1)
+    output = TRACKER_COMMAND_ALL->TRACKER_COMMAND: $(VHOST2):$(LPORT2) & TRACKER_COMMAND: $(VHOST4):$(LPORT4)
+  
+    input = route=localhost:$(LPORT)
+}
+
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pMarineViewer.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos

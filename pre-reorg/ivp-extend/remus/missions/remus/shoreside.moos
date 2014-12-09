@@ -1,0 +1,174 @@
+//*******************************************************
+// Vehicle 1 Configuration File
+//
+
+MOOSTimeWarp =1
+ServerHost = localhost
+ServerPort = 9000
+// Community name IS the vehicle name
+Community  = terra
+LatOrigin  = 42.3584
+LongOrigin = -71.08745
+
+//------------------------------------------------------------
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 10
+  Run = MOOSDB          	@ NewConsole = false
+  Run = pShare            @NewConsole = false
+  Run = pMOOSBridge       @ NewConsole = false
+  Run = pMarineViewer     @ NewConsole = false
+  Run = pLogger         	@ NewConsole = false
+
+ 1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+  3 = -geometry,80x30+0+0,-bg,lightblue,-fg,black
+  4 = -geometry,80x30+0+460,-bg,blue,-fg,white
+
+}
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = A_DEPLOY->A_DEPLOY:192.168.1.102:9301:udp
+
+  input = route=localhost:9001
+}
+
+
+ProcessConfig = pMOOSBridge
+{
+  AppTick   = 5
+  CommsTick = 5
+
+  // this is the port *this* bridge will be listening for incoming UDP packets 
+  // from other bridges in other communities.
+  UDPListen = 9200 
+
+  // SHARE = [VAR] -> to-community @ to-host:to-port [VAR]
+
+  SHARE = [MOOS_MANUAL_OVERRIDE, DEPLOY, ASTATUS_TRANSMITS, GO_HOME] -> remus@192.168.1.74:9202
+  SHARE = [A_DEPLOY] -> icarus@192.168.1.102:9300
+}
+
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 4
+  CommsTick  = 4
+
+//  TIFF_FILE     = ../../data/pavilion.tif
+
+    center_view_true = true
+  center_view_sticky = true
+
+  HASH_VIEW     = false
+  HASH_DELTA    = 100
+  HASH_SHADE    = 0.45
+  BACK_SHADE    = 0.70
+
+          trails_viewable = true
+        trails_point_size = 1
+       polygon_edge_color = white
+     polygon_vertex_color = light_green
+       polygon_edge_width = 1
+  polygon_viewable_labels = false
+
+      seglist_vertex_size = 4
+        point_vertex_size = 8
+
+      vehicle_shape_scale = 3
+  vehicles_name_viewable = names
+                     zoom = 1.7
+                set_pan_x = 0
+                set_pan_y = 80
+
+        scope  = NODE_REPORT
+        scope  = VIEW_POINT
+        scope  = VIEW_SEGLIST
+        scope  = VIEW_POLYGON
+
+
+  BUTTON_ONE   = DEPLOY  # DEPLOY = true # MOOS_MANUAL_OVERRIDE = false # GO_HOME = false
+  BUTTON_TWO   = STOP  # DEPLOY = false  # MOOS_MANUAL_OVERRIDE = true # GO_HOME = false
+  BUTTON_THREE = A_DEPLOY # A_DEPLOY = true
+  BUTTON_FOUR  = A_STOP # A_DEPLOY = false
+
+  action = menu_key=ST_START # ASTATUS_TRANSMITS = on
+  action = menu_key=ST_STOP # ASTATUS_TRANSMITS = off
+  action = menu_key=GOHOME # GO_HOME = true # DEPLOY = false
+}
+
+// from plug_pEchoVar
+ProcessConfig = pEchoVar
+{
+  AppTick   = 20
+  CommsTick = 20  
+  Echo = MARINESIM_X       ->  NAV_X
+  Echo = MARINESIM_Y       ->  NAV_Y
+  Echo = MARINESIM_HEADING ->  NAV_HEADING
+  Echo = MARINESIM_SPEED   ->  NAV_SPEED
+  Echo = MARINESIM_DEPTH   ->  NAV_DEPTH
+// dont use this:  Echo = DEPLOY  ->  RECON_ENGAGE
+}
+
+// from plug_pLogger
+ProcessConfig = pLogger
+{
+  AppTick 	= 10
+  CommsTick 	= 10
+  File		= V1_
+  PATH		= ./data_from_runs/
+  SyncLog 	= true @ 0.2
+  AsyncLog 	= true
+  FileTimeStamp = true
+  // Log it all!!!!!
+  WildCardLogging = true 
+  // PID Output
+  Log		= DESIRED_THRUST     @ 0
+  Log		= DESIRED_RUDDER     @ 0
+    // Helm Output
+  Log           = DESIRED_DEPTH      @ 0
+  Log           = DESIRED_SPEED      @ 0
+  Log           = DESIRED_HEADING    @ 0
+  Log           = HELM_ACTIVE_BHV    @ 0   NOSYNC
+  Log           = HELM_NONIDLE_BHV   @ 0   NOSYNC
+  Log           = DEPLOY             @ 0   NOSYNC
+    // Vehicle-Level IO
+  Log           = PROC_WATCH_SUMMARY @ 0   NOSYNC
+  Log           = PROC_WATCH_EVENT   @ 0   NOSYNC
+  Log           = AIS_REPORT_LOCAL   @ 0   NOSYNC
+  Log           = AIS_REPORT         @ 0   NOSYNC
+    // Navigation information
+  Log           = NAV_X              @ 0
+  Log           = NAV_Y              @ 0
+  Log           = NAV_DEPTH              @ 0
+  Log           = NAV_HEADING        @ 0
+  Log           = NAV_SPEED          @ 0
+  // GPS information
+  Log           = GPS_X          @ 0.1
+  Log           = GPS_Y          @ 0.1
+  Log           = GPS_SPEED      @ 0.1
+  Log           = GPS_HEADING    @ 0.1
+  Log           = GPS_TIME       @ 0.1
+  // Navigation information
+  Log           = DR_X              @ 0.2
+  Log           = DR_Y              @ 0.2
+  Log           = DVL_FORWARD       @ 0.2
+  Log           = DVL_FWD           @ 0.2
+  Log           = DVL_STARBOARD     @ 0.2
+  Log           = DVL_STB           @ 0.2
+}
+
+// from plug_pNodeReporter
+ProcessConfig = pNodeReporter
+{
+  AppTick     = 5
+  CommsTick   = 5
+  VESSEL_TYPE   = UUV
+  VESSEL_LENGTH = 2
+}
+
+

@@ -1,0 +1,180 @@
+//ServerHost = 192.168.1.102
+ServerHost = localhost
+ServerPort = 9200
+Community  = icarus
+
+MOOSTimeWarp = 1
+
+// MIT Sailing Pavilion
+LatOrigin  =  42.358456		
+LongOrigin = -71.087589	
+
+
+
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 500
+   
+  Run = MOOSDB             	@ NewConsole = false
+  Run = pLogger            	@ NewConsole = false
+  Run = pShare                  @ NewConsole = false
+  Run = pNodeReporter      	@ NewConsole = false
+  //Run = pHostInfo          	@ NewConsole = false
+  //Run = uFldNodeBroker     	@ NewConsole = false
+  //Run = uFldMessageHandler 	@ NewConsole = false
+  //Run = iGPS_Hover         	@ NewConsole = false
+  Run = pEchoVar           	@ NewConsole = false
+  Run = iAcommsDriver		@ NewConsole = false
+  Run = pAcommCmdTransmit       @ NewConsole = false
+  Run = iRTKNAVI                @ NewConsole = false
+  RUn = uTimerScript            @ NewConsole = false
+}
+
+Processconfig = uTimerScript
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=0,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = iRTKNAVI
+{
+  HOST=192.168.1.102
+  PORT=50001
+}
+
+
+ProcessConfig = pShare
+{
+  AppTick   = 10
+  MaxAppTick = 20
+  IterateMode = 1
+
+  output = NODE_REPORT_LOCAL->NODE_REPORT:192.168.1.100:9001
+  output = VIEW_*->:192.168.1.100:9001
+
+  input = route=192.168.1.102:9301
+}
+
+
+
+ProcessConfig = pAcommCmdTransmit
+{
+        AppTick         = 10
+        CommsTick       = 10
+}
+
+
+ProcessConfig = pLogger
+{
+	AppTick 	= 10
+	CommsTick 	= 10
+
+	File		= LOG_ICARUS
+	PATH		= /home/josh/hovergroup-extend/william/logs/
+	AsyncLog 	= true
+	FileTimeStamp = true
+	WildCardLogging		= true
+
+	WildCardOmitPattern = PLOGGER_STATUS
+}
+
+//--------------------------------------------------------
+// pNodeReporter Configuration Block (Created from Plugin)
+
+ProcessConfig = pNodeReporter
+{
+  AppTick     = 2
+  CommsTick   = 2
+  
+  VESSEL_TYPE = KAYAK
+
+  alt_nav_prefix = REMUS_
+  alt_nav_name = REMUS
+
+
+}
+
+//--------------------------------------------------
+// pHostInfo configuration block from plugin
+
+ProcessConfig = pHostInfo
+{
+  AppTick 	= 1
+  CommsTick 	= 1
+
+  DEFAULT_HOSTIP = localhost
+}
+
+//--------------------------------------------------
+// uFldNodeBroker configuration block from plugin
+
+ProcessConfig = uFldNodeBroker
+{
+  AppTick   = 1
+  CommsTick = 1
+
+  TRY_SHORE_HOST = hostip=192.168.1.100, port_udp=9001
+
+  BRIDGE = src=VIEW_POLYGON
+  BRIDGE = scr=VIEW_POINT
+  BRIDGE = src=VIEW_SEGLIST
+  BRIDGE = src=VIEW_RANGE_PULSE
+  
+  BRIDGE = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
+  BRIDGE = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
+  
+}
+
+//--------------------------------------------------
+// uFldMessageHandler configuration block from plugin
+
+ProcessConfig = uFldMessageHandler
+{
+  AppTick   = 5
+  CommsTick = 5
+
+  STRICT_ADDRESSING = false
+}
+
+ProcessConfig = pEchoVar
+{
+	AppTick   = 40
+	CommsTick = 40
+
+	Echo = MOOS_MANUAL_OVERRIDE -> MOOS_MANUAL_OVERIDE
+	Echo = GPS_X -> NAV_X
+	Echo = GPS_Y -> NAV_Y
+	Echo = GPS_SPEED -> NAV_SPEED
+	Echo = COMPASS_HEADING_FILTERED -> NAV_HEADING
+}
+
+
+ProcessConfig = iGPS_Hover
+{
+	AppTick = 10
+	CommsTick = 10
+	
+	PORT_NAME = /dev/ttyUSB0
+	BAUD_RATE = 57600
+}
+
+
+ProcessConfig = iAcommsDriver
+{
+	AppTick = 5
+	CommsTick = 5
+
+	PortName = /dev/ttyUSB0
+	ID = 1
+	
+	PSK_minipackets = false
+	enable_ranging = false
+	show_range_pulses = true
+        enable_legacy = true
+}

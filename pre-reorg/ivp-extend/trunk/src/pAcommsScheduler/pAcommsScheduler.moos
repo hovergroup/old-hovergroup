@@ -1,0 +1,13 @@
+//------------------------------------------------
+// pAcommsScheduler config block
+
+ProcessConfig = pAcommsScheduler
+{
+   AppTick   = 4
+   
+   period = 30 // auv's transmit period
+   pre_lock = 2 // time before expected receive start
+   post_lock = 2 // time after expected receive end
+   source_ID = 1 // source ID of remus
+}
+

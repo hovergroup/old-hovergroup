@@ -1,0 +1,78 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 1000
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pNodeReporter          @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iHoverKayak            @ NewConsole = false
+  
+#ifdef ROLE relay
+  Run = pRelay                 @ NewConsole = false
+#endif
+#ifdef ROLE start
+  Run = pRandomTransmit        @ NewConosle = false
+#endif
+#ifdef ROLE end
+  Run = pSimpleAck             @ NewConosle = false
+#endif
+
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_Config
+}
+
+#ifdef ROLE relay
+  #include "plug_pRelay.moos"
+  #include "plug_uTimerScript_RelayConfig.moos"
+  #include plug_pMarinePID_Hover_Relay.moos
+#endif
+#ifdef ROLE start
+  #include "plug_pRandomTransmit.moos"
+  #include "plug_uTimerScript_StartConfig.moos"
+  #include plug_pMarinePID_Hover.moos
+#endif
+#ifdef ROLE end
+  #include "plug_pSimpleAck.moos"
+  #include "plug_uTimerScript_EndConfig.moos"
+  #include plug_pMarinePID_Hover.moos
+#endif
+
+
+ProcessConfig = uXMS
+{
+  DISPLAY_TIME = true
+  DISPLAY_SOURCE = true
+    
+  VAR=VOLTAGE
+  VAR=CPU_BOX_TEMP
+  VAR=ROBOTEQ_HEATSINK_TEMP
+  VAR=ROBOTEQ_INTERNAL_TEMP
+  VAR=ROBOTEQ_BATTERY_CURRENT
+  VAR=ROBOTEQ_MOTOR_CURRENT
+  VAR=ARDUINO_THRUST
+  VAR=ARDUINO_RUDDER
+}
+
+#include plug_pShareV.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+#include plug_iAcommsDriver.moos

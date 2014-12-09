@@ -1,0 +1,40 @@
+ //*******************************************************
+// ShoreSide Configuration File
+
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//--------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB               @ NewConsole = false
+  Run = pShare               @ NewConsole = false
+  Run = pMarineViewer        @ NewConsole = false
+  Run = pLogger              @ NewConsole = false
+  Run = pHostInfo            @ NewConsole = false
+  Run = uTermCommand    @ NewConsole = true
+
+  1 = -geometry,80x30+0+0,-bg,lightgreen,-fg,brown
+  2 = -geometry,80x15+0+460,-bg,green,-fg,black
+}
+
+ProcessConfig = uTermCommand
+{
+	AppTick = 2
+	CommsTick = 2
+
+	CMD = rr --> MISSION_MODE_NOSTROMO --> ROUNDROBIN 
+	CMD = pause --> RR_PAUSE --> paused
+	CMD = unpause --> RR_PAUSE --> false
+	CMD = redraw --> RR_ACTION --> redraw
+	CMD = tellme --> RR_ACTION --> tellme
+}
+
+#include ../../trunk/plugs/plug_pShareS.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pMarineViewer.moos

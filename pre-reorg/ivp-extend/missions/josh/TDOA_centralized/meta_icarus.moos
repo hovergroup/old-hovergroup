@@ -1,0 +1,101 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 200
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pProtoReporter         @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iGPS_Hover             @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pNavManager            @ NewConsole = false
+  Run = iIcarus                @ NewConsole = false
+  Run = uTimerScript           @ NewConsole = false ~uTimerScript_config
+  Run = pResourceMon           @ NewConsole = false
+  Run = pAckedCommsVehicle     @ NewConsole = false
+  Run = pScheduledTransmit     @ NewConsole = false
+  //Run = pTDOAShore          @ NewConsole = false
+}
+
+ProcessConfig = uTimerScript_Config
+{
+  AppTick = 4
+  CommsTick = 4
+    
+  event = var=NAV_HEADING,val=0,time=1
+  event = var=ACOMMS_TRANSMIT_RATE,val=1,time=1
+  event = quit, time=2
+}
+
+ProcessConfig = pProtoReporter
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 1
+  
+    PLATFORM_TYPE = ICARUS
+}
+
+ProcessConfig = pShare
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 4
+  
+    output = PROTO_REPORT_LOCAL->PROTO_REPORT:$(SHOREHOST):$(SLPORT)
+    output = VIEW_RANGE_PULSE->$(SHOREHOST):$(SLPORT)
+    output = ACKEDCOMMS_RETURN_ACK->$(SHOREHOST):$(SLPORT)
+    output = TDOA_VEHICLE_REPORT->$(SHOREHOST):$(SLPORT)
+    output = TDOA_ERROR->$(SHOREHOST):$(SLPORT)
+  
+    input = route=$(VHOST):$(LPORT) 
+}
+
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+
+ProcessConfig = iAcommsDriver
+{
+    IterateMode = 0    // regular iterate and mail
+    AppTick     = 5
+
+    PortName = /dev/ttyUSB0
+    ID       = 4
+
+    PSK_minipackets   = false
+    enable_ranging    = false
+    show_range_pulses = true
+    enable_legacy     = false
+}
+
+#include ../../trunk/plugs/plug_pNavManager.moos
+#include ../../trunk/plugs/plug_iGPS_Hover.moos
+#include ../../trunk/plugs/plug_iIcarus.moos
+#include ../../trunk/plugs/plug_pResourceMon.moos
+#include ../../trunk/plugs/plug_pAckedCommsVehicle.moos
+#include ../../trunk/plugs/plug_pScheduledTransmit.moos
+
+ProcessConfig = pTDOAShore
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    <tdma>
+        length=5,name=range_ping1
+        length=2,name=range_ping2
+        length=7,name=report1
+        length=7,name=report2
+        length=5,name=report3
+        length=2,name=compute
+        length=7,name=command
+    </tdma>
+}

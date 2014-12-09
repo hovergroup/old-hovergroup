@@ -1,0 +1,8 @@
+ProcessConfig = iAltimeter_cruzPro
+{
+  AppTick   = 10
+  CommsTick = 10
+  
+  PORT_NAME = $(TRITECHPORT)
+  BAUD_RATE = 4800
+}

@@ -1,0 +1,98 @@
+//*******************************************************
+// Vehicle 1 Configuration File
+//
+#define  VID		1
+#define  VEHICLE_NAME shoreside
+#define  VEHICLE_TYPE topside
+
+#define  UMODEM_PORT	/dev/ttyUSB0
+#define  START_POS	0,0 
+
+MOOSTimeWarp =1
+ServerHost = localhost
+ServerPort = 9201
+//Simulator  = true
+// Community name IS the vehicle name
+Community  = $(VEHICLE_NAME)
+LatOrigin  = 42.3584
+LongOrigin = -71.08745
+
+modem_id = $(VID)
+modem_id_lookup_path =  ../acomms/modemidlookup.txt
+
+//------------------------------------------------------------
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 10
+  Run = MOOSDB          	@ NewConsole = false
+  Run = pMarineViewer   @ NewConsole = false
+
+// CONTROL:
+  Run = uSimMarine      	@ NewConsole = false
+  Run = pEchoVar        	@ NewConsole = false
+  Run = pLogger         	@ NewConsole = false
+  Run = pNodeReporter 	@ NewConsole = false
+
+// COMMS:
+  Run = pNavGlobalize	@ NewConsole = false
+//  Run = pAcommsHandler	@ NewConsole = true,XConfig=pAcommsHandlerConfig
+//  pAcommsHandlerConfig = -geometry,120x30+0+750
+}
+
+
+ProcessConfig = pMarineViewer
+{
+  AppTick    = 4
+  CommsTick  = 4
+//  TIF_FILE  = Default.tif
+//  VEHICOLOR = vehicle1, darkgreen
+//  VEHICOLOR = vehicle2, darkgreen
+//  VEHICOLOR = vehicle3, darkgreen
+//  VEHICOLOR = dr, darkblue
+  polygon_vertex_size = 0
+// not necessary  seglist_vertex_size = 0
+}
+
+
+// Start of Control Processes ///////////////////////////////////////////////////////
+#include ../plugs/plug_uSimMarine.moos
+#include ../plugs/plug_pEchoVar.moos
+#include ../plugs/plug_pLogger.moos
+#include ../plugs/plug_pNodeReporter.moos
+// Start of Comms Processes /////////////////////////////////////////////////////////
+#include ../plugs/plug_pNavGlobalize.moos
+
+#include ../plugs/plug_pAcommsHandler_shoreside.moos
+
+ProcessConfig = iCommander
+{
+  // available to all moos processes.
+//  AppTick    = 4
+//  CommsTick  = 4
+  
+  // available to all tes moos processes
+
+  //verbose, terse, quiet
+//  verbosity = verbose
+
+  // for checking xml structure correctness
+  // highly recommended to use this
+//  schema = /home/toby/moos-ivp-local/src/tes/pGeneralCodec/message_schema.xsd
+
+//  message_file = ../acomms/acoustic_moospoke.xml
+  
+//  message_file = ../../../data/acomms/simple_status.xml
+//  message_file = ../../../data/acomms/nafcon_command.xml
+//  message_file = ../../../data/acomms/nafcon_report.xml
+//  message_file = ../../../data/acomms/nafcon_targetsim.xml
+//  message_file = test_lat_lon.xml
+
+//  load = iCommander_autosave.txt  
+
+  // set all lat/long to xy
+ // force_xy_only = true
+  
+  // all case insensitive
+//  show_variable = UNICORN_NAV_X
+//  show_variable = UNICORN_NAV_Y
+}

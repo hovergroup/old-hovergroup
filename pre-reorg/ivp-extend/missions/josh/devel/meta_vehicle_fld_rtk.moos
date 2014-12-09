@@ -1,0 +1,78 @@
+ServerHost = $(VHOST)
+ServerPort = $(VPORT)
+Community  = $(VNAME)
+
+#include ../../trunk/plugs/plug_origin_warp.moos
+  
+//------------------------------------------------------------
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 1000
+   
+  Run = MOOSDB                 @ NewConsole = false
+  Run = pShare                 @ NewConsole = false
+  Run = pLogger                @ NewConsole = false
+  Run = pNodeReporter          @ NewConsole = false
+  Run = pMarinePID_Hover       @ NewConsole = false
+  Run = pHelmIvP               @ NewConsole = false
+  Run = iRTKNAVI               @ NewConsole = false
+  Run = iOS5000_Hover          @ NewConsole = false
+  Run = pEchoVar               @ NewConsole = false
+  Run = iHoverKayak            @ NewConsole = false
+  Run = iAcommsDriver          @ NewConsole = false
+  Run = pAcommsScheduler       @ NewConsole = false
+}
+
+ProcessConfig = uXMS
+{
+  DISPLAY_TIME = true
+  DISPLAY_SOURCE = true
+    
+  VAR=ACOMMS_RECEIVED_ALL
+  VAR=ACOMMS_TRANSMITTED_ALL
+  VAR=ACOMMS_TRANSMIT_RATE
+  VAR=ACOMMS_TRANSMIT_DEST
+  VAR=ACOMMS_TRANSMIT_DATA
+  VAR=ACOMMS_DRIVER_WARNING
+  VAR=ACOMMS_DRIVER_STATUS
+  VAR=ACOMMS_TRANSMIT_LOCKOUT
+  VAR=ACOMMS_SCHEDULER_STATE
+  VAR=ACOMMS_SCHEDULER_OFFSET
+  VAR=ACOMMS_SCHEDULER_DURATION
+}
+
+ProcessConfig = pAcommsScheduler
+{
+   AppTick   = 4
+   
+   period = 30 // auv's transmit period
+   pre_lock = 2 // time before expected receive start
+   post_lock = 2 // time after expected receive end
+   source_ID = 1 // source ID of remus
+}
+
+#include ../../trunk/plugs/plug_pShareV.moos
+#include ../../trunk/plugs/plug_pLogger.moos
+#include ../../trunk/plugs/plug_pNodeReporter.moos
+#include ../../trunk/plugs/plug_pMarinePID_Hover.moos
+#include ../../trunk/plugs/plug_pHelmIvP.moos
+#include ../../trunk/plugs/plug_pEchoVar.moos
+#include ../../trunk/plugs/plug_iOS5000_Hover.moos
+#include ../../trunk/plugs/plug_iRTKNAVI.moos
+#include ../../trunk/plugs/plug_iRemote.moos
+#include ../../trunk/plugs/plug_iHoverKayak.moos
+
+ProcessConfig = iAcommsDriver
+{
+  AppTick     = 5
+  IterateMode = 0
+
+  PortName = $(MODEMPORT)
+  ID       = $(ACOMMSID)
+
+  PSK_minipackets   = false
+  enable_ranging    = true
+  show_range_pulses = true
+  
+  use_scheduler = true
+}

@@ -1,0 +1,22 @@
+//------------------------------------------------
+// pPursuitShore config block
+
+ProcessConfig = pPursuitShore
+{
+    IterateMode = 1    // comms driven iterate and mail
+    AppTick     = 20   // iterate lower bound
+    MaxAppTick  = 0    // no limit
+
+    <tdma>
+        length=7,name=command
+        length=7,name=report1
+        length=7,name=report2
+        length=5,name=report3
+        length=2,name=compute
+    </tdma>
+}
+
+ProcessConfig = somethingElse
+{
+
+}

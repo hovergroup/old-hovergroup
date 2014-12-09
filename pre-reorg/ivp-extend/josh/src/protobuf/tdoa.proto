@@ -1,0 +1,65 @@
+import "goby/acomms/protobuf/dccl_option_extensions.proto";
+
+message TDOAData {    
+    required int32 id = 1    [(dccl.field).max=3,
+                              (dccl.field).min=0,
+                              (dccl.field).precision=0];
+    required double x = 2    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    required double y = 3    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    required double toa = 4  [(dccl.field).max=1,
+                              (dccl.field).min=0,
+                              (dccl.field).precision=5];
+}
+
+message TDOAUpdate {
+    required int32 local_id = 1;
+    
+    repeated TDOAData data = 2;
+    
+    required StateEnum cycle_state = 10;
+    enum StateEnum {
+        LEADER_SLOT_COMPLETE = 0;
+        F1_SLOT_COMPLETE = 1;
+        F2_SLOT_COMPLETE = 2;
+        F3_SLOT_COMPLETE = 3;
+        PAUSED = 4;
+    }
+}
+
+message TDOAPSK1
+{
+    option (dccl.msg).id = 127;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated TDOAData data = 1  [(dccl.field).max_repeat=3];
+} 
+
+message TDOATrio {
+    required int32 id = 1    [(dccl.field).max=3,
+                              (dccl.field).min=0,
+                              (dccl.field).precision=0];
+    required double x = 2    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+    required double y = 3    [(dccl.field).max=1000,
+                              (dccl.field).min=-1000,
+                              (dccl.field).precision=1];
+}
+
+message TDOAReportDCCL {
+    option (dccl.msg).id = 126;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated TDOATrio data = 1     [(dccl.field).max_repeat=3];
+}
+
+message TDOACommandDCCL {
+    option (dccl.msg).id = 125;
+    option (dccl.msg).max_bytes = 192;
+    
+    repeated TDOATrio data = 1     [(dccl.field).max_repeat=3];
+}

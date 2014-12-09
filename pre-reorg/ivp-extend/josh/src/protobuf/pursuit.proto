@@ -1,0 +1,58 @@
+/*
+ * josh_proto
+ *        File: pursuit.proto
+ *  Created on: Sep 5, 2014
+ *      Author: Josh Leighton
+ */
+
+import "goby/acomms/protobuf/dccl_option_extensions.proto";
+
+message PursuitCommandDCCL
+{
+  option (dccl.msg).id = 1;
+  option (dccl.msg).max_bytes = 64;
+  repeated int32 vehicle1_cmd = 1 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=18];
+  repeated int32 vehicle2_cmd = 2 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=18];
+  repeated int32 vehicle3_cmd = 3 [(dccl.field).max=8,
+                                   (dccl.field).min=-8,
+                                   (dccl.field).max_repeat=18];
+  required bool has_1 = 4;
+  required bool has_2 = 5;
+  required bool has_3 = 6;
+}
+
+message PursuitReportDCCL
+{
+  option (dccl.msg).id = 2;
+  option (dccl.msg).max_bytes = 192;
+  required int32 id = 1 [(dccl.field).min=1,
+                         (dccl.field).max=3,
+                         (dccl.field).precision=0];
+  required int32 slot = 2 [(dccl.field).min=0,
+                           (dccl.field).max=10,
+                           (dccl.field).precision=0];
+  required double x = 3 [(dccl.field).min=-1000,
+                         (dccl.field).max=1000,
+                         (dccl.field).precision=2];
+  required double y = 4 [(dccl.field).min=-1000,
+                         (dccl.field).max=1000,
+                         (dccl.field).precision=2];
+  required bool ack = 5;
+}
+
+message PursuitReportDCCL2
+{
+  option (dccl.msg).id = 127;
+  option (dccl.msg).max_bytes = 192;
+  required double x_history = 1 [(dccl.field).max=1000,
+                                 (dccl.field).min=-1000,
+                                 (dccl.field).precision=2];
+  required double y_history = 2 [(dccl.field).max=1000,
+                                 (dccl.field).min=-1000,
+                                 (dccl.field).precision=2];
+
+}

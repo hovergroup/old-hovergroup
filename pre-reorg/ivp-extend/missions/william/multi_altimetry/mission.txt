@@ -1,0 +1,45 @@
+=> collab cross the river
+
+uPokeDB targ_NOSTROMO.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=-48,y=-260,width=120,height=200,lane_width=10,rows=north,degs=-25"
+
+uPokeDB targ_SILVANA.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=110,y=-190,width=120,height=200,lane_width=10,rows=north,degs=-25,order=normal"
+
+uPokeDB targ_KESTREL.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=250,y=-110,width=120,height=200,lane_width=10,rows=north,degs=-25"
+
+
+
+========================================================================================================
+
+=> collab along the river
+
+
+uPokeDB targ_NOSTROMO.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=-50,y=-260,width=200,height=150,lane_width=10,rows=north,degs=65"
+
+uPokeDB targ_SILVANA.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=260,y=-120,width=200,height=150,lane_width=10,rows=north,degs=65"
+
+uPokeDB targ_KESTREL.moos MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=100,y=-180,width=200,height=150,lane_width=10,rows=north,degs=65"
+
+
+
+
+
+=========================================================================================================
+
+=> Bathymetry re-run with all cruzpro
+
+MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=65,y=-120,width=500,height=90,lane_width=5,rows=north,degs=-25"
+
+MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=65,y=-120,width=500,height=90,lane_width=5,rows=north,degs=155"
+
+
+MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=100,y=-200,width=500,height=90,lane_width=5,rows=north,degs=-25"
+
+MISSION_SURVEY_UPDATES="points=format=lawnmower,label=remus_survey,x=135,y=-270,width=500,height=90,lane_width=5,rows=north,degs=-25"
+
+
+
+
+
+
+
+
