@@ -18,8 +18,12 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS}
 
 ADD_SUBDIRECTORY(protobuf)
 ADD_SUBDIRECTORY(protobufExample)
-ADD_SUBDIRECTORY(simple_acomms_parser)
 ADD_SUBDIRECTORY(wtExample)
+
+IF(BUILD_SHORE_APPS)
+    # optionally build shoreside only apps here
+    ADD_SUBDIRECTORY(simple_acomms_parser)
+ENDIF
 
 ##############################################################################
 #                           END of CMakeLists.txt
