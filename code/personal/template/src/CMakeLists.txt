@@ -23,7 +23,7 @@ ADD_SUBDIRECTORY(wtExample)
 IF(BUILD_SHORE_APPS)
     # optionally build shoreside only apps here
     ADD_SUBDIRECTORY(simple_acomms_parser)
-ENDIF
+ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
 #                           END of CMakeLists.txt
