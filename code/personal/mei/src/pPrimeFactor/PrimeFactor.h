@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
+#include <boost/lexical_cast.hpp>
 
 class PrimeFactor : public CMOOSApp
 {
@@ -26,19 +27,13 @@ protected:
     bool OnStartUp();
     void RegisterVariables();
 
-private: // Configuration variables
-    class worker_thread{
-    public:
-    	worker_thread(uint64_t number_in);
-    	void operator()();
+private:
+    static const std::string MATLAB_CMD1, MATLAB_CMD2;
+    int m_inputCount, m_outputCount;
 
-    private:
-    	uint64_t m_Number;
-    };
-
-private: // State variables
-    unsigned int m_iterations;
-    double       m_timewarp;
+    std::string exec(const char* cmd);
+    void factor(uint64_t input, int inputCount);
+    boost::mutex outputMutex;
 };
 
-#endif 
+#endif

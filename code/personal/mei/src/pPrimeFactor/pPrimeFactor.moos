@@ -1,9 +1,12 @@
+ServerHost = localhost
+ServerPort = 9000
+
 //------------------------------------------------
 // pPrimeFactor config block
 
 ProcessConfig = pPrimeFactor
 {
-    AppTick = 5
+    AppTick = 1
     IterateMode = 0 // regular iterate and mail
 }
 
