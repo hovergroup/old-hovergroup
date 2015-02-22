@@ -44,11 +44,14 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
         if (key == "NUM_VALUE") {
             try {
                 uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
+                if (input > pow(2,53)) {
+                    cout << "Input too large" << endl;
+                } else {
+                    boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
+                    workerThread.detach();
 
-                boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
-                workerThread.detach();
-
-                m_inputCount++;
+                    m_inputCount++;
+                }
             } catch (const boost::bad_lexical_cast &) {
                 cout << "Failed to cast input" << endl;
             }
@@ -99,7 +102,23 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
     cmd_stream << MATLAB_CMD1 << input << MATLAB_CMD2;
     cout << "command: " << cmd_stream.str() << endl;
 
-    cout << "result: " << exec(cmd_stream.str().c_str()) << endl;
+    string result = exec(cmd_stream.str().c_str());
+    if (result.find("asdf") == string::npos) {
+        cout << "Error executing calculation" << endl;
+        return;
+    }
+    result = MOOSChomp(result, "\n");
+    cout << "result: " << result << endl;
+
+    vector<unsigned long> factors;
+    MOOSChomp(result, " ");
+    while (!result.empty()) {
+        factors.push_back(atoi(MOOSChomp(result, " ").c_str()));
+    }
+    for (int i=0; i<factors.size(); i++) {
+        cout << factors[i] << " ";
+    }
+    cout << endl;
 
     outputMutex.lock();
     // do output
