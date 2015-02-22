@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS}
 ADD_SUBDIRECTORY(protobuf)
 ADD_SUBDIRECTORY(protobufExample)
 ADD_SUBDIRECTORY(wtExample)
+ADD_SUBDIRECTORY(pPrimeFactor)
 
 IF(BUILD_SHORE_APPS)
     # optionally build shoreside only apps here
