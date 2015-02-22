@@ -11,13 +11,17 @@
 
 using namespace std;
 
+const string PrimeFactor::MATLAB_CMD1 =
+        "matlab -nodisplay -nosplash -nojvm -r \"['asdf ' num2str(factor(";
+const string PrimeFactor::MATLAB_CMD2 = "))], exit\" | grep asdf";
+
 //---------------------------------------------------------
 // Constructor
 
 PrimeFactor::PrimeFactor()
 {
-    m_iterations = 0;
-    m_timewarp   = 1;
+    m_inputCount = 0;
+    m_outputCount = 0;
 }
 
 //---------------------------------------------------------
@@ -36,17 +40,19 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 
     for(p=NewMail.begin(); p!=NewMail.end(); p++) {
         CMOOSMsg &msg = *p;
+        string key = msg.GetKey();
+        if (key == "NUM_VALUE") {
+            try {
+                uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
 
-#if 0 // Keep these around just for template
-    string key   = msg.GetKey();
-    string comm  = msg.GetCommunity();
-    double dval  = msg.GetDouble();
-    string sval  = msg.GetString(); 
-    string msrc  = msg.GetSource();
-    double mtime = msg.GetTime();
-    bool   mdbl  = msg.IsDouble();
-    bool   mstr  = msg.IsString();
-#endif
+                boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
+                workerThread.detach();
+
+                m_inputCount++;
+            } catch (const boost::bad_lexical_cast &) {
+                cout << "Failed to cast input" << endl;
+            }
+        }
     }
 
     return(true);
@@ -57,12 +63,7 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool PrimeFactor::OnConnectToServer()
 {
-    // register for variables here
-    // possibly look at the mission file?
-    // m_MissionReader.GetConfigurationParam("Name", <string>);
-    // m_Comms.Register("VARNAME", 0);
-
-    RegisterVariables();
+    m_Comms.Register("NUM_VALUE", 0);
     return(true);
 }
 
@@ -72,12 +73,6 @@ bool PrimeFactor::OnConnectToServer()
 
 bool PrimeFactor::Iterate()
 {
-
-	cout << "Starting Iterate" << endl;
-	uint64_t number_in = 1000;
-	worker_thread w(number_in);
-	boost::thread workerThread(w);
-
     return(true);
 }
 
@@ -87,26 +82,6 @@ bool PrimeFactor::Iterate()
 
 bool PrimeFactor::OnStartUp()
 {
-    list<string> sParams;
-    m_MissionReader.EnableVerbatimQuoting(false);
-    if(m_MissionReader.GetConfiguration(GetAppName(), sParams)) {
-        list<string>::iterator p;
-        for(p=sParams.begin(); p!=sParams.end(); p++) {
-            string original_line = *p;
-            string param = stripBlankEnds(toupper(biteString(*p, '=')));
-            string value = stripBlankEnds(*p);
-            
-            if(param == "FOO") {
-                //handled
-            } else if(param == "BAR") {
-                //handled
-            }
-        }
-    }
-
-    m_timewarp = GetMOOSTimeWarp();
-
-    RegisterVariables();	
     return(true);
 }
 
@@ -118,10 +93,30 @@ void PrimeFactor::RegisterVariables()
     // m_Comms.Register("FOOBAR", 0);
 }
 
-PrimeFactor::worker_thread::worker_thread(uint64_t number_in) {
-	m_Number = number_in;
+void PrimeFactor::factor(uint64_t input, int inputCount) {
+    cout << "Input #" << inputCount << " is " << input << endl;
+    stringstream cmd_stream;
+    cmd_stream << MATLAB_CMD1 << input << MATLAB_CMD2;
+    cout << "command: " << cmd_stream.str() << endl;
+
+    cout << "result: " << exec(cmd_stream.str().c_str()) << endl;
+
+    outputMutex.lock();
+    // do output
+    m_outputCount++;
+    outputMutex.unlock();
 }
 
-void PrimeFactor::worker_thread::operator()(){
-	cout << "Running on input " << m_Number << endl;
+
+std::string PrimeFactor::exec(const char* cmd) {
+   FILE* pipe = popen(cmd, "r");
+   if (!pipe) return "ERROR";
+   char buffer[128];
+   std::string result = "";
+   while(!feof(pipe)) {
+           if(fgets(buffer, 128, pipe) != NULL)
+                   result += buffer;
+   }
+   pclose(pipe);
+   return result;
 }
