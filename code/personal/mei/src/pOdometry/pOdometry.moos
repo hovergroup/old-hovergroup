@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pOdometry config block
+
+ProcessConfig = pOdometry
+{
+    AppTick = 5
+    IterateMode = 0 // regular iterate and mail
+}
+
