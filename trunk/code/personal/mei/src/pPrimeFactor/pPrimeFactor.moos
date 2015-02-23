@@ -7,6 +7,6 @@ ServerPort = 9000
 ProcessConfig = pPrimeFactor
 {
     AppTick = 1
-    IterateMode = 0 // regular iterate and mail
+    IterateMode = 1 // comms driven mail and iterate
 }
 
