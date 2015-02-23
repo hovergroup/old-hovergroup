@@ -113,7 +113,10 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
     vector<unsigned long> factors;
     MOOSChomp(result, " ");
     while (!result.empty()) {
-        factors.push_back(atoi(MOOSChomp(result, " ").c_str()));
+        string next = MOOSChomp(result, " ");
+        if (!next.empty()) {
+            factors.push_back(boost::lexical_cast<unsigned long>(next));
+        }
     }
     for (int i=0; i<factors.size(); i++) {
         cout << factors[i] << " ";
