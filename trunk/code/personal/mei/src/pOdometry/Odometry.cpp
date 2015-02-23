@@ -51,11 +51,9 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
         string key  = msg.GetKey();
 
         if (key == "NAV_X") {
-        	m_previous_x = m_current_x;
         	m_current_x = msg.GetDouble();
         	if (m_first_x) m_first_x=false;
         } else if (key == "NAV_Y"){
-        	m_previous_y = m_current_y;
         	m_current_y = msg.GetDouble();
         	if (m_first_y) m_first_y=false;
         }
@@ -99,14 +97,16 @@ bool Odometry::Iterate()
 	AppCastingMOOSApp::Iterate();                  // Added for Appcasting
 
 	if (m_first_x||m_first_y){
-		m_Comms.Notify("ODOMETRY_MSG","Waiting for both X and Y.");
+		m_Comms.Notify("ODOMETRY_MSG","Waiting for both X and Y."); //Skips first nav posting
 	} else{
 		if (m_first_reading){
-			m_Comms.Notify("ODOMETRY_MSG","First reading skipped.");
+			m_Comms.Notify("ODOMETRY_MSG","First reading skipped."); //Skips first set of x,y
 			m_first_reading=false;
 		}else{
 			m_total_distance = m_total_distance + sqrt(pow((m_current_x-m_previous_x),2)+pow((m_current_y-m_previous_y),2));
 			m_Comms.Notify("ODOMETRY_DIST",m_total_distance);
+			m_previous_x=m_current_x;
+			m_previous_y=m_current_y; //Update nav_variables that have been "used" for computation
 		}
 	}
 

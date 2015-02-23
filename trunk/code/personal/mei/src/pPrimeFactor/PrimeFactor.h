@@ -13,6 +13,7 @@
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
+#include <math.h>
 
 class PrimeFactor : public CMOOSApp
 {
@@ -31,7 +32,7 @@ private:
     static const std::string MATLAB_CMD1, MATLAB_CMD2;
     int m_inputCount, m_outputCount;
 
-    std::string exec(const char* cmd);
+    //std::string exec(const char* cmd); //For matlab use
     void factor(uint64_t input, int inputCount);
     boost::mutex outputMutex;
 };
