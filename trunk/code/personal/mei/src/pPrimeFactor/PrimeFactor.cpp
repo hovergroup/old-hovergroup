@@ -12,7 +12,7 @@
 using namespace std;
 
 const string PrimeFactor::MATLAB_CMD1 =
-        "matlab -nodisplay -nosplash -nojvm -r \"['asdf ' num2str(factor(";
+		"matlab -nodisplay -nosplash -nojvm -r \"['asdf ' num2str(factor(";
 const string PrimeFactor::MATLAB_CMD2 = "))], exit\" | grep asdf";
 
 //---------------------------------------------------------
@@ -20,8 +20,8 @@ const string PrimeFactor::MATLAB_CMD2 = "))], exit\" | grep asdf";
 
 PrimeFactor::PrimeFactor()
 {
-    m_inputCount = 0;
-    m_outputCount = 0;
+	m_inputCount = 0;
+	m_outputCount = 0;
 }
 
 //---------------------------------------------------------
@@ -36,29 +36,29 @@ PrimeFactor::~PrimeFactor()
 
 bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 {
-    MOOSMSG_LIST::iterator p;
+	MOOSMSG_LIST::iterator p;
 
-    for(p=NewMail.begin(); p!=NewMail.end(); p++) {
-        CMOOSMsg &msg = *p;
-        string key = msg.GetKey();
-        if (key == "NUM_VALUE") {
-            try {
-                uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
-                if (input > pow(2,53)) {
-                    cout << "Input too large" << endl;
-                } else {
-                    boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
-                    workerThread.detach();
+	for(p=NewMail.begin(); p!=NewMail.end(); p++) {
+		CMOOSMsg &msg = *p;
+		string key = msg.GetKey();
+		if (key == "NUM_VALUE") {
+			try {
+				uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
+				if (input > pow(2,53)) {
+					cout << "Input too large" << endl;
+				} else {
+					boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
+					workerThread.detach();
 
-                    m_inputCount++;
-                }
-            } catch (const boost::bad_lexical_cast &) {
-                cout << "Failed to cast input" << endl;
-            }
-        }
-    }
+					m_inputCount++;
+				}
+			} catch (const boost::bad_lexical_cast &) {
+				cout << "Failed to cast input" << endl;
+			}
+		}
+	}
 
-    return(true);
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -66,8 +66,8 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 
 bool PrimeFactor::OnConnectToServer()
 {
-    m_Comms.Register("NUM_VALUE", 0);
-    return(true);
+	m_Comms.Register("NUM_VALUE", 0);
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -76,7 +76,7 @@ bool PrimeFactor::OnConnectToServer()
 
 bool PrimeFactor::Iterate()
 {
-    return(true);
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -85,7 +85,7 @@ bool PrimeFactor::Iterate()
 
 bool PrimeFactor::OnStartUp()
 {
-    return(true);
+	return(true);
 }
 
 //---------------------------------------------------------
@@ -93,52 +93,70 @@ bool PrimeFactor::OnStartUp()
 
 void PrimeFactor::RegisterVariables()
 {
-    // m_Comms.Register("FOOBAR", 0);
+	// m_Comms.Register("FOOBAR", 0);
 }
 
 void PrimeFactor::factor(uint64_t input, int inputCount) {
-    cout << "Input #" << inputCount << " is " << input << endl;
-    stringstream cmd_stream;
-    cmd_stream << MATLAB_CMD1 << input << MATLAB_CMD2;
-    cout << "command: " << cmd_stream.str() << endl;
+	double start_time = MOOSTime();
 
-    string result = exec(cmd_stream.str().c_str());
-    if (result.find("asdf") == string::npos) {
-        cout << "Error executing calculation" << endl;
-        return;
-    }
-    result = MOOSChomp(result, "\n");
-    cout << "result: " << result << endl;
+	//    cout << "Input #" << inputCount << " is " << input << endl;
+	stringstream cmd_stream;
+	cmd_stream << MATLAB_CMD1 << input << MATLAB_CMD2;
+	//    cout << "command: " << cmd_stream.str() << endl;
 
-    vector<unsigned long> factors;
-    MOOSChomp(result, " ");
-    while (!result.empty()) {
-        string next = MOOSChomp(result, " ");
-        if (!next.empty()) {
-            factors.push_back(boost::lexical_cast<unsigned long>(next));
-        }
-    }
-    for (int i=0; i<factors.size(); i++) {
-        cout << factors[i] << " ";
-    }
-    cout << endl;
+	string result = exec(cmd_stream.str().c_str());
+	if (result.find("asdf") == string::npos) {
+		cout << "Error executing calculation" << endl;
+		return;
+	}
+	result = MOOSChomp(result, "\n");
+	//    cout << "result: " << result << endl;
 
-    outputMutex.lock();
-    // do output
-    m_outputCount++;
-    outputMutex.unlock();
+	vector<unsigned long> factors;
+	MOOSChomp(result, " ");
+	try{
+		while (!result.empty()) {
+			string next = MOOSChomp(result, " ");
+			if (!next.empty()) {
+				factors.push_back(boost::lexical_cast<unsigned long>(next));
+			}
+		}
+	} catch(const boost::bad_lexical_cast &){
+		cout << "Error lexical cast factors" << endl;
+		return;
+	}
+	stringstream factorsOut;
+	for (int i=0; i<factors.size()-1; i++) {
+		factorsOut << factors[i] << ":";
+	}
+	factorsOut << factors.back();
+
+	outputMutex.lock();
+	int outputCount = m_outputCount;
+	m_outputCount++;
+	outputMutex.unlock();
+
+	double elapsed_time = MOOSTime() - start_time;
+
+	stringstream msgOut;
+	msgOut << "orig=" << input << ",received=" << inputCount <<
+			",calculated=" << outputCount << ",solve_time=" << elapsed_time << ",primes=" <<  factorsOut.str()
+			<< ",username=mc2922";
+
+	// post
+	cout << msgOut.str() << endl;
+	m_Comms.Notify("PRIME_RESULT", msgOut.str());
 }
 
-
 std::string PrimeFactor::exec(const char* cmd) {
-   FILE* pipe = popen(cmd, "r");
-   if (!pipe) return "ERROR";
-   char buffer[128];
-   std::string result = "";
-   while(!feof(pipe)) {
-           if(fgets(buffer, 128, pipe) != NULL)
-                   result += buffer;
-   }
-   pclose(pipe);
-   return result;
+	FILE* pipe = popen(cmd, "r");
+	if (!pipe) return "ERROR";
+	char buffer[128];
+	std::string result = "";
+	while(!feof(pipe)) {
+		if(fgets(buffer, 128, pipe) != NULL)
+			result += buffer;
+	}
+	pclose(pipe);
+	return result;
 }

@@ -21,6 +21,7 @@ ADD_SUBDIRECTORY(protobufExample)
 ADD_SUBDIRECTORY(wtExample)
 ADD_SUBDIRECTORY(pPrimeFactor)
 ADD_SUBDIRECTORY(pOdometry)
+ADD_SUBDIRECTORY(pPrimeFactorTester)
 
 IF(BUILD_SHORE_APPS)
     # optionally build shoreside only apps here
