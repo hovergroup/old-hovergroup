@@ -140,19 +140,14 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 	//Pre factor small primes - Pollard-rho may miss these
 	int prefactors [10] = {2,3,5,7,11,13,17,19,23,29};
 	int prefactor_counter = 0;
-	bool prefactor_add = true;
 	while(prefactor_counter<10){
 		if(prefactored % prefactors[prefactor_counter]==0){
 			prefactored /= prefactors[prefactor_counter];
-			if(prefactor_add){
-				if(factorsOut.tellp()>0){factorsOut<<":";}
-				factorsOut << prefactors[prefactor_counter];
-				prefactor_add=false;
-			}
+			if(factorsOut.tellp()>0){factorsOut<<":";}
+			factorsOut << prefactors[prefactor_counter];
 		}
 		else{
 			prefactor_counter++;
-			prefactor_add=true;
 		}
 	}
 
@@ -177,7 +172,7 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 			uint64_t internal_counter = 0;
 			uint64_t internal_max_counter = sqrt(sqrt(input));	//Probably factored after (n^1/4) trials or number is prime
 
-			cout << "The offset was: " << offset << endl;
+			//cout << "The offset was: " << offset << endl;
 			cout << "Iterating on: "<<prefactored<<endl;
 
 			while ((internal_counter < internal_max_counter) && factoring!=1){	//Pollard-rho is correct in probability
@@ -193,11 +188,11 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 				int64_t gcdb = factoring; //this will be the gcd output
 				int64_t gcdc = 0;
 
-				cout << "Finding gcd: " << gcda << "," << gcdb << endl;
+				//cout << "Finding gcd: " << gcda << "," << gcdb << endl;
 				while ( gcda != 0 ) {gcdc = gcda; gcda = gcdb%gcda;  gcdb = gcdc;}
 
 				h=gcdb;
-				cout << "Found gcd: " << gcdb << endl;
+				//cout << "Found gcd: " << gcdb << endl;
 
 				if(h!=1){
 					factoring /= h;
@@ -205,7 +200,7 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 					if (factorsOut.tellp()>0){trialFactors << ":";}
 					trialFactors << h;
 
-					cout<<"Found factor: "<< h << " Current divisor: " <<factoring << endl;
+					//cout<<"Found factor: "<< h << " Current divisor: " <<factoring << endl;
 				}
 				internal_counter++;
 				if (internal_counter==internal_max_counter){ //Ended with factoring being Prime
@@ -213,12 +208,12 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 					trialFactors << factoring;
 				}
 			}
-			if (!factors_found){cout << "Failed to find prime factors: " << trial_counter << " times so far." << endl;}
+			//if (!factors_found){cout << "Failed to find prime factors: " << trial_counter << " times so far." << endl;}
 			trial_counter++;
 		}
 	}
 	factorsOut << trialFactors.str();
-	
+
 	//Thread-safe Output Counting
 	outputMutex.lock();
 	int outputCount = m_outputCount;
