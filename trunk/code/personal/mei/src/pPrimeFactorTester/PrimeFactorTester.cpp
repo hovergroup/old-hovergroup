@@ -40,6 +40,8 @@ bool PrimeFactorTester::OnNewMail(MOOSMSG_LIST &NewMail)
         string key = msg.GetKey();
 		if (key == "PRIME_RESULT") {
 			string result=msg.GetString();
+			stringstream msgOut;
+			msgOut<<result;
 
 			MOOSChomp(result,"="); // discard "input="
 			uint64_t input = boost::lexical_cast<uint64_t>(MOOSChomp(result,","));
@@ -52,11 +54,15 @@ bool PrimeFactorTester::OnNewMail(MOOSMSG_LIST &NewMail)
 				product *= boost::lexical_cast<uint64_t>(next);
 			}
 
-			cout << "Input: " << input << endl;
-			cout << "Output: " << product << endl;
+			cout << "Input: " << input << " ,Output: " << product << endl;
 			if (product==input){
-				cout << "Factors valid!" << endl;
+				//cout << "Factors valid!" << endl;
+				msgOut << ",valid=true";
+			}else{
+				msgOut << ",valid=false";
 			}
+
+			m_Comms.Notify("PRIME_RESULT_VALID",msgOut.str());
 		}
 
 #if 0 // Keep these around just for template
