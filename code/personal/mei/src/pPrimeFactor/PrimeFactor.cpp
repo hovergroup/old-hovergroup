@@ -45,8 +45,8 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 		if (key == "NUM_VALUE") {
 			try {
 				uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
-				if (input > pow(2,53)) {
-					cout << "Input too large" << endl;
+				if (input > pow(2,48)) {
+					cout << "Input number greater than 2^48." << endl;
 				} else {
 					//Spawn a thread and detach it ~Good bye!
 					boost::thread workerThread(boost::bind(&PrimeFactor::factor, this, input, m_inputCount));
@@ -55,7 +55,7 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 					m_inputCount++;
 				}
 			} catch (const boost::bad_lexical_cast &) {
-				cout << "Failed to cast input" << endl;
+				cout << "Failed to cast input." << endl;
 			}
 		}
 	}
@@ -134,51 +134,91 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 	//}
 	//factorsOut << factors.back();
 
-	//Pollard-rho Factorization
-	stringstream factorsOut;
-	uint64_t xi = 2;
-	uint64_t x2i = 2;
-	uint64_t xiPrime = 0;
-	uint64_t x2iPrime =0;
-	uint64_t factoring = input;
-	uint64_t h=1;
+	stringstream factorsOut, trialFactors;
+	uint64_t prefactored = input;
 
-	while (factoring>1 && h!=factoring){
-		cout << "Factoring: " << factoring << endl;
-		h = 1;
-		while (h==1){
-			xiPrime = xi*xi+1;
-			x2iPrime = pow(x2i*x2i+1,2)+1;
-
-			cout << "Primes: "<<xiPrime <<"," <<x2iPrime<< endl;
-			
-			xi = xiPrime % factoring;
-			x2i = x2iPrime % factoring;
-
-			cout << "x's: "<<xi <<"," <<x2i<< endl;
-			cout << (xi-x2i) << endl;
-			
-			uint64_t gcda = abs(xi-x2i);
-			uint64_t gcdb = factoring; //this will be the gcd output
-			uint64_t gcdc = 0;
-
-			cout << "Finding gcd: " << gcda << "," << gcdb << endl;
-			//Find gcd(xi-x2i,input)
-			while ( gcda != 0 ) {gcdc = gcda; gcda = gcdb%gcda;  gcdb = gcdc;}
-			
-			h=gcdb;
-			cout << "Found gcd: " << gcdb << endl;
-			
-			if((h!=1)&&(h!=factoring)){
-				factoring /= h;
-				if (factoring !=1){ factorsOut << h << ":";}
-				else {factorsOut << h;}
-				
-				cout<<"Found factor: "<< h << " Current divisor: " <<factoring << endl;
+	//Pre factor small primes - Pollard-rho may miss these
+	int prefactors [10] = {2,3,5,7,11,13,17,19,23,29};
+	int prefactor_counter = 0;
+	bool prefactor_add = true;
+	while(prefactor_counter<10){
+		if(prefactored % prefactors[prefactor_counter]==0){
+			prefactored /= prefactors[prefactor_counter];
+			if(prefactor_add){
+				if(factorsOut.tellp()>0){factorsOut<<":";}
+				factorsOut << prefactors[prefactor_counter];
+				prefactor_add=false;
 			}
+		}
+		else{
+			prefactor_counter++;
+			prefactor_add=true;
 		}
 	}
 
+	cout<<"Prefactoring concluded: "<<factorsOut.str()<<endl;
+
+	if(prefactored!=1){
+		//Pollard-rho Factorization
+		bool factors_found = false;
+		int trial_counter = 0;
+		int max_trial_counter = 3;	//Try a few times ~Alg only correct in probability
+		srand(time(NULL));
+
+		while (trial_counter<max_trial_counter && !factors_found){
+			trialFactors.str("");
+			uint64_t xi = 2;
+			uint64_t x2i = 2;
+			uint64_t xiPrime = 0;
+			uint64_t x2iPrime = 0;
+			uint64_t factoring = prefactored;
+			uint64_t h=1;
+			uint64_t offset = 2 + (rand() % 10);	//this is arbitrary
+			uint64_t internal_counter = 0;
+			uint64_t internal_max_counter = sqrt(sqrt(input));	//Probably factored after (n^1/4) trials or number is prime
+
+			cout << "The offset was: " << offset << endl;
+			cout << "Iterating on: "<<prefactored<<endl;
+
+			while ((internal_counter < internal_max_counter) && factoring!=1){	//Pollard-rho is correct in probability
+				xiPrime = xi*xi+offset;
+				x2iPrime = pow(x2i*x2i+offset,2)+offset;
+
+				xi = xiPrime % factoring;
+				x2i = x2iPrime % factoring;
+
+				uint64_t gcda;
+				if(xi>=x2i){gcda = xi-x2i;}
+				else if(x2i>xi){gcda = x2i-xi;}
+				int64_t gcdb = factoring; //this will be the gcd output
+				int64_t gcdc = 0;
+
+				cout << "Finding gcd: " << gcda << "," << gcdb << endl;
+				while ( gcda != 0 ) {gcdc = gcda; gcda = gcdb%gcda;  gcdb = gcdc;}
+
+				h=gcdb;
+				cout << "Found gcd: " << gcdb << endl;
+
+				if(h!=1){
+					factoring /= h;
+					if (factoring!=1){factors_found=true;}
+					if (factorsOut.tellp()>0){trialFactors << ":";}
+					trialFactors << h;
+
+					cout<<"Found factor: "<< h << " Current divisor: " <<factoring << endl;
+				}
+				internal_counter++;
+				if (internal_counter==internal_max_counter){ //Ended with factoring being Prime
+					if (factorsOut.tellp()>0){trialFactors << ":";}
+					trialFactors << factoring;
+				}
+			}
+			if (!factors_found){cout << "Failed to find prime factors: " << trial_counter << " times so far." << endl;}
+			trial_counter++;
+		}
+	}
+	factorsOut << trialFactors.str();
+	
 	//Thread-safe Output Counting
 	outputMutex.lock();
 	int outputCount = m_outputCount;
