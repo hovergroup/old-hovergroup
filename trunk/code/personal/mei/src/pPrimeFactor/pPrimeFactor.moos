@@ -22,7 +22,7 @@ ProcessConfig = uTimerScript
    CommsTick = 4
 
    paused     = false
-   event      = var=NUM_VALUE, val="$(15)", time=0.25
+   event      = var=NUM_VALUE, val="$(14)", time=0.25
    event      = var=NUM_VALUE, val="$(9)", time=0.50
    event      = var=NUM_VALUE, val="$(7)", time=0.75
    event      = var=NUM_VALUE, val="$(5)", time=1.00
