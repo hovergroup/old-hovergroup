@@ -44,7 +44,7 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 		string key = msg.GetKey();
 		if (key == "NUM_VALUE") {
 			try {
-				uint64_t input = boost::lexical_cast<uint64_t>(msg.GetString());
+				uint64_t input = boost::lexical_cast<unsigned long long int>(msg.GetString());
 				if (input > pow(2,48)) {
 					cout << "Input number greater than 2^48." << endl;
 				} else {
@@ -98,7 +98,7 @@ void PrimeFactor::RegisterVariables()
 	// m_Comms.Register("FOOBAR", 0);
 }
 
-void PrimeFactor::factor(uint64_t input, int inputCount) {
+void PrimeFactor::factor(unsigned long long int input, int inputCount) {
 	double start_time = MOOSTime();
 
 	//These lines are for using matlab to factor- Replaced
@@ -135,7 +135,7 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 	//factorsOut << factors.back();
 
 	stringstream factorsOut, trialFactors;
-	uint64_t prefactored = input;
+	unsigned long long int prefactored = input;
 
 	//Pre factor small primes - Pollard-rho may miss these
 	int prefactors [10] = {2,3,5,7,11,13,17,19,23,29};
@@ -154,26 +154,26 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 	cout<<"Prefactoring concluded: "<<factorsOut.str()<<endl;
 
 	if(prefactored!=1){
-		//Pollard-rho Factorization
+		//Pollard-rho Integer Factorization (+used to determine primeness)
 		bool factors_found = false;
 		int trial_counter = 0;
-		int max_trial_counter = 3;	//Try a few times ~Alg only correct in probability
+		int max_trial_counter = 10;	//Try a few times with new offset
 		srand(time(NULL));
 
 		while (trial_counter<max_trial_counter && !factors_found){
 			trialFactors.str("");
-			uint64_t xi = 2;
-			uint64_t x2i = 2;
-			uint64_t xiPrime = 0;
-			uint64_t x2iPrime = 0;
-			uint64_t factoring = prefactored;
-			uint64_t h=1;
-			uint64_t offset = 2 + (rand() % 10);	//this is arbitrary
-			uint64_t internal_counter = 0;
-			uint64_t internal_max_counter = sqrt(sqrt(input));	//Probably factored after (n^1/4) trials or number is prime
+			unsigned long long int xi = 2;
+			unsigned long long int x2i = 2;
+			unsigned long long int xiPrime = 0;
+			unsigned long long int x2iPrime = 0;
+			unsigned long long int factoring = prefactored;
+			unsigned long long int h=1;
+			unsigned long long int offset = 1 + (rand() % 50);	//this is arbitrary
+			unsigned long long int internal_counter = 0;
+			unsigned long long int internal_max_counter = sqrt(input);	//Probably factored after this many trials or number is prime
 
 			//cout << "The offset was: " << offset << endl;
-			cout << "Iterating on: "<<prefactored<<endl;
+			//cout << "Iterating on: "<<prefactored<<endl;
 
 			while ((internal_counter < internal_max_counter) && factoring!=1){	//Pollard-rho is correct in probability
 				xiPrime = xi*xi+offset;
@@ -182,11 +182,11 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 				xi = xiPrime % factoring;
 				x2i = x2iPrime % factoring;
 
-				uint64_t gcda;
+				unsigned long long int gcda;
 				if(xi>=x2i){gcda = xi-x2i;}
 				else if(x2i>xi){gcda = x2i-xi;}
-				int64_t gcdb = factoring; //this will be the gcd output
-				int64_t gcdc = 0;
+				unsigned long long int gcdb = factoring; //this will be the gcd output
+				unsigned long long int gcdc = 0;
 
 				//cout << "Finding gcd: " << gcda << "," << gcdb << endl;
 				while ( gcda != 0 ) {gcdc = gcda; gcda = gcdb%gcda;  gcdb = gcdc;}
@@ -233,7 +233,7 @@ void PrimeFactor::factor(uint64_t input, int inputCount) {
 	m_Comms.Notify("PRIME_RESULT", msgOut.str());
 }
 
-//This function is for using Matlab system commands to factor (The easy way)
+//This function is for using Matlab system commands to factor (The lazy way)
 //std::string PrimeFactor::exec(const char* cmd) {
 //	FILE* pipe = popen(cmd, "r");
 //	if (!pipe) return "ERROR";

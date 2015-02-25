@@ -29,11 +29,11 @@ protected:
     void RegisterVariables();
 
 private:
-    static const std::string MATLAB_CMD1, MATLAB_CMD2;
+    //static const std::string MATLAB_CMD1, MATLAB_CMD2;
     int m_inputCount, m_outputCount;
 
     //std::string exec(const char* cmd); //For matlab use
-    void factor(uint64_t input, int inputCount);
+    void factor(unsigned long long int input, int inputCount);
     boost::mutex outputMutex;
 };
 
