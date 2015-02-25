@@ -44,14 +44,14 @@ bool PrimeFactorTester::OnNewMail(MOOSMSG_LIST &NewMail)
 			msgOut<<result;
 
 			MOOSChomp(result,"="); // discard "input="
-			uint64_t input = boost::lexical_cast<uint64_t>(MOOSChomp(result,","));
+			unsigned long long int input = boost::lexical_cast<unsigned long long int>(MOOSChomp(result,","));
 			MOOSChomp(result,",primes=");
 			string primes_str = MOOSChomp(result,",");
 
-			uint64_t product = 1;
+			unsigned long long int product = 1;
 			while (!primes_str.empty()) {
 				string next = MOOSChomp(primes_str,":");
-				product *= boost::lexical_cast<uint64_t>(next);
+				product *= boost::lexical_cast<unsigned long long int>(next);
 			}
 
 			cout << "Input: " << input << " ,Output: " << product << endl;
