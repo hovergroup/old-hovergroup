@@ -18,6 +18,9 @@ CommunicationAngle::CommunicationAngle()
 {
     m_iterations = 0;
     m_timewarp   = 1;
+
+    navx=0;navy=0;
+    navdepth=0;navspeed=0;navheading=0;
 }
 
 //---------------------------------------------------------
@@ -36,7 +39,19 @@ bool CommunicationAngle::OnNewMail(MOOSMSG_LIST &NewMail)
 
     for(p=NewMail.begin(); p!=NewMail.end(); p++) {
         CMOOSMsg &msg = *p;
+        string key  = msg.GetKey();
 
+        if (key=="NAV_X"){
+        	navx=msg.GetDouble();
+        }else if(key=="NAV_Y"){
+        	navy=msg.GetDouble();
+        }else if(key=="NAV_DEPTH"){
+        	navdepth=msg.GetDouble();
+        }else if(key=="NAV_HEADING"){
+        	navheading=msg.GetDouble();
+        }else if (key=="NAV_SPEED"){
+        	navspeed=msg.GetDouble();
+        }
 #if 0 // Keep these around just for template
     string key   = msg.GetKey();
     string comm  = msg.GetCommunity();
@@ -111,5 +126,11 @@ bool CommunicationAngle::OnStartUp()
 void CommunicationAngle::RegisterVariables()
 {
     // m_Comms.Register("FOOBAR", 0);
+	m_Comms.Register("VEHICLE_NAME",0);
+	m_Comms.Register("COLLABORATOR_NAME",0);
+	m_Comms.Register("NAV_X",0);
+	m_Comms.Register("NAV_Y",0);
+	m_Comms.Register("NAV_DEPTH",0);
+	m_Comms.Register("NAV_HEADING",0);
+	m_Comms.Register("NAV_SPEED",0);
 }
-

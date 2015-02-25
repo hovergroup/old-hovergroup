@@ -28,6 +28,9 @@ private: // Configuration variables
 private: // State variables
     unsigned int m_iterations;
     double       m_timewarp;
+
+    double navx,navy;
+    double navdepth,navheading,navspeed;
 };
 
 #endif 
