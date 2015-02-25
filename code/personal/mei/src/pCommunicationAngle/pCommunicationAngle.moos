@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pCommunicationAngle config block
+
+ProcessConfig = pCommunicationAngle
+{
+    AppTick = 5
+    IterateMode = 0 // regular iterate and mail
+}
+
