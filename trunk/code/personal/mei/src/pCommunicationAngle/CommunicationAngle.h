@@ -9,6 +9,7 @@
 #define CommunicationAngle_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+using namespace std;
 
 class CommunicationAngle : public CMOOSApp
 {
@@ -31,6 +32,7 @@ private: // State variables
 
     double navx,navy;
     double navdepth,navheading,navspeed;
+    string myname,myfriend;
 };
 
 #endif 

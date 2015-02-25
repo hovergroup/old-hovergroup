@@ -51,7 +51,17 @@ bool CommunicationAngle::OnNewMail(MOOSMSG_LIST &NewMail)
         	navheading=msg.GetDouble();
         }else if (key=="NAV_SPEED"){
         	navspeed=msg.GetDouble();
+        }else if (key=="VEHICLE_NAME"){
+        	myname=msg.GetString();
+        }else if(key=="COLLABORATOR_NAME"){
+        	myfriend=msg.GetString();
+        	stringstream friendVars;
+        	friendVars<<myfriend<<"_NAV_X";
+        	m_Comms.Register(friendVars.str(),0);
+        	friendVars<<myfriend<<"_NAV_X";
+        	m_Comms.Register(friendVars.str(),0);
         }
+
 #if 0 // Keep these around just for template
     string key   = msg.GetKey();
     string comm  = msg.GetCommunity();
@@ -133,4 +143,6 @@ void CommunicationAngle::RegisterVariables()
 	m_Comms.Register("NAV_DEPTH",0);
 	m_Comms.Register("NAV_HEADING",0);
 	m_Comms.Register("NAV_SPEED",0);
+	m_Comms.Register("ACOUSTIC_PATH_REF",0);
+	m_Comms.Register("CONNECTIVITY_LOCATION_REF",0);
 }
