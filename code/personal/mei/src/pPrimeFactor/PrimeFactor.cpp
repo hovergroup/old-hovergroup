@@ -44,7 +44,7 @@ bool PrimeFactor::OnNewMail(MOOSMSG_LIST &NewMail)
 		string key = msg.GetKey();
 		if (key == "NUM_VALUE") {
 			try {
-				uint64_t input = boost::lexical_cast<unsigned long long int>(msg.GetString());
+				unsigned long long int input = boost::lexical_cast<unsigned long long int>(msg.GetString());
 				if (input > pow(2,48)) {
 					cout << "Input number greater than 2^48." << endl;
 				} else {
