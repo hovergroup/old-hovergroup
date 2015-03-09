@@ -23,16 +23,29 @@ protected:
     bool OnConnectToServer();
     bool OnStartUp();
     void RegisterVariables();
+    void PublishAnswer();
+    bool RegisterCollab();
 
 private: // Configuration variables
+    double surface_sound_speed;
+    double sound_speed_gradient;
+    double water_depth;
+    double time_interval;
 
 private: // State variables
     unsigned int m_iterations;
     double       m_timewarp;
 
-    double navx,navy;
+    double navx,navy,collabx,collaby;
     double navdepth,navheading,navspeed;
-    string myname,myfriend;
+    double collabdepth,collabheading,collabspeed;
+    double elev_angle,transmission_loss;
+    double goto_x,goto_y,goto_d;
+    string myname,mycollab;
+    string collabxstr,collabystr,collabdstr;
+    string collabheadingstr,collabspeedstr;
+    double timer_start,timer_end;
+    bool pathFound,collabFound;
 };
 
 #endif 
