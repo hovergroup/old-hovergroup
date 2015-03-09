@@ -21,20 +21,12 @@ CommunicationAngle::CommunicationAngle()
 
 	navx=0;navy=0;
 	navdepth=0;navspeed=0;navheading=0;
-	elev_angle=0;transmission_loss=0;
-	collabxstr="SOME_UNIQUE_PLACEHOLDER";
-	collabystr="SOME_UNIQUE_PLACEHOLDER";
-	collabdstr="SOME_UNIQUE_PLACEHOLDER";
-	collabheadingstr="SOME_UNIQUE_PLACEHOLDER";
-	collabspeedstr="SOME_UNIQUE_PLACEHOLDER";
 
 	surface_sound_speed = 1480;
 	sound_speed_gradient = 0.016;
 	water_depth = 6000;
 	time_interval = 1;
-	timer_start = clock();
-	timer_end = 0;
-	pathFound=false;
+	last_post_time = -1;
 	collabFound=false;
 }
 
@@ -71,28 +63,13 @@ bool CommunicationAngle::OnNewMail(MOOSMSG_LIST &NewMail)
 		}else if(key=="COLLABORATOR_NAME"){
 			mycollab=msg.GetString();
 			collabFound = RegisterCollab();
-		}else if(key==collabxstr){
+		}else if(key==mycollab+"_NAV_X"){
 			collabx=msg.GetDouble();
-		}else if(key==collabystr){
+		}else if(key==mycollab+"_NAV_Y"){
 			collaby=msg.GetDouble();
-		}else if(key==collabdstr){
+		}else if(key==mycollab+"_NAV_DEPTH"){
 			collabdepth=msg.GetDouble();
-		}else if(key==collabheadingstr){
-			collabheading=msg.GetDouble();
-		}else if(key==collabspeedstr){
-			collabspeed=msg.GetDouble();
 		}
-
-#if 0 // Keep these around just for template
-		string key   = msg.GetKey();
-		string comm  = msg.GetCommunity();
-		double dval  = msg.GetDouble();
-		string sval  = msg.GetString();
-		string msrc  = msg.GetSource();
-		double mtime = msg.GetTime();
-		bool   mdbl  = msg.IsDouble();
-		bool   mstr  = msg.IsString();
-#endif
 	}
 
 	return(true);
@@ -124,62 +101,80 @@ bool CommunicationAngle::OnConnectToServer()
 bool CommunicationAngle::Iterate()
 {
 	if(collabFound){	//Wait for Collaborator First
-		timer_end = clock(); //Current time
-		if(abs(timer_start-timer_end)>time_interval){	//Check timing
+		if (MOOSTime() - last_post_time > time_interval) {
+			last_post_time = MOOSTime();
 
-			//Calculate Acoustic Path
+			double dz = collabdepth-navdepth;
+			double dr = sqrt(pow(navx-collabx,2) + pow(navy-collaby,2));
+			double L = sqrt(pow(dr,2) + pow(dz,2));
 
-			timer_start = clock(); //Restart timer
+			double phi = atan(-dz/dr);
+			double rmid = 0.5*L*cos(phi);
+			double zmid = navdepth - 0.5*L*sin(phi);
+
+			double z0 = -(surface_sound_speed)/sound_speed_gradient;
+			double r0 = rmid - (zmid-z0)*tan(phi);
+
+			double bigR = sqrt(pow(r0,2)+pow(z0-navdepth,2));
+			double cz1 = surface_sound_speed+sound_speed_gradient*navdepth;
+			double cz2 = surface_sound_speed+sound_speed_gradient*collabdepth;
+			double theta0 = acos(cz1/bigR/sound_speed_gradient);
+
+			//Check the deepest point does not hit the water surface
+			//Deepest point either one of the vehicles
+			//Or at the radius bigR from the center z0
+			if (r0<0 || r0>L*cos(phi) || (z0+bigR)<water_depth){
+				//Compute transmission loss
+				double dtheta = MOOSDeg2Rad(0.05);
+				double theta2 = theta0+dtheta;
+				double ri1 = bigR*sin(theta0)-bigR*sin(theta2);
+				double ri2 = bigR*sin(theta0+dtheta)-bigR*sin(theta2);
+				double J = ri1*(ri2-ri1)/sin(theta2)/dtheta;
+				double p = sqrt(fabs(cz2*cos(theta0)/cz1/J));
+				double tLoss = -20*log10(p);
+
+				PublishAnswer(true,MOOSRad2Deg(-theta0),tLoss);
+			}
+			else{
+				PublishAnswer(false,0,0);
+			}
 		}
+	}
+	else{
+		cout<< "Collaborator Not Found" <<endl;
 	}
 	m_iterations++;
 	return(true);
 }
 
-void CommunicationAngle::PublishAnswer()
+void CommunicationAngle::PublishAnswer(bool pathFound, double elev_angle, double transmission_loss)
 {
 	stringstream msgOut;
 	if(pathFound){
 		msgOut<<"elev_angle="<<elev_angle<<",";
-		msgOut<<"transmission_angle="<<transmission_loss<<",";
+		msgOut<<"transmission_loss="<<transmission_loss<<",";
 	}else{
 		msgOut<<"elev_angle=NaN,";
-		msgOut<<"transmission_angle=NaN,";
+		msgOut<<"transmission_loss=NaN,";
 	}
 	msgOut<<"id=mc2922@mit.edu";
-	m_Comms.Notify("ACOUSTIC_PATH",msgOut.str());
+	m_Comms.Notify("ACOUSTIC_PATH_MC",msgOut.str());
+	cout << msgOut.str() <<endl;
 	msgOut.str("");
 	msgOut<<"x="<<goto_x<<",";
 	msgOut<<"y="<<goto_y<<",";
 	msgOut<<"depth="<<goto_d<<",";
 	msgOut<<"id=mc2922@mit.edu";
+	m_Comms.Notify("CONNECTIVITY_LOCATION_MC",msgOut.str());
 }
 
 bool CommunicationAngle::RegisterCollab(){
-	stringstream friendVars;
-	friendVars<<mycollab<<"_NAV_X";
-	collabxstr = friendVars.str();
-	m_Comms.Register(friendVars.str(),0);
-
-	friendVars.str("");
-	friendVars<<mycollab<<"_NAV_Y";
-	collabystr = friendVars.str();
-	m_Comms.Register(friendVars.str(),0);
-
-	friendVars.str("");
-	friendVars<<mycollab<<"_NAV_DEPTH";
-	collabdstr = friendVars.str();
-	m_Comms.Register(friendVars.str(),0);
-
-	friendVars.str("");
-	friendVars<<mycollab<<"_NAV_HEADING";
-	collabheadingstr = friendVars.str();
-	m_Comms.Register(friendVars.str(),0);
-
-	friendVars.str("");
-	friendVars<<mycollab<<"_NAV_SPEED";
-	collabspeedstr = friendVars.str();
-	m_Comms.Register(friendVars.str(),0);
+	cout << mycollab << endl;
+	m_Comms.Register(mycollab+"_NAV_X",0);
+	m_Comms.Register(mycollab+"_NAV_Y",0);
+	m_Comms.Register(mycollab+"_NAV_DEPTH",0);
+	m_Comms.Register(mycollab+"_NAV_SPEED",0);
+	m_Comms.Register(mycollab+"_NAV_HEADING",0);
 	return true;
 }
 //---------------------------------------------------------

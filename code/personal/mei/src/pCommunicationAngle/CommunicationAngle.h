@@ -9,6 +9,7 @@
 #define CommunicationAngle_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include <math.h>
 using namespace std;
 
 class CommunicationAngle : public CMOOSApp
@@ -23,7 +24,7 @@ protected:
     bool OnConnectToServer();
     bool OnStartUp();
     void RegisterVariables();
-    void PublishAnswer();
+    void PublishAnswer(bool pathFound, double elev_angle, double transmission_loss);
     bool RegisterCollab();
 
 private: // Configuration variables
@@ -39,13 +40,10 @@ private: // State variables
     double navx,navy,collabx,collaby;
     double navdepth,navheading,navspeed;
     double collabdepth,collabheading,collabspeed;
-    double elev_angle,transmission_loss;
     double goto_x,goto_y,goto_d;
     string myname,mycollab;
-    string collabxstr,collabystr,collabdstr;
-    string collabheadingstr,collabspeedstr;
-    double timer_start,timer_end;
-    bool pathFound,collabFound;
+    double last_post_time;
+    bool collabFound;
 };
 
 #endif 
