@@ -9,25 +9,15 @@
 # Add the libraries in the current directory to the include path
 #============================================================================
 FILE(GLOB LOCAL_LIBRARY_DIRS ./lib_*)
-INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS}
-                    "./protobuf")
+INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 
 #============================================================================
 # List the subdirectories to build...
 #============================================================================
 
-ADD_SUBDIRECTORY(protobuf)
-ADD_SUBDIRECTORY(protobufExample)
-ADD_SUBDIRECTORY(wtExample)
-ADD_SUBDIRECTORY(pPrimeFactor)
-ADD_SUBDIRECTORY(pOdometry)
-ADD_SUBDIRECTORY(pPrimeFactorTester)
-
-ADD_SUBDIRECTORY(lab_05)
+ADD_SUBDIRECTORY(pCommunicationangle)
 
 IF(BUILD_SHORE_APPS)
-    # optionally build shoreside only apps here
-    ADD_SUBDIRECTORY(simple_acomms_parser)
 ENDIF(BUILD_SHORE_APPS)
 
 ##############################################################################
