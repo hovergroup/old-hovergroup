@@ -1,0 +1,225 @@
+//--------    FILE: bravo_loiter_uuv.bhv   -------------
+
+initialize   DEPLOY = false
+initialize   RETURN = false
+initialize 	 LOITER_REGION = west
+initialize   WAIT_REQUEST=false
+initialize  WAITING = false
+initialize  SURFACED = false
+
+//---Mei Cheung
+Behavior = BHV_Loiter
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = loiter               
+   pwt          = 100                   
+   condition = RETURN = false
+   condition = DEPLOY = true
+   condition = LOITER_REGION = west
+   condition = WAITING = false
+   condition = WAIT_REQUEST = false
+   endflag = LOITER_REGION = east
+   updates   = LOITER_UPDATES        
+   duration  = 150
+   duration_idle_decay = false
+   perpetual = true
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+   acquire_dist = 10               
+   capture_radius = 3                  
+   center_activate = false            
+   clockwise = false             
+   slip_radius = 15               
+   speed = 2.5                
+   spiral_factor = -2               
+
+   polygon = format=radial,x=100,y=-75,radius=30,pts=8  
+   post_suffix = BRAVO                             
+
+   visual_hints = vertex_size  = 1             // default
+   visual_hints = edge_size    = 1             // default
+   visual_hints = vertex_color = dodger_blue   // default
+   visual_hints = edge_color   = white         // default
+   visual_hints = nextpt_color = yellow        // default
+   visual_hints = nextpt_lcolor = aqua         // default
+   visual_hints = nextpt_vertex_size = 5       // default
+   visual_hints = label        = bravo_west         // example
+ }
+
+Behavior = BHV_Loiter
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = east_loiter               
+   pwt          = 100                   
+   condition = RETURN = false
+   condition = DEPLOY = true
+   condition = LOITER_REGION = east
+   condition = WAITING = false
+   condition = WAIT_REQUEST = false
+   endflag = LOITER_REGION = west
+   updates      = LOITER_E_UPDATES        
+   duration 	= 150
+   duration_idle_decay = false
+   perpetual = true
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+   acquire_dist = 10               
+   capture_radius = 3                  
+   center_activate = false            
+   clockwise = false             
+   slip_radius = 15               
+   speed = 2.5                
+   spiral_factor = -2               
+
+   polygon = format=radial,x=160,y=-50,radius=20,pts=8  
+   post_suffix = BRAVO                             
+
+   visual_hints = vertex_size  = 1             // default
+   visual_hints = edge_size    = 1             // default
+   visual_hints = vertex_color = dodger_blue   // default
+   visual_hints = edge_color   = white         // default
+   visual_hints = nextpt_color = yellow        // default
+   visual_hints = nextpt_lcolor = aqua         // default
+   visual_hints = nextpt_vertex_size = 5       // default
+   visual_hints = label        = bravo_east         // example
+ }
+
+Behavior = BHV_ConstantDepth
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = depth   
+   pwt          = 100
+   condition = DEPLOY = true                
+   condition    = LOITER_REGION = west
+   condition = WAITING = false
+   condition = WAIT_REQUEST = false    
+   updates      = CONST_DEP_UPDATES  
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+            basewidth = 100          
+                depth = 30            
+   depth_mismatch_var = DEPTH_DIFF   
+             duration = no-time-limit            
+            peakwidth = 3            
+          summitdelta = 50           
+ }
+ 
+ Behavior = BHV_ConstantDepth
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = a_depth   
+   pwt          = 100
+   condition = DEPLOY = true                
+   condition    = LOITER_REGION = east   
+   condition = WAITING = false 
+   condition = WAIT_REQUEST = false
+   updates      = CONST_A_DEP_UPDATES  
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+            basewidth = 100          
+                depth = 10            
+   depth_mismatch_var = DEPTH_DIFF  
+             duration = no-time-limit            
+            peakwidth = 3            
+          summitdelta = 50           
+ }
+
+ Behavior = BHV_GoToDepth
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = gotodepth                
+   pwt          = 100                       
+   condition    = WAIT_REQUEST = true
+   endflag = SURFACED = true               
+   updates      = GOTO_DEPTH_UPDATES        
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+     capture_delta = 1                      
+      capture_flag = DEPTH_ACHIEVED         
+             depth = 0     
+            repeat = 0                      
+ }
+
+ Behavior = BHV_ConstantSpeed
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = waiting  
+   pwt          = 100                
+   condition    = WAITING = true
+   condition    = SURFACED = true   
+   updates      = CONST_SPD_UPDATES  
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+            basewidth = 0.2          
+             duration = no-time-limit            
+                speed = 0            
+   speed_mismatch_var = SPEED_DIFF  
+            peakwidth = 0            
+          summitdelta = 0            
+ }
+
+ Behavior = BHV_Timer
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = wait_bhv_timer            
+   condition    = WAIT_REQUEST = true
+   condition    = SURFACED = true    
+   duration     = 60                  
+   idleflag     = WAITING=false        
+   runflag      = WAITING=true         
+   endflag      = WAIT_REQUEST=false          
+   updates      = W_TIMER_UPDATES 
+   perpetual = true       
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+   // None
+ }
+ 
+  Behavior = BHV_Timer
+ {
+   // General Behavior Parameters
+   // ---------------------------
+   name         = nowait_bhv_timer            
+   condition    = WAIT_REQUEST = false    
+   duration     = 200                          
+   endflag      = WAIT_REQUEST = true          
+   updates      = NW_TIMER_UPDATES
+   perpetual = true        
+
+   // Parameters specific to this behavior
+   // ------------------------------------
+   // None
+ }
+
+//----------------------------------------------
+Behavior=BHV_Waypoint
+{
+  name       = return
+  pwt        = 100
+  condition  = RETURN = true
+  condition  = DEPLOY = true
+  perpetual  = true
+  endflag    = RETURN = false
+  endflag    = DEPLOY = false
+  endflag    = MISSION = complete
+
+           speed = 2.5
+  capture_radius = 2.0
+     slip_radius = 8.0
+          points = 0,0
+}
+

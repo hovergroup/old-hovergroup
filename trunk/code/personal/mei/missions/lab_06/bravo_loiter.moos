@@ -1,13 +1,13 @@
 //-------------------------------------------------
-// NAME: M. Benjamin, MIT CSAIL
-// FILE: alpha.moos
+// NAME: Mei Cheung
+// FILE: bravo_loiter.moos
 //-------------------------------------------------
 
 ServerHost = localhost		
 ServerPort = 9000
-Community  = alpha
+Community  = bravo_loiter
 
-MOOSTimeWarp = 1
+MOOSTimeWarp = 20
 TERM_REPORTING = true
 
 // Forest Lake
@@ -121,7 +121,7 @@ ProcessConfig = uSimMarine
   CommsTick	= 4
 
   start_x       = 0
-  start_y       = -20
+  start_y       = 0
   start_heading = 180
   start_speed   = 0
 
@@ -137,15 +137,14 @@ ProcessConfig = uSimMarine
 ProcessConfig = pHelmIvP
 {
   AppTick    = 10
-  AppTick    = 4
   CommsTick  = 4
 
   term_report_interval=0
 
   bhv_dir_not_found_ok = true
-  ivp_behavior_dir = /Users/ddmikerb
+  IVP_BEHAVIOR_DIR = /home/mit/hoverland/hovergroup/code/personal/mei/lib/
 
-  behaviors  = alpha.bhv
+  behaviors  = bravo_loiter.bhv
   domain     = course:0:359:360
   domain     = speed:0:4:21
 }
