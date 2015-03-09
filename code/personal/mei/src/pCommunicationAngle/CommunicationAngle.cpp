@@ -21,6 +21,7 @@ CommunicationAngle::CommunicationAngle()
 
 	navx=0;navy=0;
 	navdepth=0;navspeed=0;navheading=0;
+	goto_x=0;goto_y=0;goto_d=0;
 
 	surface_sound_speed = 1480;
 	sound_speed_gradient = 0.016;
@@ -62,9 +63,11 @@ bool CommunicationAngle::OnNewMail(MOOSMSG_LIST &NewMail)
 			myname=msg.GetString();
 		}else if(key=="COLLABORATOR_NAME"){
 			mycollab=msg.GetString();
-			collabFound = RegisterCollab();
+			RegisterCollab();
 		}else if(key==mycollab+"_NAV_X"){
 			collabx=msg.GetDouble();
+			//Wait for at least one variable to arrive
+			collabFound = true;
 		}else if(key==mycollab+"_NAV_Y"){
 			collaby=msg.GetDouble();
 		}else if(key==mycollab+"_NAV_DEPTH"){
@@ -120,8 +123,9 @@ bool CommunicationAngle::Iterate()
 			double cz2 = surface_sound_speed+sound_speed_gradient*collabdepth;
 			double theta0 = acos(cz1/bigR/sound_speed_gradient);
 
-			//Check the deepest point does not hit the water surface
-			//Deepest point either one of the vehicles
+			//Check the deepest point does not hit the sea bottom
+			//Deepest point either one of the vehicles (assume the vehicles cannot
+			//be on the sea bottom
 			//Or at the radius bigR from the center z0
 			if (r0<0 || r0>L*cos(phi) || (z0+bigR)<water_depth){
 				//Compute transmission loss
@@ -133,9 +137,22 @@ bool CommunicationAngle::Iterate()
 				double p = sqrt(fabs(cz2*cos(theta0)/cz1/J));
 				double tLoss = -20*log10(p);
 
+				//If current path exists, current location is fine
+				goto_x = navx;
+				goto_y = navy;
+				goto_d = navdepth;
+
 				PublishAnswer(true,MOOSRad2Deg(-theta0),tLoss);
 			}
 			else{
+				//If the arc hits the sea bottom, give the vehicle
+				//a command to decrease depth so that the ray is
+				//arbitrarily chosen 5m above
+
+				goto_x = navx;
+				goto_y = navy;
+				goto_d = navdepth-fabs((z0+bigR)-water_depth)-5;
+
 				PublishAnswer(false,0,0);
 			}
 		}
@@ -159,7 +176,9 @@ void CommunicationAngle::PublishAnswer(bool pathFound, double elev_angle, double
 	}
 	msgOut<<"id=mc2922@mit.edu";
 	m_Comms.Notify("ACOUSTIC_PATH_MC",msgOut.str());
-	cout << msgOut.str() <<endl;
+	//cout << msgOut.str() <<endl;
+
+	//Publish Location
 	msgOut.str("");
 	msgOut<<"x="<<goto_x<<",";
 	msgOut<<"y="<<goto_y<<",";
