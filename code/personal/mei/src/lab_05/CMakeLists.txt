@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 # List the subdirectories to build...
 #============================================================================
 
-ADD_SUBDIRECTORY(pCommunicationangle)
+ADD_SUBDIRECTORY(pCommunicationAngle)
 
 IF(BUILD_SHORE_APPS)
 ENDIF(BUILD_SHORE_APPS)
