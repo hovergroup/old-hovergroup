@@ -22,6 +22,7 @@ ADD_SUBDIRECTORY(wtExample)
 ADD_SUBDIRECTORY(pPrimeFactor)
 ADD_SUBDIRECTORY(pOdometry)
 ADD_SUBDIRECTORY(pPrimeFactorTester)
+ADD_SUBDIRECTORY(pCommunicationAngle)
 
 IF(BUILD_SHORE_APPS)
     # optionally build shoreside only apps here

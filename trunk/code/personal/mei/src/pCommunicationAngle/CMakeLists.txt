@@ -18,7 +18,7 @@ SET(SRC
 ADD_EXECUTABLE(pCommunicationAngle ${SRC})
 
 TARGET_LINK_LIBRARIES(pCommunicationAngle
-    
-    
+    ${MOOS_LIBRARIES}
+    ${MOOS_DEPEND_LIBRARIES}
     mbutil)
 
