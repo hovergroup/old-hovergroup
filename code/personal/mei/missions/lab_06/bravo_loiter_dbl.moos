@@ -1,13 +1,13 @@
 //-------------------------------------------------
-// NAME: M. Benjamin, MIT CSAIL
-// FILE: alpha.moos
+// NAME: Mei Cheung
+// FILE: bravo_loiter_dbl.moos
 //-------------------------------------------------
 
 ServerHost = localhost		
 ServerPort = 9000
-Community  = alpha
+Community  = bravo_loiter_moos
 
-MOOSTimeWarp = 10
+MOOSTimeWarp = 20
 TERM_REPORTING = true
 
 // Forest Lake
@@ -26,7 +26,7 @@ ProcessConfig = ANTLER
   MSBetweenLaunches = 200
 
   Run = MOOSDB          @ NewConsole = false
-  //Run = pLogger         @ NewConsole = false
+  Run = pLogger         @ NewConsole = false
   Run = uSimMarine	    @ NewConsole = false
   Run = pMarinePID      @ NewConsole = false
   Run = pHelmIvP        @ NewConsole = false
@@ -121,7 +121,7 @@ ProcessConfig = uSimMarine
   CommsTick	= 4
 
   start_x       = 0
-  start_y       = -20
+  start_y       = 0
   start_heading = 180
   start_speed   = 0
 
@@ -137,7 +137,6 @@ ProcessConfig = uSimMarine
 ProcessConfig = pHelmIvP
 {
   AppTick    = 10
-  AppTick    = 4
   CommsTick  = 4
 
   term_report_interval=0
@@ -145,7 +144,7 @@ ProcessConfig = pHelmIvP
   bhv_dir_not_found_ok = true
   IVP_BEHAVIOR_DIR = /home/mit/hoverland/hovergroup/code/personal/mei/lib/
 
-  behaviors  = alpha.bhv
+  behaviors  = bravo_loiter_dbl.bhv
   domain     = course:0:359:360
   domain     = speed:0:4:21
 }
@@ -217,10 +216,6 @@ ProcessConfig = pMarineViewer
   //datum_size     = 18
   //gui_size = small
 
-  left_context[return_point]  = VIEW_POINT = x=$(XPOS),y=$(YPOS),label=ReturnPt
-  left_context[return_point]  = WPT_RETURN_UPDATE = points = $(XPOS),$(YPOS)
-  left_context[return_point]  = RETURN = true
-
   left_context[survey-point] = DEPLOY=true
   left_context[survey-point] = MOOS_MANUAL_OVERIDE=false
   left_context[survey-point] = RETURN=false
@@ -251,7 +246,6 @@ ProcessConfig = pMarineViewer
   action+ = MENU_KEY=deploy # MOOS_MANUAL_OVERIDE=false
   action  = RETURN=true
   action  = UPDATES_RETURN=speed=1.4
-  
 }
 
 //------------------------------------------

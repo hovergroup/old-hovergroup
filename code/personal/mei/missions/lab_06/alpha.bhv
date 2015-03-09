@@ -47,6 +47,8 @@ Behavior=BHV_Waypoint
   endflag    = RETURN = false
   endflag    = DEPLOY = false
   endflag    = MISSION = complete
+  UPDATES   = WPT_RETURN_UPDATE
+  
 
            speed = 2.0
   capture_radius = 2.0
