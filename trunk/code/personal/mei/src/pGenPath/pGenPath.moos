@@ -1,0 +1,9 @@
+//------------------------------------------------
+// pGenPath config block
+
+ProcessConfig = pGenPath
+{
+    AppTick = 5
+    IterateMode = 0 // regular iterate and mail
+}
+
