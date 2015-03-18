@@ -9,6 +9,8 @@
 #define PointAssign_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include <vector>
+#include <boost/lexical_cast.hpp>
 
 class PointAssign : public CMOOSApp
 {
@@ -23,6 +25,11 @@ protected:
     bool OnStartUp();
 
 private:
+
+    std::vector<double> xvec;
+    std::vector<double> yvec;
+    std::vector<double> idvec;
+    bool assign_by_region;
 };
 
 #endif 

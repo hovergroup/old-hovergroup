@@ -1,9 +1,38 @@
 //------------------------------------------------
 // pPointAssign config block
 
+ServerHost = localhost
+ServerPort = 9000
+Community  = shoreside
+
+Processconfig = ANTLER
+{
+  MSBetweenLaunches = 100
+
+  Run = MOOSDB          @ NewConsole = false
+  Run = uTimerScript    @ NewConsole = false
+}
+
+ProcessConfig = uTimerScript
+{
+ AppTick = 4
+ CommsTick = 4
+
+ condition = TIMER_START = true
+
+ rand_var = varname=RAND_X,min=-25,max=200, key=at_post
+ rand_var = varname=RAND_Y,min=-175,max=-25, key=at_post
+
+ event = var=VISIT_POINT, val="firstpoint",time=0
+ event = var=VISIT_POINT, val="x=$[RAND_X], y=$[RAND_Y], id=$[TCOUNT]",time=0, amt=100
+ event = var=VISIT_POINT, val="lastpoint", time=0
+}
+
 ProcessConfig = pPointAssign
 {
     AppTick = 5
     IterateMode = 0 // regular iterate and mail
+    
+    assign_by_region = true
 }
 
