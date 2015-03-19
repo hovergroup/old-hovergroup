@@ -101,7 +101,6 @@ bool PointAssign::OnNewMail(MOOSMSG_LIST &NewMail)
 bool PointAssign::OnConnectToServer()
 {
 	m_Comms.Register("VISIT_POINT", 0);
-	m_Comms.Notify("TIMER_START","true");
 	return true;
 }
 

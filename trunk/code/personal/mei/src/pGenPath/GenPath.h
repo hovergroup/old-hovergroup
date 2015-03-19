@@ -9,6 +9,8 @@
 #define GenPath_HEADER
 
 #include "MOOS/libMOOS/MOOSLib.h"
+#include <math.h>
+#include <boost/lexical_cast.hpp>
 
 class GenPath : public CMOOSApp
 {
@@ -21,8 +23,15 @@ protected:
     bool Iterate();
     bool OnConnectToServer();
     bool OnStartUp();
+    void solveTSP();
+    double computeTSPDist(std::vector<double> xin, std::vector<double> yin);
+    void publishSegList(std::vector<double> xin, std::vector<double> yin, std::string label);
 
 private:
+    std::string vname,myvar;
+    std::vector<double> xvec,yvec;
+    std::vector<double> xsol,ysol;
+    double myx,myy;
 };
 
 #endif 
