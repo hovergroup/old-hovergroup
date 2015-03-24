@@ -1,0 +1,32 @@
+# Introduction #
+
+Ongoing development and fixes in the trunk should be listed here.
+
+
+# Ongoing #
+
+**Minipackets** - Minipackets need to be fully implemented in the driver (complete), acomms\_messages (rate 100), and log parsers.
+
+**Acomms Alog Parser** - Work in progress.
+
+**Acomms Messages** - update string parsing methods.
+
+# Future #
+
+**Launch Scripting**
+
+**Log scripting** - For fetching from vehicles, compressing, uploading to AWS.  Maybe downloading from AWS.
+
+**auto-generated moos files** - use nsplug to generate vehicle specific mission files from meta mission and behavior files.
+
+**build scripting** - automatic updating, building (using distcc)
+
+# Complete #
+
+**Acomms Messages** - Total number of frames and number of good frames are sometimes reported inaccurately. - Should be accurate, but careful parsing required for edge cases.
+
+**CAIRE impulse response** - needs to be logged to MOOSDB - Full raw message now posting to ACOMMS\_IMPULSE\_RESPONSE
+
+**GobyLog appending** - if driver restarted, goby log should append not overwrite. - Should now append a number to the file.
+
+**Binary Data** - Need to test Binary data transmission through the MOOSDB and investigate how binary data is logged.  - Should now be handled by driver and posted in hex format for logging to MOOSDB.

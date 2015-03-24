@@ -1,0 +1,37 @@
+See the help information for individual applications or the documentation pages for more complete descriptions of the various applications.  Application author is probably Josh unless noted otherwise.
+
+# Vehicle Drivers #
+
+**kayak\_interface** - Interface for communicating with the Arduino on the first kayak hull.  Listens for thrust and rudder commands, reports status and gps information.
+
+**iOS5000\_filtered** - A slightly modified version of the iOS5000 driver provided by moos-ivp-anrp that adds a first order low-pass filter.
+
+**simple\_gps** - Connects to a gps unit via serial and parses GPRMC sentences.
+
+**iacomms\_driver** - Handles communication with the micromodem using the Goby modem driver as a base.
+
+# Real time monitoring and analysis #
+
+**plossRate** - _Mei_ - Monitors simple transmit and receive reports and determines packet loss statistics.
+
+# Simulation #
+
+**iacomms\_driver\_sim** - _Mei_ - Simulates acomms channel performance for use with uSimMarine - probabilities for various loss circumstances are implemented
+
+# Libraries #
+
+**lib\_acomms\_message** - Collection of message types containing acomms data.  Most classes include serialization methods.
+
+# Post-run Data Handling #
+
+**simple\_acomms\_parser** - A simple application designed to be tailored by individual users to suit their needs.  Creates a synchronous log file from a single alog file.  Copy this to your own tree before making modifications.
+
+**acomms\_alog\_parser** (in development) - A more complex parser that synchronizes alog files across multiple vehicles and builds a complete report of acoustic communication activity.  Standard outputting is implemented independently of the parsing.
+
+# Miscellaneous #
+
+**lib\_behaviors-test** - sample behaviors provided included from moos-ivp-extend
+
+**pXRelayTest** - sample application included from moos-ivp-extend.  Will be deleted soon.
+
+**testing-app** - an open workspace for testing things.  This will soon be removed from the trunk, but you can make your own versions separately.

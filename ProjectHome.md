@@ -1,0 +1,1 @@
+Software currently in development or in use for Hovergroup autonomous kayaks and rafts as well as WHOI micromodems.  Also includes an archive of code no longer in active use (such as original arduino code for kayaks).
